@@ -2,6 +2,7 @@
 <?php 
 
 //CONNECT TO DB
+//viewprofileagain
 require "db_connection.php";
 
 if($_GET['action'] == "signup") { //if they tried to sign up from signin.php

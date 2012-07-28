@@ -1,6 +1,7 @@
 <?php 
 
-//log them out if they try to logout
+//log them out if they try to logou
+//viewprofile
 @session_start();
 
 if($_GET['action'] == logout) {
