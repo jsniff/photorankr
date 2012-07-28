@@ -1,0 +1,73 @@
+.download1
+{
+margin-top:20px;
+box-sizing:border-box;
+background-color:white;
+border-radius:10px;
+box-shadow:inset 0px 0px 3px 3px #cccccc;
+padding-top:20px;
+padding-bottom:20px;
+padding-right:10px;
+padding-left:20px;
+margin-bottom:60px;
+}
+.form
+{
+height:
+margin-top:50px;
+background-color:rgba(10,10,10,.5);
+border-radius:20px;
+padding-bottom:10px;
+}
+.titleh
+{
+text-shadow: inset 0em 0.2em 0.2em #9990;
+font-size:24px;
+font-weight:200;
+font-family:"helvetica neue",helvetica, arial, sans-serif;
+padding:10px;
+color:white;
+
+}
+.creditcards
+{
+font-size:14px;
+font-weight:200;
+font-family:"helvetica neue",helvetica, arial, sans-serif;
+padding:px;
+}
+.creditcards1
+{
+font-size:14px;
+font-weight:200;
+font-family:"helvetica neue",helvetica, arial, sans-serif;
+padding:px;
+line-height:1.1;
+}
+.image
+{
+float:right;
+border: 10px solid #FFFFFF;
+box-shadow: 1px 1px 1px 1px #999;
+border-radius:5px;
+margin-top:15px;
+}
+.info
+{
+background-color:rgba(10,10,10,.5);
+padding-top:5px; 
+padding-right:0px;
+padding-left:5px;
+padding-bottom:5px;
+box-shadow: 1px 1px 1px 1px #999;
+border-radius:10px;
+margin-top:15px;
+}
+.field
+{
+font-family:"helvetica neue",helvetica, arial, sans-serif;
+font-size:14px;
+color:#FFFFFF;
+font-weight:200;
+line-height:1.5;
+}

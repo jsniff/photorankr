@@ -1,0 +1,127 @@
+body {
+background: url('graphics/background.png');
+}
+
+.logo {
+position: absolute;
+top: -5px;
+left: 20px;
+margin-top: -20px;
+}
+
+.slogan {
+position: absolute;
+top: 45px;
+left: 22px;
+}
+
+#signincentral {
+position: absolute;
+top: 110px;
+left: 50px;
+color: black;
+}
+
+#login {
+position: relative;
+left: 700px;
+top: 20px;
+color:white;
+z-index:50000000000;
+font-family:georgia
+}
+
+#login2 {
+position: relative;
+top:0px;
+left: 898px;
+color:white;
+z-index:500000000000;
+font-family:georgia
+}
+
+#login3 {
+color: white;
+text-decoration: none;
+position: relative;
+top:5px;
+left:700px;
+z-index:500000000000;
+font-family:georgia
+}
+
+#loginButton {
+position: relative;
+top:-28px;
+left:1090px;
+color: blue;
+text-decoration: none;
+z-index:50000000000;
+font-family:georgia
+}
+
+#loginButton:hover {
+opacity: .7;
+z-index:108265891723895738914758932475;
+}
+
+#header {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 85px;
+z-index:6001;
+}
+
+#footerUpload {
+background-color: white;
+color: black;
+position: absolute;
+bottom: 0px;
+top: 708px;
+width: 100%;
+height: 65px;
+margin-left: -7px;
+}
+
+#footerUpload a {
+text-decoration: none;
+}
+
+
+#footerlinks {
+position: absolute;
+bottom: 40px;
+left: 525px;
+text-align: center;
+font-family: lucida grande;
+font-size: 14px;
+}
+
+hr {
+
+margin-top: 10px;
+width: 1100px;
+}
+
+#copyright {
+position: absolute;
+bottom: 10px;
+left: 580px;
+text-align: center;
+font-family: lucida grande;
+font-size: 14px;
+}
+
+#signintouploadButton {
+position: absolute;
+top: 20px;
+left: 900px;
+}
+
+#boxIndex {
+position: absolute;
+top:80px;
+left:550px;
+}

@@ -1,0 +1,140 @@
+body {
+}
+
+#register {
+position: absolute;
+top: 230px;
+left: 60px;
+text-align: right;
+color:black;
+}
+
+h2 {
+position: absolute;
+top: 140px;
+left: 120px;
+color: #0000F6;
+}
+
+.logoRegister {
+position: absolute;
+top: -5px;
+left: 34px;
+margin-top: -20px;
+}
+
+.sloganRegister {
+position: absolute;
+top: 45px;
+left: 36px;
+}
+
+#signincentral {
+position: absolute;
+top: 10px;
+left: 700px;
+color: white;
+}
+
+#signintouploadButton {
+position: absolute;
+top: 20px;
+left: 900px;
+}
+
+#login {
+position: relative;
+left: 650px;
+top: 7px;
+color:white;
+z-index:50000000000;
+font-family:georgia;
+}
+
+#login2 {
+position: relative;
+top:0px;
+left: 868px;
+color:white;
+z-index:500000000000;
+font-family:georgia;
+}
+
+#login3 {
+color: white;
+text-decoration: none;
+position: relative;
+top:-15px;
+left:650px;
+z-index:500000000000;
+font-family:georgia
+}
+
+#loginButton {
+position: relative;
+top:-66px;
+left:1125px;
+color: blue;
+text-decoration: none;
+z-index:50000000000;
+font-family:georgia
+}
+
+#header {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 85px;
+z-index:6001;
+}
+
+#footerRegister {
+background-color: white;
+color: black;
+position: absolute;
+bottom: 0px;
+top: 578px;
+width: 100%;
+height: 65px;
+margin-left: -8px;
+}
+
+#footerRegister a {
+text-decoration: none;
+}
+
+#footerlinks {
+position: absolute;
+bottom: 40px;
+left: 550px;
+text-align: center;
+font-family: lucida grande;
+font-size: 14px;
+}
+
+hr {
+
+margin-top: 10px;
+width: 1100px;
+}
+
+#copyright {
+position: absolute;
+bottom: 10px;
+left: 600px;
+text-align: center;
+font-family: lucida grande;
+font-size: 14px;
+}
+
+.profileButton {
+position:absolute;
+top:16px;
+left: 980px;
+z-index:12342134123412344223233;
+}
+
+.profileButton:hover {
+opacity:.7;
+}

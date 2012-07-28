@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Create a Campaign on PhotoRankr to get photos that match your needs</title>
+	<link rel="stylesheet" href="css/bootstrapnew.css" type="text/css" />
+    <link rel="stylesheet" href="css/reset.css" type="text/css" />
+    <link rel="stylesheet" href="css/text.css" type="text/css" />
+    <link rel="stylesheet" href="css/960_24.css" type="text/css" />
+    <link rel="stylesheet" href="css/index.css" type="text/css"/> 
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  	<script src="js/bootstrap.js" type="text/javascript"></script>
+  	<script src="js/bootstrap-dropdown.js" type="text/javascript"></script>
+  	<script src="js/bootstrap-collapse.js" type="text/javascript"></script>
+  	<link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+
+  	<!--Navbar Dropdowns-->
+  	<script type="text/javascript">
+ 	 $(function() {
+  	// Setup drop down menu
+  	$('.dropdown-toggle').dropdown();
+  	// Fix input element click problem
+  	$('.dropdown input, .dropdown label').click(function(e) {
+    e.stopPropagation();
+ 		 });
+	});
+    </script>
+
+	<!--GOOGLE ANALYTICS CODE-->
+	<script type="text/javascript">
+  	var _gaq = _gaq || [];
+  	_gaq.push(['_setAccount', 'UA-28031297-1']);
+  	_gaq.push(['_trackPageview']);
+  	(function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+ 	 })();
+	</script>
+
+	<style type="text/css">
+
+	.content 
+ 	 {
+  		margin:30px 40px;
+  		color:#000000;
+  		font-size:16px;
+  		z-index:3;
+  		font-family: 'helvetica neue'; helvetica;
+  	}
+
+	div.transbox
+  	{
+  		width:300px;
+  		height:300px;
+  		margin:30px -50px;
+  		background-color:#ffffff;
+  		border:1px solid black;
+  		opacity:1;
+  		-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+  		filter:alpha(opacity=100); /* For IE8 and earlier */
+  		z-index:1;
+  		float:left;
+  		font-family: 'helvetica neue'; helvetica;
+  	}
+
+
+	div.smalltransbox
+  	{
+  		width:270px;
+  		height:130px;
+  		margin:30px 0px;
+  		background-color:#ffffff;
+  		border:1px solid black;
+  		opacity:1;
+  		-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+  		filter:alpha(opacity=100); /* For IE8 and earlier */
+  		z-index:1;
+  		float:left;
+  		font-family: 'helvetica neue'; helvetica;
+  	}
+
+  	div.bigtransbox
+  	{
+  		width:500px;
+  		height:600px;
+        font-family:'helvetica neue', helvetica, gill sans, arial;
+  		margin-left:auto;
+   		margin-right: auto;
+  		text-align:center;
+  		background-color:#fff;
+  		border:1px solid black;
+  		z-index:1;
+  		font-family: 'helvetica neue'; helvetica;
+  	}
+
+  	</style>
+</head>
+<body style="overflow-x:hidden;">
+
+<!--Navbar Begin-->
+<div class="navbar navbar-fixed-top">
+ <div class="navbar-inner" style="padding:0px;">
+  <div class="container-fluid">
+    <ul class="nav" style="display:inline-block;text-align:center;">
+   <li> <img src="logo.png" style="width:180px;height:27px;margin-right:40px;margin-top:6px;"/> </li>
+    <li class="navbartext" style="margin-top:10px;margin-left:90px;"> Campaigns </li>
+    <li class="navbartext" style="margin-top:10px;"> About </li>
+    <li class="navbartext" style="margin-top:10px;"> Log In </li>
+    <li class="navbartext" style="margin-right:-100px;margin-left:88px;"> <form class="navbar-search" action="search.php" method="post"> 
+    <input type="text" class="searchquery" name="searchterm" placeholder="search"> </li>
+   </ul> 
+  </div> 
+ </div>
+</div>
+<!--Navbar End-->
+
+<?php require "functionscampaigns.php"; navbar(); ?>
+	
+	<div id="container" class="container_24" style="margin-top: 60px;"> <!--Container Begin-->
+			<div class="grid_24 pull_2" style="width:1100px;background-color:rgba(224,230,240,.2);border-radius:30px;box-shadow: inset 1px 1px 3px 3px #DDD;margin-left:10px; padding-top:20px;padding-bottom:20px;margin-bottom:20px;">
+			 <div class="grid_17 push_1 box" style="float:left;">
+					<h1 class="header"> Begin Your PhotoRankr </h1>
+					<h2 class="header1"> Campaign </h2>
+			</div>		
+			<div class="grid_6 box1 push_1" style="float:left;width:250px;">
+			  <h1 class="header2">The Shot You Need. Everytime. </h1>	
+			  <p class="header3"> Crowd-source photographs from a network of photographers at the price you name.</h2>
+			 </div>
+			 </div>
+			 <div class="grid_24 pull_2" style="width:1000px;box-shadow: inset 0px 0px 1px 1px #DDD;padding-left:30px;margin-left:35px;margin-top:-21px;border-bottom-left-radius:20px;border-bottom-right-radius:20px;">
+			 <div class="grid_7" style="margin-left:-10px;margin-top:30px;float:left;">
+			  <div class="grid_7 graphich">
+			   <h1 class="graphichead"> Create</h1>
+			    <p class="graphicp"> The campaign for the image you need.</p>
+			   </div>
+			  <div class="grid_7 box2">
+			   <img src="g1.png" style="width:207px;height:250px;margin-left:30px;"/>
+			   </div>
+			 </div>
+			<div class="grid_7 push_2" style="margin-right:8px;margin-top:30px;">
+			 <div class="grid_7 graphich">
+			  <h1 class="graphichead"> Post </h1>
+			    <p class="graphicp"> Your campaign, our photographers will submit photos.</p>
+			  </div>
+			  <div class="grid_7 box2"> 
+			   <img src="g2.png" style="width:193px;height:250px;margin-left:41px;"/> 
+			  </div>
+			 </div>
+			<div class="grid_7 push_3"style="margin-right:10px;margin-top:30px;"> 
+			 <div class="grid_7 push_1 graphich" style="margin-left:-8px;">
+			    <h1 class="graphichead"> Download </h1>
+			    <p class="graphicp"> And purchase the photo that best matches your requirements. </p>
+			  </div>
+			<div class="grid_7 push_1 box2" style="margin-left:-20px;margin-top:18px;">
+			<img src="g3.png" style="width:138px;;height:250px;margin-left:66px;"/>
+			</div>
+			</div>
+			<div class="grid_14 graphich" style="margin-top:30px;padding:10px;">
+			 <h1 class="header4"> How The Campaign Works </h1>
+			  <ul class="list">
+			   
+			   <li class="list1">  -Leverage a network of photographers ready to showcase their work. </li>
+			   <li class="list1">  -Describe the photo you need and the budget you have.</li>
+			   <li class="list1">  -At the end of the campaign, choose the photo that best matches your needs.</li>
+			   <li class="list1">  -Pay only if you choose a photo.</li>
+			  </ul> 
+			  
+			 </div>
+		    <div class="grid_7 push_2 underboxform">
+		     <h1 class="underboxh"> Start Your Campaign Now! </h1>
+		      <form style="margin-left:10px;">
+		      <p class="formp" style="margin-left:25px;"> Title </p>
+		      <input style="margin-left:25px;" type="text" name="Title" method="post" placeholder="Title">
+		      <p class="formp" style="margin-left:25px;"> Budget (USD$) </p>
+		      <input style="margin-left:25px;" type="text" name="Budget" method="post" placeholder="Budget">
+		      <p class="formp" style="margin-left:25px;"> Timeframe </p>
+				<form  action="" >
+				<select style="margin-left:25px;" name="time">
+				<option value="1">1 day</option>
+				<option value="2">2 day></option>
+				<option value="3">3 day></option>
+				<option value="4">4 day></option>
+				<option value="5">5 day</option>
+				<option value="6">6 day>	</option>
+				<option value="7">one week></option>
+				<option value="14">two weeks></option>
+				<option value="21">three weeks></option>
+				<option value="30">one month></option>
+				<option value="60">two months></option>
+				</select>
+		       </form>  
+		      </form>
+		     <div class="btn-success" style="padding:10px;width:50px;margin-left:100px;text-align:center;border-radius:5px;box-shadow: 0px 0px 1px 1px #aaa"> Go </div> 
+		     </div>		
+			</div>
+			</div>
+	</div><!--container end-->
+	<!--Footer begin-->                
+             
+           
+
+                    <div class="navabar" style="width:100%;background-color:rgb(245,245,245);height:60px;margin-top:10px;box-shadow: inset 0 2px 3px 0px #cccccc">
+<div class="grid_24" style="background-color:none;width:100%;height:30px;margin-top:15px;text-align:center;padding-top:10px;padding-bottom:0px; background-color:none;text-decoration:none;">
+<p style="text-decoration:none;">
+PhotoRankr&nbsp;&copy;&nbsp;2012&nbsp;
+                                    <a href="http://photorankr.com/about.php">About</a>&nbsp;&nbsp;
+                                        
+                                        <a href="http://photorankr.com/terms.php">Terms</a>&nbsp;&nbsp;
+                                            <a href="http://photorankr.com/contact.php">&nbsp;Help/Contact&nbsp;Us<a>
+                                      </p>
+                   
+                        </div>
+                    </div>
+                </div> <!--container end-->
+
+
+                
+                
+                <!--Footer end--> 
+</body>
+</html>

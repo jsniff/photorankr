@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+<url>
+  <loc>http://www.photorankr.com/</loc>
+  <lastmod>2012-01-11T15:32:56+00:00</lastmod>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://www.photorankr.com/index.html</loc>
+  <lastmod>2012-01-11T15:32:56+00:00</lastmod>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://www.photorankr.com/signin.php</loc>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://www.photorankr.com/discoverandrank.php</loc>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://www.photorankr.com/about.html</loc>
+  <lastmod>2012-01-10T22:54:38+00:00</lastmod>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://www.photorankr.com/contact.html</loc>
+  <lastmod>2012-01-10T16:25:44+00:00</lastmod>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://www.photorankr.com/terms.html</loc>
+  <lastmod>2012-01-09T01:43:32+00:00</lastmod>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://www.photorankr.com/darbest.php</loc>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://www.photorankr.com/darfunnyphotos.php</loc>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://www.photorankr.com/darnaturephotos.php</loc>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://www.photorankr.com/darsportsphotos.php</loc>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://www.photorankr.com/darotherphotos.php</loc>
+  <changefreq>daily</changefreq>
+</url>
+</urlset>

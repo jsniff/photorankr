@@ -1,0 +1,178 @@
+
+
+#stripe
+{
+background-color:#eceef2;
+box-shadow: inset 0px 0px 3px 3px #ccc;	
+padding: 35px 100px 43px 50px;
+margin-left:-700px;
+margin-top:-10px;
+border-radius:5px;
+width:2150px;
+}
+#text
+{
+font-family:"HelveticaNeue-CondensedBold",helvetica, arial, sans-serif;
+font-size:50px;
+font-weight:600;
+text-transform:uppercase;
+color:#60aacf;
+letter-spacing:1px; 
+margin-bottom: 25px;
+text-shadow:1px 1px 1px #999;
+}
+
+#text2
+{
+font-family:"HelveticaNeue-CondensedBold",helvetica, arial, sans-serif;
+font-size:60px;
+font-weight:600;
+text-transform:uppercase;	
+color:#3e8fb7;
+letter-spacing:1px;
+margin-bottom: 25x;
+margin-left: 30px;
+text-shadow:1px 1px 1px #999;
+}
+
+#text3
+{
+font-family:"helvetica neue", helvetica, arial, sans-serif;
+font-size:80px;
+text-transform:uppercase;
+font-weight:100;
+color:#1d6c93;
+letter-spacing:9px;
+margin-top:30px;
+margin-left:-20px;
+text-shadow:1px 1px 1px #999;	
+}
+
+#text4
+{
+font-family: "hevetica neue", helvetica, "lucida grande", arial, sans-serif;	
+font-size:26px;
+font-weight:200;
+color:black;
+text-align:center;
+margin: 20px;
+width:450px;
+}
+
+#text5
+{
+font-family: "hevetica neue", helvetica, "lucida grande", arial, sans-serif;	
+font-size:26px;
+font-weight:500;
+color:black;
+text-align:center;
+}
+
+
+#signup
+{
+vertical-align: center;
+border-radius:20px;
+/*border:10px solid;
+border-color:#46795e;*/
+border-opacity:.1;
+background-color:rgba(120,167,126,.5);
+width:300px;
+margin: 80px 0px 60px -20px;
+<--[if lt IE 9]>
+background: transparent;-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#7F78A77E,endColorstr=#7F78A77E)"; /* IE8 */    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#7F78A77E,endColorstr=#7F78A77E);   /* IE6 & 7 */      zoom: 1;
+<[endif]-->}
+
+#form
+{
+font-size:26px;	
+font-family: "helvetica neue",helvetica,"lucida grande",arial,sans-serif;
+padding:11px;
+text-align:center;
+text-shadow: 0px 1px 2px #999;
+}
+.description
+{
+	position:relative;
+border-radius: 5px;/*
+background-color:rgba(192,91,23,.4);*/
+margin-left:10px;
+margin-top:-50px;
+padding:5px 0px 15px 10px;
+box-shadow: 0px 4px 2px 2px #6666;
+
+}
+.description1
+{
+background-color:rgba(41,53,44,.2);
+position:relative;
+border-radius: 5px;
+padding:10px;
+margin-top: 20px;
+margin-left:-15px;
+border-image:url('');
+<--[if lt IE 9]>
+background: transparent;-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#3329352C,endColorstr=#3329352C)"; /* IE8 */    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#3329352C,endColorstr=#3329352C);   /* IE6 & 7 */      zoom: 1;
+<[endif]-->
+}
+.descriptionh
+{	
+font-family: "helvetica neue", helvetica, "lucida grande", arial, sans-serif;
+font-size:32px;
+font-weight:400;
+text-align:center;	
+padding:3px;
+margin-left: -20px;
+color:white;
+text-shadow: -2px 0px 1px #222;
+
+}
+.descriptionp
+{
+font-family:,"helvetica neue", helvetica, "lucida grande", arial, sans-serif;
+font-size:16px;
+font-weight:300;
+text-align:center;	
+padding:3px;
+line-height: 1.5;
+	
+}
+.formheader
+{
+font-family: "helvetica neue", helvetica, "lucida grande", arial, sans-serif;
+font-size: 18px;
+font-weight:200;
+color:white;
+margin: -5px 0px 0px 15px;	
+}
+.input
+{
+ margin-top:-5px;
+ margin-left: 5px;	
+}
+#dropdown
+{
+margin-bottom:30px;  
+margin-left: 5px;		
+}
+#signupinner
+{border-radius:10px;
+background-color:rgba(90,133,95,.9);	
+margin-left:25px;
+margin-bottom:50px;
+padding-left: 10px;
+padding-right:10px;
+box-shadow: 0px 0px 2px 2px #395041; 
+<--[if lt IE 9]>
+background: transparent;
+-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#7F5A855F,endColorstr=#7F5A855F)"; /* IE8 */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#7F5A855F,endColorstr=#7F5A855F);   /* IE6 & 7 */
+      zoom: 1;
+<[endif]--->
+}
+#bulletpoints
+{
+backgorun
+}	
+}
+

@@ -1,0 +1,262 @@
+img {border: none;}
+
+body {
+background: url('graphics/background.png');
+background-attachment:fixed;
+width:100%;
+}
+
+.logoIndex {
+position: absolute;
+top: -5px;
+left: 34px;
+margin-top: -20px;
+}
+
+.sloganIndex {
+position: absolute;
+top: 45px;
+left: 36px;
+}
+
+#discoverandrank {
+position: absolute;
+top: 150px;
+left:
+}
+
+#lookalike {
+position: absolute;
+top: 150px;
+left: 610px;
+}
+
+#boxIndex {
+position: absolute;
+top: 80px;
+left: 0px;
+}
+
+#boxIndex2 {
+position: absolute;
+top: 100px;
+left: 640px;
+}
+
+#boxIndex3 {
+position: absolute;
+top: 225px;
+left: 900px;
+}
+
+
+#boxIndex4 {
+position: absolute;
+top: 20px;
+left: 420px;
+z-index:849375237549823984579823745987239485798237450972348957235;
+}
+
+#boxIndex4:hover {
+opacity: .7;
+}
+
+#discovershot {
+z-index:3;
+position: absolute;
+top: 75px;
+left: 730px;
+}
+
+#obama1 {
+z-index:1;
+position: absolute;
+top: 300px;
+left: 635px;
+}
+
+#obama2 {
+z-index:1;
+position: absolute;
+top: 300px;
+left: 935px;
+}
+
+#signincentral {
+position: absolute;
+top: 10px;
+left: 700px;
+color: white;
+}
+
+#signintouploadButton {
+z-index: 6001;
+position: absolute;
+top: 20px;
+left: 920px;
+}
+
+
+#login {
+position: relative;
+left: 700px;
+top: 20px;
+color:white;
+z-index:50000000000;
+font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+line-height: 18px;
+}
+
+#login2 {
+position: relative;
+top:0px;
+left: 898px;
+color:white;
+z-index:500000000000;
+font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+line-height: 18px;
+}
+
+#login3 {
+color: white;
+text-decoration: none;
+position: relative;
+top:5px;
+left:700px;
+z-index:500000000000;
+font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+line-height: 18px;
+}
+
+#loginButton {
+position: relative;
+top:-47px;
+left:1090px;
+color: blue;
+text-decoration: none;
+z-index:50000000000;
+font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+line-height: 18px;
+color: #333333;
+}
+
+#loginButton:hover {
+opacity: .7;
+z-index:108265891723895738914758932475;
+}
+
+#header {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 85px;
+z-index:6001;
+}
+
+#footer {
+background-color: white;
+color: black;
+position: absolute;
+bottom: 0px;
+top: 800px;
+width: 100%;
+height: 65px;
+margin-left: -8px;
+}
+
+#footerUpload {
+background-color: white;
+color: black;
+position: absolute;
+bottom: 0px;
+top: 558px;
+width: 100%;
+height: 65px;
+margin-left: 0px;
+}
+
+#footer a {
+text-decoration: none;
+}
+
+#footerlinks {
+position: absolute;
+bottom: 40px;
+left: 525px;
+text-align: center;
+font-family: lucida grande;
+font-size: 14px;
+}
+
+hr {
+
+margin-top: 10px;
+width: 1100px;
+}
+
+#copyright {
+position: absolute;
+bottom: 10px;
+left: 580px;
+text-align: center;
+font-family: lucida grande;
+font-size: 14px;
+}
+
+#paypal {
+position: fixed;
+top: 3px;
+left: 400px;
+z-index:7000;
+}
+
+.profileButton {
+position:absolute;
+top:25px;
+left: 1010px;
+z-index:12342134123412344;
+}
+
+.profileButton:hover {
+opacity: .7;
+}
+
+#logout {
+position: absolute; 
+left: 850px; 
+top:25px;
+z-index: 20934859023485908234590823904580283450982304852345;
+}
+
+#logout:hover {
+opacity: .7;
+}
+
+#register {
+position: absolute;
+top: 460px;
+left: 700px;
+text-align: right;
+color:black;
+}
+
+.name {
+text-decoration:none;
+color:black;
+font-family:lucida grande, georgia, helvetica; 
+font-size:20px;
+}
+
+.name:hover {
+text-decoration: underline;
+color:black;
+}
+
+.photo {
+border: 1px solid black;
+}
+
+.photo:hover {
+opacity: .6;
+}

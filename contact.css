@@ -1,0 +1,97 @@
+.faq
+{
+height:65px;
+width:%;
+box-shadow:inset 1px 1px 3px 1px #cccccc;
+background-color:#eeeeee;
+margin-top:-45px;
+background-color:white;
+border-radius:10px;
+}
+.header
+{
+height:40px;
+padding-top:16px;
+width400px:
+font-family:"Gill Sans", "Helvetica Neue", Helvetica, Arial, Sans Serif;
+font-size:24px;
+font-weight:200;
+text-align:center; 
+}
+.bacdrop
+{
+box-sizing:border-box;
+padding-left:1px;
+padding-right:11px;
+padding-top:3px;
+padding-bottom:3px;
+background-color:rgba(0,0,0,.1);
+margin-top:20px;
+border-radius:11px;
+box-shadow: 1px 1px 1px 2px #cccccc;
+}
+.contactboard
+{
+margin-top:20px;
+box-sizing:border-box;
+background-color:white;
+border-radius:10px;
+box-shadow:inset 1px 1px 3px 1px #cccccc;
+padding-bottom:20px;
+}
+.contacth
+{
+font-family:"helvetica neue", helvetica, arial, sans-serif,;
+font-weight:200;
+font-size:18px;
+color:#888888;
+}
+.contactp
+{
+font-family:"helvetica neue", helvetica, arial, sans-serif,;
+font-size:13.5px;
+color:#000000;
+padding-top:10px;
+font-weight:200;
+line-height:1.5;
+}
+.contactp1
+{
+font-family:"helvetica neue", helvetica, arial, sans-serif,;
+font-size:13.5px;
+color:#000000;
+font-weight:200;
+line-height:1.5;
+}
+
+.contacthelp
+{
+margin-top:20px;
+background-color:rgba(234,234,239,.9);
+padding:10px;
+}
+.contacthelp1
+{
+margin-top:20px;
+background-color:rgba(234,234,239,.9);
+padding:0px;
+}
+.contacth2
+{
+font-family:"helvetica neue", helvetica, arial, sans-serif;
+font-weight:200;
+font-size:18px;
+margin-left:-5px;
+color:#888888;
+text-align:center;
+margin-top:-10px;
+margin-bottom:-20x;
+}
+.contacth1
+{
+font-family:"helvetica neue", helvetica, arial, sans-serif;
+text-align:center;
+font-weight:200;
+margin-bottom:10px;
+font-size:18px;
+color:#888888;
