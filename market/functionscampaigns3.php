@@ -100,7 +100,7 @@ echo'
 
 <form class="navbar-search" action="/market/#search" method="get">
 <input class="search" style="position:relative;margin-left:10px;margin-top:10px;" name="searchterm" type="text">
-<input style="margin-top:9px;margin-left:-3px;" type="submit" class="go" value="Go">
+<a href="#search"><input style="margin-top:9px;margin-left:-3px;" type="submit" class="go" value="Go"></a>
 </form>
 
 <span style="float:right;padding-right:0px;padding-top:23px;">
@@ -124,14 +124,23 @@ echo'<a class="coolio" href="viewcampaigns.php">Campaigns</a>
 elseif($_SESSION['loggedin'] == 2) {
 echo'
 <span class="dropdown">
-<a class="dropdown-toggle coolio" data-toggle="dropdown">&nbsp;Campaigns&nbsp;<b class="caret"></b>&nbsp;</a>
+<a href="viewcampaigns.php" class="dropdown-toggle coolio" data-toggle="dropdown">&nbsp;Campaigns&nbsp;<b class="caret"></b>&nbsp;</a>
 <ul class="dropdown-menu gradient" data-dropdown="dropdown" style="width:200px;;margin-top:30px;">
 <a style="padding:15px;" href="viewcampaigns.php">View Campaigns</a><hr />
 <a style="padding:15px;padding-top:0px;" href="mycampaigns.php">My Campaigns</a><hr />
 <a style="padding:15px;padding-top:0px;" href="createcampaign.php">Create a Campaign</a>
 </ul>
 </span>
-<a class="coolio" href="account.php">My Account</a>
+
+<span class="dropdown">
+<a href="account.php" class="dropdown-toggle coolio" data-toggle="dropdown">&nbsp;Account&nbsp;<b class="caret"></b>&nbsp;</a>
+<ul class="dropdown-menu gradient" data-dropdown="dropdown" style="width:200px;;margin-top:30px;margin-left:-40px;">
+<a style="padding:15px;" href="account.php">Saved Images</a><hr />
+<a style="padding:15px;padding-top:0px;" href="download2.php">Cart</a><hr />
+<a style="padding:15px;padding-top:0px;" href="account.php?view=campaigns">Manage Campaigns</a>
+</ul>
+</span>
+
 <a class="coolio" style="margin-right:0px;" href="',htmlentities($_SERVER['PHP_SELF']),'?action=logout">&nbsp;Log Out&nbsp;</a>';
 }
 echo'
@@ -149,12 +158,12 @@ echo'
 	<div class="navbar-inner" style="background: #6BBE44;">
 		<div class="container">
 			    <ul class="nav">
-                    <li><a name="search" style="color:#fff;margin-top:2px;padding-bottom:9px;" style="color:rgb(56,85,103);margin-right:20px;" href="/market/?c=pop">Popular</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;" href="/market/?c=trending">Trending</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;" href="/market/?c=newest">Newest</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;" href="/market/?c=deal">Best Deal</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;" href="/market/?c=top">Top Ranked</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;" href="/market/?c=top">Top Exhibits</a></li>';
+                    <li><a name="search" style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'trending' OR htmlentities($_GET['c']) == '') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=trending">Trending</a></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'pop') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=pop">Popular</a></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'newest') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=newest">Newest</a></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'deal') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=deal">Best Deal</a></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'top') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=top">Top Ranked</a></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'exhibits') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=exhibits">Top Exhibits</a></li>';
                     @session_start();
                     if($_SESSION['loggedin'] == 2) {
                     echo'
@@ -171,21 +180,25 @@ echo'
 
 
 function navbar3() {  
-echo'
+$view = htmlentities($_GET['view']);
 
+echo'
 <!--NAVIGATION BAR-->
 <div class="navbar" style="position:relative;font-size:16px;">
 	<div class="navbar-inner" style="background: #6BBE44;">
 		<div class="container" style="width:700px;">
-			    <ul class="nav">
-                <li> <img style="position:relative;left:-10px;margin-top:8px;" src="graphics/logo.png" height="22px" /></li>';
-                
-                    if($view == '') {
-                    echo'
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;" style="color:rgb(56,85,103);margin-right:20px;" href="viewprofile.php?u=',$userid,'">Newest</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;" href="viewprofile.php?u=',$userid,'&od=topranked">Top Ranked</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;" href="viewprofile.php?u=',$userid,'&od=pop">Most Popular</a></li>';
+			    <ul class="nav">';
+                if($view == '') {
+                $userid = htmlentities($_GET['u']);
+                echo'
+                    <li style="margin-left:-34px;"><img style="position:relative;left:-10px;margin-top:8px;" src="graphics/logo.png" height="22px" /></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['od']) == '') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="viewprofile.php?u=',$userid,'">Newest</a></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['od']) == 'topranked') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="viewprofile.php?u=',$userid,'&od=topranked">Top Ranked</a></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['od']) == 'pop') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="viewprofile.php?u=',$userid,'&od=pop">Most Popular</a></li>';
                     }
+                else {
+                echo'<li style="margin-left:-530px;"><img style="margin-top:8px;" src="graphics/logo.png" height="22px" /></li>';
+                }
                     
                      echo'
 				</div> 

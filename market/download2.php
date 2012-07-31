@@ -16,14 +16,6 @@ require_once("stripe/lib/Stripe.php");
     //start the session
     session_start();
     
-    //PHOTO CART INFORMATION
-    $imageid = htmlentities($_GET['imageid']);
-    
-    $imagequery = mysql_query("SELECT * FROM photos WHERE id = '$imageid'");
-    $imagesource = mysql_result($imagequery,0,'source');
-    $imagesource = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/",$imagesource);
-    $imagesource = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "http://photorankr.com/userphotos/",$imagesource); 
-    $imageprice = mysql_result($imagequery,0,'price');
 
 ?>
 
@@ -129,38 +121,145 @@ require_once("stripe/lib/Stripe.php");
 <div class="container">
 
 <div class="grid_24">
-<div style="font-size:24px;padding:20px;">Your Cart</div><br />
 
-<div class="span12">
-<table class="table">
-<thead>
-<tr>
-<th>Photo</th>
-<th>Size</th>
-<th>Image ID</th>
-<th>License</th>
-<th>Price</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><img onmousedown="return false" oncontextmenu="return false;" style="height:25%;" src="<?php echo $imagesource; ?>" /></td>
-<td>Medium</td>
-<td><?php echo $imageid; ?></td>
-<td>Royalty Free</td>
-<td>$<?php echo $imageprice; ?></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 
-<div style="font-size:24px;padding:20px;margin-left:-20px;">Payment</div><br />
+<?php
+    
+    //PHOTO CART INFORMATION
+    $imageid = htmlentities($_GET['imageid']);
+    $imagequery = mysql_query("SELECT * FROM photos WHERE id = '$imageid'");
+    $imagenewsource = mysql_result($imagequery,0,'source');
+    $imagenewsource2 = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/",$imagenewsource);
+    $imagenewsource3 = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "http://photorankr.com/userphotos/",$imagenewsource2); 
+    $imagenewprice = mysql_result($imagequery,0,'price'); 
+    
+    //ADD TO CART IN DB
+    
+        if($_SESSION['loggedin'] != 2) {
+        echo'
+        <div style="margin-top:70px;margin-left:260px;padding-bottom:150px;">
+        <div style="text-align:center;font-size:18px;">Login Below or <a href="campaignnewuser.php">Register to Buy:</a></div><br />
+        <form name="login_form" method="post" action="fullsize2.php?imageid=',$imageid,'&action=login">
+        <div class="well" style="width:380px;padding-top:50px;padding-bottom:50px;padding-left:40px;">
+        <span style="font-size:18px;font-family:helvetica, arial;margin-left:0px;">Email: </span><input type="text" style="width:200px;margin-left:40px;" name="emailaddress" /><br />
+        <span style="font-size:18px;font-family:helvetica, arial;">Password: </span>&nbsp<input type="password" style="width:200px;" name="password"/><br >
+        <input type="submit" class="btn btn-success" style="margin-left:250px;" value="sign in" id="loginButton"/>
+        </div>
+        </form>
+        </div>';
+        
+        }
+    
+        elseif($_SESSION['loggedin'] == 2) {
+       
+        echo'<div style="font-size:24px;padding:20px;">Your Cart</div><br />';
+        
+        if($imageid) {
+        $cartcheck = mysql_query("SELECT * FROM cart WHERE imageid = '$imageid'");
+        $numincart = mysql_num_rows($cartcheck);
+        if($numincart < 1) {
+            $stickincart = mysql_query("INSERT INTO cart (source,emailaddress,imageid) VALUES ('$imagenewsource3','$repemail','$imageid')");
+            }
+        }
+        
+        $incart = mysql_query("SELECT * FROM cart WHERE emailaddress = '$repemail'");
+        $incartresults = mysql_num_rows($incart);
+        
+        for($iii=0; $iii < $incartresults; $iii++) {
+            $imagesource[$iii] = mysql_result($incart,$iii,'source');
+            $imageprice[$iii] = mysql_result($incart,$iii,'price');
+            $imagecartid = mysql_result($incart,$iii,'imageid');
+            $cartidlist = $cartidlist.",".$imagecartid;
+            
+            echo'
+            <div class="span12">
+            <a style="text-decoration:none;color:#333;" href="fullsize2.php?imageid=',$imagecartid,'">
+            <table class="table">
+            <thead>
+            <tr>
+            <th>Photo</th>
+            <th>Size</th>
+            <th>Image ID</th>
+            <th>License</th>
+            <th>Price</th>  
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td><div style="width:400px;"><img onmousedown="return false" oncontextmenu="return false;" style="height:25%;" src="',$imagesource[$iii],'" /></div></td>
+            <td>Medium</td>
+            <td>',$imagecartid,'</td>
+            <td>Royalty Free</td>
+            <td>$',$imageprice[$iii],'</td>
+            </tr>
+            <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            </tr>
+            </tbody>
+            </table>
+            </a>
+            </div>';
+
+        }
+        
+        //Anchor
+        echo'<a name="added" href="#"> test</a>';
+        
+        //check if image already in db
+        $found = strpos($cartidlist, $imageid);
+        
+        if($imageid && $found === false) {
+        //New image displayed
+        echo'
+         <div class="span12">
+            <a style="text-decoration:none;color:#333;" href="fullsize2.php?imageid=',$imageid,'">
+            <table class="table">
+            <thead>
+            <tr>
+            <th>Photo</th>
+            <th>Size</th>
+            <th>Image ID</th>
+            <th>License</th>
+            <th>Price</th>  
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td><div style="width:400px;"><img onmousedown="return false" oncontextmenu="return false;" style="height:25%;" src="',$imagenewsource3,'" /></div></td>
+            <td>Medium</td>
+            <td>',$imageid,'</td>
+            <td>Royalty Free</td>
+            <td>$',$imagenewprice,'</td>
+            </tr>
+            <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            </tr>
+            </tbody>
+            </table>
+            </a>
+            </div>
+            
+            <div><a class="btn btn-success" href="',$_SERVER['HTTP_REFERER'],'">Continue Shopping</a>
+            </div>';
+        }
+        
+            echo'<div style="font-size:24px;padding:20px;margin-left:-20px;">Payment</div><br />';
+        
+        
+ } //end if logged in
+ 
+
+?>
+
+
 
 
 </div>

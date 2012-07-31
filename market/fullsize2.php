@@ -28,11 +28,13 @@ session_start();
     $owner = mysql_result($imagequeryrun,0,'emailaddress');
     $price = mysql_result($imagequeryrun,0,'price');
     $points = mysql_result($imagequeryrun,0,'points');
+    $caption = mysql_result($imagequeryrun,0,'caption');
     $votes = mysql_result($imagequeryrun,0,'votes');
     $ranking = ($points/$votes);
     $ranking = number_format($ranking,2);
     $location = mysql_result($imagequeryrun,0,'location');
     $camera = mysql_result($imagequeryrun,0,'camera');
+    $exhibit = mysql_result($imagequeryrun,0,'set_id');
     $about = mysql_result($imagequeryrun,0,'about');
     $tag1 = mysql_result($imagequeryrun,0,'tag1');
     if($tag1) {$tag1 = $tag1 . ", ";}
@@ -94,6 +96,39 @@ else {
         echo '<META HTTP-EQUIV="Refresh" Content="0; URL=trending.php">';
 		exit();			
     }
+    
+    
+    //SAVE PHOTO QUERY
+    if($_GET['ml'] == "saved") {
+       
+            $maybecheckquery=mysql_query("SELECT * FROM maybe WHERE emailaddress = '$repemail'");
+            $nummaybesaved = mysql_num_rows($maybecheckquery);
+
+            for($iii=0; $iii < $nummaybesaved; $iii++) {
+                $maybeimageid = mysql_result($maybecheckquery,$iii,'imageid');
+                $maybesavedlist = $maybesavedlist." ".$maybeimageid;
+            }
+                
+            //MAKE SURE CORRECT BUTTON SHOWS
+            $search_string3=$maybesavedlist;
+            $regex3="/$imageid/";
+            $maybematch=preg_match($regex3,$search_string3);
+        
+            if($maybematch < 1) {
+            $savequery = mysql_query("INSERT INTO maybe (source,caption,price,emailaddress,imageid) VALUES  ('$imagebig2','$caption','$price','$repemail','$imageid')");
+            
+        }
+    }
+    
+    //REMOVE PHOTO QUERY
+    if(htmlentities($_GET['action']) == "removed") { 
+        $querycheck = mysql_query("SELECT emailaddress FROM cart WHERE imageid = '$imageid'");
+        $emailcheck = mysql_result($querycheck,0,'emailaddress');
+        if($repemail == $emailcheck) {
+            $removequery = mysql_query("DELETE FROM cart WHERE imageid = '$imageid' AND emailaddress = '$repemail'");
+        }
+    }
+
            
 ?>
 
@@ -115,10 +150,9 @@ else {
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
-    <script src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-twipsy.js"></script>
-    <script src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-popover.js"></script>
-    <script src="bootstrap-dropdown.js" type="text/javascript"></script>
-    <script src="bootstrap-collapse.js" type="text/javascript"></script>
+    <script src="js/bootstrap.js" type="text/javascript"></script>
+    <script src="js/bootstrap-dropdown.js" type="text/javascript"></script>
+    <script src="js/bootstrap-collapse.js" type="text/javascript"></script>
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
 
      
@@ -137,6 +171,8 @@ else {
      <style type="text/css">
             .show { display: block;  }
             .hide { display: none; }
+            .click { }
+            .clicked {background-color:black;}
         </style>
 
 <!--GOOGLE ANALYTICS CODE-->
@@ -203,6 +239,112 @@ else {
 
 <?php navbarnew(); ?>
 
+
+
+<!--MAYBE LATER MODAL-->
+<div class="modal hide fade" id="maybemodal" style="overflow:hidden;">
+      
+<?php
+if($_SESSION['loggedin'] != 2) {
+
+echo'
+<div class="modal-header">
+<a style="float:right" class="btn btn-primary" data-dismiss="modal" >Close</a>
+<img style="margin-top:-4px;float:left;" src="graphics/logomarket.png" width="180" />
+  </div>
+  <div modal-body" style="width:600px;">
+
+<div id="content" style="font-size:16px;width:500px;">
+		
+<img style="border: 1px solid black;margin-left:10px;margin-top:30px;" src="',$imagebig2,'" 
+height="100px" width="100px" /> 
+
+<div style="width:500px;margin-left:130px;margin-top:-80px;">
+"',$title,'"<br />                 
+
+Please Login to Save this Photo.<br /><br /><br />
+
+</div>
+</div>';
+
+    }
+        
+        
+     if($_SESSION['loggedin'] == 2) {
+    
+		$maybequery=mysql_query("SELECT * FROM maybe WHERE emailaddress ='$repemail'");
+        $numsaved = mysql_num_rows($maybequery);
+        for($iii=0; $iii < $numsaved; $iii++) {
+            $savedimageid = mysql_result($maybequery,$iii,'imageid');
+            $prevsavedlist = $prevsavedlist.",".$savedimageid;
+        }
+        
+		//MAKE SURE FOLLOWER ISN'T ADDED TWICE
+		$search_string=$prevsavedlist;
+		$regex="/$imageid/";
+		$match=preg_match($regex,$search_string);
+		
+        if ($match > 0) {
+			
+            echo'
+                <div class="modal-header">
+                <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
+                <img style="margin-top:-4px;" src="graphics/logomarket.png" width="150" />&nbsp;&nbsp;<span style="font-size:16px;">You already saved this photo</span>
+                </div>
+                <div modal-body" style="width:600px;">
+
+                <div id="content" style="font-size:16px;width:500px;">
+		
+                <img style="border: 1px solid black;margin-left:10px;margin-top:30px;" src="',$profilepic,'" 
+height="100px" width="100px" />
+
+                <div style="width:500px;margin-left:130px;margin-top:-90px;">
+',$firstname,' ',$lastname,'<br />                 
+
+                ',$numberofpics,' photos <br />
+
+                Portfolio Average: ',$portfolioranking,' <br /><br /><br />
+
+                </div>
+                </div>';
+        }
+
+        else {
+            
+			echo'
+                <div class="modal-header">
+                <a style="float:right" class="btn btn-primary" href="fullsize2.php?imageid=',$imageid,'&ml=saved">Close</a>
+                <img style="margin-top:-4px;" src="graphics/logomarket.png" width="150" />&nbsp;&nbsp;<span style="font-size:16px;">Photo Saved.</span>
+                </div>
+                <div modal-body" style="width:600px;">
+
+                <div id="content" style="font-size:16px;width:500px;">
+		
+                <img style="border: 1px solid black;margin-left:10px;margin-top:30px;" src="',$profilepic,'" 
+height="100px" width="100px" />
+
+                <div style="width:500px;margin-left:130px;margin-top:-90px;">
+                ',$firstname,' ',$lastname,'<br />                 
+
+                ',$numberofpics,' photos <br />
+
+                Portfolio Average: ',$portfolioranking,' <br /><br /><br />
+
+                </div>
+                </div>';
+            
+        }
+    
+    }
+        
+?>
+
+</div>
+</div>
+
+
+
+
 <div class="container_24" style="padding-bottom:30px;"><!--Grid container begin-->
 
 <?php
@@ -233,6 +375,22 @@ $medheight = number_format(($originalheight/1.3),0,',','');
 $medprice = number_format(($price / 1.5),0,',','');
 ?>
 
+        <script type="text/javascript">
+            function showClicked() {
+                var select = document.getElementById('row');
+                select.className = 'clicked';
+            }
+                function showClicked2() {
+                var select = document.getElementById('row2');
+                select.className = 'clicked';
+            }
+                function showClicked3() {
+                var select = document.getElementById('row3');
+                select.className = 'clicked';
+            }
+
+        </script>
+
 <div class="grid_4 push_4" style="margin-top:20px;">
 <div class="span6">
 <table class="table">
@@ -244,17 +402,17 @@ $medprice = number_format(($price / 1.5),0,',','');
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr id="row" onclick="showClicked();">
 <td>Small</td>
 <td><?php echo $smallwidth; ?> X <?php echo $smallheight; ?></td>
 <td>$<?php echo $smallprice; ?></td>
 </tr>
-<tr>
+<tr id="row2" onclick="showClicked();">  
 <td>Medium</td>
 <td><?php echo $medwidth; ?> X <?php echo $medheight; ?></td>
 <td>$<?php echo $medprice; ?></td>
 </tr>
-<tr>
+<tr id="row3" onclick="showClicked();">
 <td>Large</td>
 <td><?php echo $originalwidth; ?> X <?php echo $originalheight; ?></td>
 <td>$<?php echo $price; ?></td>
@@ -297,8 +455,53 @@ $medprice = number_format(($price / 1.5),0,',','');
 </div>
 
 <div>
-<a class="btn btn-success" style="margin-left:200px;width:80px;float:left;" href="#">Maybe Later</a>
-<a class="btn btn-success" style="margin-left:10px;width:80px;float:left;" href="#">Purchase</a>
+
+
+<?php
+
+        $removequery=mysql_query("SELECT * FROM maybe WHERE emailaddress = '$repemail'");
+        $numsavedremove = mysql_num_rows($removequery);
+
+        for($iii=0; $iii < $numsavedremove; $iii++) {
+            $removeimageid = mysql_result($removequery,$iii,'imageid');
+            $removelist = $removelist." ".$removeimageid;
+        }
+
+		//MAKE SURE CORRECT BUTTON SHOWS
+		$search_string4=$removelist;
+		$regex4="/$imageid/";
+		$removematch=preg_match($regex4,$search_string4);
+        
+        if($removematch > 0) {
+        echo'<a class="btn btn-primary" style="margin-left:200px;width:80px;float:left;" href="#"">Photo Saved</a>';
+        }
+        else {
+        echo'<a class="btn btn-success" style="margin-left:200px;width:80px;float:left;" data-toggle="modal" data-backdrop="static" href="#maybemodal">Maybe Later</a>';
+        }
+
+		$cartquery=mysql_query("SELECT * FROM cart WHERE emailaddress = '$repemail'");
+        $numsaved = mysql_num_rows($cartquery);
+
+        for($iii=0; $iii < $numsaved; $iii++) {
+            $savedcartimageid = mysql_result($cartquery,$iii,'imageid');
+            $prevsavedcartlist = $prevsavedcartlist." ".$savedcartimageid;
+        }
+
+		//MAKE SURE CORRECT BUTTON SHOWS
+		$search_string2=$prevsavedcartlist;
+		$regex2="/$imageid/";
+		$cartmatch=preg_match($regex2,$search_string2);
+        
+        if($cartmatch > 0) {
+        echo'<a class="btn btn-danger" style="margin-left:10px;width:120px;float:left;" href="fullsize2.php?imageid=',$imageid,'&action=removed">Remove from Cart</a>';
+        }
+        else {
+        echo'<a class="btn btn-success" style="margin-left:10px;width:80px;float:left;" href="download2.php?imageid=',$imageid,'#added">Add to Cart</a>';
+        }
+
+?>
+
+
 </div>
 
 <div class="span6" style="margin-left:0px;margin-top:10px;">
@@ -311,6 +514,11 @@ if($location) {echo'
 Location: ',$location,'<br />'; }
 if($about) {echo'
 About Photo: ',$about,'<br />'; }
+if($exhibit) {
+$exname = mysql_query("SELECT * FROM sets WHERE id = '$exhibit'");
+$exhibitname = mysql_result($exname,0,'title');
+echo'
+Exhibit: <a href="viewprofile.php?u=',$userid,'&view=exhibits&set=',$exhibit,'">',$exhibitname,'</a><br />'; }
 if($keywords) {echo'
 Keywords: ',$keywords,'<br />'; }
  ?>

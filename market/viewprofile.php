@@ -14,6 +14,14 @@ require "functionscampaigns3.php";
     else if(htmlentities($_GET['action']) == "logout") { 
         logout();
     }
+    
+    if($_SESSION['loggedin'] != 2) {
+    
+        mysql_close();
+        header('Location: index.php');
+        exit();	
+    
+    }
 
 //PHOTOGRAPHER INFORMATION
 $userid = htmlentities($_GET['u']);
@@ -79,6 +87,21 @@ $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$useremail%'";
 
 //find out which view they are looking at
 $view = htmlentities($_GET['view']);
+
+//FOLLOW QUERY
+if(htmlentities($_GET['fw'] == 'yes')) {
+    $followcheckquery = mysql_query("SELECT following FROM campaignusers WHERE repemail = '$repemail'");
+    $followcheck = mysql_result($followcheckquery,0,'following');
+        
+        $search_string=$followcheck;
+		$regex="/$userid/";
+		$match=preg_match($regex,$search_string);
+
+    if($match < 1) {
+        $useridformatted = " ".$userid;
+        $followerquery = mysql_query("UPDATE campaignusers SET following = CONCAT(following,'$useridformatted') WHERE repemail = '$repemail'");
+    }
+}
 
 ?>
 
@@ -179,7 +202,107 @@ opacity:.7;
 
 </head>
 
-<body>
+<body style="overflow-x:hidden;">
+
+
+
+<!--FOLLOW MODAL-->
+<div class="modal hide fade" id="followmodal" style="overflow:hidden;">
+      
+<?php
+if($_SESSION['loggedin'] != 2) {
+
+echo'
+<div class="modal-header">
+<a style="float:right" class="btn btn-primary" data-dismiss="modal" >Close</a>
+<img style="margin-top:-4px;float:left;" src="graphics/logomarket.png" width="180" /><br />
+  </div>
+  <div class="modal-body" style="width:700px;">
+
+<div id="content" style="font-size:16px;width:500px;">
+		
+<img style="border: 1px solid black;margin-left:10px;margin-top:5px;" src="',$profilepic,'" 
+height="100px" width="100px" /> 
+
+<div style="width:500px;margin-left:130px;margin-top:-75px;">
+Please login to follow ',$fullname,'<br />                 
+                      
+<br /><br /><br />
+
+</div>
+</div>';
+
+    }
+        
+        
+if($_SESSION['loggedin'] == 2) {  
+    
+		$followerquery=mysql_query("SELECT * FROM campaignusers WHERE repemail = '$repemail'");
+        $followerlist = mysql_result($followerquery,0,'following');
+        
+		//MAKE SURE FOLLOWER ISN'T ADDED TWICE
+		$search_string=$followerlist;
+		$regex="/$userid/";
+		$match=preg_match($regex,$search_string);
+		
+        if ($match > 0) {
+			
+            echo'
+                <div class="modal-header">
+                <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
+                <img style="margin-top:-4px;" src="graphics/logomarket.png" width="180" />
+                </div>
+                <div class="modal-body" style="width:700px;">
+
+                <div id="content" style="font-size:16px;width:500px;">
+		
+                <img style="border: 1px solid black;margin-left:10px;margin-top:5px;" src="',$profilepic,'" 
+height="100px" width="100px" />
+
+                <div style="width:500px;margin-left:130px;margin-top:-80px;">
+',$firstname,' ',$lastname,'<br />                 
+                You are already following this photographer
+
+               <br /><br /><br />
+
+                </div>
+                </div>';
+        }
+
+        else {
+            
+			echo'
+                <div class="modal-header">
+                <a style="float:right" class="btn btn-primary" href="viewprofile.php?u=',$userid,'&fw=yes">Close</a>
+                                <img style="margin-top:-4px;" src="graphics/logomarket.png" width="180" />
+                </div>
+                <div class="modal-body" style="width:700px;">
+
+                <div id="content" style="font-size:16px;width:500px;">
+		
+                <img style="border: 1px solid black;margin-left:10px;margin-top:5px;" src="',$profilepic,'" 
+height="100px" width="100px" />
+
+                <div style="width:500px;margin-left:130px;margin-top:-90px;">
+',$firstname,' ',$lastname,'<br />                 
+                You are now following this photographer
+
+               <br /><br /><br />
+               
+                </div>
+                </div>';
+            
+        }
+    
+    }
+        
+?>
+
+</div>
+</div>
+
+
+
 
 <?php navbarnew(); ?>
 
@@ -193,7 +316,7 @@ opacity:.7;
 		<div class="grid_3">
 			<h1 id="name"><?php echo $fullname; ?></h1>	
 		</div>
-		<div style="width:80px;margin-top:10px;margin-left:15px;" class="btn btn-success">Follow</div>
+		<div style="width:80px;margin-top:10px;margin-left:15px;" data-toggle="modal" data-backdrop="static" href="#followmodal" class="btn btn-success">Follow</div>
 			
         <div class="grid_1" id="repcricle"> 
 		 <?php //fancy jQuery stuff
@@ -231,7 +354,7 @@ opacity:.7;
     </div>
 
 
-				<div class="grid_21" style="margin-top:-270px;margin-left:230px;">
+				<div class="grid_21" style="margin-top:-300px;margin-left:230px;">
 
 				<?php 
                 $order = htmlentities($_GET['od']);
@@ -239,18 +362,20 @@ opacity:.7;
                 if($view == '') {
                 
                 if($order == '') {
-                $newestphotos = mysql_query("SELECT * FROM photos WHERE emailaddress = '$useremail' ORDER BY id DESC LIMIT 0,20");
+                $newestphotos = mysql_query("SELECT * FROM photos WHERE emailaddress = '$useremail' ORDER BY id DESC LIMIT 0,21");
                 $numphotos = mysql_num_rows($newestphotos);
                 }
                 if($order == 'topranked') {
-                $newestphotos = mysql_query("SELECT * FROM photos WHERE emailaddress = '$useremail' ORDER BY (points/votes) DESC");
+                $newestphotos = mysql_query("SELECT * FROM photos WHERE emailaddress = '$useremail' ORDER BY (points/votes) DESC LIMIT 0,30");
                 $numphotos = mysql_num_rows($newestphotos);
                 }
                 if($order == 'pop') {
-                $newestphotos = mysql_query("SELECT * FROM photos WHERE emailaddress = '$useremail' ORDER BY faves DESC");
+                $newestphotos = mysql_query("SELECT * FROM photos WHERE emailaddress = '$useremail' ORDER BY faves DESC LIMIT 0,30");
                 $numphotos = mysql_num_rows($newestphotos);
                 }
                 
+                echo'<div id="thepics">';
+                echo'<div id="container">';
                 for($iii = 0; $iii < $numphotos; $iii++) {
                 $photo[$iii] = mysql_result($newestphotos,$iii,'source');
                 $photobig[$iii] = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/", $photo[$iii]);
@@ -263,19 +388,53 @@ opacity:.7;
                 list($width,$height) = getimagesize($photobig[$iii]);
                 $widthnew = $width / 5;
                 $heightnew = $height / 5;
-                if($widthnew < 165) {
-                $heightnew = $heightnew * ($heightnew/$widthnew);
-                $widthnew = 240;
-                }
-                
+                    if($widthnew < 165) {
+                        $heightnew = $heightnew * ($heightnew/$widthnew);
+                        $widthnew = 240;
+                    }
+                    
                 echo'
-				<div class="phototitle fPic" id="',$id,'" style="width:230px;height:230px;overflow:hidden;">
+				<div class="phototitle fPic" id="',$imageid[$iii],'" style="width:230px;height:230px;overflow:hidden;">
                 
-                 <a href="fullsize2.php?imageid=',$imageid[$iii],'"><div class="statoverlay" style="z-index:1;left:0px;top:140px;position:relative;background-color:black;width:238px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$caption,'"<br>By: ',$fullname,'</br>Rank: ',$ranking,'</p></div>
+                 <a href="fullsize2.php?imageid=',$imageid,'"><div class="statoverlay" style="z-index:1;left:0px;top:140px;position:relative;background-color:black;width:238px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$caption,'"<br>By: ',$fullname,'</br>Rank: ',$ranking,'</p></div>
                  
 					<img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-100px;min-height:240px;min-width:240px;" class="phototitle2" src="',$photo[$iii],'" height="',$heightnew,'px" width="',$widthnew,'px" /></a>
 				</div>';
                 }
+                echo'</div>';                
+                echo'</div>';
+                
+                    if($order == '') {
+                        echo'
+                        <!--AJAX CODE HERE-->
+                        <div class="grid_16" style="padding:20px;">
+                        <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Photos&hellip;</div>
+                        </div>';
+
+echo '<script>
+
+var last = 0;
+
+	$(window).scroll(function(){
+		if($(window).scrollTop() > $(document).height() - $(window).height()-100) {
+			if(last != $(".fPic:last").attr("id")) {
+				$("div#loadMorePics").show();
+				$.ajax({
+					url: "loadMoreNewestProfile.php?lastPicture=" + $(".fPic:last").attr("id"),
+					success: function(html) {
+						if(html) {
+							$("#thepics").append(html);
+							$("div#loadMorePics").hide();
+						}
+					}
+				});
+				last = $(".fPic:last").attr("id");
+			}
+		}
+	});
+</script>';
+                }
+                    
                 
                 }
                 

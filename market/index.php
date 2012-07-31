@@ -264,67 +264,67 @@ session_start();
           <!-- Multiple Checkboxes -->
           <div class="controls">
             <label class="checkbox inline">
-              <input type="checkbox" value="advertising" name="category[]"> Advertising
+              <input type="checkbox" value="Advertising" name="category[]"> Advertising
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="animal" name="category[]"> Animal
+              <input type="checkbox" value="Animal" name="category[]"> Animal
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="architecture" name="category[]"> Architecture
+              <input type="checkbox" value="Architecture" name="category[]"> Architecture
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="automotive" name="category[]"> Automotive
+              <input type="checkbox" value="Automotive" name="category[]"> Automotive
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="commercial" name="category[]"> Commercial
+              <input type="checkbox" value="Commercial" name="category[]"> Commercial
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="fashion" name="category[]"> Fashion
+              <input type="checkbox" value="Fashion" name="category[]"> Fashion
             </label>
             
             <br /><br />
            
              <label class="checkbox inline">
-              <input type="checkbox" value="fineart" name="category[]"> Fine Art
+              <input type="checkbox" value="Fineart" name="category[]"> Fine Art
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="food" name="category[]"> Food
+              <input type="checkbox" value="Food" name="category[]"> Food
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="historical" name="category[]"> Historical
+              <input type="checkbox" value="Historical" name="category[]"> Historical
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="industrial" name="category[]"> Industrial
+              <input type="checkbox" value="Industrial" name="category[]"> Industrial
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="2" name="category[]"> Musical
+              <input type="checkbox" value="Musical" name="category[]"> Musical
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="3" name="category[]"> Nature
+              <input type="checkbox" value="Nature" name="category[]"> Nature
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="1" name="category[]"> News
+              <input type="checkbox" value="News" name="category[]"> News
             </label>
             
             <br /><br />
             
             <label class="checkbox inline">
-              <input type="checkbox" value="2" name="category[]"> Night
+              <input type="checkbox" value="Night" name="category[]"> Night
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="3" name="category[]"> Scenic
+              <input type="checkbox" value="Scenic" name="category[]"> Scenic
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="1" name="category[]"> Sports
+              <input type="checkbox" value="Sports" name="category[]"> Sports
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="2" name="category[]"> Still Life
+              <input type="checkbox" value="Stilllife" name="category[]"> Still Life
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="3" name="category[]"> Transportation
+              <input type="checkbox" value="Transportation" name="category[]"> Transportation
             </label>
             <label class="checkbox inline">
-              <input type="checkbox" value="3" name="category[]"> War
+              <input type="checkbox" value="War" name="category[]"> War
             </label>
           </div>
 
@@ -365,7 +365,7 @@ session_start();
 			range: true,
 			min: 0,
 			max: 200,
-			values: [ 25, 100 ],
+			values: [ 0, 150 ],
 			slide: function( event, ui ) {
 				$( "#amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
 						$( "#values" ).val(ui.values[ 0 ]);
@@ -413,7 +413,7 @@ session_start();
 			range: true,
 			min: 0,
 			max: 100,
-			values: [ 20, 80 ],
+			values: [ 0, 100 ],
 			slide: function( event, ui ) {
 				$( "#amount2" ).val(ui.values[ 0 ] + " - " + ui.values[ 1 ] );
 						$( "#reputationvalues" ).val(ui.values[ 0 ]);
@@ -464,7 +464,7 @@ session_start();
 			range: true,
 			min: 0,
 			max: 500,
-			values: [ 80, 250],
+			values: [ 0, 50],
 			slide: function( event, ui ) {
 				$( "#amount4" ).val(ui.values[ 0 ] + " - " + ui.values[ 1 ] );
 						$( "#downloadvalues" ).val(ui.values[ 0 ]);
@@ -517,8 +517,10 @@ session_start();
 
 
 <?php
-$sort = htmlentities($_GET['sort']);
 
+if($category != 'exhibits') {
+
+$sort = htmlentities($_GET['sort']);
 if($category == 'newest') {
 $query = mysql_query("SELECT * FROM photos ORDER BY id DESC LIMIT 0,60");
 $numresults = mysql_num_rows($query);
@@ -569,13 +571,7 @@ $resolution = htmlentities($_GET['resolution']);
 $orientation = htmlentities($_GET['orientation']);
 $license = htmlentities($_GET['license']);
 $keywords = htmlentities($_GET['keywords']);
-      
-          $cat = $_GET['category'];
-          foreach($categories as $cat) //loop through the checkboxes
-          {
-               echo $cat . ' ';
-          }
-               
+$cat = $_GET['category'];
 $lowerprice = htmlentities($_GET['c']);
 $higherprice = htmlentities($_GET['c2']);
 $lowerrep = htmlentities($_GET['rc']);
@@ -583,18 +579,56 @@ $higherrep = htmlentities($_GET['rc2']);
 $lowerdown = htmlentities($_GET['dc']);
 $higherdown = htmlentities($_GET['dc2']);
 
-if($resolution || $orientation || $license || $keywords || $cat || $lowerprice || $higherprice || $lowerrep || $higherrep || $lowerdown || $higherdown) {
+if($resolution || $orientation || $license || $keywords || $cat || $higherprice || $lowerrep || $higherrep || $lowerdown || $higherdown) {
+          
+          $count = 1;    
+          foreach($cat as $category) //loop through the checkboxes
+            {
+                if($count == 1) {$cat1 = $category; }
+                if($count == 2) {$cat2 = $category; }
+                if($count == 3) {$cat3 = $category; }
+                if($count == 4) {$cat4 = $category; }
+                $count += 1;
+            }
+            
+          $keywordpieces = explode(", ", $keywords);
+          $countpieces = count($keywordpieces);
+          for($jjj=0; $jjj<$countpieces; $jjj++) {
+                if($jjj != $countpieces - 1) {
+                    $keywordlist = $keywordlist . "'".$keywordpieces[$jjj]."',"; 
+                }
+                else {
+                     $keywordlist = $keywordlist . "'".$keywordpieces[$jjj]."'"; 
+                }
+          }        
+             
+          $keywordquery = mysql_query("SELECT id, MATCH (caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) AGAINST ('leaf') AS matching FROM photos WHERE MATCH (caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) AGAINST ('leaf')");
+          $numkeyresults = mysql_num_rows($keywordquery);
+          
+          if($numkeyresults > 0) {    
+                
+                for($iii=0; $iii < $numkeyresults; $iii++) {
+                    $keywordid = mysql_result($keywordquery,$iii,'id');
+                    $keywordidlist = $keywordid . ",";
+                }
+                
+                $optionsquery = mysql_query("SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE (singlecategorytags LIKE '%$cat1%' OR singlecategorytags LIKE '% $cat2%' OR singlecategorytags LIKE '%$cat3%' OR singlecategorytags LIKE '%$cat4%') AND ID IN ('$keywordidlist') LIMIT 0, 60");
+                $numresults = mysql_num_rows($numresults);
+                echo 'Matches:' . $numresults;
+            }
+          
+          elseif($numkeyresults < 1) {
+                $optionsquery = mysql_query("SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE (singlecategorytags LIKE '%$cat1%' OR singlecategorytags LIKE '% $cat2%' OR singlecategorytags LIKE '%$cat3%' OR singlecategorytags LIKE '%$cat4%') LIMIT 0, 60");
+                $numresults = mysql_num_rows($numresults);
+                echo 'Matches:' . $numresults;
+            }
     
-    echo $keywords;
-    $query = mysql_query("SELECT * FROM photos WHERE MATCH (caption,location,camera,tag1,tag2,tag3,tag4,singlestyletags,singlecategorytags) AGAINST '%$keywords%' LIMIT 0, 60");
-    
-    $numresults = mysql_num_rows($query);
-    
-    if($numresults < 1) {
-        echo'<div style="font-size:14px;text-align:center;">No results found. Try a different search above.</div>';
-    }
 
-}
+            if($numresults < 1) {
+                echo'<div style="font-size:14px;text-align:center;">No results found. Try a different search above.</div>';
+            } 
+
+} //end of advanced search block
 
 
 //AJAX Container
@@ -689,6 +723,78 @@ var last = 0;
 		}
 	});
 </script>';
+
+} //end category != exhibits
+ 
+
+if($category == 'exhibits') {
+
+for($iii=0; $count < 40; $iii++) {
+    $exquery = "SELECT * FROM sets ORDER BY avgscore DESC";
+    $exqueryrun = mysql_query($exquery);
+    $owner = mysql_result($exqueryrun, $iii-1, "owner");
+
+$exinfo = "SELECT * FROM userinfo WHERE emailaddress = '$owner'"; 
+$exinforun = mysql_query($exinfo);
+$firstname = mysql_result($exinforun, 0, "firstname");
+$lastname = mysql_result($exinforun, 0, "lastname");
+$fullname = $firstname . " " . $lastname;
+$fullname = ucwords($fullname);
+$user_id = mysql_result($exinforun, 0, "user_id");
+$exhibit_id = mysql_result($exqueryrun, $iii-1, "id");
+$captionorig = mysql_result($exqueryrun, $iii-1, "title");
+$caption = (strlen($captionorig) > 28) ? substr($captionorig,0,28). " &#8230;" : $captionorig;
+$coverpic = mysql_result($exqueryrun, $iii-1, "cover");
+if($coverpic == '') {
+    continue;
+    }
+   $count += 1; 
+  
+    $imagebig = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/", $coverpic);
+    $imagebig2 = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "http://photorankr.com/userphotos/medthumbs/", $imagebig);
+    list($height,$width) = getimagesize($imagebig);
+    $widthnew = $width / 6.5;
+    $heightnew = $height / 6.5;
+    $widthmed = $width / 5;
+    $heightmed = $height / 5;
+    
+		echo'<div style="width:230px;height:250px;overflow:hidden;float:left;">
+			<a href="viewprofile.php?u=',$user_id,'&view=exhibits&set=',$exhibit_id,'">
+            <img class="phototitle" onmousedown="return false" oncontextmenu="return false;" 
+            
+            id="popover',$count,'" rel="popover" data-content="<p>Photographer: ',$fullname,'</p>';
+            
+            
+            $exphotos = mysql_query("SELECT * FROM photos WHERE set_id = '$exhibit_id'");
+            $numphotos = mysql_num_rows($exphotos);
+            echo'<div style=width:350px;height:auto;>';
+            for($ii=0;$ii < 9 && $ii < $numphotos;$ii++){
+                $thumbsource = mysql_result($exphotos,$ii,'source');
+                $thumbsource = str_replace("userphotos/", "http://photorankr.com/userphotos/medthumbs/", $thumbsource);
+                echo'            
+                <img style=float:left;margin:5px; src=',$thumbsource,' height=100px width=100px />';
+            }
+            
+            echo'
+            </div>
+            <div style=clear:both;>&nbsp;&nbsp;</div>" data-original-title="',$captionorig,'" onmousedown="return false" oncontextmenu="return false;" class="phototitle" style="margin-right:30px;margin-top:20px;clear:right;"
+            
+            src="',$imagebig2,'" height="',$widthnew,'px" width="',$heightnew,'px" /></a><br /><div style="text-align:center;font-size:14px;clear:both;">"',$caption,'"</div>';
+            ?>
+            
+             <script>  
+             $(function ()  
+                { $("#popover<?php echo $count; ?>").popover();  
+                });  
+             </script>
+        
+        <?php
+            echo'
+            </div>'; 
+        
+    } //end of for loop
+
+} //end exhibit view
 
 
 ?>

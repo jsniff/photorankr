@@ -1,5 +1,5 @@
 <?php
-require "functionscampaigns.php"; 
+require "functionscampaigns3.php"; 
 require "db_connection.php";
     // if login form has been submitted
     if (htmlentities($_GET['action']) == "login") { 
@@ -113,7 +113,7 @@ require "db_connection.php";
 <body style="background-color: #EEE"">
 
 <!--NAVIGATION BAR-->
-<?php navbar(); ?>
+<?php navbarnew(); ?>
 
 <div class="container_24" style="padding-top:80px;"> <!--container begin--->
  <div class="grid_24">

@@ -1,12 +1,11 @@
 <?php
 
-ini_set('display_errors',1); 
-error_reporting(E_ALL);
+ini_set('max_input_time', 3200);
 
 //connect to the database
 require "db_connection.php";
 require 'configcampaigns.php';
-require 'functionscampaigns.php';
+require 'functionscampaigns3.php';
 
 //start the session
 //session_start();
@@ -18,7 +17,7 @@ if ((($_FILES["file"]["type"] == "image/gif")
 || ($_FILES["file"]["type"] == "image/jpg")
 || ($_FILES["file"]["type"] == "image/JPG")
 || ($_FILES["file"]["type"] == "image/pjpeg")
-|| ($_FILES["file"]["type"] == "image/png"))&& ($_FILES["file"]["size"] < 15000000) 
+|| ($_FILES["file"]["type"] == "image/png"))&& ($_FILES["file"]["size"] < 45000000) 
 && $_SESSION['loggedin']==1)
 {
 	if ($_FILES["file"]["error"] > 0) {

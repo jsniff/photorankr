@@ -14,11 +14,14 @@ require "functionscampaigns3.php";
     else if(htmlentities($_GET['action']) == "logout") { 
         logout();
     }
-if($_SESSION['loggedin'] != 2) {
-	mysql_close();
-	echo '<META HTTP-EQUIV="Refresh" Content="0; URL="index.php">';
-	exit();	
-}
+
+    if($_SESSION['loggedin'] != 2) {
+    
+        mysql_close();
+        header('Location: index.php');
+        exit();	
+    
+    }
 
 //find the current time
 $currenttime = time();
@@ -93,7 +96,17 @@ session_start();
 
 $repemail = $_SESSION['repemail'];
 
-if($_GET['action'] == "remove") {
+if($_GET['action'] == 'remove') {
+$savedphotoid = $_GET['pd'];
+$querycheck = mysql_query("SELECT emailaddress FROM maybe WHERE id = '$savedphotoid'");
+$emailcheck = mysql_result($querycheck,0,'emailaddress');
+
+    if($repemail == $emailcheck) {
+        $removequery = mysql_query("DELETE FROM maybe WHERE id = '$savedphotoid' AND emailaddress = '$repemail'");
+    }
+}
+
+if($_GET['action'] == "remove" && $_GET['select'] == 'campaigns') {
     $savedphotoid = $_GET['pd'];
     $zero = 'zero';
     $savedquery = "UPDATE campaignphotos SET saved = '$zero' WHERE id = '$savedphotoid'";
@@ -166,7 +179,7 @@ $numcampaigns = mysql_num_rows($numcampsquery);
         </div>
 		</div>
 		
-		<a style="text-decoration:none;color:black;" href="account.php?view=saved"><div class="grid_6 btn3" <?php if($view == '') {echo'style="background:#cccccc;font-size:22px"';} else {echo'style="font-size:22px;"';} ?>>
+		<a style="text-decoration:none;color:black;" href="account.php"><div class="grid_6 btn3" <?php if($view == '') {echo'style="background:#cccccc;font-size:22px"';} else {echo'style="font-size:22px;"';} ?>>
 			<span class="btntext2">Saved Photos
 		</div></a>
         
@@ -195,13 +208,32 @@ $numcampaigns = mysql_num_rows($numcampsquery);
             
             if($view == '') {
             $select = htmlentities($_GET['select']); 
-
-            //loop through the results to create arrays of the needed campaign info and of a photo to display
-           
+                       
             echo'<div class="grid_14 push_6" style="margin-top:-325px;width:780px;">';
-            
+
             if($select == '') {
+                                   
+            //Saved photos from market
+            $marketquery = mysql_query("SELECT * FROM maybe WHERE emailaddress = '$repemail'");
+            $numsavedinmarket = mysql_num_rows($marketquery);
             
+                for($iii=0; $iii<$numsavedinmarket; $iii++) {
+                        $photo[$iii] = mysql_result($marketquery, $iii, "source");
+                        $photo2[$iii] = str_replace("http://photorankr.com/userphotos/","../userphotos/medthumbs/", $photo[$iii]);
+                        $photoid[$iii] = mysql_result($marketquery, $iii, "id");
+                        $caption[$iii] = mysql_result($marketquery, $iii, "caption");
+        
+                        list($height,$width) = getimagesize($photo2[$iii]);
+                        $widthnew = $width / 2.8;
+                        $heightnew = $height / 2.8;
+                
+                            echo'
+                            <div style="width:250px;height:280px;overflow:hidden;float:left;">
+                                <a href="fullsize2.php?imageid=',$imageid[$iii],'"><img style="text-align:center;clear:both;" class="phototitle2" src="',$photo[$iii],'" height="',$widthnew,'px" width="',$heightnew,'px" /></a>
+				
+                        <div style="text-align:left;font-size:14px;clear:both;padding-top:15px;"><a name="removed" href="account.php?pd=',$photoid[$iii],'&action=remove#return"<button class="btn btn-primary" style="z-index:2;position:relative;opacity:.9;">Remove Saved Photo</button></a></div></div>';
+                }
+             
             }
             
             elseif($select == 'campaigns') {
@@ -224,7 +256,7 @@ $numcampaigns = mysql_num_rows($numcampsquery);
 				<div style="width:250px;height:280px;overflow:hidden;float:left;">
 					<a href="fullsize2.php?imageid=',$imageid[$iii],'"><img style="text-align:center;clear:both;" class="phototitle2" src="',$photo[$iii],'" height="',$widthnew,'px" width="',$heightnew,'px" /></a>
 				
-               <div style="text-align:left;font-size:14px;clear:both;padding-top:15px;"><a name="removed" href="account.php?view=saved&pd=',$photoid[$iii],'&action=remove#return"<button class="btn btn-primary" style="z-index:2;position:relative;opacity:.9;">Remove Saved Photo</button></a></div></div>';
+               <div style="text-align:left;font-size:14px;clear:both;padding-top:15px;"><a name="removed" href="account.php?select=campaigns&pd=',$photoid[$iii],'&action=remove#return"<button class="btn btn-primary" style="z-index:2;position:relative;opacity:.9;">Remove Saved Photo</button></a></div></div>';
             }
         }
      echo'</div>'; 
