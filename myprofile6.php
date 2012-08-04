@@ -2,7 +2,6 @@
 <?php 
 
 //CONNECT TO DB
-//viewprofileagain
 require "db_connection.php";
 
 if($_GET['action'] == "signup") { //if they tried to sign up from signin.php
@@ -2102,7 +2101,7 @@ echo '<div class="grid_14 push_6" style="margin-top: -130px;margin-left:-40px;">
 		<!--ALLOW USER TO UPLOAD PICTURES-->
 	<div id="uploadPhoto">
 	<span style="font-size:16px">Upload a Photo or <a href="myprofile.php?view=upload&cs=n">Create an Exhibit</a>:</span>
-	<form action="upload_photo.php" method="post" enctype="multipart/form-data">
+	<form action="upload_photowithexif.php" method="post" enctype="multipart/form-data">
     <br />
     </div>
     <div class="well" style="font-size:15px;">

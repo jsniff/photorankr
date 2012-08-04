@@ -15,13 +15,6 @@ require "functionscampaigns3.php";
         logout();
     }
     
-    if($_SESSION['loggedin'] != 2) {
-    
-        mysql_close();
-        header('Location: index.php');
-        exit();	
-    
-    }
 
 //PHOTOGRAPHER INFORMATION
 $userid = htmlentities($_GET['u']);
@@ -89,9 +82,11 @@ $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$useremail%'";
 $view = htmlentities($_GET['view']);
 
 //FOLLOW QUERY
-if(htmlentities($_GET['fw'] == 'yes')) {
+   
     $followcheckquery = mysql_query("SELECT following FROM campaignusers WHERE repemail = '$repemail'");
     $followcheck = mysql_result($followcheckquery,0,'following');
+    
+if(htmlentities($_GET['fw'] == 'yes')) {
         
         $search_string=$followcheck;
 		$regex="/$userid/";
@@ -103,6 +98,12 @@ if(htmlentities($_GET['fw'] == 'yes')) {
     }
 }
 
+//UNFOLLOW QUERY
+if(htmlentities($_GET['action'] == 'unfollow')) {
+    $newfollowinglist = str_replace("$userid","", $followcheck);
+    $unfollowquery = mysql_query("UPDATE campaignusers SET following = '$newfollowinglist' WHERE repemail = '$repemail'");
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -110,7 +111,7 @@ if(htmlentities($_GET['fw'] == 'yes')) {
 <html>
 <head>
 
-	<link rel="stylesheet" href="css/bootstrapnew2.css" type="text/css" />
+	<link rel="stylesheet" href="../css/bootstrapNew.css" type="text/css" />
     <link rel="stylesheet" href="css/reset.css" type="text/css" />
     <link rel="stylesheet" href="css/text.css" type="text/css" />
     <link rel="stylesheet" href="css/960_24.css" type="text/css" />
@@ -306,7 +307,10 @@ height="100px" width="100px" />
 
 <?php navbarnew(); ?>
 
-<div class="container_24" style="position:relative;margin-top:50px">
+<div class="container_24">
+
+<div class="grid_24" style="padding-top:65px;">
+
 	<div class="grid_7 pull_2">
 		<div class="grid_7 container" id="profilebox">
 			<img class="phototitle2" src="<?php echo $profilepic; ?>" style="width:130px;height:130px;float:left;"/>
@@ -316,8 +320,23 @@ height="100px" width="100px" />
 		<div class="grid_3">
 			<h1 id="name"><?php echo $fullname; ?></h1>	
 		</div>
-		<div style="width:80px;margin-top:10px;margin-left:15px;" data-toggle="modal" data-backdrop="static" href="#followmodal" class="btn btn-success">Follow</div>
-			
+
+<?php
+	
+        //MAKE SURE CORRECT BUTTON SHOWS
+
+		$regex="/$userid/";
+		$fwmatch=preg_match($regex,$followcheck);
+
+        if($fwmatch > 0) {
+        echo'<a style="width:80px;margin-top:10px;margin-left:15px;" class="btn btn-primary" href="viewprofile.php?u=',$userid,'&action=unfollow">Unfollow</a>';
+        }
+        else {
+        echo'<div style="width:80px;margin-top:10px;margin-left:15px;" data-toggle="modal" data-backdrop="static" href="#followmodal" class="btn btn-success">Follow</div>';
+        }
+
+?>
+
         <div class="grid_1" id="repcricle"> 
 		 <?php //fancy jQuery stuff
 		?>
@@ -380,7 +399,7 @@ height="100px" width="100px" />
                 $photo[$iii] = mysql_result($newestphotos,$iii,'source');
                 $photobig[$iii] = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/", $photo[$iii]);
                 $photo[$iii] = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "http://photorankr.com/userphotos/medthumbs/", $photobig[$iii]);
-                $imageid[$iii] = mysql_result($newestphotos,$iii,'id');
+                $imageid = mysql_result($newestphotos,$iii,'id');
                 $caption = mysql_result($newestphotos,$iii,'caption');
                 $ranking = (mysql_result($newestphotos,$iii,'points')/mysql_result($newestphotos,$iii,'votes'));
                 $ranking = number_format($ranking,2);
@@ -394,7 +413,7 @@ height="100px" width="100px" />
                     }
                     
                 echo'
-				<div class="phototitle fPic" id="',$imageid[$iii],'" style="width:230px;height:230px;overflow:hidden;">
+				<div class="phototitle fPic" id="',$imageid,'" style="width:230px;height:230px;overflow:hidden;">
                 
                  <a href="fullsize2.php?imageid=',$imageid,'"><div class="statoverlay" style="z-index:1;left:0px;top:140px;position:relative;background-color:black;width:238px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$caption,'"<br>By: ',$fullname,'</br>Rank: ',$ranking,'</p></div>
                  
@@ -598,9 +617,11 @@ echo'
 
 
 	</div>			
-
     </div>
 
+<span style="padding-top:none;"><?php footer(); ?>
+
+    </div>
 
 
 <script type="text/javascript" src="js/mocha.js"></script>    
@@ -617,7 +638,7 @@ $(document).ready(function(){
 });
 </script>
     
-    
+
     
 </body>
 </html>	

@@ -71,7 +71,7 @@ session_start();
 
 
 </head>
-<body style="overflow-x:hidden;">
+<body style="overflow-x:hidden; background-color:#fff;">
 
 <?php navbarnew(); ?>
 
@@ -81,7 +81,7 @@ session_start();
 <div class="container">
 
 <!--Featured Photos-->
-<div class="grid_24" style="padding-top:20px;margin-left:-130px;width:1200px;">
+<div class="grid_24" style="padding-top:70px;margin-left:-130px;width:1200px;">
     
     <?php
         $topfavedphotos = mysql_query("SELECT source,points,votes,price,caption FROM photos ORDER BY faves DESC LIMIT 0,6");
@@ -106,7 +106,7 @@ session_start();
         
         for($iii=0; $iii < 6; $iii++) {
         $price[$iii] = mysql_result($topfavedphotos,$iii,'price');
-        $caption[$iii] = mysql_result($topfavedphotos,$iii,'caption');
+        $caption[] = mysql_result($topfavedphotos,$iii,'caption');
         $points[$iii] = mysql_result($topfavedphotos,$iii,'points');
         $votes[$iii] = mysql_result($topfavedphotos,$iii,'votes');
         $rank[$iii] = ($points[$iii]/$votes[$iii]);
@@ -115,8 +115,11 @@ session_start();
         
         echo'
         <div id="gallery" style="border: 2px solid #999;">
-        <div class="statoverlay" style="z-index:1;left:0px;top:250px;position:relative;background-color:black;width:800px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;">$',$price[0],'&nbsp;<span style="font-size:20px;">|</span>&nbsp;9.14</span>&nbsp;&nbsp;<span style="font-size:15px;line-height:18px;">"Sunset overlooking mount kilnor next to lake"</span></p></div>
-    		   <img style="position:relative;top:-95px;min-width:800px;min-height:300px;" src="',$source1,'" height="80%" />
+        
+    		   <img style="width:800px;height:300px;" src="',$source1,'"/>
+               
+               <div class="statoverlay" style="z-index:1;left:0px;top:250px;position:relative;background-color:black;width:800px;height:75px;opacity:.6;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;">$',$price[0],'&nbsp;<span style="font-size:20px;">|</span>&nbsp;9.14</span>&nbsp;&nbsp;<span style="font-size:15px;line-height:18px;">"',$caption[$iii],'"</span></p></div>
+               
     		   <img style="position:relative;top:-95px;min-width:800px;min-height:300px;" src="',$source2,'" height="80%" />
     		   <img style="position:relative;top:-95px;min-width:800px;min-height:300px;" src="',$source3,'" height="80%" />
     		   <img style="position:relative;top:-95px;min-width:800px;min-height:300px;" src="',$source4,'" height="80%" />
@@ -139,8 +142,8 @@ session_start();
 
 
 <!--TOP PHOTOGRAPHERS BOX-->    
-    <div class="gradientbox" style="margin-top:-40px;float:right;width:250px;height:300px;">
-        <div style="background-color:#1B628F;z-index:2;padding-top:4px;text-align:center;color:white;font-size:16px;opacity:1;width:250px;height:24px;border-top-left-radius:10px;border-top-right-radius:10px;">Featured Photographers<p>
+    <div style="margin-top:-40px;float:right;width:250px;height:300px;">
+        <div style="background-color:#6aae45;z-index:2;padding-top:4px;text-align:center;color:white;font-size:16px;opacity:1;width:250px;height:24px;border-top-left-radius:10px;border-top-right-radius:10px;">Featured Photographers<p>
         
         <div style="margin-top:-30px;">
         <?php
@@ -334,10 +337,9 @@ session_start();
          <div class="control-group">
 
           <!-- Text input-->
-          <label class="control-label" for="input01">Keywords:</label>
+          <label class="control-label" for="input01">Keyword:</label>
           <div class="controls" style="padding-top:6px;">
-            <input type="text" style="width:940px;height:32px;" placeholder="Search for photos with these tags" class="input-xlarge" name="keywords">
-            <p class="help-block" style="margin-top:-7px;">Separate with a comma (e.g. leaf, boat, etc.)</p>
+            <input type="text" style="width:150px;height:30px;" placeholder="Search Term" class="input-xlarge" name="keyword">
           </div>
         </div>
 
@@ -365,7 +367,7 @@ session_start();
 			range: true,
 			min: 0,
 			max: 200,
-			values: [ 0, 150 ],
+			values: [0, 150 ],
 			slide: function( event, ui ) {
 				$( "#amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
 						$( "#values" ).val(ui.values[ 0 ]);
@@ -513,7 +515,7 @@ session_start();
 
 </span>
 </div>
-<p class="flip2 coolio" style="margin-left:320px;position:relative;top:-36px;">Advanced Search</p>
+<p class="flip2" style="margin-left:320px;position:relative;top:-36px;font-size:18px;font-weight:200;">Advanced Search</p>
 
 
 <?php
@@ -529,7 +531,7 @@ $numresults = mysql_num_rows($query);
         $order=$_POST['price']; 
         
             if($order == 'Low - High') {
-                $query = mysql_query("SELECT * FROM photos WHERE price != 'Not For Sale' AND price != '' ORDER BY id DESC, price ASC LIMIT 0,60");
+                $query = mysql_query("SELECT * FROM photos WHERE price != 'Not For Sale' ORDER BY id DESC, price ASC LIMIT 0,60");
                 $numresults = mysql_num_rows($query); 
             }
             
@@ -558,10 +560,17 @@ $twoweeksago = time() - 1209600;
 $query = mysql_query("SELECT * FROM photos WHERE price < '$deal' AND time > '$twoweeksago' ORDER BY points DESC LIMIT 0,60");
 $numresults = mysql_num_rows($query);
 }
+elseif($category == 'following') {
+    $followcheckquery = mysql_query("SELECT following FROM campaignusers WHERE repemail = '$repemail'");
+    $followcheck = mysql_result($followcheckquery,0,'following');
+$query = mysql_query("SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE userinfo.user_id IN ('$followcheck')  ORDER BY time DESC LIMIT 0,60");
+$numresults = mysql_num_rows($query);
+}
 $searchterm = htmlentities($_GET['searchterm']);
 if($c == '' && $searchterm != '') {
-$query = mysql_query("SELECT *, MATCH (caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) AGAINST ('$searchterm') AS matching FROM photos WHERE MATCH (caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) AGAINST ('$searchterm') ORDER BY (points/votes) DESC");
+$query = mysql_query("SELECT * FROM photos WHERE concat(caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) LIKE '%$searchterm%' ORDER BY (views) DESC LIMIT 0,60");
 $numresults = mysql_num_rows($query);
+echo $numresults;
 if($numresults < 1) {
 echo'<div style="font-size:14px;text-align:center;">No results found for "',$searchterm,'." Try an advanced search above.</div>';
 }
@@ -570,7 +579,7 @@ echo'<div style="font-size:14px;text-align:center;">No results found for "',$sea
 $resolution = htmlentities($_GET['resolution']);
 $orientation = htmlentities($_GET['orientation']);
 $license = htmlentities($_GET['license']);
-$keywords = htmlentities($_GET['keywords']);
+$keyword = htmlentities($_GET['keyword']);
 $cat = $_GET['category'];
 $lowerprice = htmlentities($_GET['c']);
 $higherprice = htmlentities($_GET['c2']);
@@ -579,7 +588,7 @@ $higherrep = htmlentities($_GET['rc2']);
 $lowerdown = htmlentities($_GET['dc']);
 $higherdown = htmlentities($_GET['dc2']);
 
-if($resolution || $orientation || $license || $keywords || $cat || $higherprice || $lowerrep || $higherrep || $lowerdown || $higherdown) {
+    if($resolution || $orientation || $license || $keyword || $cat || $higherprice || $lowerrep || $higherrep || $lowerdown || $higherdown) {
           
           $count = 1;    
           foreach($cat as $category) //loop through the checkboxes
@@ -590,43 +599,71 @@ if($resolution || $orientation || $license || $keywords || $cat || $higherprice 
                 if($count == 4) {$cat4 = $category; }
                 $count += 1;
             }
-            
-          $keywordpieces = explode(", ", $keywords);
-          $countpieces = count($keywordpieces);
-          for($jjj=0; $jjj<$countpieces; $jjj++) {
-                if($jjj != $countpieces - 1) {
-                    $keywordlist = $keywordlist . "'".$keywordpieces[$jjj]."',"; 
-                }
-                else {
-                     $keywordlist = $keywordlist . "'".$keywordpieces[$jjj]."'"; 
-                }
-          }        
-             
-          $keywordquery = mysql_query("SELECT id, MATCH (caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) AGAINST ('leaf') AS matching FROM photos WHERE MATCH (caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) AGAINST ('leaf')");
-          $numkeyresults = mysql_num_rows($keywordquery);
-          
-          if($numkeyresults > 0) {    
                 
-                for($iii=0; $iii < $numkeyresults; $iii++) {
-                    $keywordid = mysql_result($keywordquery,$iii,'id');
-                    $keywordidlist = $keywordid . ",";
+                $query = "SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE";
+                
+                if($cat1 || $cat2 || $cat3 || $cat4) {
+                $query .= " (";
                 }
                 
-                $optionsquery = mysql_query("SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE (singlecategorytags LIKE '%$cat1%' OR singlecategorytags LIKE '% $cat2%' OR singlecategorytags LIKE '%$cat3%' OR singlecategorytags LIKE '%$cat4%') AND ID IN ('$keywordidlist') LIMIT 0, 60");
-                $numresults = mysql_num_rows($numresults);
-                echo 'Matches:' . $numresults;
-            }
-          
-          elseif($numkeyresults < 1) {
-                $optionsquery = mysql_query("SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE (singlecategorytags LIKE '%$cat1%' OR singlecategorytags LIKE '% $cat2%' OR singlecategorytags LIKE '%$cat3%' OR singlecategorytags LIKE '%$cat4%') LIMIT 0, 60");
-                $numresults = mysql_num_rows($numresults);
-                echo 'Matches:' . $numresults;
-            }
-    
-
+                if(!empty($cat1)) {
+                $query .= "singlecategorytags LIKE '%$cat1%'";
+                }
+                
+                if(!empty($cat2)) {
+                $query .= " OR singlecategorytags LIKE '%$cat2%'";
+                }
+                
+                if(!empty($cat3)) {
+                $query .= " OR singlecategorytags LIKE '%$cat3%'";
+                }
+                
+                if(!empty($cat4)) {
+                $query .= " OR singlecategorytags LIKE '%$cat4%'";
+                }
+                
+                if($cat1 || $cat2 || $cat3 || $cat4) {
+                $query .= ")";
+                }
+                
+                if(!empty($higherprice)) {
+                $query .= " AND price < $higherprice";
+                }
+                
+                if(!empty($lowerprice)) {
+                $query .= " AND price > $lowerprice";
+                }
+                
+                if(!empty($higherdown)) {
+                $query .= " AND sold < $higherdown";
+                }
+                
+                if(!empty($lowerdown)) {
+                $query .= " AND sold > $lowerdown";
+                }
+                
+                if(!empty($higherrep)) {
+                $query .= " AND userinfo.reputation < $higherrep";
+                }
+                
+                if(!empty($lowerrep)) {
+                $query .= " AND userinfo.reputation > $lowerrrep";
+                }
+                                
+                if(!empty($keyword)) {
+                $query .= " AND concat(caption,tag1,tag2,tag3,tag4,singlestyletags,singlecategorytags) LIKE '%$keyword%'";
+                }
+                
+                $query .= " ORDER BY (views)";
+                
+                $query = mysql_query($query);
+                                        
+                $numresults = mysql_num_rows($query);
+                
             if($numresults < 1) {
-                echo'<div style="font-size:14px;text-align:center;">No results found. Try a different search above.</div>';
+                echo'<div style="font-size:14px;text-align:center;">No results found. Please try a different search above or begin a campaign.</div>';
             } 
+            
 
 } //end of advanced search block
 
@@ -650,7 +687,6 @@ for($iii=0; $iii < $numresults; $iii++) {
     }
     $title = mysql_result($query,$iii,'caption');
     $imageid = mysql_result($query,$iii,'id');
-    $title = "'" . $title . "'";
     $owner = mysql_result($query,$iii,'emailaddress');
     $sold = mysql_result($query,$iii,'sold');
     $points = mysql_result($query,$iii,'points');
@@ -663,7 +699,7 @@ for($iii=0; $iii < $numresults; $iii++) {
     $rating = number_format($rating,2);
     $rating2 = number_format($rating,1);
 
-    $ownerquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$owner'");
+    $ownerquery = mysql_query("SELECT firstname,lastname,profilepic FROM userinfo WHERE emailaddress = '$owner'");
     $ownerpic = mysql_result($ownerquery,0,'profilepic');
     $ownerpic = 'http://photorankr.com/' . $ownerpic;
     $firstname = mysql_result($ownerquery,0,'firstname');
@@ -671,14 +707,14 @@ for($iii=0; $iii < $numresults; $iii++) {
     $fullname = $firstname . " " . $lastname;
     
     list($height,$width) = getimagesize($imagebig[$iii]);
-    $widthnew = $width / 6.5;
-    $heightnew = $height / 6.5;
-    $widthmed = $width / 5;
-    $heightmed = $height / 5;
+    $widthnew = $width / 7.5;
+    $heightnew = $height / 7.5;
+    $widthmed = $width / 5.5;
+    $heightmed = $height / 5.5;
 
-    echo'<div class="fPic"  id="',$imageid,'" style="width:230px;height:250px;overflow:hidden;float:left;"><a href="fullsize2.php?imageid=',$imageid,'"><img id="popover',$iii,'" rel="popover" data-content="<p>Rating: ',$rating,'</p><p>License: ',$license,'</p><p>Photographer: ',$fullname,'</p><img src=',$imagebig2[$iii],' height=',$widthmed,'px width=',$heightmed,'px  /><p>Downloads: ',$sold,'</p>" data-original-title="',$title,'" onmousedown="return false" oncontextmenu="return false;" class="phototitle" style="margin-right:30px;margin-top:20px;clear:right;" src="',$imagebig2[$iii],'" height="',$widthnew,'px" width="',$heightnew,'px" /></a>
-    <div style="text-align:center;font-size:14px;clear:both;">',$price,'&nbsp;|&nbsp;',$rating2,'
-     </div>';
+    echo'<div class="fPic"  id="',$imageid,'" style="width:200px;height:220px;overflow:hidden;float:left;"><a href="fullsize2.php?imageid=',$imageid,'"><div style="width:',$heightnew,'px;"><img id="popover',$iii,'" rel="popover" data-content="Rating: ',$rating,'<br />License: ',$license,'<br />Photographer: ',$fullname,'<img src=',$imagebig2[$iii],' height=',$widthmed,'px width=',$heightmed,'px  />" data-original-title="',$title,'" onmousedown="return false" oncontextmenu="return false;" class="phototitletest" style="margin-top:20px;clear:right;float:bottom;margin:auto;" src="',$imagebig2[$iii],'" height="',$widthnew,'px" width="',$heightnew,'px" /></a>
+    <div style="text-align:center;font-size:14px;clear:both;padding-top:10px;">',$price,'&nbsp;|&nbsp;',$rating2,'
+     </div></div>';
      ?>
      
     <script>  

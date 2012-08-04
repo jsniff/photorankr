@@ -128,7 +128,7 @@ $numcampaigns = mysql_num_rows($numcampsquery);
 
 <!--NEW STYLE-->
 
-<div class="container_24" style="position:relative;margin-top:10px">
+<div class="container_24" style="position:relative;margin-top:70px">
 	<div class="grid_7 pull_2">
 		<div class="grid_7 container" id="profilebox">
 			<img class="phototitle2" src="<?php echo $logo; ?>" style="width:120px;height:120px;float:left;"/>
@@ -221,6 +221,7 @@ $numcampaigns = mysql_num_rows($numcampsquery);
                         $photo[$iii] = mysql_result($marketquery, $iii, "source");
                         $photo2[$iii] = str_replace("http://photorankr.com/userphotos/","../userphotos/medthumbs/", $photo[$iii]);
                         $photoid[$iii] = mysql_result($marketquery, $iii, "id");
+                        $imageid[$iii] = mysql_result($marketquery, $iii, "imageid");
                         $caption[$iii] = mysql_result($marketquery, $iii, "caption");
         
                         list($height,$width) = getimagesize($photo2[$iii]);

@@ -503,7 +503,7 @@ $camptitle = mysql_result($campaigntitlequery,0,'title');
 ?>
  
 <!--TITLE OF PHOTO-->     
-<div class="grid_24">
+<div class="grid_24" style="margin-top:60px;">
 <div class="grid_21 pull_2"><div style="margin-top:10px;padding-top:5px;padding-left:3px;line-height:30px;font-size:30px;
 "><?php echo '(<a href="campaignphotos.php?id=',$campaign,'">',$camptitle,'</a>) "',$title,'"'; ?>
 </div></div></div>

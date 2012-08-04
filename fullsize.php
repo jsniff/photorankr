@@ -1,23 +1,29 @@
 <?php
 
-//LOG THEM OUT IF THEY TRY TO LOG OUT
-session_start();
-if($_GET['action'] == "logout") {
-	$_SESSION['loggedin'] = 0;
-	session_destroy();
-}
+//connect to the database
+require "db_connection.php";
+require "functions.php";
 
-//GET THE IMAGE
+//start the session
+session_start();
+
+    // if login form has been submitted
+    if (htmlentities($_GET['action']) == "login") { 
+        login();
+    }
+    else if(htmlentities($_GET['action']) == "logout") { 
+        logout();
+    }
+
+    $email = $_SESSION['email'];
+    
+    //GET THE IMAGE
 $image=addslashes($_GET['image']);
 //if the url does not contain an image send them back to trending
 if(!isset($_GET['image'])) {
 	header("Location: trending.php");
 	exit();
 }
-
-//CONNECT TO DATABASE
-require "db_connection.php";
-require "functions.php";
 
 //add to the views column
 $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image'") or die(mysql_error());
@@ -428,9 +434,9 @@ $f=htmlentities($_GET['f']);
 else {$f=0;}
 if ($f==1) {
 	if($_SESSION['loggedin'] == 1) {
-		$vieweremail = $_SESSION['email'];
+        $email = $_SESSION['email'];
 		//run a query to be used to check if the image is already there
-		$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress='$vieweremail'") or die(mysql_error());
+		$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress='$email'") or die(mysql_error());
         $viewerfirst = mysql_result($check, 0, "firstname");
         $viewerlast = mysql_result($check, 0, "lastname");
         $imagelink2=str_replace(" ","", $image);
@@ -451,13 +457,13 @@ if ($f==1) {
 			/* echo '<div style="position:absolute;  top:100px; left:820px; font-family: lucida grande, georgia; color:black; font-size:15px;">This photo is already in your favorites!</div>'; */
 		}
 		else {
-			$favesquery="UPDATE userinfo SET faves=CONCAT(faves,'$queryimage') WHERE emailaddress='$vieweremail'";
+			$favesquery="UPDATE userinfo SET faves=CONCAT(faves,'$queryimage') WHERE emailaddress='$email'";
 			mysql_query($favesquery);
 			mysql_query("UPDATE photos SET faves=faves+1 WHERE source='$image'");
             
              //newsfeed query
         $type = "fave";
-        $newsfeedfavequery=mysql_query("INSERT INTO newsfeed (firstname, lastname, emailaddress,type,source,caption,owner) VALUES ('$viewerfirst', '$viewerlast', '$email','$type','$image','$caption','$emailaddress')");
+        $newsfeedfavequery=mysql_query("INSERT INTO newsfeed (firstname,lastname,emailaddress,type,source,caption,owner) VALUES ('$viewerfirst', '$viewerlast', '$email','$type','$image','$caption','$emailaddress')");
      
 //notifications query     
 $notsquery = "UPDATE userinfo SET notifications = (notifications + 1) WHERE emailaddress = '$emailaddress'";
@@ -682,8 +688,8 @@ $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$emailaddress%'";
     $followerlimit =30;
     $totalpgviewslimit = 800;
     $rankinglimit = 150; 
-    $followerweight = .3;
-    $totalpgviewsweight = .4;
+    $followerweight = .4;
+    $totalpgviewsweight = .3;
     $rankingweight = .3; 
 
     
@@ -744,11 +750,9 @@ $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$emailaddress%'";
 
 
  //DISCOVER SCRIPT
-
-    $useremail = $_SESSION['email'];
     
   //get the users information from the database
-  $likesquery = "SELECT * FROM userinfo WHERE emailaddress='$useremail'";
+  $likesquery = "SELECT * FROM userinfo WHERE emailaddress='$email'";
   $likesresult = mysql_query($likesquery) or die(mysql_error());
   $discoverseen = mysql_result($likesresult, 0, "discoverseen");
 
@@ -1613,7 +1617,7 @@ if($_POST['ranking']) { //if ranking was posted
 	if ($ranking >= 1 & $ranking <= 10) {  //if ranking makes sense
 		
         
-        if($ultimatereputationme > 70 && $ultimatereputationme < 100)
+        if($ultimatereputationme > 70)
         {
         $prevpoints+=($ranking*2.5);
 		$prevvotes+=2.5;
@@ -1750,7 +1754,7 @@ echo'
 <input type="hidden" name="height" value="<?php echo $height; ?>">
 <input type="hidden" name="label" value="<?php echo $caption; ?>">
 <input type="hidden" name="imageID" value="<?php echo $imageID; ?>">
-<input type="hidden" name="customeremail" value="<?php echo $useremail; ?>">
+<input type="hidden" name="customeremail" value="<?php echo $email; ?>">
 <button type="submit" name="submit" value="DOWNLOAD NOW" class="btn btn-warning" style="margin-left:30px;width:170px; height: 30px; font-family: arial; position: relative; font-size:14px; top: 7px; left: 0px; ">DOWNLOAD NOW</button>
                     </form>
  <br />
@@ -1788,7 +1792,6 @@ background-color:#DCE1E6;font-size:15px;">
             
 <?php
 
-$useremail=$_SESSION['email'];
 $image=mysql_real_escape_string($_GET['image']);
 $imagenew=str_replace("userphotos/","", $image);
 $imagelink=str_replace(" ","", $image);
@@ -1805,7 +1808,7 @@ if($action == "comment" && $_SESSION['loggedin']==1) {
     
     //SEND EMAILS TO PEOPLE WHO HAVE PREVIOUSLY COMMENTED ON PHOTO
     //GET USEREMAIL (PERSON COMMENTING) FIRSTNAME, LASTNAME
-    $sql = "SELECT * FROM userinfo WHERE emailaddress = '$useremail'";
+    $sql = "SELECT * FROM userinfo WHERE emailaddress = '$email'";
 	$userresult = mysql_query($sql) or die(mysql_error());  
     $poster_id = mysql_result($userresult, 0, "user_id");
 	$userfirst = mysql_result($userresult, 0, "firstname");
@@ -1833,7 +1836,7 @@ if($action == "comment" && $_SESSION['loggedin']==1) {
     //YOEMAIL IS CURRENT INDEX EMAIL, EMAILADDRESS IS OWNER'S EMAIL (OF THE PHOTO)
     
     $found = strpos($prevemails,$yoemail);
-    if ($yoemail != $emailaddress && $yoemail != $useremail && !$found)
+    if ($yoemail != $emailaddress && $yoemail != $email && !$found)
     {
     
 //GRAB SETTINGS LIST
@@ -1878,7 +1881,7 @@ else {
     	//The file was successfully opened, lets write the comment to it.
     	//their full name is their first name SPACE last name
 	//set their first name to their first name and last to last
-	$sql = "SELECT * FROM userinfo WHERE emailaddress = '$useremail'";
+	$sql = "SELECT * FROM userinfo WHERE emailaddress = '$email'";
 	$userresult = mysql_query($sql) or die(mysql_error());  
 	$userfirst = mysql_result($userresult, 0, "firstname");
 	$userlast = mysql_result($userresult, 0, "lastname");
@@ -1910,21 +1913,21 @@ else {
                                       
                   
     //Write to the file
-    @chmod($file,0644);
+    @chmod($file,0777);
     fwrite($fp, $outputstring, strlen($outputstring));
     @include("$file");
         $type3 = "comment";
-        $newsfeedcommentquery="INSERT INTO newsfeed (firstname, lastname, emailaddress,owner,type,source) VALUES ('$userfirst', '$userlast', '$useremail','$emailaddress','$type3','$image')";
+        $newsfeedcommentquery="INSERT INTO newsfeed (firstname, lastname, emailaddress,owner,type,source) VALUES ('$userfirst', '$userlast', '$email','$emailaddress','$type3','$image')";
         $commentnewsquery = mysql_query($newsfeedcommentquery);
         
-        if($useremail != $emailaddress) {
+        if($email != $emailaddress) {
         //notifications query     
 $notsquery = "UPDATE userinfo SET notifications = (notifications + 1) WHERE emailaddress = '$emailaddress'";
 $notsqueryrun = mysql_query($notsquery);  
    }
                 
     //MAIL EMAIL TO PHOTOGRAPHER WHOSE PHOTO IS BEING COMMENTED UPON  
-    if ($emailaddress != $useremail) {
+    if ($emailaddress != $email) {
     
 
 //GRAB SETTINGS LIST
@@ -1991,7 +1994,7 @@ if(@fopen("$file", 'a')==FALSE) {
 }
 else {
 @fclose("$file");}
-@chmod($file,0644);
+@chmod($file,0777);
 echo '<div style="margin-left: 10px;font-size:15px;">';
 @include("$file"); 
 echo '</div>';

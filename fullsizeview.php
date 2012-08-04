@@ -204,9 +204,9 @@ $f=htmlentities($_GET['f']);
 else {$f=0;}
 if ($f==1) {
 	if($_SESSION['loggedin'] == 1) {
-		$vieweremail = $_SESSION['email'];
+		$email = $_SESSION['email'];
 		//run a query to be used to check if the image is already there
-		$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress='$vieweremail'") or die(mysql_error());
+		$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress='$email'") or die(mysql_error());
         $viewerfirst = mysql_result($check, 0, "firstname");
         $viewerlast = mysql_result($check, 0, "lastname");
         $imagelink2=str_replace(" ","", $image);
@@ -227,7 +227,7 @@ if ($f==1) {
 			/* echo '<div style="position:absolute;  top:100px; left:820px; font-family: lucida grande, georgia; color:black; font-size:15px;">This photo is already in your favorites!</div>'; */
 		}
 		else {
-			$favesquery="UPDATE userinfo SET faves=CONCAT(faves,'$queryimage') WHERE emailaddress='$vieweremail'";
+			$favesquery="UPDATE userinfo SET faves=CONCAT(faves,'$queryimage') WHERE emailaddress='$email'";
 			mysql_query($favesquery);
 			mysql_query("UPDATE photos SET faves=faves+1 WHERE source='$image'");
             
@@ -1687,7 +1687,7 @@ else {
                                       
                   
     //Write to the file
-    @chmod($file,0644);
+    @chmod($file,0777);
     fwrite($fp, $outputstring, strlen($outputstring));
     @include("$file");
         $type3 = "comment";
@@ -1767,7 +1767,7 @@ if(@fopen("$file", 'a')==FALSE) {
 }
 else {
 @fclose("$file");}
-@chmod($file,0644);
+@chmod($file,0777);
 echo '<div style="margin-left: 10px;font-size:15px;">';
 @include("$file"); 
 echo '</div>';

@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 //give this file some extra time to upload the photo
 ini_set('max_input_time', 2200);
@@ -55,7 +55,7 @@ if ((($_FILES["file"]["type"] == "image/gif")
 
 		if (!$name | !$camera | $price < 0) 
 		{
-         		header("location:myprofile.php?view=upload&action=uploadfailure");
+         		header("location:myprofile2.php?view=upload&action=uploadfailure");
         		exit();
 		}		
             
@@ -100,7 +100,7 @@ if ((($_FILES["file"]["type"] == "image/gif")
 
     		if (file_exists("upload/" . $_FILES["file"]["name"]))
       		{
-         		header("location:myprofile.php?view=upload&action=uploadfailure");
+         		header("location:myprofile2.php?view=upload&action=uploadfailure");
         		exit();
       		}
     		else
@@ -143,6 +143,54 @@ if ((($_FILES["file"]["type"] == "image/gif")
 
 		$target = $path_to_medimage_directory . $newfilename;
 		//insert the file information into the database
+
+//$query="SELECT * FROM photos ORDER BY id DESC LIMIT 0, 21";
+//$result=mysql_query($query);
+//$numberofpics=mysql_num_rows($result);
+
+
+
+
+//echo'<div id="container" style="width:1140px;position:relative;left:-100px;top:50px;">';
+  //  for($iii=1; $iii <= 20; $iii++) {
+$image = mysql_result("source");
+$imagebig = str_replace("userphotos/","userphotos/bigphotos/", $image);
+
+    $exif = exif_read_data($imagebig,'IFD0');
+       // $exif = exif_read_data($_FILES[$imagebig]);
+        echo $exif===false ? "No header data found.<br />\n" : "Image contains headers<br />\n";
+        
+        $exif = exif_read_data($imagebig, 0, true);
+        //$exif = exif_read_data($_FILES[$imagebig]);
+        echo "test2.jpg:<br />\n";
+        foreach ($exif as $key => $section) {
+            foreach ($section as $name => $val) {
+                echo "$key.$name: $val<br />\n";
+                  if($key.$name==EXIF.ShutterSpeed) {
+    $shutterspeedtest = "INSERT INTO photos (shutterspeed) VALUES ('$val')";
+                $shutterquery = mysql_query($shutterspeedtest);
+  }
+        if($key.$name==EXIF.ApertureValue) {
+                        $aperturetest = "INSERT INTO photos (aperture) VALUES ('$val')";
+                      $aperturequery = mysql_query($aperturetest);
+        }
+
+         if($key.$name==EXIF.FocalLength) {
+              $focallengthtest = "INSERT INTO photos (lens) VALUES ('$val')";
+              $aperturequery = mysql_query($focallengthtest);
+
+            }
+      if($key.$name==EXIF.ISOSpeedRatings) {
+            $ISOtest = "INSERT INTO photos (filter) VALUES ('$val')";
+            $ISOquery = mysql_query($ISOtest);
+            }
+        }
+        }  
+
+
+
+
+
 		$insertquery="INSERT INTO photos (source, caption, emailaddress, tag, time, price, location, country, tag1, tag2, tag3, tag4, camera, focallength, shutterspeed, aperture, lens, filter, about, copyright, sets, maintags, settags, set_id, singlestyletags, singlecategorytags)
 		VALUES ('$target', '$name', '$email', '$tag', '$currenttime', '$price', '$location', '$country', '$tag1', '$tag2', '$tag3', '$tag4', '$camera', '$focallength', '$shutterspeed', '$aperture', '$lens', '$filter', '$about', '$copyright', '$addtoset', '$maintags2','$settags2','$set_id','$singlestyletags2','$singlecategorytags2')";
 		mysql_query($insertquery);
@@ -164,13 +212,13 @@ if ((($_FILES["file"]["type"] == "image/gif")
         	$type = "photo";
         	$newsfeedquery=mysql_query("INSERT INTO newsfeed (firstname, lastname,emailaddress,type,source,caption) VALUES ('$firstname','$lastname','$email','$type','$target','$name')");
 
-		echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=upload&action=uploadsuccess">';
+		echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile2.php?view=upload&action=uploadsuccess">';
 		exit();
     	}
 }
 else
 {
-	echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=upload&action=uploadfailure">';
+	echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile2.php?view=upload&action=uploadfailure">';
 	exit();
 }
 

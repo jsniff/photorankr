@@ -94,28 +94,28 @@ echo'
 function navbarnew() {  
 echo'
 <link rel="stylesheet" href="css/style.css" type="text/css"/> 
-<div style="width:100%;height:65px;border-bottom:1px solid #999;min-width:1085px;" class="gradient">
-<a href="/market"><img style="float:left;padding-left:30px;padding-top:13px;" src="graphics/logomarket.png" width="260" /></a>
-<label style="float:left;font-size:13px;color:#333;padding-top:23px;padding-left:80px;font-weight:bold;">Search</label>
+<div style="width:100%;height:50px;border-bottom:1px solid #999;min-width:1085px;position:fixed;z-index:15;" class="gunmetal">
+<a href="/market"><img class="hover" style="float:left;padding-left:30px;padding-top:2px;" src="graphics/logotext.png" width="210" /></a>
+<label style="float:left;font-size:13px;color:white;padding-top:15px;padding-left:80px;font-weight:normal;">Search</label>
 
 <form class="navbar-search" action="/market/#search" method="get">
-<input class="search" style="position:relative;margin-left:10px;margin-top:10px;" name="searchterm" type="text">
-<a href="#search"><input style="margin-top:9px;margin-left:-3px;" type="submit" class="go" value="Go"></a>
+<input class="search" style="position:relative;margin-left:10px;margin-top:2px;" name="searchterm" type="text">
+<a href="#search"><input style="margin-top:3px;margin-left:-3px;" type="submit" class="go" value="Go"></a>
 </form>
 
-<span style="float:right;padding-right:0px;padding-top:23px;">
-<a class="coolio" href="/market">Marketplace</a>';
+<span style="float:right;padding-right:0px;padding-top:13px;">
+<a class="navhover" style="font-weight:lighter;" href="/market">Marketplace</a>';
 @session_start();
 if($_SESSION['loggedin'] != 2) {
-echo'<a class="coolio" href="viewcampaigns.php">Campaigns</a>
+echo'<a class="navhover" href="viewcampaigns.php">Campaigns</a>
  <span class="dropdown">
- <a class="dropdown-toggle coolio" data-toggle="dropdown" style="margin-right:0px;">&nbsp;Log In&nbsp;<b class="caret"></b>&nbsp;</a>
- <ul class="dropdown-menu" data-dropdown="dropdown" style="width:200px;margin-left:-130px;margin-top:30px;">
- <li><a style="color:#21608E;margin-left:-29px;font-size:15px;" href="campaignnewuser.php">Register for free today</a></li>
+ <a class="dropdown-toggle navhover" data-toggle="dropdown">Log In</a>
+ <ul class="dropdown-menu gunmetal" data-dropdown="dropdown" style="width:200px;margin-left:-120px;margin-top:15px;">
+ <li><a style="color:white;margin-left:-29px;font-size:15px;" href="campaignnewuser.php">Register for free today</a></li>
  <li><br/></li>
  <form name="login_form" method="post" action="',htmlentities($_SERVER['PHP_SELF']),'?action=login">
- <li style="margin-left: 5px; margin-right: 0px; width: 185px;color:#21608E;"><span style="margin-bottom: 5px;margin-left:10px;font-size:13px;">Email: <br /></span><input type="text" style="width:150px;margin-top:3px;margin-left:10px;padding:7px;" name="emailaddress" /></li>
- <li><span style="font-size:13px;margin-left:-16px;color:#21608E;">Password: <br /></span><input type="password" style="width:150px;margin-top:3px;margin-left:-16px;padding:7px;" name="password"/></li>
+ <li style="margin-left: 5px; margin-right: 0px; width: 185px;color:white;"><span style="margin-bottom: 5px;margin-left:10px;font-size:13px;">Email: <br /></span><input type="text" style="width:150px;margin-top:3px;margin-left:10px;padding:7px;" name="emailaddress" /></li>
+ <li><span style="font-size:13px;margin-left:-16px;color:white;">Password: <br /></span><input type="password" style="width:150px;margin-top:3px;margin-left:-16px;padding:7px;" name="password"/></li>
  <li style="margin-left: 110px;"><input type="submit" class="btn btn-success" value="Sign In" id="loginButton"/></li>
  </form>
  </ul>
@@ -124,24 +124,24 @@ echo'<a class="coolio" href="viewcampaigns.php">Campaigns</a>
 elseif($_SESSION['loggedin'] == 2) {
 echo'
 <span class="dropdown">
-<a href="viewcampaigns.php" class="dropdown-toggle coolio" data-toggle="dropdown">&nbsp;Campaigns&nbsp;<b class="caret"></b>&nbsp;</a>
-<ul class="dropdown-menu gradient" data-dropdown="dropdown" style="width:200px;;margin-top:30px;">
-<a style="padding:15px;" href="viewcampaigns.php">View Campaigns</a><hr />
-<a style="padding:15px;padding-top:0px;" href="mycampaigns.php">My Campaigns</a><hr />
-<a style="padding:15px;padding-top:0px;" href="createcampaign.php">Create a Campaign</a>
+<a href="viewcampaigns.php" class="dropdown-toggle navhover" data-toggle="dropdown">Campaigns</a>
+<ul class="dropdown-menu gunmetal" data-dropdown="dropdown" style="width:200px;;margin-top:30px;">
+<a style="padding:15px;color:white;" href="viewcampaigns.php">View Campaigns</a><hr />
+<a style="padding:15px;padding-top:0px;color:white;" href="mycampaigns.php">My Campaigns</a><hr />
+<a style="padding:15px;padding-top:0px;color:white;" href="createcampaign.php">Create a Campaign</a>
 </ul>
 </span>
 
 <span class="dropdown">
-<a href="account.php" class="dropdown-toggle coolio" data-toggle="dropdown">&nbsp;Account&nbsp;<b class="caret"></b>&nbsp;</a>
-<ul class="dropdown-menu gradient" data-dropdown="dropdown" style="width:200px;;margin-top:30px;margin-left:-40px;">
-<a style="padding:15px;" href="account.php">Saved Images</a><hr />
-<a style="padding:15px;padding-top:0px;" href="download2.php">Cart</a><hr />
-<a style="padding:15px;padding-top:0px;" href="account.php?view=campaigns">Manage Campaigns</a>
+<a href="account.php" class="dropdown-toggle navhover" data-toggle="dropdown">Account</a>
+<ul class="dropdown-menu gunmetal" data-dropdown="dropdown" style="width:200px;margin-top:30px;margin-left:-40px;">
+<a style="padding:15px;color:white;" href="account.php">Saved Images</a><hr />
+<a style="padding:15px;padding-top:0px;color:white;" href="download2.php">Cart</a><hr />
+<a style="padding:15px;padding-top:0px;color:white;" href="account.php?view=campaigns">Manage Campaigns</a>
 </ul>
 </span>
 
-<a class="coolio" style="margin-right:0px;" href="',htmlentities($_SERVER['PHP_SELF']),'?action=logout">&nbsp;Log Out&nbsp;</a>';
+<a class="navhover" style="margin-right:0px;font-weight:200;" href="',htmlentities($_SERVER['PHP_SELF']),'?action=logout">&nbsp;Log Out&nbsp;</a>';
 }
 echo'
 </span>
@@ -155,15 +155,15 @@ echo'
 
 <!--NAVIGATION BAR-->
 <div class="navbar" style="position:relative;z-index:10;padding-top:0px;font-size:16px;width:1200px;background-color: #6BBE44;">
-	<div class="navbar-inner" style="background: #6BBE44;">
+	<div class="navbar-inner gunmetal">
 		<div class="container">
 			    <ul class="nav">
-                    <li><a name="search" style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'trending' OR htmlentities($_GET['c']) == '') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=trending">Trending</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'pop') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=pop">Popular</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'newest') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=newest">Newest</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'deal') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=deal">Best Deal</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'top') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=top">Top Ranked</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'exhibits') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="/market/?c=exhibits">Top Exhibits</a></li>';
+                    <li><a name="search" style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'trending' OR htmlentities($_GET['c']) == '') {echo'color:#6aae45;"';}else{echo'"';} echo'href="/market/?c=trending">Trending</a></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'pop') {echo'color:#6aae45;"';}else{echo'"';} echo'href="/market/?c=pop">Popular</a></li>
+                    <li><a style="color:#fff;font-weight:100;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'newest') {echo'color:#6aae45;;"';}else{echo'"';} echo'href="/market/?c=newest">Newest</a></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'deal') {echo'color:#6aae45;"';}else{echo'"';} echo'href="/market/?c=deal">Best Deal</a></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'top') {echo'color:#6aae45;"';}else{echo'"';} echo'href="/market/?c=top">Top Ranked</a></li>
+                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['c']) == 'exhibits') {echo'color:#6aae45;"';}else{echo'"';} echo'href="/market/?c=exhibits">Top Exhibits</a></li>';
                     @session_start();
                     if($_SESSION['loggedin'] == 2) {
                     echo'
@@ -184,17 +184,17 @@ $view = htmlentities($_GET['view']);
 
 echo'
 <!--NAVIGATION BAR-->
-<div class="navbar" style="position:relative;font-size:16px;">
-	<div class="navbar-inner" style="background: #6BBE44;">
+<div class="navbar" style="position:relative;font-size:16px;height:20px;">
+	<div class="navbar-inner" style="background: #6aae45;">
 		<div class="container" style="width:700px;">
 			    <ul class="nav">';
                 if($view == '') {
                 $userid = htmlentities($_GET['u']);
                 echo'
                     <li style="margin-left:-34px;"><img style="position:relative;left:-10px;margin-top:8px;" src="graphics/logo.png" height="22px" /></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['od']) == '') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="viewprofile.php?u=',$userid,'">Newest</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['od']) == 'topranked') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="viewprofile.php?u=',$userid,'&od=topranked">Top Ranked</a></li>
-                    <li><a style="color:#fff;margin-top:2px;padding-bottom:9px;margin-right:20px;';if(htmlentities($_GET['od']) == 'pop') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="viewprofile.php?u=',$userid,'&od=pop">Most Popular</a></li>';
+                    <li><a style="color:#fff;margin-top:2px;margin-right:20px;';if(htmlentities($_GET['od']) == '') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="viewprofile.php?u=',$userid,'">Newest</a></li>
+                    <li><a style="color:#fff;margin-top:2px;margin-right:20px;';if(htmlentities($_GET['od']) == 'topranked') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="viewprofile.php?u=',$userid,'&od=topranked">Top Ranked</a></li>
+                    <li><a style="color:#fff;margin-top:2px;margin-right:20px;';if(htmlentities($_GET['od']) == 'pop') {echo'background-color:#71d05b;"';}else{echo'"';} echo'href="viewprofile.php?u=',$userid,'&od=pop">Most Popular</a></li>';
                     }
                 else {
                 echo'<li style="margin-left:-530px;"><img style="margin-top:8px;" src="graphics/logo.png" height="22px" /></li>';
@@ -216,7 +216,7 @@ echo'
 <!--NAVIGATION BAR-->
 <div class="grid_19"  id="canvas" style="margin-top:-448px;">
 <div class="navbar" style="position:relative;font-size:16px;">
-	<div class="navbar-inner" style="background: #6BBE44;">
+	<div class="navbar-inner" style="background: #6aae45;">
 		<div class="container" style="width:700px;">
 			    <ul class="nav">
                 <li> <img style="position:relative;left:-10px;margin-top:8px;" src="graphics/logo.png" height="22px" /></li>';
@@ -283,8 +283,98 @@ function logout() {
     session_destroy();
 }
 
-function get_footer() {
-    echo '<center>Copyright &copy; 2012 PhotoRankr, Inc.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="terms.php">Terms</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://photorankr.com/contact.php">Contact Us</a></center>';
+function footer() {
+    echo'
+   <link rel="stylesheet" href="css/style.css" type="text/css"/> 
+
+    <div class="grid_24" style="height:30px;margin-top:70px;background-color:rgb:(238,239,243);text-align:center;padding-top:10px;background-color:none;text-decoration:none;">
+    <hr style="color:#ccc"/>
+    </div>
+
+    <span style="color:rgb(117,117,117);">
+    <div class="grid_4" style="height:145px;border-right:2px solid #ddd;">
+    <p1 class="navgreen">Network</p1>
+    <ul style="list-style:none;">
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/trending.php">Trending</a></li>
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/newest.php">Newest</a></li>
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/topranked.php">Top Ranked</a></li>
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/blog/post.php">Blog</a></li>
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/discover.php">Discover</a></li>
+    </ul> 
+    </div>
+  
+    <div class="grid_4" style="height:145px;border-right:2px solid #ddd;">
+    <p1 class="navgreen">Marketplace</p1>
+    <ul style="list-style:none;">
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/market">Marketplace</a></li>
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/market/viewcampaigns.php">Campaigns</a></li>
+    </ul> 
+    </div>
+
+    <div class="grid_4" style="height:145px;border-right:2px solid #ddd;">
+    <p1 class="navgreen">More</p1>
+    <ul style="list-style:none;">
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/about.php">About</a></li>
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/contact.php">Contact US</a></li>
+    <li>Careers</li>
+    <li>Partners</li>
+    </ul> 
+    </div>
+
+    <div class="grid_4" style="height:145px;border-right:2px solid #ddd;">
+    <p1 class="navgreen">Legal</p1>
+    <ul style="list-style:none;">
+    <li><a class="foot" style="text-decoration:none;" href="http://photorankr.com/market/terms.php">Terms of Use</a></li>
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/market/privacy.php">Privacy Policy</a></li>
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/market/legal.php">Standard Content License Agreement</a></li>
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/market/extended.php">Extended Content License Provisions</a></li>
+    </ul> 
+    </div>
+
+    <div class="grid_4">
+    <p1 class="navgreen">Support</p1>
+    <ul style="list-style:none;">
+    <li>(330) 573-3776</li>
+    <li><a href="mailto:support@photorankr.com">support@photorankr.com</a></li>
+    </br>
+    <p1 class="navgreen">Follow</p1>
+    
+    <div style="padding-left:25px;width:250px">
+             <div style="margin-right:10px;float:left">
+             <a href="https://www.facebook.com/pages/PhotoRankr/140599622721692"><img style="width:25px;height:25px;" src="graphics/facebook.jpg"/></a>
+             </div>
+
+             <div style="margin-right:10px;float:left">
+             <a href="https://twitter.com/PhotoRankr" class="twitter-follow-button" data-show-count="false">Follow @PhotoRankr</a>
+             <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+             </div>
+
+             <div style="float:left">
+             <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
+             <script type="IN/Share"></script> 
+             </div>
+    </div>
+    </div>
+
+
+
+
+</span>
+
+  <div class="grid_24">
+<div style="font-size:10px;color:#bbb;text-align:center;">
+  </br>
+  <p1>PhotoRankr is a trademark of PhotoRankr, Inc. The PhotoRankr Logo is a trademark of PhotoRankr, Inc.</p1>
+</br>
+<p1>Copyright © 2012 PhotoRankr, Inc.<p1>
+</div>
+  </div> 
+</div>
+ 
+    <br />
+    <br />                   
+    </div>';
+    
 }
 
 ?>

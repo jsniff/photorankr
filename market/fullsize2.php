@@ -173,6 +173,8 @@ else {
             .hide { display: none; }
             .click { }
             .clicked {background-color:black;}
+            .rollover {border:1px solid transparent;}
+            .rollover:hover {border:1px solid black;}
         </style>
 
 <!--GOOGLE ANALYTICS CODE-->
@@ -256,10 +258,10 @@ echo'
 
 <div id="content" style="font-size:16px;width:500px;">
 		
-<img style="border: 1px solid black;margin-left:10px;margin-top:30px;" src="',$imagebig2,'" 
+<img style="border: 1px solid black;margin-left:10px;margin-top:5px;" src="',$imagebig2,'" 
 height="100px" width="100px" /> 
 
-<div style="width:500px;margin-left:130px;margin-top:-80px;">
+<div style="width:500px;margin-left:130px;margin-top:-70px;">
 "',$title,'"<br />                 
 
 Please Login to Save this Photo.<br /><br /><br />
@@ -295,15 +297,13 @@ Please Login to Save this Photo.<br /><br /><br />
 
                 <div id="content" style="font-size:16px;width:500px;">
 		
-                <img style="border: 1px solid black;margin-left:10px;margin-top:30px;" src="',$profilepic,'" 
+                <img style="border: 1px solid black;margin-left:10px;margin-top:5px;" src="',$imagebig2,'" 
 height="100px" width="100px" />
 
-                <div style="width:500px;margin-left:130px;margin-top:-90px;">
-',$firstname,' ',$lastname,'<br />                 
+                <div style="width:500px;margin-left:130px;margin-top:-78px;">
+"',$caption,'"<br />                 
 
-                ',$numberofpics,' photos <br />
-
-                Portfolio Average: ',$portfolioranking,' <br /><br /><br />
+                <br /><br /><br />
 
                 </div>
                 </div>';
@@ -314,21 +314,21 @@ height="100px" width="100px" />
 			echo'
                 <div class="modal-header">
                 <a style="float:right" class="btn btn-primary" href="fullsize2.php?imageid=',$imageid,'&ml=saved">Close</a>
-                <img style="margin-top:-4px;" src="graphics/logomarket.png" width="150" />&nbsp;&nbsp;<span style="font-size:16px;">Photo Saved.</span>
-                </div>
-                <div modal-body" style="width:600px;">
+                <img style="margin-top:-4px;" src="graphics/logomarket.png" width="150" /></div>
+                
+                <div modal-body" style="width:700px;">
 
                 <div id="content" style="font-size:16px;width:500px;">
 		
-                <img style="border: 1px solid black;margin-left:10px;margin-top:30px;" src="',$profilepic,'" 
+                <img style="border: 1px solid black;margin-left:10px;margin-top:20px;" src="',$imagebig2,'" 
 height="100px" width="100px" />
 
-                <div style="width:500px;margin-left:130px;margin-top:-90px;">
-                ',$firstname,' ',$lastname,'<br />                 
+                <div style="width:500px;margin-left:130px;margin-top:-70px;">
+                "',$caption,'"<br />                 
 
-                ',$numberofpics,' photos <br />
+                Photo saved. 
 
-                Portfolio Average: ',$portfolioranking,' <br /><br /><br />
+               <br /><br /><br />
 
                 </div>
                 </div>';
@@ -345,7 +345,7 @@ height="100px" width="100px" />
 
 
 
-<div class="container_24" style="padding-bottom:30px;"><!--Grid container begin-->
+<div class="container_24" style="padding-top:55px;padding-bottom:30px;"><!--Grid container begin-->
 
 <?php
 $campaigntitlequery = mysql_query("SELECT title from campaigns WHERE id = '$campaign'");
@@ -354,15 +354,14 @@ $camptitle = mysql_result($campaigntitlequery,0,'title');
  
 <!--TITLE OF PHOTO-->     
 <div class="grid_24">
-<div class="grid_21 pull_2"><div style="margin-top:10px;padding-top:5px;padding-left:3px;line-height:30px;font-size:25px;
-"><?php echo'"',$title,'"'; ?>
+<div class="grid_21 pull_2"><div style="margin-top:10px;padding-top:5px;padding-left:3px;line-height:30px;font-size:25px;"><?php echo'"',$title,'"'; ?>
 </div></div></div>
 
 <!--BIG IMAGE BOX-->
 <div class="grid_24">
 
 <div class="grid_10 pull_2" style="margin-top:150px;">
-<div class="phototitle" style="height:<?php echo $newheight; ?>px;width:<?php echo $newwidth; ?>px;margin-top:-135px;">
+<div class="phototitletest" style="height:<?php echo $newheight; ?>px;width:<?php echo $newwidth; ?>px;margin-top:-135px;">
 <img onmousedown="return false" oncontextmenu="return false;" alt="<?php echo $tags; ?>" src="<?php echo $imagebig2; ?>" height="<?php echo $newheight; ?>px" width="<?php echo $newwidth; ?>px" /></div>
 </div> 
 
@@ -506,7 +505,7 @@ $medprice = number_format(($price / 1.5),0,',','');
 
 <div class="span6" style="margin-left:0px;margin-top:10px;">
 <b>Photo Details</b><br /><hr />
-<div><span style="float:left;">Photographer:</span><a href="viewprofile.php?u=<?php echo $userid; ?>"><img style="float:left;margin-top:-10px;padding-left:5px;" src="<?php echo $profilepic; ?>" height="30" width="30" /><span style="padding-left:5px;"><?php echo $fullname; ?></span></a></div>
+<div><span style="float:left;">Photographer:</span><a style="font-weight:bold;color:#3e608c;" href="viewprofile.php?u=<?php echo $userid; ?>"><img style="float:left;margin-top:-10px;margin-left:5px;border: 1px solid rgb(115,115,115);" src="<?php echo $profilepic; ?>" height="30" width="30" /><span style="padding-left:5px;"><?php echo $fullname; ?></span></a></div>
 <div style="margin-top:20px;">Photo Rank: <?php echo $ranking; ?>
 <br />
 <?php 
@@ -523,35 +522,40 @@ if($keywords) {echo'
 Keywords: ',$keywords,'<br />'; }
  ?>
 </div>
-
-</div>
-
-
-</div>
+<br /><br />
 </div>
 </div>
 
+<!--SIMILAR PHOTOS CODE-->
+<?php
+$similarquery = mysql_query("SELECT * FROM photos WHERE (caption LIKE '$title' OR location LIKE '$location') ORDER BY (views) DESC");
+$numsimilar = mysql_num_rows($similarquery);
+if($numsimilar > 4) {
+echo'
+    <div class="span6">
+    <b>Similar Photos:</b><br /><hr />';
 
+    for($iii=0; $iii < $numsimilar && $iii < 5; $iii++) {
+        $simphoto = mysql_result($similarquery,$iii,'source');
+        $simphoto2 = str_replace("userphotos/", "http://photorankr.com/userphotos/medthumbs/", $simphoto); 
+        $simimageid = mysql_result($similarquery,$iii,'id');
 
+        echo'<a href="fullsize2.php?imageid=',$simimageid,'"><img class="rollover" style="float:left;margin-right:3px;" src="',$simphoto2,'" height="85" width="85" /></a>';
+        
+    }
+}
 
-
-
-
- 
- 
-
-<!--Footer begin-->   
-<div class="grid_24" style="height:30px;margin-top:30px;background-color:rgb:(238,239,243);text-align:center;padding-top:10px;padding-bottom:20px; background-color:none;text-decoration:none;">
-<p style="text-decoration:none;">
-</br></br>
-<div style="text-align:center;">
-Copyright&nbsp;&copy;&nbsp;2012&nbsp;PhotoRankr, Inc.&nbsp;&nbsp;
+?>
 </div>
-<br />
-<br />
-</p>                   
-</div>
-<!--Footer end-->
+
+
+
+
+</div><!--end 24 grid-->
+
+<?php footer(); ?>
+
+</div><!--end container-->
 
 
 </body>

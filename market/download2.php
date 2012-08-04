@@ -3,7 +3,7 @@
 //connect to the database
 require "db_connection.php";
 require "functionscampaigns3.php";
-require_once("stripe/lib/Stripe.php");
+//require_once("stripe/lib/Stripe.php");
 
     // if login form has been submitted
     if (htmlentities($_GET['action']) == "login") { 
@@ -120,7 +120,7 @@ require_once("stripe/lib/Stripe.php");
 <?php navbarnew(); ?>
 <div class="container">
 
-<div class="grid_24">
+<div class="grid_24" style="margin-top:50px;">
 
 
 <?php
@@ -152,7 +152,7 @@ require_once("stripe/lib/Stripe.php");
     
         elseif($_SESSION['loggedin'] == 2) {
        
-        echo'<div style="font-size:24px;padding:20px;">Your Cart</div><br />';
+        echo'<div style="font-size:24px;padding-left:250px;padding-top:20px;padding-bottom:20px;background-color:#ddd;width:150px;margin-left:-230px;margin-top:30px;"><span style="font-size:27px;font-weight:200;">Your Cart</span></div><br />';
         
         if($imageid) {
         $cartcheck = mysql_query("SELECT * FROM cart WHERE imageid = '$imageid'");
@@ -170,6 +170,9 @@ require_once("stripe/lib/Stripe.php");
             $imageprice[$iii] = mysql_result($incart,$iii,'price');
             $imagecartid = mysql_result($incart,$iii,'imageid');
             $cartidlist = $cartidlist.",".$imagecartid;
+            list($width, $height)=getimagesize($imagesource[$iii]);
+            $width = $width/4;
+            $height = $height/4;
             
             echo'
             <div class="span12">
@@ -186,7 +189,7 @@ require_once("stripe/lib/Stripe.php");
             </thead>
             <tbody>
             <tr>
-            <td><div style="width:400px;"><img onmousedown="return false" oncontextmenu="return false;" style="height:25%;" src="',$imagesource[$iii],'" /></div></td>
+            <td><div style="min-width:400px;height:<?php echo $height; ?>px;width:<?php echo $width; ?>px;"><img onmousedown="return false" oncontextmenu="return false;" src="',$imagesource[$iii],'" height=',$height,' width=',$width,' /></div></td>
             <td>Medium</td>
             <td>',$imagecartid,'</td>
             <td>Royalty Free</td>
@@ -205,9 +208,6 @@ require_once("stripe/lib/Stripe.php");
             </div>';
 
         }
-        
-        //Anchor
-        echo'<a name="added" href="#"> test</a>';
         
         //check if image already in db
         $found = strpos($cartidlist, $imageid);
@@ -251,15 +251,34 @@ require_once("stripe/lib/Stripe.php");
             </div>';
         }
         
-            echo'<div style="font-size:24px;padding:20px;margin-left:-20px;">Payment</div><br />';
+        echo'<div class="grid_18"><a name="added" style="color:black;text-decoration:none;" href="#"><div style="font-size:24px;padding-left:250px;padding-top:20px;padding-bottom:20px;background-color:#ddd;width:150px;margin-left:-230px;margin-top:20px;"><span style="font-size:27px;font-weight:200;">Payment</span></div></a></div><br />
+        
+        <!--STRIPE PAYMENT FORM-->
+       
+        <div class="grid_18" style="margin-top:35px;">
+         <label class="creditcards" style="float:left;font-size:18px;">We accept:&nbsp;&nbsp;<img src="card.jpg" style="width:215px;height:25px;margin-top:0px;border-radius:2px;"/> </label> <br /><br /><br />
+         <label style="float:left;font-size:18px;" class="creditcards">Card Number:&nbsp;&nbsp;</label>
+         <input style="float:left;font-size:18px;padding:8px;position:relative;top:-7px;" type="text" size="20" autocomplete="off" class="card-number" style;"/>
+            
+                <label style="float:left;margin-left:5px;font-size:18px;" class="creditcards">CVC <span style="font-size:15px;">(Verification #):</span>&nbsp;&nbsp;</label>
+                <input style="float:left;font-size:18px;padding:8px;position:relative;top:-7px;width:60px;" type="text" size="4" autocomplete="off" class="card-cvc"/>
+                <label style="float:left;font-size:18px;margin-left:5px;" class="creditcards" >Expiration <span style="font-size:15px;">(MM/YYYY):</span>&nbsp;&nbsp;</label>
+                <input type="text" style="float:left;width:50px;padding:8px;position:relative;top:-7px;width:30px;font-size:18px;" class="card-expiry-month"/>
+                <span style="float:left;font-size:30px;font-weight:100;">&nbsp;/&nbsp;</span>
+                <input style="float:left;padding:8px;position:relative;top:-7px;width:60px;font-size:18px;" type="text" class="card-expiry-year"/>
+               
+   <button type="submit" class="button submit btn btn-success" style="font-size:16px;float:right;margin-right:30px;margin-top:15px;padding-top:10px;padding-bottom:10px;padding-right:40px;padding-left:40px;font-weight:200;">Submit Payment</button>
+        </div>';
+        
+        
+        
+        
         
         
  } //end if logged in
  
 
 ?>
-
-
 
 
 </div>

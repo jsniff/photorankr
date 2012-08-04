@@ -87,7 +87,7 @@ opacity:.7;
 <?php navbarnew(); ?>
 
 	<div id="container" class="container_24">
-		<div class="grid_24 pull_2" style="width: 1140px;top:10px;">
+		<div class="grid_24 pull_2" style="width: 1140px;top:70px;">
 <?php
 
 if($_SESSION['loggedin'] != 2) {

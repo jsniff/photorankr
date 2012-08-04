@@ -347,64 +347,60 @@ chmod ($path_to_medthumbs_directory . $filename, 0644);
 
 
 function login() {
-    
-    // makes sure they filled it in
-	if(!$_POST['emailaddress']) {
-    echo '<META HTTP-EQUIV="Refresh" Content="0; URL=signup.php?action=fie">';
-	}
-    
-    if(!$_POST['password']) {
-       echo '<META HTTP-EQUIV="Refresh" Content="0; URL=signup.php?action=fip">';
+    @session_start();
 
-    }
+	ini_set('session.gc_maxlifetime', 6 * 60 * 60);
 
-	// checks it against the database
-	if (!get_magic_quotes_gpc()) {
-   	$_POST['emailaddress'] = addslashes($_POST['emailaddress']);
-    	}
-    	$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '".$_POST['emailaddress']."'")or die(mysql_error());
-	//Gives error if user dosen't exist
-
-	$check2 = mysql_num_rows($check);
-
-	if ($check2 == 0) {
-                 echo '<META HTTP-EQUIV="Refresh" Content="0; URL=signup.php?action=nu">';
+        // makes sure they filled it in
+        if(!htmlentities($_POST['emailaddress']) | !htmlentities($_POST['password'])) {
+            die('You did not fill in a required field.');
         }
-        
-	$info = mysql_fetch_array($check);    
-	if($_POST['password'] == $info['password']){
 
-	//then redirect them to the same page as signed in and set loggedin to 1
-	$_SESSION['loggedin']=1; 
-	$_SESSION['email']=$_POST['emailaddress'];
-    $email = $_SESSION['email'];
-	}
+        $check = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '".mysql_real_escape_string($_POST['emailaddress'])."'")or die(mysql_error());
+        //Gives error if user dosen't exist
+
+        $check2 = mysql_num_rows($check);
     
-	//gives error if the password is wrong
-    	if ($_POST['password'] != $info['password']) {
-           echo '<META HTTP-EQUIV="Refresh" Content="0; URL=signup.php?action=lp">';
+        if ($check2 == 0) {
+            die('That user does not exist in our database. <a href="signin.php">Click Here to Register</a> or <a href="lostpassword.php">here to recover a forgotten password</a>.');
+        }
 
-	}
+        $info = mysql_fetch_array($check);
+        
+        if(mysql_real_escape_string($_POST['password']) == mysql_real_escape_string($info['password'])){
+            //then redirect them to the same page as signed in and set loggedin to 1
+            $_SESSION['loggedin'] = 1;
+            $_SESSION['email'] = mysql_real_escape_string($_POST['emailaddress']);
+        }
+        //gives error if the password is wrong
+        else if (mysql_real_escape_string($_POST['password']) != mysql_real_escape_string($info['password'])) {
+            die('Incorrect password, please try again. <a href="lostpassword.php"> Lost your password?</a>');   
+        }
 }
-
 
 function logout() {
+    session_start();
+    $_SESSION['loggedin'] = 0;
+    $_SESSION['email'] = "";
 
-
+    session_destroy();
 }
+
 
 //NAVBAR NEW
 function navbarnew() {  
 echo'
-<div class="gradient" style="z-index:11234;position:fixed;width:100%;height:65px;border-bottom:1px solid #999;min-width:1085px;" ">
+<link rel="stylesheet" href="css/style.css" type="text/css"/> 
+<div class="gradient" style="z-index:11234;position:fixed;width:100%;height:65px;border-bottom:1px solid #999;min-width:1085px;">
 <img style="float:left;padding-left:30px;padding-top:13px;" src="graphics/logoteal.png" width="200" />
 <label style="float:left;font-size:13px;color:#333;padding-top:23px;padding-left:50px;font-weight:bold;">Search</label>
 
-<input style="position:relative;margin-left:10px;margin-top:20px;height:20px;" type="text">
-<input style="margin-top:6px;margin-left:3px;" type="submit" name="submit" class="btn btn-success">
+<form action="searchnew.php" method="GET">
+<input style="position:relative;margin-left:10px;margin-top:20px;height:20px;" type="text" name="searchterm">
+<input style="margin-top:6px;margin-left:3px;" type="submit" class="btn btn-success">
+</form>
 
-
-<span style="float:right;padding-right:0px;padding-top:23px;font-size:14px;">
+<span style="float:right;margin-top:-27px;">
 <a class="coolio" href="viewcampaigns.php">&nbsp;Market&nbsp;&nbsp;</a>
 <a class="coolio" href="viewcampaigns.php">Galleries</a>
 <a class="coolio" href="viewcampaigns.php">Campaigns</a>
@@ -419,8 +415,8 @@ echo'
 }
 else {
         echo'
-                <span class="dropdown">
-                <a style="color:#21608E;margin-top:3px;padding-bottom:10px;" href="signin.php" class="dropdown-toggle" data-toggle="dropdown">Log In<b class="caret"></b></a>
+                <span class="dropdown coolio">
+                <a style="color:#21608E;margin-top:3px;padding-bottom:10px;text-decoration:none;" href="signin.php" class="dropdown-toggle" data-toggle="dropdown">Log In<b class="caret"></b></a>
                 <ul class="dropdown-menu" data-dropdown="dropdown" style="width:200px;margin-left:-130px;margin-top:20px;">
                 <li><a style="color:#21608E;margin-left:-29px;font-size:15px;" href="signin.php">Register for free today</a></li>
                 <li><br/></li>
@@ -437,6 +433,7 @@ echo'
 </div>
 ';
 }
+
 
 
 ?>

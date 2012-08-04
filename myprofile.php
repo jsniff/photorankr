@@ -344,6 +344,10 @@ if(isset($_GET['view'])) {
 
     $ultimatereputation = ($followerweighted+$rankingweighted+$totalpgviewsweighted) * 100;
 
+     $insertquery=mysql_query("UPDATE userinfo SET reputation = $ultimatereputation WHERE emailaddress='$emailaddress'");
+    mysql_query($insertquery);
+
+
 
 //DISCOVER SCRIPT
 
@@ -1777,6 +1781,8 @@ echo '<div class="grid_14 push_5" style="margin-top: -130px;margin-left:-40px;fo
 	if ($action == 'submit') {
 
 		//GET UPDATED PROFILE INFORMATION
+        if(isset($_POST['firstname'])) {$firstname=mysql_real_escape_string($_POST['firstname']); }
+        if(isset($_POST['lastname'])) {$lastname=mysql_real_escape_string($_POST['lastname']); }
 		if(isset($_POST['age'])) {$age=mysql_real_escape_string($_POST['age']); }
 		if(isset($_POST['gender'])) {$gender=mysql_real_escape_string($_POST['gender']); }
 		if(isset($_POST['location'])) {$location = mysql_real_escape_string($_POST['location']);}
@@ -1871,10 +1877,10 @@ echo '<div class="grid_14 push_5" style="margin-top: -130px;margin-left:-40px;fo
 	
 		//update the database with this new information
 		if(isset($_POST['bio'])) {
-			$infoupdatequery=("UPDATE userinfo SET age = '$age', gender = '$gender', location = '$location', camera = '$camera', facebookpage='$facebookpage', twitteraccount='$twitteraccount', quote='$quote', bio='$bio', profilepic='$profilepic', password='$password', viewLikes='$viewLikes' WHERE emailaddress='$email'");
+			$infoupdatequery=("UPDATE userinfo SET firstname = '$firstname', lastname = '$lastname', age = '$age', gender = '$gender', location = '$location', camera = '$camera', facebookpage='$facebookpage', twitteraccount='$twitteraccount', quote='$quote', bio='$bio', profilepic='$profilepic', password='$password', viewLikes='$viewLikes' WHERE emailaddress='$email'");
 		}
 		else {
-			$infoupdatequery=("UPDATE userinfo SET age = '$age', gender = '$gender', location = '$location', camera = '$camera', facebookpage='$facebookpage', twitteraccount='$twitteraccount', profilepic='$profilepic', password='$password', viewLikes='$viewLikes' WHERE emailaddress='$email'");
+			$infoupdatequery=("UPDATE userinfo SET firstname = '$firstname', lastname = '$lastname', age = '$age', gender = '$gender', location = '$location', camera = '$camera', facebookpage='$facebookpage', twitteraccount='$twitteraccount', profilepic='$profilepic', password='$password', viewLikes='$viewLikes' WHERE emailaddress='$email'");
 		}
 		$infoupdateresult=mysql_query($infoupdatequery);
 
@@ -1892,6 +1898,12 @@ echo
 <br />
 <br />
 <form action="', htmlentities($_SERVER['PHP_SELF']), '?view=editinfo&action=submit" method="post" enctype="multipart/form-data">
+First Name: <input style="width:180px;height:25px;" type="text" name="firstname" value="', $firstname, '"/> 
+<br />
+<br />
+Last Name: <input style="width:180px;height:25px;" type="text" name="lastname" value="', $lastname, '"/>
+<br />
+<br />
 Age: <input style="width:180px;height:25px;" type="text" name="age" value="', $age, '"/>
 <br />     
 <br />
@@ -3021,6 +3033,11 @@ elseif($view=='') { //they are on the photos tab, which is the main tab
     
     $setinfoquery = mysql_query("SELECT * FROM sets WHERE owner='$email'");
     $numsets = mysql_num_rows($setinfoquery);
+
+    
+     $insertquery=mysql_query("UPDATE userinfo SET reputation = $ultimatereputation WHERE emailaddress='$emailaddress'");
+    mysql_query($insertquery);
+
 
 //Info Box
 echo'

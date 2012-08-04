@@ -86,7 +86,7 @@ opacity:.7;
 <?php navbarnew(); ?>
 
 	<div id="container" class="container_24">
-		<div class="grid_24 pull_2" style="width: 1140px;top:10px;">
+		<div class="grid_24 pull_2" style="width: 1140px;top:65px;">
 <?php
 
 //STATS
@@ -272,7 +272,7 @@ else {
 
 ?>
 <div class="grid_3" style="position:fixed;right:100px;">
-<div id="accordion2" class="accordion" style="margin-top:20px;width:150px;">
+<div id="accordion2" class="accordion" style="margin-top:80px;width:150px;">
 
 <div class="accordion-group">
 <div style="background-color:#eeeff3;" class="accordion-heading dropshadow">
@@ -300,20 +300,16 @@ else {
 
 
 </div>
+
+
+
 </div>
 
-<!--Footer begin
-<div class="grid_24" style="height:30px;margin-top:30px;background-color:rgb:(238,239,243);text-align:center;padding-top:10px;padding-bottom:20px; background-color:none;text-decoration:none;">
-<p style="text-decoration:none;">
-</br></br>
-<div style="text-align:center;">
-Copyright&nbsp;&copy;&nbsp;2012&nbsp;PhotoRankr, Inc.&nbsp;&nbsp;
+<div class="grid_24" style="padding-bottom:30px;">
+<?php footer(); ?>     
+</div>    
+     
 </div>
-<br />
-<br />
-</p>                   
-</div>
-Footer end-->
 
 </body>
 </html>

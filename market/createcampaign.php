@@ -184,7 +184,7 @@ background-repeat:no-repeat;">
 <!--START OF CONTAINER-->
 <div class="container">
 
-<div class="grid_24" style="width:960px;margin-left:auto;margin-right:auto;margin-top:-30px;">
+<div class="grid_24" style="width:960px;margin-left:auto;margin-right:auto;margin-top:30px;">
 
 
 <div class="bigtransbox" >

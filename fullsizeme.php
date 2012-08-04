@@ -46,6 +46,7 @@ if($_GET['view'] == "saveinfo") {
 }
 
 //FIND THE PHOTO IN DATABASE
+$image = $_GET['image'];
 $query="SELECT * FROM photos where source='$image'";
 $result=mysql_query($query);
 //if no images match what is in the url, then send them back to trending 
@@ -1196,7 +1197,7 @@ else {
                                       
                   
     //Write to the file
-    @chmod($file,0644);
+    @chmod($file,0777);
     fwrite($fp, $outputstring, strlen($outputstring));
     @include("$file");
         $type3 = "comment";
@@ -1276,7 +1277,7 @@ if(@fopen("$file", 'a')==FALSE) {
 }
 else {
 @fclose("$file");}
-@chmod($file,0644);
+@chmod($file,0777);
 echo '<div style="margin-left: 10px;font-size:15px;">';
 @include("$file"); 
 echo '</div>';
