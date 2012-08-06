@@ -1,53 +1,23 @@
 <?php 
 
-//log them out if they try to logout
-@session_start();
-
-if($_GET['action'] == logout) {
-	$_SESSION['loggedin'] = 0;
-	session_destroy();
-}
-
-
-//CONNECT TO DB
+//connect to the database
 require "db_connection.php";
+require "functions.php";
 
-//if the login form is submitted
-if ($_GET['action'] == "login") { // if login form has been submitted
+//start the session
+session_start();
 
-	// makes sure they filled it in
-	if(!$_POST['emailaddress'] | !$_POST['password']) {
-		die('You did not fill in a required field.');
-	}
+    // if login form has been submitted
+    if (htmlentities($_GET['action']) == "login") { 
+        login();
+    }
+    else if(htmlentities($_GET['action']) == "logout") { 
+        logout();
+    }
 
-	// checks it against the database
-	if (!get_magic_quotes_gpc()) {
-   	$_POST['emailaddress'] = addslashes($_POST['emailaddress']);
-    	}
-    	$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '".$_POST['emailaddress']."'")or die(mysql_error());
-	//Gives error if user dosen't exist
-
-	$check2 = mysql_num_rows($check);
-
-	if ($check2 == 0) {
-
-        	die('That user does not exist in our database. <a href=../signin.php>Click Here to Register</a>');
-
-        }
-	$info = mysql_fetch_array($check);    
-	if($_POST['password'] == $info['password']){
-
-	//then redirect them to the same page as signed in and set loggedin to 1
-	$_SESSION['loggedin']=1;
-	$_SESSION['email']=$_POST['emailaddress'];
-
-	}
-   
-	//gives error if the password is wrong
-    	if ($_POST['password'] != $info['password']) {
-die('Incorrect password, please try again. <a href="../lostpassword.php"> Lost your password?</a>');	}
-}
-
+    $email = $_SESSION['email'];
+    
+    
 //find out whos profile they are looking at
 //GET USER ID
 if(isset($_GET['u'])){
@@ -126,9 +96,6 @@ $newresult=mysql_query($query);
 $numberofpics=mysql_num_rows($newresult);
 
 ini_set('max_input_time', 300);  
-
-//GET USER EMAIL
-$email=$_SESSION['email'];
 
 
 //DE-HIGHLIGHT NOTIFICATIONS IF CLICKED ON
@@ -1417,6 +1384,7 @@ for($iii=0; $iii < $numberofpics2; $iii++) {
     $ownerquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$faveemail'");
     $firstname = mysql_result($ownerquery, 0, "firstname");
     $lastname = mysql_result($ownerquery, 0, "lastname");
+    $reputation = mysql_result($ownerquery, 0, "lastname");
     $fullname = $firstname . " " . $lastname;
 	list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
@@ -1435,6 +1403,9 @@ echo '
 echo'</div>';
 echo'</div>';
             
+
+
+
             
 
 //AJAX CODE HERE
@@ -1535,6 +1506,24 @@ elseif($view=='') { //they are on the photos tab, which is the main tab
     
     $setinfoquery = mysql_query("SELECT * FROM sets WHERE owner='$emailaddress'");
     $numsets = mysql_num_rows($setinfoquery);
+
+//$caption = 6;
+
+//$query="SELECT * FROM photos where source='$image'";
+//$numberofpics = mysql_query("SELECT * FROM photos WHERE emailaddress='$emailaddress'");
+//$namequery="SELECT * FROM userinfo WHERE emailaddress='$emailaddress'";
+//$namequery2="SELECT * FROM userinfo WHERE
+//$emailaddress='$emailaddress3'";
+//$nameresult2=mysql_query($namequery2);
+
+
+
+
+     $insertquery=mysql_query("UPDATE userinfo SET reputation = $ultimatereputation WHERE emailaddress='$emailaddress'");
+    mysql_query($insertquery);
+
+
+
 
 //Info Box
 echo'

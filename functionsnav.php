@@ -40,6 +40,77 @@ function logout() {
     session_destroy();
 }
 
+function navbarnew() {
+echo'
+<link rel="stylesheet" href="css/style.css" type="text/css"/> 
+<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container" style="height:50px;width:1040px;">
+				<ul class="nav" style="height:50px;">
+					<li class="topcenter"> <a href="index.php"> <img src="graphics/PRlogowithtext.png" style="positon:fixed;top:.0em;left:1em;height:40px;margin-top:-8px;"/></a></li>
+					<li class="margint"> <form class="navbar-search" action="search.php" method="get">
+<input class="search3 margint marginl" style="height:1.4em;padding-right:25px;margin-left:5em;margin-right:5.5em" name="searchterm" type="text">
+</form></li>
+					<li class="marginL"> <a href="home.php"> Home </a> </li>
+					<li> <a href="blog.php"> Blog </a> </li>
+					<li class="dropdown topcenter " id="accountmenu">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#"> Photos </b></a>
+							<ul class="dropdown-menu" style="background-color:#fff;">
+								<li> <a href="newest.php"> New </a></li>
+								<li> <a href="trending.php"> Trending </a></li>
+								<li class="divider"></li> 								<li> <a href="topranked.php"> Top Ranked </a></li>
+								<li> <a href="discover.php"> Discover </a> </li>
+							</ul>
+						</li>
+						<li class="dropdown topcenter" id="accountmenu">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#"> Market</b> </a>
+							<ul class="dropdown-menu" style="background-color:#fff;">
+								<li> <a href="newest.php"> Marketplace </a></li>
+								<li> <a href="trending.php"> Campaigns </a></li>
+							</ul>
+						</li>';
+                        
+                        if($_SESSION['loggedin'] == 1) {
+                            $email = $_SESSION['email'];
+                            
+                            $profilequery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$email'");
+                            $profilepic = mysql_result($profilequery,0,'profilepic');
+                            $fullname = mysql_result($profilequery,0,'firstname')." ".mysql_result($profilequery,0,'lastname');
+                        
+                        echo'
+						<li class="dropdown"  id="accountmenu">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#"> <div class="notifications" style="margin-top:-5px;"><div style="position:relative;top:4px;color:#6aae45;font-size:13px;font-weight:bolder;">1</div></div> </a>
+								<ul class="dropdown-menu" style="margin-top:-.16em;background-color:#fff;">
+									<li> <a href="magiclogoutfunction.php"> notify me </a> </li>
+									<li class="divider"></li>
+									<li> <a href="magiclogoutfunction.php"> notify me </a> </li>
+									<li class="divider"></li>
+									<li> <a href="magiclogoutfunction.php"> notify me </a> </li>
+									<li class="divider"></li>
+									<li> <a href="magiclogoutfunction.php"> notify me </a> </li>
+									<li class="divider"></li>
+									<li> <a href="settingsthings.php"> so many notifications!  </a> </li>
+								</ul>	
+							</li>
+						<li class="dropdown topcenter marginT" id="accountmenu">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#"> <img src="',$profilepic,'" style="width:30px;height:30px;"/><span style="font-size:14px;color:white;font-weight:200;">&nbsp;&nbsp;&nbsp;',$fullname,'</span></a>
+								<ul class="dropdown-menu" style="margin-top:-.36em;background-color:#fff;">
+									<li> <a href="magiclogoutfunction.php"> Settings </a> </li>
+									<li class="divider"></li>
+									<li> <a href="trending.php?action=logout"> Log Out </a> </li>
+								</ul>	
+							</li>	
+					</ul>';	
+                    
+                            }
+                
+                    echo'
+				</div>
+			</div>	
+		</div>
+	</div>';
+}
+
 function navbar() {
 echo'
 <link rel="stylesheet" href="css/style.css" type="text/css"/> 

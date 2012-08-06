@@ -1871,7 +1871,7 @@ echo '<div class="grid_14 push_5" style="margin-top: -130px;margin-left:-40px;fo
   
                     createprofthumbdim($profilepic);
         			createprofthumbnail($profilepic);
-					chmod($profilepic, 0644);
+					chmod($profilepic, 0777);
     			}  
 		}  
 	

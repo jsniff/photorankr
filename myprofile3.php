@@ -16,6 +16,11 @@ session_start();
     }
 
     $email = $_SESSION['email'];
+    
+    if ($_SESSION['loggedin'] != 1) {
+        header("Location: signin.php");
+        exit();
+    } 
 
 //QUERY FOR NOTIFICATIONS
 $currentnots = "SELECT * FROM userinfo WHERE emailaddress = '$email'";
@@ -82,21 +87,70 @@ $notsqueryrun = mysql_query($notsquery); }
 
   $discoverimage = mysql_result($viewresult, 0, "id");
   
+  //PORTFOLIO RANKING
+
+$followersquery="SELECT * FROM userinfo WHERE following LIKE '%$email%'";
+	$followersresult=mysql_query($followersquery);
+	$numberfollowers = mysql_num_rows($followersresult);
+    
+    //Grab Overall Portfolio Ranking
+    $userphotos="SELECT * FROM photos WHERE emailaddress = '$email'";
+    $userphotosquery=mysql_query($userphotos);
+    $numphotos=mysql_num_rows($userphotosquery);
+    
+    for($iii = 0; $iii < $numphotos; $iii++) {
+		$points = mysql_result($userphotosquery, $iii, "points");
+        $votes = mysql_result($userphotosquery, $iii, "votes");
+        $totalfaves = mysql_result($userphotosquery, $iii, "faves");
+        $portfoliopoints+=$points;
+        $portfoliovotes+=$votes;
+        $portfoliofaves+=$totalfaves;
+        }
+    
+    if ($portfoliovotes > 0) {
+    $portfolioranking=($portfoliopoints/$portfoliovotes);
+    $portfolioranking=number_format($portfolioranking, 2, '.', '');
+    
+    $scorequery = "UPDATE userinfo SET totalscore = '$portfoliopoints' WHERE emailaddress = '$email'";    
+    $scoreresult = mysql_query($scorequery);
+    
+    }
+    
+    else if ($portfoliovotes < 1) {
+    $portfolioranking="N/A";
+    }	
+    
+    //NUMBER FOLLOWING
+    $emailquery=("SELECT following FROM userinfo WHERE emailaddress ='$email'");
+	$followresult=mysql_query($emailquery);
+	$followinglist=mysql_result($followresult, 0, "following");
+	$followingquery="SELECT * FROM userinfo WHERE emailaddress IN ($followinglist)";
+	$followingresult = mysql_query($followingquery);
+	$numberfollowing = mysql_num_rows($followingresult);
+
+if(isset($_GET['view'])) {
+	$view=htmlentities($_GET['view']); //get which tab of profile they are looking at
+}
+  
   
   //GRAB USER INFORMATION
   $userquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$email'");
   $profilepic = mysql_result($userquery,0,'profilepic'); 
   $email = mysql_result($userquery,0,'emailaddress'); 
-  $fullname = mysql_result($userquery,0,'firstname')." ".mysql_result($userquery,0,'lastname'); 
+  $firstname = mysql_result($userquery,0,'firstname');
+  $lastname = mysql_result($userquery,0,'lastname');
+  $fullname = $firstname." ".$lastname; 
   $age = mysql_result($userquery,0,'age');
   $gender = mysql_result($userquery,0,'gender');
   $location = mysql_result($userquery,0,'location');
   $camera = mysql_result($userquery,0,'camera');
-  $about = mysql_result($userquery,0,'about');
+  $about = mysql_result($userquery,0,'bio');
   $quote = mysql_result($userquery,0,'quote');
-  $fbook = mysql_result($userquery,0,'fbook');
-  $twitter = mysql_result($userquery,0,'twitter');
+  $fbook = mysql_result($userquery,0,'facebookpage');
+  $twitter = mysql_result($userquery,0,'twitteraccount');
   $faves = mysql_result($userquery,0,'faves');
+  $reputation = number_format(mysql_result($userquery,0,'reputation'),1);
+  $password = mysql_result($userquery,0,'password');
   $background = mysql_result($userquery,0,'background');
   $background = str_replace('userphotos/','userphotos/medthumbs/',$background);
   
@@ -110,6 +164,36 @@ $notsqueryrun = mysql_query($notsquery); }
         
     }
   
+          
+        if($_GET['action'] == 'comment') {
+    
+            $blogid = htmlentities($_GET['blogid']);
+            $comment = mysql_real_escape_string($_POST['comment']);
+                    
+            $commentinsertion = mysql_query("INSERT INTO blogcomments (comment,blogid,emailaddress) VALUES ('$comment','$blogid','$email')");
+            
+            echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile3.php?view=blog#',$blogid,'">';
+            exit();
+
+    
+        }
+        
+        if($_GET['action'] == 'submitpost') {
+    
+            $blogtitle = mysql_real_escape_string($_POST['title']);
+            $blogsubject = mysql_real_escape_string($_POST['subject']);
+            $blogcontent = mysql_real_escape_string($_POST['content']);
+            $source = mysql_real_escape_string($_POST['checked']);
+            $time = mysql_real_escape_string($_POST['time']);
+            
+            $bloginsertion = mysql_query("INSERT INTO blog (title,subject,content,photo,emailaddress,time) VALUES ('$blogtitle','$blogsubject','$blogcontent','$source','$email','$time')");
+            
+            echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile3.php?view=blog">';
+            exit();
+
+    
+        }
+
 ?>
 
 
@@ -125,9 +209,8 @@ $notsqueryrun = mysql_query($notsquery); }
   <meta name="Description" content="A gallery of the newest photography, photographers, and exhibits on PhotoRankr.">
      <meta name="viewport" content="width=1200" /> 
 
-  <link rel="stylesheet" type="text/css" href="bootstrapnew.css" />
-  <link rel="stylesheet" href="reset.css" type="text/css" />
-  <link rel="stylesheet" href="text.css" type="text/css" />
+  <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
+  <link rel="stylesheet" href="text2.css" type="text/css" />
   <link rel="stylesheet" href="960_24.css" type="text/css" />
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   <script src="bootstrap.js" type="text/javascript"></script>
@@ -151,8 +234,17 @@ $notsqueryrun = mysql_query($notsquery); }
 
 </script>
 
+
+        
 <style type="text/css">
 
+.show { 
+display: block;
+}
+
+.hide { 
+display: none; 
+}
 
  .statoverlay
 
@@ -215,10 +307,44 @@ opacity:.6;
 </script>
 
 
-</head>
-<body style="overflow-x:hidden;background-image:url('');background-position: center top;background-size:100%;background-repeat:no-repeat;background-attachment:fixed;">
 
-<?php navbar(); ?>  
+
+<!--AJAX to pull off tags associated with a particular owners set they choose-->
+
+<script type="text/javascript">
+function showTags(str)
+{
+var xmlhttp;    
+if (str=="")
+  {
+  document.getElementById("boxesappear").innerHTML="";
+  return;
+  }
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    document.getElementById("boxesappear").innerHTML=xmlhttp.responseText;
+    }
+  }
+xmlhttp.open("GET","gettags.php?q="+str,true);
+xmlhttp.send();
+}
+</script>
+
+
+</head>
+<body style="background-color:#fff;overflow-x:hidden;background-image:url('');background-position: center top;background-size:100%;background-repeat:no-repeat;background-attachment:fixed;">
+
+<?php navbarnew(); ?>  
 
 <div class="container_24"><!--START CONTAINER-->
 
@@ -227,7 +353,7 @@ opacity:.6;
 
 
 
-<div class="grid_4 pull_1 rounded" style="background-color:#eeeff3;position:relative;top:80px;height:500px;width:250px;">
+<div class="grid_4 pull_1 rounded" style="background-color:#eeeff3;position:relative;top:80px;width:250px;">
 
 <div style="width:240px;height:140px;">
 <div class="circle" style="float:left;overflow:hidden;margin-left:15px;margin-top:15px;">
@@ -241,29 +367,59 @@ opacity:.6;
 <div style="font-size:18px;text-align:center;font-weight:200;"><?php echo $fullname; ?></div>
 </div>
 
-<div style="width:250px;height:70px;margin-top:0px;">
+<div style="text-align:center;font-size:14px;font-weight:200;width:250px;height:190px;margin-top:20px;">
+<p>Reputation: <span style="font-size:20px;"><?php echo $reputation; ?>/</span><span style="font-size:15px;">100</span></p>
+<div class="progress" style="margin-top:-15px;margin-left:28px;width:195px;height:15px;">
+   <div class="bar" style="width: <?php echo $reputation; ?>%;"></div>
+   </div>
+<div style="margin-left:30px;text-align:center;">
+   <div style="float:left;"><p>Avg. Portfolio:&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
+   <div style="float:left;margin-top:-4px;"><p><span style="font-size:20px;">#</span> Photos</p></div>
+</div>
+
+<div style="position:relative;top:-15px;margin-left:50px;text-align:center;font-size:20px;">
+   <div style="float:left;"><p><?php echo $portfolioranking; ?>/<span style="font-size:15px;">10</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
+   <div style="float:left;"><p><?php echo $numphotos; ?></p></div>
+</div>
+
+<div style="position:relative;left:15px;top:-25px;margin-left:30px;text-align:center;">
+   <div style="float:left;"><p>Favorited:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
+   <div style="float:left;"><p>Followers:</p></div>
+</div>
+
+<div style="position:relative;top:-35px;margin-left:52px;text-align:center;font-size:20px;">
+   <div style="float:left;"><p>&nbsp;&nbsp;<?php echo $portfoliofaves; ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
+   <div style="float:left;"><p><?php echo $numberfollowers; ?></p></div>
+</div>
 
 </div>
 
-<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=info"><div style="width:250px;border-top:dotted;margin-top:10px;">
-<span class="green" style="text-align:center;font-size:24px;padding-left:15px;">Info&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
+<div style="position:relative;top:-30px;">
+<hr>
+<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=info"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<span class="green" style="text-align:center;font-size:24px;padding-left:15px;<?php if($view == 'info' || $view == 'editinfo') {echo'color:#6aae45;';} ?>">Info&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
 </div></a>
 
-<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=network"><div style="width:250px;border-top:dotted;margin-top:10px;">
-<span class="green" style="text-align:center;font-size:24px;padding:15px;">Network&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
+<hr>
+<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=network"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'network') {echo'color:#6aae45;';} ?>">Network&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
 </div></a>
 
-<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=favorites"><div style="width:250px;border-top:dotted;margin-top:10px;">
-<span class="green" style="text-align:center;font-size:24px;padding:15px;">Favorites&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
+<hr>
+<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=favorites"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'favorites') {echo'color:#6aae45;';} ?>">Favorites&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
 </div></a>
 
-<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=messages"><div style="width:250px;border-top:dotted;margin-top:10px;">
-<span class="green" style="text-align:center;font-size:24px;padding:15px;">Messages&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;"src="graphics/messages.png" height="30" width="30"></span>
+<hr>
+<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=messages"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'messages' || $view == 'viewthread') {echo'color:#6aae45;';} ?>">Messages&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;"src="graphics/messages.png" height="30" width="30"></span>
 </div></a>
 
-<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=settings"><div style="width:250px;border-top:dotted;margin-top:10px;">
-<span class="green" style="text-align:center;font-size:24px;padding:15px;">Settings&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;"src="graphics/messages.png" height="30" width="30"></span>
+<hr>
+<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=settings"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'settings') {echo'color:#6aae45;';} ?>">Settings&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;"src="graphics/messages.png" height="30" width="30"></span>
 </div></a>
+</div>
 
 </div><!--end 4 grid-->
 
@@ -271,7 +427,7 @@ opacity:.6;
 
 <a style="text-decoration:none;color:black;" href="myprofile3.php"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;<?php if($view == '') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:25px;font-weight:100;margin-top:10px;text-align:center;">Portfolio</div></div></a>
 
-<a style="text-decoration:none;color:black;" href="myprofile3.php?view=store"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;float:left;<?php if($view == 'store') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:25px;font-weight:100;margin-top:10px;text-align:center;">Store</div></div></a>
+<a style="text-decoration:none;color:black;" href="myprofile3.php?view=store"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;float:left;<?php if($view == 'store') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:25px;font-weight:100;margin-top:10px;text-align:center;">My Store</div></div></a>
 
 <a style="text-decoration:none;color:black;" href="myprofile3.php?view=blog"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;float:left;<?php if($view == 'blog') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:25px;font-weight:100;margin-top:10px;text-align:center;">Blog</div></div></a>
 
@@ -287,7 +443,7 @@ opacity:.6;
     
         $option = htmlentities($_GET['option']);    
     
-        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php">Newest</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?view=exhibits">Exhibits</a></div></div>';
+        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php">Newest</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'top') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'fave') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?view=exhibits">Exhibits</a></div></div>';
         
         if($option == '') {        
         $query = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY id DESC LIMIT 0,21");
@@ -305,7 +461,7 @@ opacity:.6;
         }
         
         echo'<div id="thepics">';
-        echo'<div id="container" class="grid_18" style="width:770px;margin-top:-40px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);">';
+        echo'<div id="container" class="grid_18" style="width:770px;margin-top:-38px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);">';
 
         for($iii=0; $iii < $numresults; $iii++) {
               
@@ -377,7 +533,7 @@ var last = 0;
     
     elseif($view == 'exhibits') {
     
-    echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php">Newest</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?view=exhibits">Exhibits</a></div></div>';
+    echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php">Newest</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#333;'; if($view == 'exhibits') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=exhibits">Exhibits</a></div></div>';
 
 
         if(isset($_GET['set'])){
@@ -428,7 +584,7 @@ echo'<div class="well grid_6 push_4" style="font-size:16px;width:270px;"><a href
 
 if($set == '' & $numbersets > 0) {
 
-echo'<div class="grid_18" style="width:770px;margin-top:20px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);"><a href="myprofile3.php?view=upload&cs=n"><button class="btn btn-success">Create New Exhibit</button></a><br /><br />
+echo'<div class="grid_18" style="width:770px;margin-top:22px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);"><a href="myprofile3.php?view=upload&option=newexhibit"><button class="btn btn-success">Create New Exhibit</button></a><br /><br />
 '; 
 
 for($iii=0; $iii < $numbersets; $iii++) {
@@ -452,7 +608,7 @@ $numphotosgrabbed = mysql_num_rows($grabphotosrun);
 
     echo'<div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="myprofile3.php?view=exhibits&set=',$set_id[$iii],'">
 
-    <div class="statoverlay" style="z-index:1;left:0px;top:200px;position:relative;background-color:black;width:245px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$setname2[$iii],'</span><br><span style="font-size:14px;font-weight:100;">Number Photos: ',$numphotosgrabbed,'<br></span></p></div>
+    <div class="statoverlay" style="z-index:1;left:0px;top:190px;position:relative;background-color:black;width:245px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$setname2[$iii],'</span><br><span style="font-size:14px;font-weight:100;">Number Photos: ',$numphotosgrabbed,'<br></span></p></div>
 
     <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="http://www.photorankr.com/',$setcover,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
     
@@ -484,7 +640,7 @@ if($setcover == '') {
 $setcover = 'profilepics/nocoverphoto.png';
 }
 
-echo'<div class="grid_18" style="width:770px;margin-top:20px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);">
+echo'<div class="grid_18" style="width:770px;margin-top:22px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);">
 
 <div class="well grid_14" style="width:735px;font-size:16px;line-height:25px;margin-top:15px;"><u>Exhibit:</u> "',$settitle,'"<br />
 <br /><u>About this exhibit:</u> ',$aboutset,'<br /><br />
@@ -589,7 +745,7 @@ height="100px" width="100px" />
     elseif($view == 'info') {
         
         echo'
-        <div class="span9" style="margin-top:30px;margin-top:0px;margin-left:-5px;padding:67px;background-color:rgba(245,245,245,0.6);">
+        <div class="span9" style="margin-top:0px;margin-left:-5px;padding:67px;padding-top:40px;background-color:rgba(245,245,245,0.6);">
         <table class="table">
         <tbody>';
 
@@ -652,15 +808,571 @@ height="100px" width="100px" />
         echo'
         </tbody>
         </table>
+        <a class="btn btn-success" href="myprofile3.php?view=editinfo">Edit Profile</a>
         </div>';
     
     }
+    
+    
+    elseif ($view == 'editinfo') { //if they are on the edit info tab
+	//see if they have submitted the form
+	$action = htmlentities($_GET['action']);
+	if ($action == 'submit') {
+
+		//GET UPDATED PROFILE INFORMATION
+        if(isset($_POST['firstname'])) {$firstname=mysql_real_escape_string($_POST['firstname']); }
+        if(isset($_POST['lastname'])) {$lastname=mysql_real_escape_string($_POST['lastname']); }
+		if(isset($_POST['age'])) {$age=mysql_real_escape_string($_POST['age']); }
+		if(isset($_POST['gender'])) {$gender=mysql_real_escape_string($_POST['gender']); }
+		if(isset($_POST['location'])) {$location = mysql_real_escape_string($_POST['location']);}
+		if(isset($_POST['camera'])) {$camera=mysql_real_escape_string($_POST['camera']);}
+		if(isset($_POST['facebookpage'])) {$facebookpage=mysql_real_escape_string($_POST['facebookpage']);}
+		if(isset($_POST['twitteraccount'])) {$twitteraccount=mysql_real_escape_string($_POST['twitteraccount']);}
+        if(isset($_POST['quote'])) {$quote=mysql_real_escape_string($_POST['quote']);}
+		if(isset($_POST['bio'])) {$bio=mysql_real_escape_string($_POST['bio']);}
+		if(isset($_POST['password'])) {$password=mysql_real_escape_string($_POST['password']);}
+		if(isset($_POST['confirmpassword'])) {$confirmpassword=mysql_real_escape_string($_POST['confirmpassword']);}
+
+      $singlestyletags = $_POST['singlestyletags']; 
+          $singlecategorytags = $_POST['singlecategorytags'];
+
+          //Concatenate single photo box tags
+          $numbersinglestyletags = count($singlestyletags);
+        for($i=0; $i < $numbersinglestyletags; $i++)
+        {
+            $singlestyletags2 = $singlestyletags2 . " " . mysql_real_escape_string($singlestyletags[$i]) . " ";
+        }
+          $numbersinglecategorytags = count($singlecategorytags);
+        for($i=0; $i < $numbersinglecategorytags; $i++)
+        {
+            $singlecategorytags2 = $singlecategorytags2 . " " . mysql_real_escape_string($singlecategorytags[$i]) . " ";
+          }
+
+          $viewLikes = $singlecategorytags2 . "  " . $singlestyletags2;
+	
+		//check if confirm password and password are same
+		if ($confirmpassword != $password) {
+			die('Your passwords did not match.');
+		}	
+		
+		//require files that will help with picture uploading and thumbnail creation/display
+		require 'config.php';
+		require 'functions.php';	
+	
+		//move the file
+		if(isset($_FILES['file'])) {  
+  
+    			if(preg_match('/[.](jpg)|(jpeg)|(gif)|(png)|(JPG)$/', $_FILES['file']['name'])) {  
+        			$filename = $_FILES['file']['name'];  
+				$newfilename=str_replace(" ","",$filename);
+ 				$newfilename=str_replace("#","",$newfilename);		
+    				$newfilename=str_replace("&","",$newfilename);
+				$newfilename=strtolower($newfilename);
+    				$newfilename=str_replace("?","",$newfilename);	
+    				$newfilename=str_replace("'","",$newfilename);
+    				$newfilename=str_replace("#","",$newfilename);
+    				$newfilename=str_replace(":","",$newfilename);
+    				$newfilename=str_replace("*","",$newfilename);
+    				$newfilename=str_replace("<","",$newfilename);
+    				$newfilename=str_replace(">","",$newfilename);
+    				$newfilename=str_replace("(","",$newfilename);
+    				$newfilename=str_replace(")","",$newfilename);
+    				$newfilename=str_replace("^","",$newfilename);
+   				$newfilename=str_replace("$","",$newfilename);
+    				$newfilename=str_replace("@","",$newfilename);
+    				$newfilename=str_replace("!","",$newfilename);
+    				$newfilename=str_replace("+","",$newfilename);
+    				$newfilename=str_replace("=","",$newfilename);
+    				$newfilename=str_replace("|","",$newfilename);
+   				$newfilename=str_replace(";","",$newfilename);
+    				$newfilename=str_replace("[","",$newfilename);
+    				$newfilename=str_replace("{","",$newfilename);
+    				$newfilename=str_replace("}","",$newfilename);
+    				$newfilename=str_replace("]","",$newfilename);
+    				$newfilename=str_replace("~","",$newfilename);
+    				$newfilename=str_replace("`","",$newfilename);
+				$newfilename=str_replace("?","",$newfilename);
+				/*if(preg_match('/[.](jpg)$/', $newfilename)) {  
+            				$extension = ".jpg";
+        			} else if (preg_match('/[.](gif)$/', $newfilename)) {  
+            				$extension = ".gif"; 
+        			} else if (preg_match('/[.](png)$/', $newfilename)) {  
+            				$extension = ".png";  
+        			}*/
+        			
+                    $time = time();
+                    $newfilename = $time . $newfilename;
+				$source = $_FILES['file']['tmp_name'];  
+        			$profilepic = $path_to_profpic_directory . $newfilename; 
+				//$profilepic = $path_to_profpic_directory . $firstname . $lastname . $extension;
+  
+        			move_uploaded_file($source, $profilepic);  
+                    chmod($profilepic, 0777);
+                    
+                    createprofthumbdim($profilepic);
+        			createprofthumbnail($profilepic);
+					
+    			}  
+		}  
+	
+		//update the database with this new information
+		if(isset($_POST['bio'])) {
+        
+			$infoupdatequery=("UPDATE userinfo SET firstname = '$firstname', lastname = '$lastname', age = '$age', gender = '$gender', location = '$location', camera = '$camera', facebookpage='$facebookpage', twitteraccount='$twitteraccount', quote='$quote', bio='$bio', profilepic='$profilepic', password='$password', viewLikes='$viewLikes' WHERE emailaddress='$email'");
+		}
+		else {
+        
+			$infoupdatequery=("UPDATE userinfo SET firstname = '$firstname', lastname = '$lastname', age = '$age', gender = '$gender', location = '$location', camera = '$camera', facebookpage='$facebookpage', twitteraccount='$twitteraccount', profilepic='$profilepic', password='$password', viewLikes='$viewLikes' WHERE emailaddress='$email'");
+		}
+		$infoupdateresult=mysql_query($infoupdatequery);
+
+        mysql_close();
+        echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile3.php?view=editinfo&action=saved">';
+        exit();
+	}
+    else if($action == "saved") {
+        echo '<h3>Profile Saved</h3><br />';
+    }
+
+echo'
+
+        <div class="span9" style="margin-top:0px;;margin-left:-5px;padding:20px;padding-left:67px;background-color:rgba(245,245,245,0.6);">
+        <span style="font-size:18px;font-weight:200;">Edit Your Information:</span>
+        <br /><br />
+        <form action="myprofile3.php?view=editinfo&action=submit" method="post" enctype="multipart/form-data">
+        <table class="table">
+        <tbody>
+        
+        <tr>
+        <td>Firstname:</td>
+        <td><input style="width:180px;height:20px;" type="text" name="firstname" value="', $firstname, '"/></td>
+        </tr>
+        
+        <tr>
+        <td>Lastname:</td>
+        <td><input style="width:180px;height:20px;" type="text" name="lastname" value="', $lastname, '"/></td>
+        </tr>
+
+        <tr>
+        <td>Age:</td>
+        <td><input style="width:50px;height:20px;" type="text" name="age" value="', $age, '"/></td>
+        </tr>
+
+        <tr>
+        <td>From:</td>
+        <td><input style="width:180px;height:20px;" type="text" name="location" value="', $location, '"/></td>
+        </tr> 
+
+        <tr>
+        <td>Gender:</td>
+        <td>';
+            if ($gender == 'Male') {
+                echo '<input type="radio" name="gender" value="Male" checked="checked" /> Male&nbsp;&nbsp; 
+                <input type="radio" name="gender" value="Female" /> Female&nbsp;&nbsp;';
+            }
+            else {
+                echo '<input type="radio" name="gender" value="Male" /> Male&nbsp;&nbsp; 
+                <input type="radio" name="gender" value="Female" checked="checked" /> Female&nbsp;&nbsp;';
+            }
+            echo '</td>
+        </tr>
+
+        <tr>
+        <td>Camera:</td>
+        <td><input style="width:180px;height:20px;" type="text" name="camera" value="', $camera, '"/></td>
+        </tr>
+
+        <tr>
+        <td>Facebook Page:</td>
+        <td><a href="',$facebookpage,'"><input style="width:180px;height:20px;" type="text" name="facebookpage" value="',$fbook,'"/></a></td>
+        </tr>
+
+        <tr>
+        <td>Twitter:</td>
+        <td><a href="',$twitteraccount,'"><input style="width:180px;height:20px;" type="text" name="twitteraccount" value="',$twitter,'"/></a></td>
+        </tr>
+
+        <tr>
+        <td>Quote:</td>
+        <td><textarea style="width:500px" rows="2" cols="100" name="quote">',stripslashes($quote),'</textarea></td>
+        </tr>
+        
+        <tr>
+        <td>Change Password:</td>
+        <td><input type="password" style="width:180px;height:25px;"  name="password" value="', $password, '"/></td>
+        </tr>
+        
+        <tr>
+        <td>Confirm Password:</td>
+        <td><input type="password" style="width:180px;height:25px;"  name="confirmpassword" value="', $password, '"/></td>
+        </tr>
+        
+        <tr>
+        <td>Change Profile Photo:</td>
+        <td><img src="',$profilepic,'" height="30" width="30" />&nbsp;&nbsp;&nbsp;<input type="file"  name="file" value="', $profilepic, '"/></td>
+        </tr>
+        
+        <tr>
+        <td>About:</td>
+        <td><textarea style="width:500px" rows="6" cols="100" name="bio">',stripslashes($about),'</textarea></td>
+        </tr>
+        
+        <tr>
+        <td>Choose Your Discover Preferences:</td>
+        <td><span style="font-size:13px">(Selecting multiple values: Hold down command button if on mac, control button if on PC)</span>
+            <br /><br />
+            <select style="width:150px;height:150px;" multiple="multiple" name="singlestyletags[]">
+            <option value="B&W">Black and White</option>
+            <option value="Cityscape">Cityscape</option>
+            <option value="Fisheye">Fisheye</option>
+            <option value="HDR">HDR</option>
+            <option value="Illustration">Illustration</option>
+            <option value="InfraredUV">Infrared/UV</option>
+            <option value="Landscape">Landscape</option>
+            <option value="Long Exposure">Long Exposure</option>
+            <option value="Macro">Macro</option>
+            <option value="Miniature">Miniature</option>
+            <option value="Monochrome">Monochrome</option>
+            <option value="Motion Blur">Motion Blur</option>
+            <option value="Night">Night</option>
+            <option value="Panorama">Panorama</option>
+            <option value="Photojournalism">Photojournalism</option>
+            <option value="Portrait">Portrait</option>
+            <option value="Stereoscopic">Stereoscopic</option>
+            <option value="Time Lapse">Time Lapse</option>
+            </select>
+            <span style="padding-left:70px">
+            <select style="width:150px;height:150px;" multiple="multiple" name="singlecategorytags[]">
+            <option value="Advertising">Advertising</option>
+            <option value="Aerial">Aerial</option>
+            <option value="Animal">Animal</option>
+            <option value="Architecture">Architecture</option>
+            <option value="Astro">Astro</option>
+            <option value="Aura">Aura</option>
+            <option value="Automotive">Automotive</option>
+            <option value="Botanical">Botanical</option>
+            <option value="Candid">Candid</option>
+            <option value="Commercial">Commercial</option>
+            <option value="Corporate">Corporate</option>
+            <option value="Documentary">Documentary</option>
+            <option value="Fashion">Fashion</option>
+            <option value="Fine Art">Fine Art</option>
+            <option value="Food">Food</option>
+            <option value="Historical">Historical</option>
+            <option value="Industrial">Industrial</option>
+            <option value="Musical">Musical</option>
+            <option value="Nature">Nature</option>
+            <option value="News">News</option>
+            <option value="Night">Night</option>
+            <option value="People">People</option>
+            <option value="Scenic">Scenic</option>
+            <option value="Sports">Sports</option>
+            <option value="Still Life">Still Life</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Urban">Urban</option>
+            <option value="War">War</option>
+            </select><br /><br />
+        </td>
+        </tr>
+                
+        </tbody>
+        </table>
+        <button class="btn btn-success" type="submit">Save Profile</button>
+        </form>
+        </div>';
+        
+}
+
+
+    elseif($view == 'store') {
+    
+        $option = htmlentities($_GET['option']);    
+    
+        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=store">Manage Store</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'addtostore') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=store&option=addtostore">Add to Store</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'cart') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=store&option=cart">My Cart</a></div></div>';
+        
+        
+        if($option == '') {        
+        $query = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email' AND price != ('Not For Sale') ORDER BY id DESC LIMIT 0,21");
+        $numresults = mysql_num_rows($query);
+        
+        echo'<div id="thepics">';
+        echo'<div id="container" class="grid_18" style="width:770px;margin-top:-38px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);">';
+
+        for($iii=0; $iii < $numresults; $iii++) {
+              
+                $image[$iii] = mysql_result($query, $iii, "source");
+                $imageThumb[$iii] = str_replace("userphotos/","../userphotos/medthumbs/", $image[$iii]);
+                $id = mysql_result($query, $iii, "id");
+                $caption = mysql_result($query, $iii, "caption");
+                $points = mysql_result($query, $iii, "points");
+                $votes = mysql_result($query, $iii, "votes");
+                $faves = mysql_result($query, $iii, "faves");
+                $price = mysql_result($query, $iii, "price");
+                $sold = mysql_result($query, $iii, "sold");
+                $score = number_format(($points/$votes),2);
+                $faveemail = mysql_result($query, $iii, "emailaddress");
+                $ownerquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$faveemail'");
+                $firstname = mysql_result($query, 0, "firstname");
+                $lastname = mysql_result($query, 0, "lastname");
+                $reputation = mysql_result($query, 0, "lastname");
+                $fullname = $firstname . " " . $lastname;
+                list($width, $height) = getimagesize($image);
+                $imgratio = $height / $width;
+                $heightls = $height / 3.5;
+                $widthls = $width / 3.5;
+
+                echo '   
+
+                <div class="fPic" id="',$id,'" style="width:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="http://photorankr.com/fullsize.php?image=', $image[$iii], '">
+                
+                <div style="width:245px;height:245px;overflow:hidden;">
+                <div class="statoverlay" style="z-index:1;left:0px;top:155px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br><span style="font-size:14px;font-weight:100;">Sold: ',$sold,'<br>Base Price: $',$price,'</span></p></div>
+
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="http://www.photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a>
+                <br />      
+                </div>    
+                    
+                    <!--DROPDOWN MANAGE-->
+                    <div class="panel',$id,'">
+                    
+                    
+            <script type="text/javascript">
+            function showOtherPrice() {
+                if (document.getElementById(\'price\').value == \'Other Price\')
+                    {
+                        document.getElementById(\'otherprice\').className = \'show\';
+                    }
+                else if (document.getElementById(\'price\').value == \'Not For Sale\')
+                    {
+                        document.getElementById(\'remove\').className = \'show\';
+                    }
+                else {
+                    document.getElementById(\'otherprice',$id,'\').className = \'hide\';
+                    }
+            }
+            </script>
+            
+        <!--FOR SALE-->
+        <table class="table">
+        <tbody>
+        
+        <tr>
+        <td>Base Price:</td>
+        <td>
+            <div>
+            <select id="price" name="pricebox" style="width:120px;float:left;margin-left:-70px;" onchange="showOtherPrice()">
+            <option value=".00">Free</option>
+            <option value=".50">$.50</option>
+            <option value=".75">$.75</option>
+            <option value="1.00">$1.00</option>
+            <option value="2.00">$2.00</option>
+            <option value="5.00">$5.00</option>
+            <option value="10.00">$10.00</option>
+            <option value="15.00">$15.00</option>
+            <option value="25.00">$25.00</option>
+            <option value="50.00">$50.00</option>
+            <option value="100.00">$100.00</option>
+            <option value="200.00">$200.00</option>
+            <option value="Other Price">Choose Price</option>
+            <option value="Not For Sale">Not For Sale</option>
+            </select>
+            </div>
+            <div id="otherprice" class="hide" style="margin-left:-150px;width:290px;"><br /><div class="input-prepend input-append" style="float:left;"> 
+                <span class="add-on">$</span><input class="span2" id="appendedPrependedInput" size="16" type="text"><span class="add-on">.00</span>
+              </div></div>
+        </td>
+        </tr>
+        
+        <tr>
+        <td colspan="2"><br /><b>Edit Options for Sale:</b></td>
+        </tr>
+        
+        <tr>
+        <td><div style="width:150px;"><input type="checkbox" name="multiseat" value="multiseat" />&nbsp;&nbsp;Multi-Seat</div></td>
+        <td>+ $30</td>
+        </tr>
+        
+        <tr>
+        <td><div style="width:150px;"><input type="checkbox" name="printruns" value="printruns" />&nbsp;&nbsp;Unlimited Reproduction</div></td>
+        <td colspan="2">+ $40</td>
+        </tr>
+        
+        <tr>
+        <td><div style="width:150px;"><input type="checkbox" name="resale" value="resale" />&nbsp;&nbsp;Allow Resale</div></td>
+        <td colspan="2">+ $50</td>
+        </tr>
+        
+        <tr>
+        <td><div style="width:150px;"><input type="checkbox" name="electronic" value="electronic" />&nbsp;&nbsp;Allow Electronic Use</div></td>
+        <td colspan="2">+ $60</td>
+        </tr>
+
+        </tbody>
+        </table>
+        
+        <div id="remove" class="hide" style="text-align:center;">
+        <a class="btn btn-success" style="width:210px;padding:7px;" href="#">Remove from Store</a>
+        </div>
+        
+                    </div>
+                    
+                    <a name="',$id,'" href="#"><p class="flip',$id,'" style="font-size:15px;"></a>Manage</p>
+                    
+                    
+                    <style type="text/css">
+                    p.flip',$id,' {
+                    padding:10px;
+                    width:223px;
+                    clear:both;
+                    text-align:center;
+                    background:white;
+                    border:solid 1px #c3c3c3;
+                    }
+
+                    p.flip',$id,':hover {
+                    background-color: #ccc;
+                    }
+
+                    div.panel',$id,' {
+                    display:none;
+                    clear:both;
+                    padding:300px;
+                    padding:5px;
+                    text-align:left;
+                    background:white;
+                    border:solid 1px #c3c3c3;
+                    }
+                    </style>
+                    
+                    <!--HIDDEN COMMENT SCRIPT-->
+                    <script type="text/javascript">   
+                    $(document).ready(function(){
+                    $(".flip',$id,'").click(function(){
+                        $(".panel',$id,'").slideToggle("slow");
+                    });
+                    });
+                    </script>
+                    
+                </div>';
+
+
+	    
+                } //end for loop      
+        
+        echo'</div>';
+        echo'</div>';
+        
+        
+        }
+        
+        
+        elseif($option == 'addtostore') {  
+        
+        echo'
+            <div class="grid_18" style="margin:auto;border:1px solid #ccc;margin-top:30px;margin-left:20px;">
+            
+            <script type="text/javascript">
+            function showSelect() {
+                var select = document.getElementById(\'extended\');
+                select.className = \'show\';
+                document.getElementById(\'cc\').className = \'hide\';
+            }
+            function showSelectHide() {
+                var select = document.getElementById(\'forsale\');
+                select.className = \'hide\';
+                document.getElementById(\'cc\').className = \'hide\';
+            }
+            function showOtherPrice() {
+                if (document.getElementById(\'price\').value == \'Other Price\')
+                    {
+                        document.getElementById(\'otherprice\').className = \'show\';
+                    }
+                else {
+                    document.getElementById(\'otherprice\').className = \'hide\';
+                    }
+            }
+            </script>
+            
+        <div>
+        <table class="table">
+        <tbody>
+        
+        <tr>
+        <td><div style="padding:10px;"><a style="width:150px;padding:8px;" class="btn btn-success" data-toggle="modal" data-backdrop="static" href="#blogphoto">Add Photo To Market</a></div>
+        </td>
+        <td colspan="2">
+            <select id="price" name="pricebox" style="width:150px;margin-left:-350px;margin-top:20px;" onchange="showOtherPrice()">
+            <option value="">Choose Price&#8230;</option>
+            <option value=".50">$.50</option>
+            <option value=".75">$.75</option>
+            <option value="1.00">$1.00</option>
+            <option value="2.00">$2.00</option>
+            <option value="5.00">$5.00</option>
+            <option value="10.00">$10.00</option>
+            <option value="15.00">$15.00</option>
+            <option value="25.00">$25.00</option>
+            <option value="50.00">$50.00</option>
+            <option value="100.00">$100.00</option>
+            <option value="200.00">$200.00</option>
+            <option value="Other Price">Custom Price</option>
+            </select>
+            <div id="otherprice" class="hide" style="float:left;padding-left:20px;margin-top:20px;"><div class="input-prepend input-append">
+                <span class="add-on">$</span><input class="span2" id="appendedPrependedInput" size="16" type="text"><span class="add-on">.00</span>
+              </div></div>
+        </td>
+        </tr>
+        
+        <tr>
+        <td>
+        <input type="radio" name="market" value="forsale" onclick="showHide();" />&nbsp;&nbsp;Standard&nbsp;&nbsp;<input style="margin-left:40px;" type="radio" name="market" value="notforsale" onclick="showSelect();" />&nbsp;&nbsp;Extended License&nbsp;&nbsp;
+        </td>
+        </tr>
+        
+        <div id="extended" class="hide"> 
+        <tr>
+        <td colspan="2"><br /><b>Additonal Options for Sale:</b></td>
+        </tr>
+        
+        <tr>
+        <td><input type="checkbox" name="multiseat" value="multiseat" />&nbsp;&nbsp;Multi-Seat (Unlimited)</td>
+        <td colspan="2">+ $30</td>
+        </tr>
+        
+        <tr>
+        <td><input type="checkbox" name="printruns" value="printruns" />&nbsp;&nbsp;Unlimited Reproduction / Print Runs</td>
+        <td colspan="2">+ $40</td>
+        </tr>
+        
+        <tr>
+        <td><input type="checkbox" name="resale" value="resale" />&nbsp;&nbsp;Items for Resale - Limited Run</td>
+        <td colspan="2">+ $50</td>
+        </tr>
+        
+        <tr>
+        <td><input type="checkbox" name="electronic" value="electronic" />&nbsp;&nbsp;Unlimited Electronic Use</td>
+        <td colspan="2">+ $60</td>
+        </tr>
+        </div>
+        
+        </tbody>
+        </table>
+        </div>
+        
+        <div style="padding:10px;float:right;"><a style="width:150px;padding:8px;" class="btn btn-primary" data-toggle="modal" data-backdrop="static" href="#blogphoto">Upload Now</a></div>
+            
+            </div>';
+            
+        }
+    
+    }
+    
+    
 
     elseif($view == 'network') {
     
         $option = htmlentities($_GET['option']);    
     
-        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#aaa;" href="myprofile3.php?view=network">Following</a> | <a class="green" style="text-decoration:none;color:#aaa;" href="myprofile3.php?view=network&option=followers">Followers</a></div></div>';
+        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#000;" href="myprofile3.php?view=network">Following</a> | <a class="green" style="text-decoration:none;color:#000;" href="myprofile3.php?view=network&option=followers">Followers</a></div></div>';
         
         if($option == '') {
             $query = mysql_query("SELECT following FROM userinfo WHERE emailaddress = '$email'");
@@ -686,7 +1398,7 @@ height="100px" width="100px" />
 		
                 echo '   
 
-                <div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="http://photorankr.com/fullsize.php?image=', $image[$iii], '">
+                <div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="http://photorankr.com/viewprofile3.php?u=',$followingid,'">
 
                 <div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:245px;height:35px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;font-weight:100;">',$fullname,'</span></p></div>
 
@@ -699,6 +1411,10 @@ height="100px" width="100px" />
     
     elseif($view == 'favorites') {
     
+        $favesquery = "SELECT * FROM userinfo WHERE emailaddress='$email' LIMIT 0, 1";
+        $favesresult = mysql_query($favesquery) or die(mysql_error());
+        $faves = mysql_result($favesresult, 0, "faves");
+        
         $query = mysql_query("SELECT * FROM photos WHERE source IN ($faves) ORDER BY FIELD (source, $faves) DESC LIMIT 9");
         $numresults = mysql_num_rows($query);
         echo'<div id="thepics">';
@@ -737,8 +1453,38 @@ height="100px" width="100px" />
         
         echo'</div>';
         echo'</div>';
-    
-    }
+        
+        //AJAX CODE HERE
+echo'
+   <div class="grid_6 push_9" style="top:20px;">
+   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Photos&hellip;</div>
+   </div>';
+
+
+echo '<script>
+
+var last = 0;
+
+	$(window).scroll(function(){
+		if($(window).scrollTop() > $(document).height() - $(window).height()-100) {
+			if(last != $(".fPic:last").attr("id")) {
+				$("div#loadMoreFavePics").show();
+				$.ajax({
+					url: "loadMoreFavePics3.php?lastPicture=" + $(".fPic:last").attr("id"),
+					success: function(html) {
+						if(html) {
+							$("#thepics").append(html);
+							$("div#loadMoreFavePics").hide();
+						}
+					}
+				});
+				last = $(".fPic:last").attr("id");
+			}
+		}
+	});
+</script>';
+
+}
     
     
         elseif($view == 'favorites') {
@@ -792,6 +1538,11 @@ height="100px" width="100px" />
         $numresults = mysql_num_rows($query);
         echo'<div id="thepics">';
         echo'<div id="container" class="grid_18" style="width:770px;margin-top:0px;padding-left:20px;">';
+        
+        echo'<br /><div style="width:760px;text-align:center;font-size:17px;font-weight:200;"><div style="margin-left:20px;">';
+        if($numresults > 0) {echo $numresults . ' Photos Found'; } else {echo'Sorry, No Photos Found For "',$searchterm,'"';}
+        echo'
+        </div></div>';
 
         for($iii=0; $iii < $numresults; $iii++) {
               
@@ -828,6 +1579,781 @@ height="100px" width="100px" />
         echo'</div>';
     
     }
+    
+    
+    
+    elseif($view == 'upload') {
+    
+                $option = htmlentities($_GET['option']);    
+
+                echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;';if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=upload">Single Upload</a> | <a class="green" style="text-decoration:none;';if($option == 'batch') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=upload&option=batch">Batch Upload</a> | <a class="green" style="text-decoration:none;';if($option == 'newexhibit') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=upload&option=newexhibit">Create an Exhibit</a></div></div>
+                <div id="container" class="grid_18" style="width:770px;margin-top:0px;padding-left:20px;margin-left:10px;">';
+                        
+                if($option == '') {
+                        
+                        //select all sets associated with user email
+                        $setsemail = $_SESSION['email'];
+                        $setsquery = "SELECT * FROM sets WHERE owner = '$setsemail'";
+                        $setsqueryrun = mysql_query($setsquery);
+                        $setscount = mysql_num_rows($setsqueryrun);
+
+                        //upload a photo
+                        if (htmlentities($_GET['action']) == "uploadsuccess") { 
+                                echo '<span class="label label-success" style="font-size: 16px;">Upload Successful!</span><br /><br />';
+
+                        }
+    
+                        else if (htmlentities($_GET['action']) == "uploadfailure") {
+                                echo '<span class="label label-important" style="font-size: 16px;">Please fill out all required items.</span><br /><br />';
+        
+                        }
+                           
+        echo'
+                            
+        <div class="span9" style="margin-top:-38px;;margin-left:-35px;padding:20px;padding-left:67px;background-color:rgba(245,245,245,0.6);">
+        <br /><br />
+        <form action="myprofile3.php?view=editinfo&action=submit" method="post" enctype="multipart/form-data">
+        <table class="table">
+        <tbody>
+    
+        <tr>
+        <td>Upload Photo:</td>
+        <td><input type="file" name="file" /><input type="hidden" name="MAX_FILE_SIZE" value="2500000000" /></td>
+        </tr>
+        
+        <tr>
+        <td>Title:</td>
+        <td><input style="width:180px;height:20px;" type="text" name="caption" /></td>
+        </tr>
+        
+        <tr>
+        <td>Camera:</td>
+        <td><input style="width:180px;height:20px;" type="text" value="',$camera,'" name="camera" /></td>
+        </tr>
+
+        <tr>
+        <td>Location:</td>
+        <td><input style="width:180px;height:20px;" type="text" name="age" placeholder="City, State/Province, Country" /></td>
+        </tr>
+
+        <tr>
+        <td>Keywords:</td>
+        <td><input style="width:80px;height:20px;" type="text" name="tag1" />
+            <input style="width:80px;height:20px;" type="text" name="tag2" />
+            <input style="width:80px;height:20px;" type="text" name="tag3" />
+            <input style="width:80px;height:20px;" type="text" name="tag4" /></td>
+        </tr>
+        
+        <tr>
+        <td>Style & Category:</td>
+        <td>
+            <span style="font-size:13px">(Selecting multiple values: Hold down command button if on mac, control button if on PC)</span>
+            <br /><br />
+            
+            <select style="width:150px;height:150px;" multiple="multiple" name="singlecategorytags[]">
+            <option value="Advertising">Advertising</option>
+            <option value="Aerial">Aerial</option>
+            <option value="Animal">Animal</option>
+            <option value="Architecture">Architecture</option>
+            <option value="Astro">Astro</option>
+            <option value="Aura">Aura</option>
+            <option value="Automotive">Automotive</option>
+            <option value="Botanical">Botanical</option>
+            <option value="Candid">Candid</option>
+            <option value="Commercial">Commercial</option>
+            <option value="Corporate">Corporate</option>
+            <option value="Documentary">Documentary</option>
+            <option value="Fashion">Fashion</option>
+            <option value="Fine Art">Fine Art</option>
+            <option value="Food">Food</option>
+            <option value="Historical">Historical</option>
+            <option value="Industrial">Industrial</option>
+            <option value="Musical">Musical</option>
+            <option value="Nature">Nature</option>
+            <option value="News">News</option>
+            <option value="Night">Night</option>
+            <option value="People">People</option>
+            <option value="Scenic">Scenic</option>
+            <option value="Sports">Sports</option>
+            <option value="Still Life">Still Life</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Urban">Urban</option>
+            <option value="War">War</option>
+            </select>
+
+            <span style="padding-left:70px;">
+            <select style="width:150px;height:150px;" multiple="multiple" name="singlestyletags[]">
+            <option value="B&W">Black and White</option>
+            <option value="Cityscape">Cityscape</option>
+            <option value="Fisheye">Fisheye</option>
+            <option value="HDR">HDR</option>
+            <option value="Illustration">Illustration</option>
+            <option value="InfraredUV">Infrared/UV</option>
+            <option value="Landscape">Landscape</option>
+            <option value="Long Exposure">Long Exposure</option>
+            <option value="Macro">Macro</option>
+            <option value="Miniature">Miniature</option>
+            <option value="Monochrome">Monochrome</option>
+            <option value="Motion Blur">Motion Blur</option>
+            <option value="Night">Night</option>
+            <option value="Panorama">Panorama</option>
+            <option value="Photojournalism">Photojournalism</option>
+            <option value="Portrait">Portrait</option>
+            <option value="Stereoscopic">Stereoscopic</option>
+            <option value="Time Lapse">Time Lapse</option>
+            </select>
+            
+            </span>
+        </td>
+        </tr>
+        
+        <tr>
+        <td>About Photo:</td>
+        <td><textarea style="width:500px" rows="4" cols="60" name="about"></textarea></td>
+        </tr>
+
+        <tr>
+        <td>Add to Exhibit:</td>
+        <td>
+            <select name="addtoset" onchange="showTags(this.value)" style="width:160px;">
+                <option value="" style="display:none;">Choose an exhibit:</option>';
+                for($iii=0; $iii < $setscount; $iii++) {
+                $settitle = mysql_result($setsqueryrun, $iii, "title");
+                echo'<option value="',$settitle,'">',$settitle,'</option>';
+            }
+            echo'
+            </select>
+    
+            <br />
+            <br />
+    
+            <div id="boxesappear"> </div>
+        </td>
+        </tr>
+    
+        
+        <tr>
+        <td>Marketplace:</td>
+        <td>
+        
+        <input type="radio" name="market" value="forsale" onclick="showSelect();" />&nbsp;&nbsp;For Sale&nbsp;&nbsp;<input style="margin-left:40px;" type="radio" name="market" value="notforsale" onclick="showSelectHide();" />&nbsp;&nbsp;Not For License&nbsp;&nbsp;<input style="margin-left:40px;" type="radio" name="market" value="cc" onclick="showSelect2();" />&nbsp;&nbsp;Creative Commons&nbsp;
+        
+        <a href="#" id="popovercc" rel="popover" data-content="Tags help us help you. By selecting various tags for your photos, we can make sure your photos are seen more often in search and on the discovery page. It helps ensure that your photos will always be seen." data-original-title="Creative Commmons?">
+        (?)</a>&nbsp;</td>
+        </tr>
+                
+        </tbody>
+        </table>
+        
+        <script>  
+            $(function ()  
+            { $("#popovercc").popover();  
+            });  
+        </script>
+        
+        
+        <!--SELECTABLE LICENSES DROPDOWN & OTHER PRICE-->
+        
+            <script type="text/javascript">
+            function showSelect() {
+                var select = document.getElementById(\'forsale\');
+                select.className = \'show\';
+                document.getElementById(\'cc\').className = \'hide\';
+            }
+            function showSelect2() {
+                var select = document.getElementById(\'cc\');
+                select.className = \'show\';
+                document.getElementById(\'forsale\').className = \'hide\';
+            }
+            function showSelectHide() {
+                var select = document.getElementById(\'forsale\');
+                select.className = \'hide\';
+                document.getElementById(\'cc\').className = \'hide\';
+            }
+            function showOtherPrice() {
+                if (document.getElementById(\'price\').value == \'Not For Sale\')
+                    {
+                        document.getElementById(\'otherprice\').className = \'show\';
+                    }
+                else {
+                    document.getElementById(\'otherprice\').className = \'hide\';
+                    }
+            }
+            </script>
+            
+        <!--FOR SALE-->
+        <div id="forsale" class="hide">
+        <table class="table">
+        <tbody>
+        
+        <tr>
+        <td>Base Price:</td>
+        <td>
+            <select id="price" name="pricebox" style="width:100px;float:left;" onchange="showOtherPrice()">
+            <option value=".00">Free</option>
+            <option value=".50">$.50</option>
+            <option value=".75">$.75</option>
+            <option value="1.00">$1.00</option>
+            <option value="2.00">$2.00</option>
+            <option value="5.00">$5.00</option>
+            <option value="10.00">$10.00</option>
+            <option value="15.00">$15.00</option>
+            <option value="25.00">$25.00</option>
+            <option value="50.00">$50.00</option>
+            <option value="100.00">$100.00</option>
+            <option value="200.00">$200.00</option>
+            <option value="Not For Sale">Other Price</option>
+            </select>
+            <div id="otherprice" class="hide" style="float:left;padding-left:20px;"><div class="input-prepend input-append">
+                <span class="add-on">$</span><input class="span2" id="appendedPrependedInput" size="16" type="text"><span class="add-on">.00</span>
+              </div></div>
+        </td>
+        </tr>
+        
+        <tr>
+        <td colspan="2"><br /><b>Additonal Options for Sale:</b></td>
+        </tr>
+        
+        <tr>
+        <td><input type="checkbox" name="multiseat" value="multiseat" />&nbsp;&nbsp;Multi-Seat (Unlimited)</td>
+        <td colspan="2">+ $30</td>
+        </tr>
+        
+        <tr>
+        <td><input type="checkbox" name="printruns" value="printruns" />&nbsp;&nbsp;Unlimited Reproduction / Print Runs</td>
+        <td colspan="2">+ $40</td>
+        </tr>
+        
+        <tr>
+        <td><input type="checkbox" name="resale" value="resale" />&nbsp;&nbsp;Items for Resale - Limited Run</td>
+        <td colspan="2">+ $50</td>
+        </tr>
+        
+        <tr>
+        <td><input type="checkbox" name="electronic" value="electronic" />&nbsp;&nbsp;Unlimited Electronic Use</td>
+        <td colspan="2">+ $60</td>
+        </tr>
+
+        </tbody>
+        </table>
+        </div>
+        
+        <!--CREATIVE COMMONS-->
+        <div id="cc" class="hide">
+        <table class="table">
+        <tbody>
+        
+        <tr>
+        <td>Allow Modifications of Your Work?</td>
+        <td colspan="2"><input type="radio" name="mods" value="yes" />&nbsp&nbsp;Yes&nbsp;&nbsp;<input style="margin-left:20px;"  type="radio" name="mods" value="no" />&nbsp&nbsp;No&nbsp;&nbsp;<input style="margin-left:20px;" type="radio" name="mods" value="sharealike" />&nbsp&nbsp;Share Alike&nbsp;&nbsp;</td>
+        </tr>
+        
+        <tr>
+        <td>Allow Commercial Uses of Your Work?</td>
+        <td colspan="2"><input type="radio" name="commercial" value="yes" />&nbsp&nbsp;Yes&nbsp;&nbsp;<input style="margin-left:20px;" type="radio" name="commercial" value="no" />&nbsp&nbsp;No&nbsp;&nbsp;</td>
+        </tr>
+        
+        </tbody>
+        </table>
+        </div>
+    
+    </tbody>
+    </table>
+
+	<br />
+	<button type="submit" name="Submit" class="btn btn-success">Upload Now</button>
+	</form>';
+
+}
+                        
+                elseif($option == 'batch') {
+                        
+                ?>
+
+<!-- Force latest IE rendering engine or ChromeFrame if installed -->
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+<!-- Generic page styles -->
+<link rel="stylesheet" href="css/stylebatch.css">
+<!-- Bootstrap CSS fixes for IE6 -->
+<!--[if lt IE 7]><link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap-ie6.min.css"><![endif]-->
+<!-- Bootstrap Image Gallery styles -->
+<link rel="stylesheet" href="http://blueimp.github.com/Bootstrap-Image-Gallery/css/bootstrap-image-gallery.min.css">
+<!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+<link rel="stylesheet" href="css/jquery.fileupload-ui.css">
+<!-- Shim to make HTML5 elements usable in older Internet Explorer versions -->
+<!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+
+<div class="container">
+    <br>
+    <!-- The file upload form used as target for the file upload widget -->
+    <form id="fileupload" action="server/php/" method="POST" enctype="multipart/form-data">
+        <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+        <div class="row fileupload-buttonbar">
+            <div class="span7">
+                <!-- The fileinput-button span is used to style the file input field as button -->
+                <span class="btn btn-success fileinput-button">
+                    <i class="icon-plus icon-white"></i>
+                    <span>Add Photos...</span>
+                    <input type="file" name="files[]" multiple>
+                </span>
+                <button type="submit" class="btn btn-primary start">
+                    <i class="icon-upload icon-white"></i>
+                    <span>Start upload</span>
+                </button>
+                <button type="reset" class="btn btn-warning cancel">
+                    <i class="icon-ban-circle icon-white"></i>
+                    <span>Cancel upload</span>
+                </button>
+                <button type="button" class="btn btn-danger delete">
+                    <i class="icon-trash icon-white"></i>
+                    <span>Delete</span>
+                </button>
+                <input type="checkbox" class="toggle">
+            </div>
+            <!-- The global progress information -->
+            <div class="span5 fileupload-progress fade">
+                <!-- The global progress bar -->
+                <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                    <div class="bar" style="width:0%;"></div>
+                </div>
+                <!-- The extended global progress information -->
+                <div class="progress-extended">&nbsp;</div>
+            </div>
+        </div>
+        <!-- The loading indicator is shown during file processing -->
+        <div class="fileupload-loading"></div>
+        <br>
+        <!-- The table listing the files available for upload/download -->
+        <table role="presentation" class="table table-striped"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table>
+    </form>
+    <br>
+    </div>
+    
+<!-- modal-gallery is the modal dialog used for the image gallery -->
+<div id="modal-gallery" class="modal modal-gallery hide fade" data-filter=":odd">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3 class="modal-title"></h3>
+    </div>
+    <div class="modal-body"><div class="modal-image"></div></div>
+    <div class="modal-footer">
+        <a class="btn modal-download" target="_blank">
+            <i class="icon-download"></i>
+            <span>Download</span>
+        </a>
+        <a class="btn btn-success modal-play modal-slideshow" data-slideshow="5000">
+            <i class="icon-play icon-white"></i>
+            <span>Slideshow</span>
+        </a>
+        <a class="btn btn-info modal-prev">
+            <i class="icon-arrow-left icon-white"></i>
+            <span>Previous</span>
+        </a>
+        <a class="btn btn-primary modal-next">
+            <span>Next</span>
+            <i class="icon-arrow-right icon-white"></i>
+        </a>
+    </div>
+</div>
+<!-- The template to display files available for upload -->
+<script id="template-upload" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+var d = new Date(milliseconds);
+    <tr class="template-upload fade">
+        <td class="preview"><span class="fade"></span></td>
+        <td class="name"><span>{%= file.name %}</span></td>
+            <td colspan="1" class="desc">Name: <input type="text" name="desc"></td>
+<td colspan="1" class="desc">Price: <input type="text" name='{%= "price_" + String(file.name).replace(/([.]+)/gi, '_') + d%}'/></td>
+<td colspan="1" class="desc">Keyword: <input type="text" name='{%= "keyword_" + String(file.name).replace(/([.]+)/gi, '_')%}'/></td>
+<td>
+    <select style="width:150px;height:150px;" multiple="multiple" name='{%= "singlestyletags" + String(file.name).replace(/([.]+)/gi, '_')%} + []'>
+    <option value="standardcontentlicense">Standard Content License</option>
+    <option value="extendedlicense1">Unlimited Reproduction and Print Run</option>
+     <option value="extendedlicense2">Multi-Seat License</option>
+    <option value="limitedlicense">Limited Resale</option>
+     <option value="extendedlicense4">Electronic Resale or Other Distribution</option>
+     </select>
+</td>
+        <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+        {% if (file.error) { %}
+            <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
+        {% } else if (o.files.valid && !i) { %}
+            <td>
+                <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="bar" style="width:0%;"></div></div>
+            </td>
+            <td class="start">{% if (!o.options.autoUpload) { %}
+                <button class="btn btn-primary">
+                    <i class="icon-upload icon-white"></i>
+                    <span>{%=locale.fileupload.start%}</span>
+                </button>
+            {% } %}</td>
+        {% } else { %}
+            <td colspan="2"></td>
+        {% } %}
+        <td class="cancel">{% if (!i) { %}
+            <button class="btn btn-warning">
+                <i class="icon-ban-circle icon-white"></i>
+                <span>{%=locale.fileupload.cancel%}</span>
+            </button>
+        {% } %}</td>
+    </tr>
+{% } %}
+
+</script>
+
+<!-- The template to display files available for download -->
+<script id="template-download" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+    <tr class="template-download fade">
+        {% if (file.error) { %}
+            <td></td>
+            <td class="name"><span>{%=file.name%}</span></td>
+            <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+            <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>        {% } else { %}
+            <td class="preview">{% if (file.thumbnail_url) { %}
+                <a href="{%=file.url%}" title="{%=file.name%}" rel="gallery" download="{%=file.name%}"><img src="{%=file.thumbnail_url%}"></a>
+            {% } %}</td>
+            <td class="name">
+                <a href="{%=file.url%}" title="{%=file.name%}" rel="{%=file.thumbnail_url&&'gallery'%}" download="{%=file.name%}">{%=file.name%}</a>
+            </td>
+            <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+            <td colspan="2"></td>
+        {% } %}
+        <td class="delete">
+            <button class="btn btn-danger" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">
+                <i class="icon-trash icon-white"></i>
+                <span>{%=locale.fileupload.destroy%}</span>
+            </button>
+            <input type="checkbox" name="delete" value="1">
+        </td>
+    </tr>
+{% } %}
+</script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+<script src="js/vendor/jquery.ui.widget.js"></script>
+<!-- The Templates plugin is included to render the upload/download listings -->
+<script src="http://blueimp.github.com/JavaScript-Templates/tmpl.min.js"></script>
+<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+<script src="http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js"></script>
+<!-- The Canvas to Blob plugin is included for image resizing functionality -->
+<script src="http://blueimp.github.com/JavaScript-Canvas-to-Blob/canvas-to-blob.min.js"></script>
+<!-- Bootstrap JS and Bootstrap Image Gallery are not required, but included for the demo -->
+<script src="http://blueimp.github.com/cdn/js/bootstrap.min.js"></script>
+<script src="http://blueimp.github.com/Bootstrap-Image-Gallery/js/bootstrap-image-gallery.min.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="js/jquery.iframe-transport.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="js/jquery.fileupload.js"></script>
+<!-- The File Upload file processing plugin -->
+<script src="js/jquery.fileupload-fp.js"></script>
+<!-- The File Upload user interface plugin -->
+<script src="js/jquery.fileupload-ui.js"></script>
+<!-- The localization script -->
+<script src="js/locale.js"></script>
+<!-- The main application script -->
+<script src="js/main.js"></script>
+<!-- The XDomainRequest Transport is included for cross-domain file deletion for IE8+ -->
+<!--[if gte IE 8]><script src="js/cors/jquery.xdr-transport.js"></script><![endif]-->
+                            
+                            <?php
+
+                        }
+                        
+                        elseif($option == 'newexhibit') {
+                        
+	if (htmlentities($_GET['ns']) == "success") { 
+    echo'<br /><br /><span style="font-size: 20px;"><a href="myprofile.php?view=upload">Add photos to your new exhibit!</a></span><br />';
+    }
+    
+    elseif (htmlentities($_GET['ns']) == "failure") { 
+    echo'<br /><br /><span style="font-size: 20px;color:red;">Please fill out all fields!</span><br />';
+    }
+    
+    elseif (htmlentities($_GET['ns']) == "name") { 
+    echo'<br /><br /><span style="font-size: 20px;color:red;">You already have an exhibit titled this!</span><br />';
+    }
+    
+    echo'
+	<form action="create_set.php" method="post" enctype="multipart/form-data">
+    <br />
+    <br />
+    <div class="well">
+	<span style="font-size:16px">Title of exhibit:&nbsp;</span><input type="text" name="title" />
+    <br />
+    <br />
+	<span style="font-size:16px">Pick 2 or more tags (search terms) that describe this exhibit:</span>
+    <br />
+    <span style="font-size:13px">(Hold down command button if on mac, control button if on PC)</span>
+    <br />
+    <br />
+    <select multiple="multiple" name="maintags[]">
+    <option value="Advertising">Advertising</option>
+    <option value="Aerial">Aerial</option>
+    <option value="Animal">Animal</option>
+    <option value="Astro">Astro</option>
+    <option value="Aura">Aura</option>
+    <option value="Automotive">Automotive</option>
+    <option value="B&W">B&W</option>
+    <option value="Botanical">Botanical</option>
+    <option value="Candid">Candid</option>
+    <option value="Cityscape">Cityscape</option>
+    <option value="Commercial">Commercial</option>
+    <option value="Corporate">Corporate</option>
+    <option value="Documentary">Documentary</option>
+    <option value="Fashion">Fashion</option>
+    <option value="Fine Art">Fine Art</option>
+    <option value="Food">Food</option>
+    <option value="HDR">HDR</option>
+    <option value="Historical">Historical</option>
+    <option value="Industrial">Industrial</option>
+    <option value="Landscape">Landscape</option>
+    <option value="Long Exposure">Long Exposure</option>
+    <option value="Macro">Macro</option>
+    <option value="Musical">Musical</option>
+    <option value="Nature">Nature</option>
+    <option value="News">News</option>
+    <option value="Night">Night</option>
+    <option value="Panorama">Panorama</option>
+    <option value="People">People</option>
+    <option value="Portrait">Portrait</option>
+    <option value="Scenic">Scenic</option>
+    <option value="Sports">Sports</option>
+    <option value="Still Life">Still Life</option>
+    <option value="Time Lapse">Time Lapse</option>
+    <option value="Transportation">Transportation</option>
+    <option value="Urban">Urban</option>
+    <option value="War">War</option>
+    </select>
+    <br />
+    <br />
+    Choose some of your own tags: <br /><br />
+    <input style="width:80px;height:20px;" type="text" name="settag1" />
+    <input style="width:80px;height:20px;" type="text" name="settag2" />
+    <input style="width:80px;height:20px;" type="text" name="settag3" />
+    <input style="width:80px;height:20px;" type="text" name="settag4" />
+<br />
+<br />
+<div style="line-height:22px;">
+About this exhibit:<br /><textarea style="width:500px" rows="4" cols="60" name="about"></textarea></div> 
+<br />
+
+<button type="submit" name="Submit" class="btn btn-success">Create Exhibit</button>
+</form>
+</div> <!--end of well-->
+</div>';
+
+            }
+                        
+                
+                    
+                echo'</div>';
+    }
+    
+    
+    
+    
+    elseif($view == 'blog') {
+    
+  
+         $option = htmlentities($_GET['option']);
+  
+         echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($option == 'newpost') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=blog&option=newpost">Make New Post</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=blog">View Blog</a></div></div>';
+         
+        echo'<div id="container" class="grid_18" style="width:770px;margin-top:-38px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);">';
+
+        if($option == 'newpost') {
+        
+        $time = time();
+       
+         echo'
+            <script>
+             function showBlogPhoto() {
+                   var blogphoto = document.getElementById(\'blogphoto\').value;
+                }
+            </script>
+            
+            <div class="grid_18" style="margin:auto;border:1px solid #ccc;margin-top:30px;margin-left:20px;">
+            <div style="float:left;padding:15px;"><img style="width:130px;height:130px;" src="" height="120" width="120" /><br /><div style="padding:10px;"><a style="width:80px;" class="btn btn-success" data-toggle="modal" data-backdrop="static" href="#blogphoto">Add Photo</a></div></div>
+            <div style="float:left;font-size:15px;font-weight:200;padding-top:25px;">Title:<br /><br />Subject:<br /><br />Content (400 words):</div>
+           
+            <form action="myprofile3.php?view=blog&action=submitpost" method="POST">
+            
+            <div style="float:left;padding:25px;width:350px;"><input style="width:220px;height:20px;" type="text" name="title" placeholder="Title of Blog Post" /><br />
+            <input style="width:220px;height:20px;" type="text" name="subject" placeholder="Subject of Blog Post" /></div>
+            <input type="hidden" name="time" value="',$time,'" />
+            <div style="float:left;margin-top:15px;"><textarea style="width:480px;max-width:480px;" rows="12" cols="60" name="content"></textarea><br /><br />
+
+             <!--ADD PHOTO TO BLOG POST MODAL-->
+
+            <div class="modal hide fade" id="blogphoto" style="overflow-y:scroll;overflow-x:hidden;">
+
+            <div class="modal-header">
+            <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
+            <img style="margin-top:-4px;" src="graphics/logoteal.png" height="28" width="90" />&nbsp;&nbsp;<span style="font-size:16px;">Choose a photo to add to your blog post:</span>
+            </div>
+            <div modal-body" style="width:600px;">
+
+            <div id="content" style="font-size:16px;width:550px;height:500px;overflow-x:hidden;">';
+
+            if($email != '') {
+            echo'
+            <img style="border: 1px solid black;margin-left:10px;margin-top:10px;" src="',$profilepic,'" 
+            height="100px" width="100px" />
+
+            <div style="width:540px;margin-left:130px;margin-top:-125px;overflow-y:scroll;overflow-x:hidden;">
+
+            <span style="font-size:14px;">
+            <br />';
+            $allusersphotos = "SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY id DESC";
+            $allusersphotosquery = mysql_query($allusersphotos);
+            $usernumphotos = mysql_num_rows($allusersphotosquery);
+    
+            for($iii = 0; $iii < $usernumphotos; $iii++) {
+            $userphotosource = mysql_result($allusersphotosquery, $iii, "source");
+            $userphotosource = str_replace("userphotos/","http://photorankr.com/userphotos/", $userphotosource);
+            $userphotosset[$iii] = mysql_result($allusersphotosquery, $iii, "sets");
+            $userphotoscaption[$iii] = mysql_result($allusersphotosquery, $iii, "caption");
+            $newsource = str_replace("userphotos/","userphotos/thumbs/", $userphotosource);
+        
+            echo'<img src="',$newsource,'" height="70" width="70" />&nbsp;&nbsp;<input id="blogphoto" type="radio" name="checked" value="',$userphotosource,'" onclick="showBlogPhoto();" />&nbsp;"',$userphotoscaption[$iii],'"
+            <br /><br />'; 
+    
+        } //end of for loop
+    
+    
+        echo'
+        </span>
+        <button class="btn btn-success" data-dismiss="modal">Submit Photos</button>
+        <br />
+        <br />';
+        }
+        
+        else {
+        echo'<div style="text-align:center;margin-top:100px;"><b>Please login or register to upload</b></div>';
+        }
+    
+        echo'
+        </div>
+        </div>
+        </div></div>
+    
+        
+            <div style="text-align:center;"><button style="width:460px;padding:10px;font-size:15px;font-weight:200;" class="btn btn-success" type="submit">Submit Blog Post</button><br /><br /></div>
+            </div>
+            </form>
+            
+            </div>';
+            
+        }
+        
+        elseif($option == '') {
+        
+            $blogquery = mysql_query("SELECT * FROM blog WHERE emailaddress = '$email' ORDER BY id DESC");
+            $numblogposts = mysql_num_rows($blogquery);
+            
+            echo'<div class="grid_18" style="margin:auto;border:1px solid #ccc;margin-top:30px;margin-left:20px;">';
+            
+            if($numblogposts == 0) {
+                echo'<div style="font-size:18px;font-weight:200;padding:40px;text-align:center;"><a style="color:#333;" href="myprofile3.php?view=blog&option=newpost">You have no blog posts yet. Click here to write your first post.</a></div>';
+            }
+            
+                for($iii=0; $iii < $numblogposts; $iii++) {
+                    $id = mysql_result($blogquery,$iii,'id');
+                    $title = mysql_result($blogquery,$iii,'title');
+                    $subject = mysql_result($blogquery,$iii,'subject');
+                    $content = mysql_result($blogquery,$iii,'content');
+                    $photo = mysql_result($blogquery,$iii,'photo');
+                    $time = mysql_result($blogquery,$iii,'time');
+                        
+                    if($time) {
+                    $date = date("m-d-Y", $time); }
+                    
+                    echo'
+                    <div style="float:left;padding:15px;width:130px;height:130px;"><img src="',$photo,'" height="120" width="120" /></div>
+                    <div style="float:left;font-size:20px;font-weight:200;padding-top:30px;width:520px;">',$title,'</div>
+                    <div style="float:left;font-size:15px;font-weight:200;padding-top:15px;">Subject: ',$subject,'&nbsp;|&nbsp;Date: ',$date,'</div>
+                       
+                    <div style="float:left;margin-top:15px;width:650px;padding:10px;font-size:15px;font-weight:200;line-height:1.48;">',$content,'<br /><br />
+                    </div><br />
+                    
+                    <div style="float:left;margin-top:15px;margin-left:20px;width:650px;padding:10px;font-size:15px;font-weight:200;line-height:1.48;">
+                    <div class="panelblog',$id,'">';
+                    
+                        //Comment Loop
+                        $commentquery= mysql_query("SELECT * FROM blogcomments WHERE blogid = '$id'");
+                        $numcomments = mysql_num_rows($commentquery);
+                        
+                            for($ii=0; $ii < $numcomments; $ii++) {
+                                $comment = mysql_result($commentquery,$ii,'comment');
+                                $commenteremail = mysql_result($commentquery,$ii,'emailaddress');
+                                $userquery = mysql_query("SELECT user_id,profilepic,firstname,lastname FROM userinfo WHERE emailaddress = '$commenteremail'");
+                                $commenterpic = mysql_result($userquery,0,'profilepic');
+                                $commenterid = mysql_result($userquery,0,'user_id');
+                                $commentername = mysql_result($userquery,0,'firstname')." ".mysql_result($userquery,0,'lastname');
+                                
+                                echo'<div><img src="',$commenterpic,'" height="30" width="30" />&nbsp;&nbsp;<span style="font-weight:bold;color:#3e608c;font-size:12px;">',$commentername,'</span>&nbsp;&nbsp;',$comment,'</div><hr>';
+                            }
+                    echo'
+                    <form action="myprofile3.php?view=blog&action=comment&blogid=',$id,'" method="POST">
+                    <div style="width:620px;"><img style="float:left;padding:10px;" src="',$profilepic,'" height="30" width="30" />
+                    <input style="float:left;width:440px;height:20px;position:relative;top:6px;" type="text" name="comment" placeholder="Leave a comment&#8230;" /></div>
+                    </form>
+                    <br /><br />
+                    </div>
+                    
+                    
+                    <a name="',$id,'" href="#"><p class="flipblog',$id,'" style="font-size:15px;"></a>Comments</p>
+                    </div>
+                    
+                    <style type="text/css">
+                    p.flipblog',$id,' {
+                    margin:0px;
+                    padding:10px;
+                    text-align:center;
+                    background:white;
+                    border:solid 1px #c3c3c3;
+                    }
+
+                    p.flipblog',$id,':hover {
+                    background-color: #ccc;
+                    }
+
+                    div.panelblog',$id,' {
+                    display:none;
+                    margin:0px;
+                    padding:5px;
+                    text-align:left;
+                    background:white;
+                    border:solid 1px #c3c3c3;
+                    }
+                    </style>'; ?>
+                    
+                    <!--HIDDEN COMMENT SCRIPT-->
+                    <script type="text/javascript">   
+                    $(document).ready(function(){
+                    $(".flipblog<?php echo $id; ?>").click(function(){
+                        $(".panelblog<?php echo $id; ?>").slideToggle("slow");
+                    });
+                    });
+                    </script>
+                    
+                    <?php
+                    
+                    echo'
+                    <hr>'; 
+                
+                }
+                
+            echo'</div>';
+        
+        }
+        
+        echo'</div>';
+        
+    }
+    
     
     
     elseif($view == 'messages') {
@@ -889,9 +2415,9 @@ height="100px" width="100px" />
 		
 		//now go through the results to get the information and then display it
         echo'
-                    <h3>Your Conversations:</h3>
-                    <h6>(Contact photographers through the "contact" tab in their profile)</h6>
-                    <br />';
+                    <span style="font-size:18px;font-weight:200;">Your Conversations:</span><br />
+                    <span style="font-size:13px;font-weight:200;">(Contact photographers through the "contact" tab in their profile)</span>
+                    <br /><br />';
 
 
 		for($iii=0; $iii<$numberofmessages; $iii++) {
@@ -902,9 +2428,9 @@ height="100px" width="100px" />
 
 			//now lets display the message with the other's profile picture and name
 			echo '
-			<a href="myprofile.php?view=viewthread&thread=', $currentthread, '" style="text-decoration: none">
-			<div class="grid_18" id="messageshadow" style="margin-bottom: 20px; font-family: arial;">
-				<div class="grid_3">
+			<a href="myprofile3.php?view=viewthread&thread=', $currentthread, '" style="text-decoration: none;">
+			<div class="grid_18 message" style="margin-bottom:20px; font-family: helvetica neue; font-size:14px;">
+				<div  class="grid_3">
 					<img src="', $otherspic, '" width="60px" height="60px" alt="profile picture" style="margin-bottom: 5px;"/>
 					<br />', 
 					$othersfirst, ' ', $otherslast, 
@@ -912,6 +2438,7 @@ height="100px" width="100px" />
 				<div class="grid_15" style="margin-top: -75px; margin-left: 120px;">', $currentmessage[$iii], 
 				'</div>
 			</div>
+            <hr>
 			</a>';
 		}
 
@@ -996,24 +2523,23 @@ $notsqueryrun = mysql_query($notsquery); }
 
 				//now that we have everything in line, display the message
 				echo '
-				<div class="grid_18" id="messageshadow2" style="margin-bottom: 20px; font-family: arial;">
-					<a href="viewprofile.php?first=', $currentfirst, '&last=', $currentlast, '">
+				<div class="grid_18 message" style="margin-bottom: 20px; font-family: arial;">
+					<a href="viewprofile.php?first=', $currentfirst, '&last=', $currentlast,'">
 					<div class="grid_3">
-						<img src="', $currentpic, '" width="60px" height="60px" alt="profile picture" style="margin-bottom: 5px;"/>
-						<br />', 
-						$currentfirst, ' ', $currentlast,' 
+						<img src="', $currentpic, '" width="60px" height="60px" alt="profile_picture" style="margin-bottom: 5px;"/><br />',$currentfirst,' ', $currentlast,' 
 					</div>
 					</a>
-					<div class="grid_15" style="margin-top: -75px; margin-left: 120px;">',$currentmessage,'
+					<div class="grid_15" style="margin-top: -55px; margin-left: 120px;">',$currentmessage,'
 					</div>
-				</div>';			
+				</div>
+                <hr />';			
 			}
 
 			//now let's display the box from which they can send a message
 			echo' <div class="grid_18" style="font-size: 20px; font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
 			line-height: 28px; color: #333333;">
     
-			<h3>Reply:</h3>
+			<span style="font-size:16px;">Reply:</span>
 			<form method="post" action="replymessage.php" />
 			<textarea cols="80" rows="4" style="width:715px" name="message"></textarea>
     			<br />
