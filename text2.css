@@ -1,0 +1,560 @@
+/*
+  960 Grid System ~ Text CSS.
+  Learn more ~ http://960.gs/
+
+  Licensed under GPL and MIT.
+*/
+
+/* `Basic HTML
+----------------------------------------------------------------------------------------------------*/
+
+body {
+  font: 13px/1.5 'Helvetica Neue', Arial, 'Liberation Sans', FreeSans, sans-serif;
+}
+
+pre,
+code {
+  font-family: 'DejaVu Sans Mono', Menlo, Consolas, monospace;
+}
+
+hr {
+  border: 0 #ccc solid;
+  border-top-width: 1px;
+  clear: both;
+  height: 0;
+}
+
+/* `Headings
+----------------------------------------------------------------------------------------------------*/
+
+h1 {
+  font-size: 25px;
+}
+
+h2 {
+  font-size: 23px;
+}
+
+h3 {
+  font-size: 21px;
+}
+
+h4 {
+  font-size: 19px;
+}
+
+h5 {
+  font-size: 17px;
+}
+
+h6 {
+  font-size: 15px;
+}
+
+/* `Spacing
+----------------------------------------------------------------------------------------------------*/
+
+ol {
+  list-style: decimal;
+}
+
+ul {
+  list-style: disc;
+}
+
+
+p,
+dl,
+hr,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ol,
+ul,
+pre,
+table,
+address,
+fieldset,
+figure {
+  margin-bottom: 20px;
+}
+
+
+#example {
+-moz-box-shadow: 0px 2px 2px #000;
+-webkit-box-shadow: 0px 2px 2px #000;
+box-shadow: 0px 2px 2px #000;
+}
+
+#example2 {
+-moz-box-shadow: 0px 2px 2px #000;
+-webkit-box-shadow: 0px 2px 2px #000;
+box-shadow: 0px 2px 2px #000;
+border: 2px solid transparent;
+}
+
+#example3 {
+-moz-box-shadow: 0px 0px 1px 1px #000;
+-webkit-box-shadow: 0px 0px 1px 1px #000;
+box-shadow: 0px 0px 1px 1px #000;
+}
+
+#photoshadow {
+box-shadow: 0px 0px 3px 1px #818181; 
+-webkit-box-shadow: 0px 0px 3px 1px #818181;
+-moz-box-shadow: 0px 0px 3px 1px #818181;
+border: 2px solid transparent;
+background-color:white;
+color: #46599d;
+}
+
+#photoshadow:hover {
+border: 2px solid black;
+color:#46599d;
+}
+
+
+.photoshadow {
+box-shadow: 0px 0px 3px 1px #818181; 
+-webkit-box-shadow: 0px 0px 3px 1px #818181;
+-moz-box-shadow: 0px 0px 3px 1px #818181;
+border: 2px solid transparent;
+background-color:white;
+color: #46599d;
+}
+
+.photoshadow:hover {
+border: 2px solid #46599d;
+background-color:#46599d;
+}
+
+.photoshadowreel {
+box-shadow: 0px 0px 3px 1px #818181; 
+-webkit-box-shadow: 0px 0px 3px 1px #818181;
+-moz-box-shadow: 0px 0px 3px 1px #818181;
+border: 2px solid transparent;
+background-color:white;
+color: #46599d;
+}
+
+.photoshadowreel2 {
+border: 2px solid #46599d;
+background-color:#46599d;
+}
+
+#photoshadowhighlight {
+box-shadow: 0px 0px 3px 1px #818181; 
+-webkit-box-shadow: 0px 0px 3px 1px #818181;
+-moz-box-shadow: 0px 0px 3px 1px #818181;
+border: 2px solid transparent;
+background-color: rgb(70,89,157);
+}
+
+#photoshadowhighlight:hover {
+border: 2px solid black;
+}
+
+#photoshadowPS {
+box-shadow: 0px 0px 3px 1px #818181; 
+-webkit-box-shadow: 0px 0px 3px 1px #818181;
+-moz-box-shadow: 0px 0px 3px 1px #818181;
+border: 2px solid transparent;
+}
+
+.photoshadowPS {
+box-shadow: 0px 0px 3px 1px #818181; 
+-webkit-box-shadow: 0px 0px 3px 1px #818181;
+-moz-box-shadow: 0px 0px 3px 1px #818181;
+border: 2px solid transparent;
+}
+
+.photoshadowFEED {
+box-shadow: 0px 0px 3px 1px #818181; 
+-webkit-box-shadow: 0px 0px 3px 1px #818181;
+-moz-box-shadow: 0px 0px 3px 1px #818181;
+border: 5px solid #fff;
+border-radius: 5px 5px;
+background-color:#fff;
+}
+
+#example4 {
+-moz-box-shadow: 0px 0px 1px 1px #000;
+-webkit-box-shadow: 0px 0px 1px 1px #000;
+box-shadow: 0px 0px 1px 1px #000;
+background-color:#fff;
+}
+
+.photoshadowFEED:hover {
+border: 5px solid #E7E7E7;
+background-color:#E7E7E7;
+}
+
+.photoshadowTR {
+box-shadow: 0px 0px 10px 3px #818181; 
+-webkit-box-shadow: 0px 0px 10px 3px #818181;
+-moz-box-shadow: 0px 0px 10px 3px #818181;
+border: 2px solid transparent;
+}
+
+.photoshadowTR:hover {
+border: 2px solid black;
+}
+
+#indexshadow {
+box-shadow: 0px 0px 10px 3px #818181; 
+-webkit-box-shadow: 0px 2px 3px 1px #000;
+-moz-box-shadow: 0px 0px 10px 3px #818181;
+border: 2px solid transparent;
+}
+
+.previews {
+border: 2px solid transparent;
+}
+
+.previews:hover {
+border: 2px solid black;
+}
+
+#photoshadowFS {
+box-shadow: 0px 0px 10px 3px #818181; 
+-webkit-box-shadow: 0px 0px 10px 3px #818181;
+-moz-box-shadow: 0px 0px 10px 3px #818181;
+}
+
+
+.back {
+position:relative;
+top: 297px;
+left: -113px;
+}
+
+.back:hover {
+opacity: .7;
+}
+
+.next {
+position:relative;
+top: 297px;
+left: 890px;
+}
+
+.next:hover {
+opacity: .7;
+}
+
+.border1:hover {
+border: 3px solid black;
+top: -1px;
+left: -1px;
+}
+
+.border2:hover {
+border: 3px solid black;
+top: 
+left:
+}
+
+.arrows:hover {
+opacity: .7;
+}
+
+.social:hover {
+opacity: .7;
+}
+
+.backprofile {
+position:relative;
+top: -417px;
+left: -83px;
+}
+
+.backprofile:hover {
+opacity: .7;
+}
+
+.nextprofile {
+position:relative;
+top: -417px;
+left: 700px;
+}
+
+.nextprofile:hover {
+opacity: .7;
+}
+
+
+
+#editinfo {
+position: relative;
+top: -345px;
+left: 115px;
+}
+
+#saveinfo {
+position: relative;
+top: -655px;
+left: 670px;
+}
+
+#delete {
+position: relative;
+top: -701px;
+left: 780px;
+}
+
+#saveinfo2 {
+position: relative;
+top: -825px;
+left: 670px;
+}
+
+#delete2 {
+position: relative;
+top: -853px;
+left: 790px;
+}
+
+#priceedit {
+position: relative;
+top: -165px;
+left: 30px;
+}
+
+#priceedit2 {
+position: relative;
+top: -145px;
+left: 30px;
+}
+
+#editinfo3 {
+position: relative;
+top: -145px;
+left: 115px;
+}
+
+#priceedit3 {
+position: relative;
+top: -145px;
+left: 30px;
+}
+
+#editcaption {
+position: relative;
+top: -665px;
+left: -630px;
+}
+
+#setprice {
+position: relative;
+top: -340px;
+left: 680px;
+width: 100px;
+line-height: 30px;
+font-size: 20px;
+}
+
+#cameratype {
+position: relative;
+top: -130px;
+left: 30px;
+font-size: 20px;
+}
+
+#locationreal {
+position: relative;
+top: -330px;
+left: 680px;
+font-size: 25px;
+}
+
+#photoshadow2 {
+box-shadow: 0px 0px 3px 1px #fff; 
+-webkit-box-shadow: 0px 0px 3px 1px #fff;
+-moz-box-shadow: 0px 0px 3px 1px #fff;
+border: 2px solid white;
+background-color:white;
+color: #46599d;
+}
+
+#photoshadow2:hover {
+border: 2px solid #073293;
+}
+
+#photoshadowhighlight2 {
+box-shadow: 0px 0px 3px 1px #fff; 
+-webkit-box-shadow: 0px 0px 3px 1px #fff;
+-moz-box-shadow: 0px 0px 3px 1px #fff;
+border: 2px solid transparent;
+background-color: rgb(62,99,133);
+}
+
+#photoshadowhighlight2:hover {
+border: 2px solid white;
+}
+
+#messageshadow {
+box-shadow: 0px 0px 3px 1px #fff; 
+-webkit-box-shadow: 0px 0px 3px 1px #fff;
+-moz-box-shadow: 0px 0px 3px 1px #fff;
+border: 2px solid transparent;
+padding:6px;
+background-color: white;
+font-size: .9em;
+}
+
+#messageshadow:hover {
+border: 2px solid white;
+background-color: #939dd3;
+}
+
+#messageshadow2 {
+box-shadow: 0px 0px 3px 1px #fff; 
+-webkit-box-shadow: 0px 0px 3px 1px #fff;
+-moz-box-shadow: 0px 0px 3px 1px #fff;
+padding:6px;
+background-color: white;
+font-size: .9em;
+}
+
+.newshighlight {
+font-color:#333;
+font-size:14px;
+font-family:arial,
+helvetica neue;
+padding-left:40px;
+text-align:left;
+}
+
+.newshighlight:hover {
+background-color: white;
+}
+
+.photoshadow4 {
+border: 2px solid transparent;
+background-color:white;
+color: black;
+border-style: solid;
+border-width:5px;
+border-color:white;
+-moz-box-shadow: 1px 1px 1px #999;
+-webkit-box-shadow: 1px 1px 5px #999;
+box-shadow: 1px 1px 1px 1px #999;
+}
+
+.photoshadow4:hover {
+-moz-box-shadow: 2px 2px 2px 2px #999;
+-webkit-box-shadow: 2px 2px 2px 2px #999;
+box-shadow: 2px 2px 2px 2px #999;
+}
+
+p.flip {
+margin:0px;
+padding:10px;
+text-align:center;
+background:white;
+border:solid 1px #c3c3c3;
+}
+
+p.flip:hover {
+background-color: #939dd3;
+}
+
+div.panel {
+display:none;
+margin:0px;
+padding:5px;
+text-align:left;
+background:white;
+border:solid 1px #c3c3c3;
+}
+
+.messageshadow {
+box-shadow: 0px 0px 10px 3px #818181; 
+-webkit-box-shadow: 0px 0px 10px 3px #818181;
+-moz-box-shadow: 0px 0px 10px 3px #818181;
+border: 2px solid transparent;
+background-color:blue;
+color: #46599d;
+}
+
+.messageshadow:hover {
+background-color: rgb(70,89,157);
+color:#46599d;
+}
+
+.phototitle2
+{
+position:relative;
+float:left;
+margin:8px;
+margin-bottom:8px;
+border-style: solid;
+border-width:5px;
+border-color:white;
+-moz-box-shadow: 1px 1px 1px #999;
+-webkit-box-shadow: 1px 1px 5px #999;
+box-shadow: 1px 1px 1px 1px #999;
+}
+
+.phototitle
+{
+position:relative;
+float:left;
+margin:8px;
+margin-bottom:8px;
+border-style: solid;
+border-width:5px;
+border-color:white;
+-moz-box-shadow: 1px 1px 1px #999;
+-webkit-box-shadow: 1px 1px 5px #999;
+box-shadow: 1px 1px 1px 1px #999;
+}
+
+.phototitle:hover {
+-moz-box-shadow: 2px 2px 2px 2px #999;
+-webkit-box-shadow: 2px 2px 2px 2px #999;
+box-shadow: 2px 2px 2px 2px #999;
+}
+
+.dropshadow {
+-moz-box-shadow: 1px 1px 1px 1px #999;
+-webkit-box-shadow: 1px 2px 1px 1px #999;
+box-shadow: 1px 1px 2px 1px #999;
+}
+
+.coolio {
+padding: 35px 10px 22px 10px;
+color: #333;
+font-family: helvetica neue, helvetica, lucida grande;
+margin-right:-5px;
+font-weight:200;
+font-size:16px;
+background-color:#eee;
+-moz-box-shadow:    inset 0 0 2px #000;
+-webkit-box-shadow: inset 0 0 2px #000;
+ box-shadow:        inset 0 0 2px #000;
+}
+
+.coolio:hover {
+text-decoration:none;
+color: #333;
+background-color:#fff;
+}
+
+.phototitle5
+{
+-webkit-border-radius: 2px;
+-moz-border-radius: 2px;
+border-radius: 2px;
+position:relative;
+float:left;
+border-style: solid;
+border-width:3px;
+border-color:white;
+-moz-box-shadow: 1px 1px 1px #999;
+-webkit-box-shadow: 1px 1px 5px #999;
+box-shadow: 1px 1px 1px 1px #999;
+}
