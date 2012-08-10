@@ -20,7 +20,7 @@ require "db_connection.php";
  <meta name="keywords" content="campaign, new, photorankr, my">
  <meta name="author" content="The PhotoRankr Team">
 	<title>Create a Campaign on PhotoRankr to get photos that match your needs</title>
-	<link rel="stylesheet" href="css/bootstrapnew.css" type="text/css" />
+	<link rel="stylesheet" href="css/bootstrapNew.css" type="text/css" />
     <link rel="stylesheet" href="css/reset.css" type="text/css" />
     <link rel="stylesheet" href="css/text.css" type="text/css" />
     <link rel="stylesheet" href="css/960_24.css" type="text/css" />
@@ -117,7 +117,7 @@ require "db_connection.php";
 <body style="background-image:url('graphics/NYC.jpg');background-size: 100%;
 background-repeat:no-repeat;">
 	
-    <?php navbarnew(); ?>
+    <?php navbarsweet(); ?>
     
 <!--START OF CONTAINER-->
 <div class="container_24">

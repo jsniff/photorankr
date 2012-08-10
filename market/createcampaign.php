@@ -77,7 +77,7 @@ exit();
 <meta name="author" content="The PhotoRankr Team">
 <title>Create a Campaign on PhotoRankr to get photos that match your needs</title>
 	<title>View all of the campaigns on PhotoRankr</title>
-    <link rel="stylesheet" type="text/css" href="css/bootstrapnew.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
     <link rel="stylesheet" href="css/reset.css" type="text/css" />
     <link rel="stylesheet" href="css/text.css" type="text/css" />
     <link rel="stylesheet" href="css/960_24.css" type="text/css" />
@@ -176,7 +176,7 @@ font-family: 'helvetica neue'; helvetica;
 background-repeat:no-repeat;">
 
 <!--NAVIGATION BAR-->
-<?php navbarnew(); ?>
+<?php navbarsweet(); ?>
 <!--/END NAVBAR-->
 
 <br /><br /><br />

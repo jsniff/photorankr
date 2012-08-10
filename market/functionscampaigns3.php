@@ -132,7 +132,7 @@ echo'
 </ul>
 </span>
 
-<span class="dropdown">
+<span class="dropdown" style="font-size:20px;margin-top:auto;margin-bottom:auto;">
 <a href="account.php" class="dropdown-toggle navhover" data-toggle="dropdown">Account</a>
 <ul class="dropdown-menu gunmetal" data-dropdown="dropdown" style="width:200px;margin-top:30px;margin-left:-40px;">
 <a style="padding:15px;color:white;" href="account.php">Saved Images</a><hr />
@@ -266,7 +266,7 @@ function login() {
 
         if(mysql_real_escape_string($_POST['password']) == mysql_real_escape_string($info['password'])){
             //then redirect them to the same page as signed in and set loggedin to 1
-            $_SESSION['loggedin']=2;
+            $_SESSION['loggedin'] = 2;
             $_SESSION['repemail'] = mysql_real_escape_string($_POST['emailaddress']);
         }
         //gives error if the password is wrong
@@ -366,7 +366,7 @@ function footer() {
   </br>
   <p1>PhotoRankr is a trademark of PhotoRankr, Inc. The PhotoRankr Logo is a trademark of PhotoRankr, Inc.</p1>
 </br>
-<p1>Copyright © 2012 PhotoRankr, Inc.<p1>
+<p1>Copyright ï¿½ 2012 PhotoRankr, Inc.<p1>
 </div>
   </div> 
 </div>
@@ -376,5 +376,81 @@ function footer() {
     </div>';
     
 }
+
+
+function navbarsweet() {
+echo'
+<link rel="stylesheet" href="css/style.css" type="text/css"/> 
+<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container" style="height:50px;width:1060px;">
+				<ul class="nav" style="height:50px;">
+					<li class="topcenter"> <a href="index.php"> <img class="logo" src="graphics/coollogo.png" style="margin-left:-20px;height:45px;width:186px;margin-top:-8px;padding-right:10px;" /></a></li>
+					<li class="margint"> <form class="navbar-search" action="/market" method="get">
+<input class="search3 margint marginl" style="height:1.5em;width:270px;padding-right:25px;margin-left:5em;margin-right:5.5em;font-family:helvetica;font-size:14px;font-weight:100;color:black;" name="searchterm" type="text" placeholder="Search all photography">
+</form></li>
+					<li> <a href="/market" style="font-family:helvetica;font-weight:100;"> Marketplace </a> </li>
+
+                    <li><a href="viewcampaigns.php" style="font-family:helvetica;font-weight:100;"> Campaigns </b></a></li>';
+                        
+                        if($_SESSION['loggedin'] == 2) {
+                            $repemail = $_SESSION['repemail'];
+                            $profilequery = mysql_query("SELECT logo,name FROM campaignusers WHERE repemail = '$repemail'");
+                            $profilepic = mysql_result($profilequery,0,'logo');
+                            if($profilepic == '') {
+                                $profilepic = 'graphics/nologo.png';
+                            }
+                            $name = mysql_result($profilequery,0,'name');
+                            $name = (strlen($name) > 14) ? substr($name,0,11). "&#8230;" : $name;
+
+                  echo'
+                            <li><a href="download2.php" class="cart" style="font-family:helvetica;font-weight:100;"></a></li>
+                        
+                        <li class="dropdown topcenter marginT" id="accountmenu">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="myprofile.php"> <img src="',$profilepic,'" style="width:30px;height:30px;"/><span style="font-size:13px;color:white;font-family:helvetica;font-weight:100;">&nbsp;&nbsp;&nbsp;',$name,'</span></a>
+								
+                                <ul class="dropdown-menu" style="margin-top:0px;background-color:#fff;width:150px;">
+                                    <li> <a href="account.php"> My Account </a> </li>
+                                    <li class="divider"></li>
+									<li> <a href="account.php?view=saved"> Saved Photos </a> </li>
+                                    <li> <a href="account.php?view=settings"> Downloads </a> </li>
+                                    <li> <a href="account.php?view=settings"> Photographers </a> 
+                                    <li class="divider"></li>
+                                    <li> <a href="account.php?view=settings"> Edit Account </a> </li>	
+                                    <li class="divider"></li>
+									<li> <a href="index.php?action=logout"> Log Out </a> </li>
+                                </ul>				
+                        </li>';
+                    
+                        }
+                            
+                        elseif($_SESSION['loggedin'] != 2) {
+                        
+                        echo'<li class="dropdown topcenter " id="accountmenu">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="font-family:helvetica;font-weight:100;"> Log In </b></a>
+                                <ul class="dropdown-menu" style="margin-top:0px;background-color:#fff;">
+								<li><a style="color:#000;font-size:15px;" href="signin.php">Register for free today</a></li>
+                                <li class="divider"></li>
+                                <form name="login_form" method="post" action="',htmlentities($_SERVER['PHP_SELF']),'?action=login">
+                                <li style="margin-left:15px;color:#000;">Email: </li>
+                                <li><input type="text" style="width:150px;margin-top:3px;margin-left:15px;" name="emailaddress" /></li>
+                                <li><span style="float:left;margin-left:15px;color:#000;">Password: </li>
+                                <input type="password" style="width:150px;margin-top:3px;margin-left:15px;" name="password"/></li>
+                                <li style="margin-left: 110px;"><input type="submit" class="btn btn-success" value="Sign In" id="loginButton"/></li>
+                                </form>
+								</ul>
+						</li>';
+                        
+                        }
+                
+                    echo'
+				</div>
+			</div>	
+		</div>
+	</div>';
+}
+
+
+
 
 ?>

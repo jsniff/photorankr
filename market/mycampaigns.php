@@ -27,7 +27,7 @@ $view = htmlentities($_GET['view']);
  <meta name="keywords" content="campaigns, my campaigns, PhotoRankr,"<
  <meta name="author" content="The PhotoRankr Team">
 	<title>View all of the campaigns on PhotoRankr</title>
-    <link rel="stylesheet" type="text/css" href="css/bootstrapnew.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
     <link rel="stylesheet" href="css/reset.css" type="text/css" />
     <link rel="stylesheet" href="css/text.css" type="text/css" />
     <link rel="stylesheet" href="css/960_24.css" type="text/css" />
@@ -84,7 +84,7 @@ opacity:.7;
 
 <body style="overflow-x:hidden; background-color: #eeeff3;">
 
-<?php navbarnew(); ?>
+<?php navbarsweet(); ?>
 
 	<div id="container" class="container_24">
 		<div class="grid_24 pull_2" style="width: 1140px;top:70px;">

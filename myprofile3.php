@@ -188,11 +188,27 @@ if(isset($_GET['view'])) {
             
             $bloginsertion = mysql_query("INSERT INTO blog (title,subject,content,photo,emailaddress,time) VALUES ('$blogtitle','$blogsubject','$blogcontent','$source','$email','$time')");
             
+            $getblogid = mysql_query("SELECT id FROM blog WHERE emailaddress = '$email' ORDER BY id DESC LIMIT 0,1");
+            $lastblogid = mysql_result($getblogid,0,'id');
+            
+            $blognewsfeed = mysql_query("INSERT INTO newsfeed (firstname,lastname,emailaddress,type,source) VALUES ('$firstname','$lastname','$email','blogpost','$lastblogid')");
+            
             echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile3.php?view=blog">';
             exit();
 
     
         }
+        
+        
+         if($_GET['action'] == 'submittomarket') {
+    
+            $source = mysql_real_escape_string($_POST['checked']);
+            $newprice = mysql_real_escape_string($_POST['newprice']);
+            
+            $marketphotoquery = mysql_query("UPDATE photos SET (price = '$newprice') WHERE source = '$source' AND emailaddress = '$email'");
+    
+        }
+
 
 ?>
 
@@ -202,12 +218,12 @@ if(isset($_GET['view'])) {
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-
- <meta name="Generator" content="EditPlus">
+   <meta property="og:image" content="http://photorankr.com/<?php echo $profilepic; ?>">
+   <title><?php echo $firstname . " " . $lastname; ?> - PhotoRankr</title>
+   <meta name="Generator" content="EditPlus">
   <meta name="Author" content="PhotoRankr, PhotoRankr.com">
   <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
-  <meta name="Description" content="A gallery of the newest photography, photographers, and exhibits on PhotoRankr.">
-     <meta name="viewport" content="width=1200" /> 
+  <meta name="Description" content="PhotoRankr allows photographers of all skill levels to sell and share their work. Create your photostream cutomized to what you want to see. Add photos to your favorites, rank them, and watch them trend. Build your portfolio with Photorankr.">
 
   <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
   <link rel="stylesheet" href="text2.css" type="text/css" />
@@ -579,7 +595,7 @@ $numbersets = mysql_num_rows($allsetsrun);
 echo'<div style="margin-top:-60px">';
 
 if($numbersets == 0) {
-echo'<div class="well grid_6 push_4" style="font-size:16px;width:270px;"><a href="myprofile.php?view=upload&cs=n">Click here to create your first exhibit</a></div>'; 
+echo'<div style="font-size:18px;font-weight:200;padding:40px;text-align:center;margin-left:-35px;margin-top:120px;"><a style="color:#333;" href="myprofile3.php?view=upload&option=newexhibit">Click here to create your first exhibit.</a></div>';
 }
 
 if($set == '' & $numbersets > 0) {
@@ -817,7 +833,7 @@ height="100px" width="100px" />
     elseif ($view == 'editinfo') { //if they are on the edit info tab
 	//see if they have submitted the form
 	$action = htmlentities($_GET['action']);
-	if ($action == 'submit') {
+	if($action == 'submit') {
 
 		//GET UPDATED PROFILE INFORMATION
         if(isset($_POST['firstname'])) {$firstname=mysql_real_escape_string($_POST['firstname']); }
@@ -917,7 +933,6 @@ height="100px" width="100px" />
 	
 		//update the database with this new information
 		if(isset($_POST['bio'])) {
-        
 			$infoupdatequery=("UPDATE userinfo SET firstname = '$firstname', lastname = '$lastname', age = '$age', gender = '$gender', location = '$location', camera = '$camera', facebookpage='$facebookpage', twitteraccount='$twitteraccount', quote='$quote', bio='$bio', profilepic='$profilepic', password='$password', viewLikes='$viewLikes' WHERE emailaddress='$email'");
 		}
 		else {
@@ -1269,7 +1284,23 @@ echo'
         elseif($option == 'addtostore') {  
         
         echo'
-            <div class="grid_18" style="margin:auto;border:1px solid #ccc;margin-top:30px;margin-left:20px;">
+            <div class="grid_18" style="margin:auto;border:1px solid #ccc;margin-top:30px;margin-left:20px;">';
+            
+            if($_GET['action'] == 'submittomarket') {
+    
+                $source = mysql_real_escape_string($_POST['checked']);
+                $newprice = mysql_real_escape_string($_POST['newprice']);
+            
+                echo'<div style="margin:auto;border:1px solid #ccc;height:150px;">
+                <img style="float:left;padding:15px;" src="',$source,'" height="120" width="120" />
+                <div style="float:left;padding:15px;margin-top:20px;font-size:14px;font-weight:200;">
+                <span style="font-size:16px;font-weight:400;color:green;">Now in Market</span><br />
+                New Price: $',$newprice,'<br/>
+                New License: Extended License</div>
+                </div><br />';
+            }
+            
+            echo'
             
             <script type="text/javascript">
             function showSelect() {
@@ -1278,9 +1309,8 @@ echo'
                 document.getElementById(\'cc\').className = \'hide\';
             }
             function showSelectHide() {
-                var select = document.getElementById(\'forsale\');
+                var select = document.getElementById(\'extended\');
                 select.className = \'hide\';
-                document.getElementById(\'cc\').className = \'hide\';
             }
             function showOtherPrice() {
                 if (document.getElementById(\'price\').value == \'Other Price\')
@@ -1293,15 +1323,12 @@ echo'
             }
             </script>
             
+            
         <div>
-        <table class="table">
-        <tbody>
-        
-        <tr>
-        <td><div style="padding:10px;"><a style="width:150px;padding:8px;" class="btn btn-success" data-toggle="modal" data-backdrop="static" href="#blogphoto">Add Photo To Market</a></div>
-        </td>
-        <td colspan="2">
-            <select id="price" name="pricebox" style="width:150px;margin-left:-350px;margin-top:20px;" onchange="showOtherPrice()">
+        <div style="padding:10px;"><a style="width:150px;padding:8px;float:left;" class="btn btn-success" data-toggle="modal" data-backdrop="static" href="#marketphoto">Add Photo To Market</a></div>
+                <form action="myprofile3.php?view=store&option=addtostore&action=submittomarket" method="POST">
+            <div style="float:left;padding:10px;">
+            <select id="price" name="newprice" style="width:150px;margin-top:-15px;margin-left:10px;" onchange="showOtherPrice()">
             <option value="">Choose Price&#8230;</option>
             <option value=".50">$.50</option>
             <option value=".75">$.75</option>
@@ -1316,22 +1343,25 @@ echo'
             <option value="200.00">$200.00</option>
             <option value="Other Price">Custom Price</option>
             </select>
-            <div id="otherprice" class="hide" style="float:left;padding-left:20px;margin-top:20px;"><div class="input-prepend input-append">
+            </div>
+            <div id="otherprice" class="hide" style="float:left;margin-top:-5px;margin-left:10px;"><div class="input-prepend input-append">
                 <span class="add-on">$</span><input class="span2" id="appendedPrependedInput" size="16" type="text"><span class="add-on">.00</span>
               </div></div>
-        </td>
-        </tr>
+            
+         </div>
+         <hr>   
+ 
+        <div style="text-align:center;">
+        <input type="radio" name="market" value="standard" onclick="showSelectHide();" />&nbsp;&nbsp;Standard License&nbsp;&nbsp;<input style="margin-left:40px;" type="radio" name="market" value="extended" onclick="showSelect();" />&nbsp;&nbsp;Extended License&nbsp;&nbsp;
+        </div>
         
-        <tr>
-        <td>
-        <input type="radio" name="market" value="forsale" onclick="showHide();" />&nbsp;&nbsp;Standard&nbsp;&nbsp;<input style="margin-left:40px;" type="radio" name="market" value="notforsale" onclick="showSelect();" />&nbsp;&nbsp;Extended License&nbsp;&nbsp;
-        </td>
-        </tr>
+        <div id="extended" class="hide">
         
-        <div id="extended" class="hide"> 
-        <tr>
-        <td colspan="2"><br /><b>Additonal Options for Sale:</b></td>
-        </tr>
+        <br />
+        <b style="padding:10px;">Additonal Options for Sale:</b>
+        
+        <table class="table">
+        <tbody>
         
         <tr>
         <td><input type="checkbox" name="multiseat" value="multiseat" />&nbsp;&nbsp;Multi-Seat (Unlimited)</td>
@@ -1358,9 +1388,63 @@ echo'
         </table>
         </div>
         
-        <div style="padding:10px;float:right;"><a style="width:150px;padding:8px;" class="btn btn-primary" data-toggle="modal" data-backdrop="static" href="#blogphoto">Upload Now</a></div>
-            
-            </div>';
+            <!--ADD PHOTO TO BLOG POST MODAL-->
+
+            <div class="modal hide fade" id="marketphoto" style="overflow-y:scroll;overflow-x:hidden;">
+
+            <div class="modal-header">
+            <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
+            <img style="margin-top:-4px;" src="graphics/logoteal.png" height="28" width="90" />&nbsp;&nbsp;<span style="font-size:16px;">Choose a photo to add to your blog post:</span>
+            </div>
+            <div modal-body" style="width:600px;">
+
+            <div id="content" style="font-size:16px;width:550px;height:500px;overflow-x:hidden;">';
+
+            if($email != '') {
+            echo'
+            <img style="border: 1px solid black;margin-left:10px;margin-top:10px;" src="',$profilepic,'" 
+            height="100px" width="100px" />
+
+            <div style="width:540px;margin-left:130px;margin-top:-125px;overflow-y:scroll;overflow-x:hidden;">
+
+            <span style="font-size:14px;">
+            <br />';
+            $allusersphotos = "SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY id DESC";
+            $allusersphotosquery = mysql_query($allusersphotos);
+            $usernumphotos = mysql_num_rows($allusersphotosquery);
+    
+            for($iii = 0; $iii < $usernumphotos; $iii++) {
+            $userphotosource = mysql_result($allusersphotosquery, $iii, "source");
+            $userphotosource = str_replace("userphotos/","http://photorankr.com/userphotos/", $userphotosource);
+            $userphotosset[$iii] = mysql_result($allusersphotosquery, $iii, "sets");
+            $userphotoscaption[$iii] = mysql_result($allusersphotosquery, $iii, "caption");
+            $newsource = str_replace("userphotos/","userphotos/thumbs/", $userphotosource);
+        
+            echo'<img src="',$newsource,'" height="70" width="70" />&nbsp;&nbsp;<input id="blogphoto" type="radio" name="checked" value="',$userphotosource,'" onclick="showBlogPhoto();" />&nbsp;"',$userphotoscaption[$iii],'"
+            <br /><br />'; 
+    
+        } //end of for loop
+    
+    
+        echo'
+        </span>
+        <button class="btn btn-success" data-dismiss="modal">Submit Photo</button>
+        <br />
+        <br />';
+        }
+        
+        else {
+        echo'<div style="text-align:center;margin-top:100px;"><b>Please login or register to upload</b></div>';
+        }
+    
+        echo'
+        </div>
+        </div>
+        </div></div>
+        
+        <div style="padding:10px;float:right;"><button style="width:150px;padding:8px;" class="btn btn-primary" type="submit">Upload Now</button></div>
+        </form>    
+        </div>';
             
         }
     
@@ -1372,7 +1456,7 @@ echo'
     
         $option = htmlentities($_GET['option']);    
     
-        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#000;" href="myprofile3.php?view=network">Following</a> | <a class="green" style="text-decoration:none;color:#000;" href="myprofile3.php?view=network&option=followers">Followers</a></div></div>';
+        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#000;';if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=network">Following</a> | <a class="green" style="text-decoration:none;color:#000;';if($option == 'followers') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=network&option=followers">Followers</a></div></div>';
         
         if($option == '') {
             $query = mysql_query("SELECT following FROM userinfo WHERE emailaddress = '$email'");
@@ -2175,7 +2259,7 @@ About this exhibit:<br /><textarea style="width:500px" rows="4" cols="60" name="
             </script>
             
             <div class="grid_18" style="margin:auto;border:1px solid #ccc;margin-top:30px;margin-left:20px;">
-            <div style="float:left;padding:15px;"><img style="width:130px;height:130px;" src="" height="120" width="120" /><br /><div style="padding:10px;"><a style="width:80px;" class="btn btn-success" data-toggle="modal" data-backdrop="static" href="#blogphoto">Add Photo</a></div></div>
+            <div style="float:left;padding:15px;width:130px;height:130px;"><img style="width:130px;height:130px;" src="" height="120" width="120" /><br /><div style="padding:10px;"><a style="width:80px;" class="btn btn-success" data-toggle="modal" data-backdrop="static" href="#blogphoto">Add Photo</a></div></div>
             <div style="float:left;font-size:15px;font-weight:200;padding-top:25px;">Title:<br /><br />Subject:<br /><br />Content (400 words):</div>
            
             <form action="myprofile3.php?view=blog&action=submitpost" method="POST">
@@ -2270,14 +2354,27 @@ About this exhibit:<br /><textarea style="width:500px" rows="4" cols="60" name="
                     if($time) {
                     $date = date("m-d-Y", $time); }
                     
-                    echo'
-                    <div style="float:left;padding:15px;width:130px;height:130px;"><img src="',$photo,'" height="120" width="120" /></div>
-                    <div style="float:left;font-size:20px;font-weight:200;padding-top:30px;width:520px;">',$title,'</div>
-                    <div style="float:left;font-size:15px;font-weight:200;padding-top:15px;">Subject: ',$subject,'&nbsp;|&nbsp;Date: ',$date,'</div>
-                       
-                    <div style="float:left;margin-top:15px;width:650px;padding:10px;font-size:15px;font-weight:200;line-height:1.48;">',$content,'<br /><br />
-                    </div><br />
                     
+                    if($photo) {
+                        echo'
+                        <div style="float:left;padding:20px;width:130px;height:130px;"><img src="',$photo,'" height="120" width="120" /></div>
+                        <div style="float:left;font-size:20px;font-weight:200;padding-top:30px;width:520px;">',$title,'</div>
+                        <div style="float:left;font-size:15px;font-weight:200;padding-top:15px;">Subject: ',$subject,'&nbsp;|&nbsp;Date: ',$date,'</div>
+                       
+                        <div style="float:left;margin-top:15px;width:650px;padding:20px;font-size:15px;font-weight:200;line-height:1.48;">',$content,'<br /><br />
+                        </div><br />';
+                    }
+                    
+                    else {
+                        echo'
+                        <div style="float:left;font-size:20px;font-weight:200;padding-left:20px;padding-top:30px;width:520px;">',$title,'</div><br />
+                        <div style="float:left;font-size:15px;font-weight:200;padding-left:20px;padding-top:15px;">Subject: ',$subject,'&nbsp;|&nbsp;Date: ',$date,'</div>
+                       
+                        <div style="float:left;margin-top:15px;width:650px;padding:20px;font-size:15px;font-weight:200;line-height:1.48;">',$content,'<br /><br />
+                        </div><br />';
+                    }
+                    
+                    echo'
                     <div style="float:left;margin-top:15px;margin-left:20px;width:650px;padding:10px;font-size:15px;font-weight:200;line-height:1.48;">
                     <div class="panelblog',$id,'">';
                     
@@ -2293,18 +2390,18 @@ About this exhibit:<br /><textarea style="width:500px" rows="4" cols="60" name="
                                 $commenterid = mysql_result($userquery,0,'user_id');
                                 $commentername = mysql_result($userquery,0,'firstname')." ".mysql_result($userquery,0,'lastname');
                                 
-                                echo'<div><img src="',$commenterpic,'" height="30" width="30" />&nbsp;&nbsp;<span style="font-weight:bold;color:#3e608c;font-size:12px;">',$commentername,'</span>&nbsp;&nbsp;',$comment,'</div><hr>';
+                                echo'<div><a href="viewprofile.php?u=',$commenterid,'"><img src="',$commenterpic,'" height="30" width="30" /><span style="font-weight:bold;color:#3e608c;font-size:12px;padding-left:10px;">',$commentername,'</a></span>&nbsp;&nbsp;',$comment,'</div><hr>';
                             }
                     echo'
                     <form action="myprofile3.php?view=blog&action=comment&blogid=',$id,'" method="POST">
                     <div style="width:620px;"><img style="float:left;padding:10px;" src="',$profilepic,'" height="30" width="30" />
-                    <input style="float:left;width:440px;height:20px;position:relative;top:6px;" type="text" name="comment" placeholder="Leave a comment&#8230;" /></div>
+                    <input style="float:left;width:440px;height:20px;position:relative;top:10px;" type="text" name="comment" placeholder="Leave a comment&#8230;" /></div>
                     </form>
                     <br /><br />
                     </div>
                     
                     
-                    <a name="',$id,'" href="#"><p class="flipblog',$id,'" style="font-size:15px;"></a>Comments</p>
+                    <a name="',$id,'" href="#"><p class="flipblog',$id,'" style="font-size:15px;"></a>',$numcomments,' Comments</p>
                     </div>
                     
                     <style type="text/css">

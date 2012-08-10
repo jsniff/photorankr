@@ -1,4 +1,4 @@
-<?php
+navbarsweet<?php
 
 //connect to the database
 require "db_connection.php";
@@ -197,7 +197,7 @@ if (htmlentities($_GET['action']) == "editcampaign") {
 <html>
 <head>
 	<title>View all of the photos from this campaign on PhotoRankr</title>
-	  <link rel="stylesheet" type="text/css" href="css/bootstrapnew.css" />
+	  <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
  <link rel="stylesheet" href="css/reset.css" type="text/css" />
   <link rel="stylesheet" href="css/text.css" type="text/css" />
   <link rel="stylesheet" href="css/960_24.css" type="text/css" />
@@ -247,11 +247,13 @@ opacity:.7;
 </style>
 </head>
 <body style="overflow-x:hidden; background-color: #eeeff3;">
-	<!--NAVIGATION BAR-->
-<?php navbarnew(); ?>
-<!--/END NAVBAR-->
+
+<!--NAVIGATION BAR-->
+
+<?php navbarsweet(); ?>
+
 	<div id="container" class="container_24">
-		<div class="grid_24 pull_1" style="width: 1140px;">
+    <div class="grid_24 pull_1" style="width: 1140px;margin-top:50px;">
 
 <?php
 
@@ -284,13 +286,7 @@ echo '<div class="dropshadow well grid_24" style="text-align: left; width: 860px
     echo'
 	<img style="border: 1px solid black;" src="',$logo,'" height="80" width="80" />';
     }
-    if($name) {
-    echo'&nbsp;&nbsp;<span style="font-size: 16px;position:relative;top:65px;left:-90px;">Buyer: ',$name,'</span><span style="font-size: 30px;position:relative;left:-50px;">"',$title,'"</span><br /><br />';
-    }
-    if(!$name) {
-    echo'<span style="font-size: 30px;">"',$title,'"</span><br />';
-    }
-    echo'
+    echo'<span style="font-size: 30px;">"',$title,'"</span><br />
     <br />
 	<span style="font-size: 16px; margin-top: 15px;"><b>Description:</b> ',$description, ' <a href="',$examplelink,'">Click here to see an example photo</a></span><br />
 	<span style="font-size: 16px; margin-top: 5px;"><b>Price:</b> $',$quote, '</span><br />

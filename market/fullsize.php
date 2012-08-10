@@ -439,7 +439,7 @@ To view the photo, click here: http://photorankr.com/fullsize.php?image=".$image
    <meta name="author" content="The PhotoRankr Team">
  
 	<title>Fullsize Photo - "<?php echo $title; ?>"</title>
-  <link rel="stylesheet" type="text/css" href="css/bootstrapnew.css" />
+  <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
   <link rel="stylesheet" href="css/reset.css" type="text/css" />
   <link rel="stylesheet" href="css/text.css" type="text/css" />
   <link rel="stylesheet" href="css/newfullsize.css" type="text/css" />
@@ -493,7 +493,7 @@ To view the photo, click here: http://photorankr.com/fullsize.php?image=".$image
 
 <body oncontextmenu="return false;" class="background" style="overflow-x: hidden;">
 
-<?php navbarnew(); ?>
+<?php navbarsweet(); ?>
 
 <div class="container_24" style="padding-bottom:30px;"><!--Grid container begin-->
 

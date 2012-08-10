@@ -14,7 +14,7 @@ require "functionscampaigns3.php";
 //start the session
 session_start();
 
-
+$repemail = $_SESSION['repemail'];
     
      //GET INFO FROM CURRENT PHOTO ID
     $imageid = htmlentities($_GET['imageid']);
@@ -100,7 +100,7 @@ else {
     
     //SAVE PHOTO QUERY
     if($_GET['ml'] == "saved") {
-       
+            
             $maybecheckquery=mysql_query("SELECT * FROM maybe WHERE emailaddress = '$repemail'");
             $nummaybesaved = mysql_num_rows($maybecheckquery);
 
@@ -113,7 +113,7 @@ else {
             $search_string3=$maybesavedlist;
             $regex3="/$imageid/";
             $maybematch=preg_match($regex3,$search_string3);
-        
+            
             if($maybematch < 1) {
             $savequery = mysql_query("INSERT INTO maybe (source,caption,price,emailaddress,imageid) VALUES  ('$imagebig2','$caption','$price','$repemail','$imageid')");
             
@@ -141,20 +141,20 @@ else {
    <meta name="author" content="The PhotoRankr Team">
  
 	<title>Fullsize Photo - "<?php echo $title; ?>"</title>
-  <link rel="stylesheet" href="css/bootstrapnew2.css" type="text/css" />
+ <link rel="stylesheet" href="css/bootstrapNew.css" type="text/css" />
     <link rel="stylesheet" href="css/reset.css" type="text/css" />
     <link rel="stylesheet" href="css/text.css" type="text/css" />
     <link rel="stylesheet" href="css/960_24.css" type="text/css" />
     <link rel="stylesheet" href="css/index.css" type="text/css"/> 
     <link rel="stylesheet" href="css/itunes.css" type="text/css"/> 
+	<link rel="stylesheet" type="text/css" href="css/all.css"/>
+
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
-    <script src="js/bootstrap.js" type="text/javascript"></script>
-    <script src="js/bootstrap-dropdown.js" type="text/javascript"></script>
-    <script src="js/bootstrap-collapse.js" type="text/javascript"></script>
+    <script src="bootstrap-dropdown.js" type="text/javascript"></script>
+    <script src="bootstrap-collapse.js" type="text/javascript"></script>
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
-
      
  <script type="text/javascript">
   $(function() {
@@ -191,55 +191,11 @@ else {
   })();
 </script>
 
-<!--STRIPE SCRIPTS-->
- <script type="text/javascript" src="https://js.stripe.com/v1/"></script>
-        <!-- jQuery is used only for this example; it isn't required to use Stripe -->
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-        <script type="text/javascript">
-            // this identifies your website in the createToken call below
-            Stripe.setPublishableKey('pk_NuzRruZd0ks8VMufKgWZtecdiIqFK');
-
-            function stripeResponseHandler(status, response) {
-                if (response.error) {
-                    // re-enable the submit button
-                    $('.submit-button').removeAttr("disabled");
-                    // show the errors on the form
-                    $(".payment-errors").html(response.error.message);
-                } else {
-                    var form$ = $("#payment-form");
-                    // token contains id, last4, and card type
-                    var token = response['id'];
-                    // insert the token into the form so it gets submitted to the server
-                    form$.append("<input type='hidden' name='stripeToken' value='" + token + "' />");
-                    // and submit
-                    form$.get(0).submit();
-                }
-            }
-
-            $(document).ready(function() {
-                $("#payment-form").submit(function(event) {
-                    // disable the submit button to prevent repeated clicks
-                    $('.submit-button').attr("disabled", "disabled");
-                    // createToken returns immediately - the supplied callback submits the form if there are no errors
-                    Stripe.createToken({
-                        number: $('.card-number').val(),
-                        cvc: $('.card-cvc').val(),
-                        exp_month: $('.card-expiry-month').val(),
-                        exp_year: $('.card-expiry-year').val()
-                    }, stripeResponseHandler);
-                    return false; // submit from callback
-                });
-            });
-
-            if (window.location.protocol === 'file:') {
-                alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
-            }
-</script>
 </head>
 
 <body class="background" style="overflow-x: hidden;">
 
-<?php navbarnew(); ?>
+<?php navbarsweet(); ?>
 
 
 
@@ -374,19 +330,66 @@ $medheight = number_format(($originalheight/1.3),0,',','');
 $medprice = number_format(($price / 1.5),0,',','');
 ?>
 
+
         <script type="text/javascript">
+
+var rowcount = 1;
+var rowcount2= 1;
+var rowcount3 = 1;
             function showClicked() {
                 var select = document.getElementById('row');
                 select.className = 'clicked';
+                rowcount++;
+                if(rowcount>2){
+                    select.className = 'unclicked';
+                    rowcount=rowcount-2;
+                }
+                if(rowcount2>1){
+            var select = document.getElementById('row2');
+               select.className = 'unclicked';
+                }
+                if(rowcount3>1){
+            var select = document.getElementById('row3');
+               select.className = 'unclicked';
+                }
+
             }
                 function showClicked2() {
                 var select = document.getElementById('row2');
                 select.className = 'clicked';
+                   rowcount2++;
+                if(rowcount2>2){
+                    select.className = 'unclicked';
+                    rowcount2=rowcount2-2;
+                }
+                 if(rowcount>1){
+            var select = document.getElementById('row');
+               select.className = 'unclicked';
+                }
+                if(rowcount3>1){
+            var select = document.getElementById('row3');
+               select.className = 'unclicked';
+                }
             }
-                function showClicked3() {
+                function showClicked3() { 
                 var select = document.getElementById('row3');
                 select.className = 'clicked';
+                rowcount3++;
+                if(rowcount3>2){
+                    select.className = 'unclicked';
+                    rowcount3=rowcount3-2;
+                }
+                 if(rowcount>1){
+            var select = document.getElementById('row');
+               select.className = 'unclicked';
+                }
+                 if(rowcount2>1){
+            var select = document.getElementById('row2');
+               select.className = 'unclicked';
+                }
             }
+
+
 
         </script>
 
@@ -406,19 +409,52 @@ $medprice = number_format(($price / 1.5),0,',','');
 <td><?php echo $smallwidth; ?> X <?php echo $smallheight; ?></td>
 <td>$<?php echo $smallprice; ?></td>
 </tr>
-<tr id="row2" onclick="showClicked();">  
+<tr id="row2" onclick="showClicked2();">  
 <td>Medium</td>
 <td><?php echo $medwidth; ?> X <?php echo $medheight; ?></td>
 <td>$<?php echo $medprice; ?></td>
 </tr>
-<tr id="row3" onclick="showClicked();">
+<tr id="row3" onclick="showClicked3();">
 <td>Large</td>
 <td><?php echo $originalwidth; ?> X <?php echo $originalheight; ?></td>
 <td>$<?php echo $price; ?></td>
 </tr>
 <tr>
 <td>License</td>
-<td colspan="2"><input style="margin-left:130px;"  type="radio" name="license" value="standard"  onclick="showSelectHide();" />&nbsp;&nbsp;&nbsp;Standard <input style="margin-left:15px;" type="radio" name="license" value="extended"  onclick="showSelect();"/>&nbsp;&nbsp;&nbsp;Extended</td>
+<td colspan="2"><input style="margin-left:130px;"  type="radio" name="license" value="standard"  onclick="showSelectHide();" /><a style="color:black;text-decoration:none;" href="#" id="licensepopover" rel="popover" data-content="
+
+<span style='font-size:13px;'>A perpetual, non-exclusive, non-transferable, worldwide license to use the Content for the following permitted uses:
+</br><ul>
+<li>Advertising and promotional projects (printed materials, commercials, etc.)</li>
+<li>Entertainment applications (books, editorials, broadcast presentations, etc.)</li>
+<li>Online or electronic publications (includes use on web pages up to 1200 x 800 pixels)</li>
+<li>Prints, posters, and reproductions for personal or promotional purposes up to 500,000 times</li>
+
+</ul></br>
+This license does not allow you to:
+</br><ul>
+<li>Use the Content in products for resale, license, or other distribution unless original is fundamentally modified</li>
+<li>Use the Content in more than one location at a time</li>
+<li>Incorporate the Content in any product that results in a re-distribution or re-use of the Content</li>
+<li>Use the Content in a format that enables it to be downloaded in any peer-to-peer file sharing arrangement</li>
+<li>Use 'Editorial Use Only' for any commercial use</li>
+<li>Reproduce the Content in excess of 500,000 times</li>
+</ul>
+</br>
+The Standard Content License Agreement governs this option.
+</br></br>
+</span>
+
+" data-original-title="What is the Standard License?">&nbsp;&nbsp;&nbsp;Standard</a>
+
+<script>  
+    $(function ()  
+    { $("#licensepopover").popover();  
+    });  
+</script>
+
+<input style="margin-left:15px;" type="radio" name="license" value="extended"  onclick="showSelect();"/>&nbsp;&nbsp;&nbsp;Extended Options</td>
+
 </tr>
 </tbody>
 </table>
@@ -438,17 +474,88 @@ $medprice = number_format(($price / 1.5),0,',','');
 <table class="table">
 <tbody>
 <tr>
-<td>License 1</td>
-<td colspan="2">+ $10</td>
-</tr>
-<tr>
-<td>License 2</td>
+
+<td><a style="color:black;text-decoration:none;" href="#" id="multiseatpopover" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to extend usage of the Content to more than one person within your organization, provided that all users are either employees or agree to be bound by the Extended Content License Provisions.
+</br></br></span>
+
+" data-original-title="Multi-Seat (Unlimited)">Multi-Seat (Unlimited)</a>
+
+<script>  
+    $(function ()  
+    { $("#multiseatpopover").popover();  
+    });  
+</script>
+
+</td>
 <td colspan="2">+ $30</td>
 </tr>
 <tr>
-<td>License 3</td>
-<td colspan="2">+ $50</td>
+<td><a style="color:black;text-decoration:none;" href="#" id="unlimitprintpopover" rel="popover" data-content="<span style='font-size:13px;'>This Extended License Provision removes the 500,000 limit on reproductions and allows for unlimited reproductions.</br></br>The Extended Content License Provisions govern this option.</br></br></span>
+
+" data-original-title="Unlimited Reproduction / Print Runs">Unlimited Reproduction / Print Runs</a>
+
+<script>  
+    $(function ()  
+    { $("#unlimitprintpopover").popover();  
+    });  
+</script>
+
+</td>
+<td colspan="2">+ $30</td>
 </tr>
+<tr>
+<td><a style="color:black;text-decoration:none;" href="#" id="resalepopover" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to produce the following items for resale, license, or other distribution:</br>
+<ul>
+<li>Up to 100,000 cards, stationery items, stickers, or paper products</li>
+<li>Up to 10,000 posters, calendars, mugs, or mousepads</li>
+<li>Up to 2,000 t-shirts, apparel items, games, toys, entertainment goods, or framed artwork</li>
+</br>
+The Extended Content License Provisions govern this option.
+</br></br>
+</span>
+
+" data-original-title="Items for Resale - Limited Run">Items for Resale - Limited Run</a>
+
+<script>  
+    $(function ()  
+    { $("#resalepopover").popover();  
+    });  
+</script>
+
+</td>
+<td colspan="2">+ $30</td>
+</tr>
+<tr>
+<td><a style="color:black;text-decoration:none;" href="#" id="electronicresalepopover" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to produce the following items for resale, license, or other distribution:</br>
+<ul>
+<li>Electronic templates for e-greeting or similar cards</li>
+<li>Electronic templates for web or applications development</li>
+<li>PowerPoint or Keynote templates</li>
+<li>Screensavers and e-mail or brochures templates</li>
+</ul>
+<br>
+Under this option:
+<ul>
+<li>The right to produce the E-Resale Merchandise does not grant any intellectual property or other rights to the Content</li>
+<li>You agree to indemnify PhotoRankr from any expense incurred in connection with any E-Resale Merchandise</li>
+</ul>
+</br>
+The Extended Content License Provisions govern this option.
+</br></br>
+</span>
+
+" data-original-title="Electronic Items for Resale or Other Distribution - Unlimited Run">Electronic Items for Resale or Other Distribution - Unlimited Run</a>
+
+<script>  
+    $(function ()  
+    { $("#electronicresalepopover").popover();  
+    });  
+</script>
+
+</td>
+<td colspan="2">+ $30</td>
+</tr>
+<tr>
 </tbody>
 </table>
 </div>
@@ -491,12 +598,30 @@ $medprice = number_format(($price / 1.5),0,',','');
 		$regex2="/$imageid/";
 		$cartmatch=preg_match($regex2,$search_string2);
         
+        if($rowcount==2) {
+            $selectedpricephoto = $smallprice;
+
+        }
+
+        if($rowcount==2) {
+            $selectedpricephoto = $medprice;
+
+        }
+
+        if($rowcount==2) {
+            $selectedpricephoto = $price;
+
+        }
+
+
+
+
         if($cartmatch > 0) {
         echo'<a class="btn btn-danger" style="margin-left:10px;width:120px;float:left;" href="fullsize2.php?imageid=',$imageid,'&action=removed">Remove from Cart</a>';
         }
         else {
-        echo'<a class="btn btn-success" style="margin-left:10px;width:80px;float:left;" href="download2.php?imageid=',$imageid,'#added">Add to Cart</a>';
-        }
+        echo'<a class="btn btn-success" style="margin-left:10px;width:80px;float:left;" href="download2.php?imageid=',$imageid,'&price=',$selectedpricephoto,'#added">Add to Cart</a>';
+                }
 
 ?>
 
@@ -557,6 +682,8 @@ echo'
 
 </div><!--end container-->
 
+<!--Javascripts-->
+<script src="js/bootstrap.js" type="text/javascript"></script>
 
 </body>
 </html>

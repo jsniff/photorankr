@@ -84,7 +84,7 @@ $notsqueryrun = mysql_query($notsquery); }
 <!DOCTYPE html>
 <head>
 	<title>View all of the photos from this campaign on PhotoRankr</title>
-	  <link rel="stylesheet" type="text/css" href="css/bootstrapnew.css" />
+	  <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
  <link rel="stylesheet" href="css/reset.css" type="text/css" />
   <link rel="stylesheet" href="css/text.css" type="text/css" />
   <link rel="stylesheet" href="css/960_24.css" type="text/css" />
@@ -141,10 +141,10 @@ opacity:.7;
 
 <body style="overflow-x:hidden; background-color: #eeeff3;">
 
-<?php navbarnew(); ?>
+<?php navbarsweet(); ?>
 
 	<div id="container" class="container_24">
-		<div class="grid_24 pull_1" style="width: 1140px;margin-top:0px;">
+		<div class="grid_24 pull_1" style="width: 1140px;margin-top:60px;">
 
 <?php
 

@@ -15,6 +15,8 @@ session_start();
         logout();
     }
     
+    $repemail = $_SESSION['repemail'];
+
     //Grab the view
     $category = htmlentities($_GET['c']);     
      
@@ -27,7 +29,7 @@ session_start();
 <head>
 <title>PhotoRankr Market - Stock Photos Done Differently</title>
 
-    <link rel="stylesheet" href="css/bootstrapnew2.css" type="text/css" />
+    <link rel="stylesheet" href="css/bootstrapNew.css" type="text/css" />
     <link rel="stylesheet" href="css/reset.css" type="text/css" />
     <link rel="stylesheet" href="css/text.css" type="text/css" />
     <link rel="stylesheet" href="css/960_24.css" type="text/css" />
@@ -73,130 +75,68 @@ session_start();
 </head>
 <body style="overflow-x:hidden; background-color:#fff;">
 
-<?php navbarnew(); ?>
+<?php navbarsweet(); ?>
 
 
 	
 <!--CONTAINER-->
-<div class="container">
-
-<!--Featured Photos-->
-<div class="grid_24" style="padding-top:70px;margin-left:-130px;width:1200px;">
-    
-    <?php
-        $topfavedphotos = mysql_query("SELECT source,points,votes,price,caption FROM photos ORDER BY faves DESC LIMIT 0,6");
-        $source1 = mysql_result($topfavedphotos,0,'source');
-        $source1 = str_replace('userphotos/','http://photorankr.com/userphotos/', $source1);
-        $source1thumb = str_replace('userphotos/','userphotos/thumbs/', $source1);
-        $source2 = mysql_result($topfavedphotos,1,'source');
-        $source2 = str_replace('userphotos/','http://photorankr.com/userphotos/', $source2);
-        $source2thumb = str_replace('userphotos/','userphotos/thumbs/', $source2);
-        $source3 = mysql_result($topfavedphotos,2,'source');
-        $source3 = str_replace('userphotos/','http://photorankr.com/userphotos/', $source3);
-        $source3thumb = str_replace('userphotos/','userphotos/thumbs/', $source3);
-        $source4 = mysql_result($topfavedphotos,3,'source');
-        $source4 = str_replace('userphotos/','http://photorankr.com/userphotos/', $source4);
-        $source4thumb = str_replace('userphotos/','userphotos/thumbs/', $source4);
-        $source5 = mysql_result($topfavedphotos,4,'source');
-        $source5 = str_replace('userphotos/','http://photorankr.com/userphotos/', $source5);
-        $source5thumb = str_replace('userphotos/','userphotos/thumbs/', $source5);
-        $source6 = mysql_result($topfavedphotos,5,'source');
-        $source6 = str_replace('userphotos/','http://photorankr.com/userphotos/', $source6);
-        $source6thumb = str_replace('userphotos/','userphotos/thumbs/', $source6);
-        
-        for($iii=0; $iii < 6; $iii++) {
-        $price[$iii] = mysql_result($topfavedphotos,$iii,'price');
-        $caption[] = mysql_result($topfavedphotos,$iii,'caption');
-        $points[$iii] = mysql_result($topfavedphotos,$iii,'points');
-        $votes[$iii] = mysql_result($topfavedphotos,$iii,'votes');
-        $rank[$iii] = ($points[$iii]/$votes[$iii]);
-        $ranking[$iii] = number_format($rank[$iii],2);
-        }
-        
-        echo'
-        <div id="gallery" style="border: 2px solid #999;">
-        
-    		   <img style="width:800px;height:300px;" src="',$source1,'"/>
-               
-               <div class="statoverlay" style="z-index:1;left:0px;top:250px;position:relative;background-color:black;width:800px;height:75px;opacity:.6;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;">$',$price[0],'&nbsp;<span style="font-size:20px;">|</span>&nbsp;9.14</span>&nbsp;&nbsp;<span style="font-size:15px;line-height:18px;">"',$caption[$iii],'"</span></p></div>
-               
-    		   <img style="position:relative;top:-95px;min-width:800px;min-height:300px;" src="',$source2,'" height="80%" />
-    		   <img style="position:relative;top:-95px;min-width:800px;min-height:300px;" src="',$source3,'" height="80%" />
-    		   <img style="position:relative;top:-95px;min-width:800px;min-height:300px;" src="',$source4,'" height="80%" />
-               <img style="position:relative;top:-95px;min-width:800px;min-height:300px;" src="',$source5,'" height="80%" />
-               <img style="position:relative;top:-95px;min-width:800px;min-height:300px;" src="',$source6,'" height="80%" />
-               </div>
-        
-               <div id="thumbs" style="border: 2px solid #999;border-left: 0px;">
-    	   	   <img src="',$source1thumb,'" height="100" width="100" />
-    		   <img src="',$source2thumb,'" height="100" width="100" />
-    		   <img src="',$source3thumb,'" height="100" width="100" />
-    		   <img src="',$source4thumb,'" height="100" width="100" />
-               <img src="',$source5thumb,'" height="100" width="100" />
-               <img src="',$source6thumb,'" height="100" width="100" /> 
-                  
-	        </div>
-            
-            <a href="#" id="next"></a>';
-    ?>
-
-
-<!--TOP PHOTOGRAPHERS BOX-->    
-    <div style="margin-top:-40px;float:right;width:250px;height:300px;">
-        <div style="background-color:#6aae45;z-index:2;padding-top:4px;text-align:center;color:white;font-size:16px;opacity:1;width:250px;height:24px;border-top-left-radius:10px;border-top-right-radius:10px;">Featured Photographers<p>
-        
-        <div style="margin-top:-30px;">
-        <?php
-        $topphotos = mysql_query("SELECT user_id,firstname,lastname,profilepic FROM userinfo ORDER BY (totalscore) DESC LIMIT 0,5");
-        for($iii=0; $iii < 4; $iii++) {
-        $profpic = mysql_result($topphotos,$iii,'profilepic');
-        $user_id = mysql_result($topphotos,$iii,'user_id');
-        $firstname = mysql_result($topphotos,$iii,'firstname');
-        $lastname = mysql_result($topphotos,$iii,'lastname');
-        $fullname = $firstname . " " . $lastname;
-        
-        echo'<div style="width:225px;height:65px;"><div><a href="viewprofile.php?u=',$user_id,'"><img style="margin-left:10px;border:1px solid white;" src="http://photorankr.com/',$profpic,'" width="55" height="55" /></div><div style="float:left;font-size:13px;color:white;margin-top:-40px;margin-left:75px;">',$fullname,'</a></div></div>';
-        }
-        ?>
-        </div>
-        
-    </div>
-    
-</div>
-</div> <!--end 24 grid-->
-
-
+<div class="container_24">    
 
 
 <!--VIEWING BOX-->
-<div class="grid_24" style="float:left;margin-left:-130px;margin-top:20px;">
-<div name="content" style="width:1200px;">
-<?php navbar2(); ?>
+<div class="grid_24" style="float:left;margin-left:-100px;margin-top:70px;width:1150px;">
 
+<div class="grid_5 rounded" style="left:-30px;"><div style="background-color:#eeeff3;font-size:15px;text-align:center;font-family:helvetica;font-weight:400;">Advanced Search</div><br />
+    
+<form action="" method="GET">
 
-<!--SEARCH SORTING-->
-<div style="width:320px;font-size:13px;padding:7px;margin-top:-55px;"><div style="float:left;"><b>Sort By:&nbsp;&nbsp;&nbsp;&nbsp;</b></div>&nbsp;&nbsp;
-    
-    <script>
-        function submitPrice(sel) {
-        sel.form.submit();
-    }
-        function submitRank(sel) {
-        sel.form.submit();
-    }
-   </script>
-    
     <div class="control-group" style="float:left;">
           <!-- Select Basic -->
           <label class="control-label"></label>
           <div class="controls">
-           <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); if($category != '') {echo '?c=',$category,'';} else {} ?>&sort=price" method="post">
-            <select name="price"  onchange="submitPrice(this)" class="input-large" style="width:100px;margin-top:-3px;">
-              <option>Price</option>
-              <option>High - Low</option>
-              <option>Low - High</option>
+            <select name="rank"  class="input-large" style="width:150px;height:30px;margin-left:15px;margin-top:-3px;">
+              <option value="">Rank</option>
+              <option value="hightolow">High - Low</option>
+              <option value="lowtohigh">Low - High</option>
             </select>
-            </form>
+        </div>
+    </div>
+    
+<div class="control-group" style="float:left;">
+          <!-- Select Basic -->
+          <label class="control-label"></label>
+          <div class="controls">
+            <select name="category"  onchange="submitCategory(this)" class="input-large" style="width:150px;height:30px;margin-left:15px;margin-top:-3px;">
+            <option value="">Category</option>
+            <option value="Advertising">Advertising</option>
+            <option value="Aerial">Aerial</option>
+            <option value="Animal">Animal</option>
+            <option value="Architecture">Architecture</option>
+            <option value="Astro">Astro</option>
+            <option value="Aura">Aura</option>
+            <option value="Automotive">Automotive</option>
+            <option value="Botanical">Botanical</option>
+            <option value="Candid">Candid</option>
+            <option value="Commercial">Commercial</option>
+            <option value="Corporate">Corporate</option>
+            <option value="Documentary">Documentary</option>
+            <option value="Fashion">Fashion</option>
+            <option value="Fine Art">Fine Art</option>
+            <option value="Food">Food</option>
+            <option value="Historical">Historical</option>
+            <option value="Industrial">Industrial</option>
+            <option value="Musical">Musical</option>
+            <option value="Nature">Nature</option>
+            <option value="News">News</option>
+            <option value="Night">Night</option>
+            <option value="People">People</option>
+            <option value="Scenic">Scenic</option>
+            <option value="Sports">Sports</option>
+            <option value="Still Life">Still Life</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Urban">Urban</option>
+            <option value="War">War</option>
+            </select>
         </div>
     </div>
 
@@ -204,147 +144,33 @@ session_start();
           <!-- Select Basic -->
           <label class="control-label"></label>
           <div class="controls">
-           <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); if($category != '') {echo '?c=',$category,'';} else {} ?>&sort=rank" method="post">
-            <select name="rank"  onchange="submitRank(this)" class="input-large" style="width:100px;margin-left:15px;margin-top:-3px;">
-              <option>Rank</option>
-              <option>High - Low</option>
-              <option>Low - High</option>
+            <select name="style"  onchange="submitStyle(this)" class="input-large" style="width:150px;height:30px;margin-left:15px;margin-top:-3px;">
+            <option value="">Style</option>
+            <option value="B&W">Black and White</option>
+            <option value="Cityscape">Cityscape</option>
+            <option value="Fisheye">Fisheye</option>
+            <option value="HDR">HDR</option>
+            <option value="Illustration">Illustration</option>
+            <option value="InfraredUV">Infrared/UV</option>
+            <option value="Landscape">Landscape</option>
+            <option value="Long Exposure">Long Exposure</option>
+            <option value="Macro">Macro</option>
+            <option value="Miniature">Miniature</option>
+            <option value="Monochrome">Monochrome</option>
+            <option value="Motion Blur">Motion Blur</option>
+            <option value="Night">Night</option>
+            <option value="Panorama">Panorama</option>
+            <option value="Photojournalism">Photojournalism</option>
+            <option value="Portrait">Portrait</option>
+            <option value="Stereoscopic">Stereoscopic</option>
+            <option value="Time Lapse">Time Lapse</option>
             </select>
-            </form>
         </div>
     </div>
 
-</div>
+<hr>
 
-<!--ADVANCED SEARCH-->
-<div class="panel2" style="margin-top:-45px;">
-<span style="font-size:14px;">
-
-<form method="get">
-<div class="control-group">
-        <!-- Select Basic -->
-          <label class="control-label">Resolution:</label>
-          <div class="controls" style="padding-top:6px;">
-            <select class="input-xlarge" name="resolution">
-              <option value="">Choose&#8230;</option>
-              <option value="base">Base</option>
-              <option value="good">Good</option>
-              <option value="great">Great</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="control-group">
-        <!-- Select Basic -->
-          <label class="control-label">Orientation:</label>
-          <div class="controls" style="padding-top:6px;">
-            <select class="input-xlarge" name="orientation">
-             <option value="">Choose&#8230;</option>
-              <option value="portrait">Portrait</option>
-              <option value="landscape">Landscape</option>
-              <option value="panorama">Panorama</option>
-            </select>
-          </div>
-        </div>
-        
-    <div class="control-group">
-        <!-- Select Basic -->
-          <label class="control-label">License:</label>
-          <div class="controls" style="padding-top:6px;">
-            <select class="input-xlarge" name="license">
-             <option value="">Choose&#8230;</option>
-              <option value="royaltyfree">Royalty Free</option>
-              <option value="exlcusive">Exclusive</option>
-              <option value="fuckingawesome">Fucking Awesome</option>
-            </select>
-          </div>
-        </div>
-        
-        <div style="margin-top:-190px;margin-left:320px;width:620;height:190px;">
-        
-        <label class="control-label">Categories:</label>
-          <div class="control-group">
-          <!-- Multiple Checkboxes -->
-          <div class="controls">
-            <label class="checkbox inline">
-              <input type="checkbox" value="Advertising" name="category[]"> Advertising
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Animal" name="category[]"> Animal
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Architecture" name="category[]"> Architecture
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Automotive" name="category[]"> Automotive
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Commercial" name="category[]"> Commercial
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Fashion" name="category[]"> Fashion
-            </label>
-            
-            <br /><br />
-           
-             <label class="checkbox inline">
-              <input type="checkbox" value="Fineart" name="category[]"> Fine Art
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Food" name="category[]"> Food
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Historical" name="category[]"> Historical
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Industrial" name="category[]"> Industrial
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Musical" name="category[]"> Musical
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Nature" name="category[]"> Nature
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="News" name="category[]"> News
-            </label>
-            
-            <br /><br />
-            
-            <label class="checkbox inline">
-              <input type="checkbox" value="Night" name="category[]"> Night
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Scenic" name="category[]"> Scenic
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Sports" name="category[]"> Sports
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Stilllife" name="category[]"> Still Life
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="Transportation" name="category[]"> Transportation
-            </label>
-            <label class="checkbox inline">
-              <input type="checkbox" value="War" name="category[]"> War
-            </label>
-          </div>
-
-        </div>
-        </div>
-        
-         <div class="control-group">
-
-          <!-- Text input-->
-          <label class="control-label" for="input01">Keyword:</label>
-          <div class="controls" style="padding-top:6px;">
-            <input type="text" style="width:150px;height:30px;" placeholder="Search Term" class="input-xlarge" name="keyword">
-          </div>
-        </div>
-
-                
-    <!--SLIDERS-->    
+ <!--SLIDERS-->    
 	
 	<style>
 	#demo-frame > div.demo { padding: 10px !important; };
@@ -391,7 +217,7 @@ session_start();
 <div class="demo">
 
 <div style="padding:20px;margin-left:-30px;">
-	<label for="amount" style="float:left;font-size:15px;font-family:helvetica neue,arial,lucida grande;padding:10px;margin-top:-15px;">Price range: 
+	<label for="amount" style="text-align:center;margin-left:40px;font-size:15px;font-family:helvetica neue,arial,lucida grande;padding:10px;margin-top:-35px;">Price range: 
     
     <a style="text-decoration:none;" href="#" id="pricepopover" rel="popover" data-content="Adjust the slider on the right to return photos that are inside that price range." data-original-title="What is price range?">(?)</a>
     <script>  
@@ -401,8 +227,8 @@ session_start();
     </script>
     
     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</label>  
-	<input id="amount" style="float:left;text-align:center;border:0; color:#333; padding:15px; background-color:white; width: 150px; font-size: 15px;position:relative;top:-10px;" />     
-<div id="slider-range" style="float:left;width:750px;margin-left:10px;"></div>
+	<input id="amount" style="margin-left:15px;text-align:center;border:0; color:#333; padding:5px; background-color:white; width: 150px; font-size: 15px;position:relative;top:-20px;" />     
+<div id="slider-range" style="width:150px;margin-left:30px;margin-top:-10px;"></div>
 </div>
 <br />
 </div><!-- End demo -->
@@ -440,7 +266,7 @@ session_start();
 <div class="demo2">
 
 <div style="padding:20px;margin-left:-30px">
-	<label for="amount2" style="float:left;font-size:15px;font-family:helvetica neue,arial,lucida grande;padding:10px;margin-top:-15px;">Reputation Range: 
+	<label for="amount2" style="text-align:center;margin-left:16px;font-size:15px;font-family:helvetica neue,arial,lucida grande;padding:10px;margin-top:-45px;">Reputation Range: 
     
     <a style="text-decoration:none;" href="#" id="reppopover" rel="popover" data-content="Adjust the slider on the right to return photos that are from photographers inside that reputation range. Photographers with a higher reputation generally submit higher quality images." data-original-title="What is reputation range?">(?)</a>
     <script>  
@@ -450,8 +276,8 @@ session_start();
     </script>
     
     </label>  
-	<input id="amount2" style="float:left;text-align:center;border:0; color:#333; padding:15px; background-color:white;position:relative;top:-10px;width: 150px;font-size: 15px;" />     
-<div id="slider-range2" style="float:left;width:750px;margin-left:10px;"></div>
+	<input id="amount2" style="text-align:center;margin-top:-25px;margin-left:15px;border:0; color:#333; padding:5px; background-color:white;position:relative;top:10px;width: 150px;font-size: 15px;" />     
+<div id="slider-range2" style="width:150px;margin-left:30px;margin-top:10px;"></div>
 </div>
 <br />
 
@@ -491,7 +317,7 @@ session_start();
 <div class="demo4">
 
 <div style="padding:20px;margin-left:-30px">
-	<label for="amount4" style="float:left;font-size:15px;font-family:helvetica neue,arial,lucida grande;padding:10px;margin-top:-15px;">Download Range: 
+	<label for="amount4" style="text-align:center;margin-left:15px;font-size:15px;font-family:helvetica neue,arial,lucida grande;padding:10px;margin-top:-45px;">Download Range: 
     
      <a style="text-decoration:none;" href="#" id="downloadpopover" rel="popover" data-content="Adjust the slider on the right to return photos that have been downloaded that number of times." data-original-title="What is download range?">(?)</a>
     <script>  
@@ -501,21 +327,67 @@ session_start();
     </script>
     
     </label>  
-	<input id="amount4" style="float:left;text-align:center;border:0; color:#333; padding:15px; background-color:white;position:relative;top:-10px;width: 150px; font-size: 15px;" /> 
-<div id="slider-range4" style="float:left;width:750px;margin-left:10px;"></div>
+	<input id="amount4" style="text-align:center;margin-left:15px;margin-top:-10px;border:0; color:#333; padding:5px; background-color:white;width: 150px; font-size: 15px;" /> 
+<div id="slider-range4" style="width:150px;margin-left:30px;margin-top:10px;"></div>
 </div>
 <br />
 </div><!-- End demo -->
 
 <!--END SLIDERS-->
 
-<div style="width:900px;">
-<input class="btn btn-success" style="width:140px;padding:5px;margin-left:-330px;font-weight:bold;margin-top:20px;" type="submit" value="Search" /></div>
+
+<hr>
+    
+        <div class="control-group" style="float:left;">
+          <!-- Select Basic -->
+          <label class="control-label"></label>
+          <div class="controls">
+            <select name="resolution"  onchange="submitRank(this)" class="input-large" style="width:150px;height:30px;margin-left:15px;margin-top:-3px;">
+              <option value=''>Resolution</option>
+              <option value="3050" >3000 - 5000</option>
+              <option value="1530" >1500 - 3000</option>
+              <option value="15" > < 1500 /option>
+            </select>
+        </div>
+    </div>
+    
+        <div class="control-group" style="float:left;">
+          <!-- Select Basic -->
+          <label class="control-label"></label>
+          <div class="controls">
+            <select name="orientation"  onchange="submitRank(this)" class="input-large" style="width:150px;height:30px;margin-left:15px;margin-top:-3px;">
+              <option value=''>Orientation</option>
+              <option value="vertical" >Vertical</option>
+              <option value="horizontal" >Horizontal</option>
+            </select>
+        </div>
+    </div>
+
+<hr>
+
+
+<button type="submit" class="btn btn-success" style="width:170px;padding:8px;margin-left:10px;margin-top:-10px;margin-bottom:10px;">Search</button>
 </form>
 
-</span>
-</div>
-<p class="flip2" style="margin-left:320px;position:relative;top:-36px;font-size:18px;font-weight:200;">Advanced Search</p>
+</div><!--end left sidebar-->
+
+
+
+
+
+
+<div class="grid_23 roundedright" style="background-color:#eeeff3;height:45px;position;relative;top:80px;width:925px;">
+<a style="text-decoration:none;color:black;" href="?c=trending"><div class="clicked" style="width:150px;height:45px;border-right:1px solid #ccc;float:left;<?php if($category == 'trending') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:17px;font-family:helvetica;font-weight:100;margin-top:10px;text-align:center;">Trending</div></div></a>
+
+<a style="text-decoration:none;color:black;" href="?c=pop"><div class="clicked" style="width:150px;height:45px;border-right:1px solid #ccc;float:left;<?php if($category == 'pop') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:17px;font-family:helvetica;font-weight:100;margin-top:10px;text-align:center;">Popular</div></div></a>
+
+<a style="text-decoration:none;color:black;" href="?c=newest"><div class="clicked" style="width:150px;height:45px;border-right:1px solid #ccc;float:left;<?php if($category == 'newest') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:17px;font-family:helvetica;font-weight:100;margin-top:10px;text-align:center;">Newest</div></div></a>
+
+<a style="text-decoration:none;color:black;" href="?c=top"><div class="clicked" style="width:150px;height:45px;border-right:1px solid #ccc;float:left;<?php if($category == 'top') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:17px;font-family:helvetica;font-weight:100;margin-top:10px;text-align:center;">Top Ranked</div></div></a>
+
+<a style="text-decoration:none;color:black;" href="?c=exhibits"><div class="clicked" style="width:150px;height:45px;border-right:1px solid #ccc;float:left;<?php if($category == 'exhibits') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:17px;font-family:helvetica;font-weight:100;margin-top:10px;text-align:center;">Top Exhibits</div></div></a>
+
+<a style="text-decoration:none;color:black;" href="?c=personal"><div class="clicked" style="width:150px;height:45px;float:left;<?php if($category == 'personal') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:17px;font-family:helvetica;font-weight:100;margin-top:10px;text-align:center;">Personal</div></div></a>
 
 
 <?php
@@ -524,55 +396,91 @@ if($category != 'exhibits') {
 
 $sort = htmlentities($_GET['sort']);
 if($category == 'newest') {
-$query = mysql_query("SELECT * FROM photos ORDER BY id DESC LIMIT 0,60");
+$query = mysql_query("SELECT * FROM photos WHERE price != 'Not For Sale' ORDER BY id DESC LIMIT 0,60");
 $numresults = mysql_num_rows($query);
-    if($sort == 'price')
-    {
-        $order=$_POST['price']; 
-        
-            if($order == 'Low - High') {
-                $query = mysql_query("SELECT * FROM photos WHERE price != 'Not For Sale' ORDER BY id DESC, price ASC LIMIT 0,60");
-                $numresults = mysql_num_rows($query); 
-            }
-            
-            elseif($order == 'High - Low') {
-                $query = mysql_query("SELECT * FROM photos WHERE price != 'Not For Sale' ORDER BY id DESC, price DESC LIMIT 0,60");
-                $numresults = mysql_num_rows($query); 
-            }
-    }
 }
 
 elseif($category == 'top') {
-$query = mysql_query("SELECT * FROM photos ORDER BY points DESC LIMIT 0,60");
+$query = mysql_query("SELECT * FROM photos WHERE price != ('Not For Sale') ORDER BY points DESC LIMIT 0,60");
 $numresults = mysql_num_rows($query);
 }
+
 elseif($category == 'trending' || $category == '') {
-$query = mysql_query("SELECT * FROM photos ORDER BY score DESC LIMIT 0,60");
+$query = mysql_query("SELECT * FROM photos WHERE price != ('Not For Sale') ORDER BY score DESC LIMIT 0,60");
 $numresults = mysql_num_rows($query);
 }
+
 elseif($category == 'pop') {
-$query = mysql_query("SELECT * FROM photos WHERE views > 120 ORDER BY faves DESC LIMIT 0,60");
+$query = mysql_query("SELECT * FROM photos WHERE views > 120 AND price != ('Not For Sale') ORDER BY faves DESC LIMIT 0,60");
 $numresults = mysql_num_rows($query);
 }
+
 elseif($category == 'deal') {
 $deal = '10.00';
 $twoweeksago = time() - 1209600;
-$query = mysql_query("SELECT * FROM photos WHERE price < '$deal' AND time > '$twoweeksago' ORDER BY points DESC LIMIT 0,60");
+$query = mysql_query("SELECT * FROM photos WHERE price < '$deal' AND time > $twoweeksago ORDER BY points DESC LIMIT 0,60");
 $numresults = mysql_num_rows($query);
 }
-elseif($category == 'following') {
-    $followcheckquery = mysql_query("SELECT following FROM campaignusers WHERE repemail = '$repemail'");
-    $followcheck = mysql_result($followcheckquery,0,'following');
-$query = mysql_query("SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE userinfo.user_id IN ('$followcheck')  ORDER BY time DESC LIMIT 0,60");
+
+if($category == 'personal') {
+
+        if($_SESSION['loggedin'] != 2) {
+    
+            echo'<div style="font-size:16px;text-align:center;margin-top:100px;font-family:helvetica;font-weight:100;">Follow photographer\'s work and personalize your photography feed by logging in above or <a href="">registering</a> for free today.</div>';
+            
+        }
+      
+    elseif($_SESSION['loggedin'] == 2) {
+    
+        echo'<br /><br /><br /><div style="width:910px;text-align:center;font-size:14px;font-weight:200;"><a class="green" style="text-decoration:none;color:#000;';if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'href="index.php?c=personal">Following</a> | <a class="green" style="text-decoration:none;color:#000;';if($option == 'top') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'href="index.php?c=personal&option=pref">Preferred Work</a></div><br />';
+        
+        if($option == ''){
+    
+        $followcheckquery = mysql_query("SELECT following FROM campaignusers WHERE repemail = '$repemail'");
+        $followcheck = mysql_result($followcheckquery,0,'following');
+        $individuals = explode(" ", $followcheck);
+        $numinds = count($individuals);
+        
+        for($iii=0; $iii < $numinds; $iii++) {
+            
+            $actual = mysql_query("SELECT user_id FROM userinfo WHERE user_id = '$individuals[$iii]'");
+            $actualcheck = mysql_result($actual,0,'user_id');
+        
+                if(!$actualcheck) {
+                    continue;
+                }
+            
+            elseif($iii < ($numinds-2)) {
+                $finallist = $finallist . $individuals[$iii] . ",";
+            }
+            
+            else {
+                $finallist .= $individuals[$iii];
+            }
+        }   
+                    
+$query = mysql_query("SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE userinfo.user_id IN ($finallist) ORDER BY id DESC LIMIT 0,60");
 $numresults = mysql_num_rows($query);
+        
+        } //end of if option == ''
+        
+        elseif($option == 'pref') {
+        
+            
+        
+        } //end option == 'pref'
+    
+    } //end if logged in 
+
 }
+
 $searchterm = htmlentities($_GET['searchterm']);
 if($c == '' && $searchterm != '') {
-$query = mysql_query("SELECT * FROM photos WHERE concat(caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) LIKE '%$searchterm%' ORDER BY (views) DESC LIMIT 0,60");
+$query = mysql_query("SELECT * FROM photos WHERE concat(caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) LIKE '%$searchterm%' AND price != ('Not For Sale') ORDER BY (views) DESC LIMIT 0,60");
 $numresults = mysql_num_rows($query);
-echo $numresults;
+
 if($numresults < 1) {
-echo'<div style="font-size:14px;text-align:center;">No results found for "',$searchterm,'." Try an advanced search above.</div>';
+echo'<div style="font-size:16px;text-align:center;margin-top:50px;font-family:helvetica;font-weight:100;">No results found for "',$searchterm,'."</div>';
 }
 }
 
@@ -581,52 +489,37 @@ $orientation = htmlentities($_GET['orientation']);
 $license = htmlentities($_GET['license']);
 $keyword = htmlentities($_GET['keyword']);
 $cat = $_GET['category'];
+$rank = $_GET['rank'];
+$price = $_GET['price'];
+$style = $_GET['style'];
 $lowerprice = htmlentities($_GET['c']);
+    if(!$lowerprice) {
+        $lowerprice = 0;
+    }
 $higherprice = htmlentities($_GET['c2']);
 $lowerrep = htmlentities($_GET['rc']);
 $higherrep = htmlentities($_GET['rc2']);
 $lowerdown = htmlentities($_GET['dc']);
+    if(!$lowerdown) {
+        $lowerdown = 0;
+    }
 $higherdown = htmlentities($_GET['dc2']);
 
-    if($resolution || $orientation || $license || $keyword || $cat || $higherprice || $lowerrep || $higherrep || $lowerdown || $higherdown) {
-          
-          $count = 1;    
-          foreach($cat as $category) //loop through the checkboxes
-            {
-                if($count == 1) {$cat1 = $category; }
-                if($count == 2) {$cat2 = $category; }
-                if($count == 3) {$cat3 = $category; }
-                if($count == 4) {$cat4 = $category; }
-                $count += 1;
-            }
-                
+    if($resolution || $orientation || $license || $keyword || $cat || $higherprice || $lowerrep || $higherrep || $lowerdown || $higherdown && !$category) {
                 $query = "SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE";
-                
-                if($cat1 || $cat2 || $cat3 || $cat4) {
-                $query .= " (";
+
+                if(!empty($cat)) {
+                $query .= " singlecategorytags LIKE '%$cat%'";
                 }
                 
-                if(!empty($cat1)) {
-                $query .= "singlecategorytags LIKE '%$cat1%'";
+                if(!empty($style)) {
+                $query .= " AND singlestyletags LIKE '%$style%'";
                 }
-                
-                if(!empty($cat2)) {
-                $query .= " OR singlecategorytags LIKE '%$cat2%'";
+
+                if(!empty($higherprice) && empty($cat) && empty($style)) {
+                $query .= " price < $higherprice";
                 }
-                
-                if(!empty($cat3)) {
-                $query .= " OR singlecategorytags LIKE '%$cat3%'";
-                }
-                
-                if(!empty($cat4)) {
-                $query .= " OR singlecategorytags LIKE '%$cat4%'";
-                }
-                
-                if($cat1 || $cat2 || $cat3 || $cat4) {
-                $query .= ")";
-                }
-                
-                if(!empty($higherprice)) {
+                elseif(!empty($higherprice)) {
                 $query .= " AND price < $higherprice";
                 }
                 
@@ -647,29 +540,67 @@ $higherdown = htmlentities($_GET['dc2']);
                 }
                 
                 if(!empty($lowerrep)) {
-                $query .= " AND userinfo.reputation > $lowerrrep";
+                $query .= " AND userinfo.reputation > $lowerrep";
                 }
                                 
                 if(!empty($keyword)) {
                 $query .= " AND concat(caption,tag1,tag2,tag3,tag4,singlestyletags,singlecategorytags) LIKE '%$keyword%'";
                 }
                 
-                $query .= " ORDER BY (views)";
+                if(!empty($resolution)) {
                 
+                    if($resolution == '3050') {
+                        $query .= " AND (width > 3000 OR height > 3000)";
+                    }
+                    elseif($resolution == '1530') {
+                        $query .= " AND (width > 1500 OR height > 1500)";
+                    }
+                    elseif($resolution == '15') {
+                        $query .= " AND (width < 1500 OR height < 1500)";
+                    }
+                } 
+                
+                if(!empty($orientation)) {
+                
+                    if($orientation == 'vertical') {
+                        $query .= " AND (width < height)";
+                    }
+                    elseif($orientation == 'horizontal') {
+                        $query .= " AND (width > height)";
+                    }
+                }
+                                
+                if(!$rank) {
+                $query .= " ORDER BY (views)";
+                }
+                
+                elseif($rank) {
+                
+                    if($rank == 'hightolow') {
+                        $query .= " ORDER BY (points/votes) DESC";
+                    }
+                    elseif($rank == 'lowtohigh') {
+                        $query .= " ORDER BY (points/votes) ASC";
+                    }
+                }
+                                
                 $query = mysql_query($query);
                                         
                 $numresults = mysql_num_rows($query);
-                
+                                
             if($numresults < 1) {
-                echo'<div style="font-size:14px;text-align:center;">No results found. Please try a different search above or begin a campaign.</div>';
+                echo'<div style="font-size:16px;text-align:center;margin-top:100px;font-family:helvetica;font-weight:100;">No results found. Please try a different search above or <a href="createcampaign.php">begin a campaign</a> to crowdsource your photo request.</div>';
             } 
+            elseif($numresults > 0) { 
+                echo'<br /><br /><br /><div style="font-size:16px;text-align:center;font-family:helvetica;font-weight:100;width:910px;">',$numresults,' photos found</div></br >';
+            }
             
 
 } //end of advanced search block
 
 
 //AJAX Container
-echo'<div id="thepics">';
+echo'<div id="thepics" style="padding-left:20px;">';
 
 for($iii=0; $iii < $numresults; $iii++) {
     $imagebig[$iii] = mysql_result($query,$iii,'source');
@@ -692,12 +623,15 @@ for($iii=0; $iii < $numresults; $iii++) {
     $points = mysql_result($query,$iii,'points');
     $votes = mysql_result($query,$iii,'votes');
     $rating = ($points/$votes);
+    $score = mysql_result($query,$iii,'score');
+    $views = mysql_result($query,$iii,'views');
     $license = mysql_result($query,$iii,'license');
     if($license == '') {
     $license = 'Royalty Free';
     }
     $rating = number_format($rating,2);
     $rating2 = number_format($rating,1);
+    $fullres = mysql_result($query,$iii,'height')." X ".mysql_result($query,$iii,'width');
 
     $ownerquery = mysql_query("SELECT firstname,lastname,profilepic FROM userinfo WHERE emailaddress = '$owner'");
     $ownerpic = mysql_result($ownerquery,0,'profilepic');
@@ -707,12 +641,12 @@ for($iii=0; $iii < $numresults; $iii++) {
     $fullname = $firstname . " " . $lastname;
     
     list($height,$width) = getimagesize($imagebig[$iii]);
-    $widthnew = $width / 7.5;
-    $heightnew = $height / 7.5;
+    $widthnew = $width / 8.25;
+    $heightnew = $height / 8.25;
     $widthmed = $width / 5.5;
     $heightmed = $height / 5.5;
 
-    echo'<div class="fPic"  id="',$imageid,'" style="width:200px;height:220px;overflow:hidden;float:left;"><a href="fullsize2.php?imageid=',$imageid,'"><div style="width:',$heightnew,'px;"><img id="popover',$iii,'" rel="popover" data-content="Rating: ',$rating,'<br />License: ',$license,'<br />Photographer: ',$fullname,'<img src=',$imagebig2[$iii],' height=',$widthmed,'px width=',$heightmed,'px  />" data-original-title="',$title,'" onmousedown="return false" oncontextmenu="return false;" class="phototitletest" style="margin-top:20px;clear:right;float:bottom;margin:auto;" src="',$imagebig2[$iii],'" height="',$widthnew,'px" width="',$heightnew,'px" /></a>
+    echo'<div class="fPic"  id="',$imageid,'" style="width:180px;height:200px;overflow:hidden;float:left;border-top:1px solid #ccc;"><br /><a href="fullsize2.php?imageid=',$imageid,'"><div style="width:',$heightnew,'px;"><img id="popover',$iii,'" rel="popover" data-content="<span style=font-family:helvetica;font-weight:200;font-size:13px;>Rating: ',$rating,'<br />Full Resolution: ',$fullres,'<br />Photographer: ',$fullname,'</span><br /><br /><img src=',$imagebig2[$iii],' height=',$widthmed,'px width=',$heightmed,'px  />" data-original-title="',$title,'" onmousedown="return false" oncontextmenu="return false;" class="phototitletest" style="margin-top:20px;clear:right;float:bottom;margin:auto;" src="',$imagebig2[$iii],'" height="',$widthnew,'px" width="',$heightnew,'px" /></a>
     <div style="text-align:center;font-size:14px;clear:both;padding-top:10px;">',$price,'&nbsp;|&nbsp;',$rating2,'
      </div></div>';
      ?>
@@ -746,7 +680,7 @@ var last = 0;
 			if(last != $(".fPic:last").attr("id")) {
 				$("div#loadMorePics").show();
 				$.ajax({
-					url: "loadMoreMarket.php?lastPicture=" + $(".fPic:last").attr("id"),
+					url: "loadMoreMarket.php?lastPicture=" + $(".fPic:last").attr("id")+"&score=',$score,'"+"&views=',$views,'"+"&search=',$searchterm,'",
 					success: function(html) {
 						if(html) {
 							$("#thepics").append(html);
@@ -835,10 +769,11 @@ if($coverpic == '') {
 
 ?>
 
-</div>
-</div>
-</div><!--end 24 grid-->
+</div><!--end 18 grid-->
 
+
+
+</div><!--end 24 grid-->
 <!--Javascripts-->
 <script type="text/javascript" src="js/mocha.js"></script>    
 <script src="js/bootstrap.js" type="text/javascript"></script>
@@ -853,6 +788,7 @@ $(document).ready(function(){
 });
 </script>
 
+</div><!--end container-->
 </body>
 </html>
 

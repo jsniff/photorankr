@@ -29,7 +29,7 @@ require "functionscampaigns3.php";
 <link rel="stylesheet" type="text/css" href="css/download.css"/>
 <link rel="stylesheet" type="text/css" href="css/reset.css"/>
 <link rel="stylesheet" type="text/css" href="css/text.css"/>
-<link rel="stylesheet" type="text/css" href="css/bootstrapnew.css"/>
+<link rel="stylesheet" type="text/css" href="css/bootstrapNew.css"/>
 <link rel="stylesheet" type="text/css" href="css/960_24.css"/>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="bootstrap.js"></script>   
@@ -117,7 +117,7 @@ require "functionscampaigns3.php";
 </script>
 
 <body>
-<?php navbarnew(); ?>
+<?php navbarsweet(); ?>
 <div class="container">
 
 <div class="grid_24" style="margin-top:50px;">
@@ -127,6 +127,7 @@ require "functionscampaigns3.php";
     
     //PHOTO CART INFORMATION
     $imageid = htmlentities($_GET['imageid']);
+   $pricephoto = htmlentities($_GET['price']);
     $imagequery = mysql_query("SELECT * FROM photos WHERE id = '$imageid'");
     $imagenewsource = mysql_result($imagequery,0,'source');
     $imagenewsource2 = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/",$imagenewsource);
@@ -158,7 +159,7 @@ require "functionscampaigns3.php";
         $cartcheck = mysql_query("SELECT * FROM cart WHERE imageid = '$imageid'");
         $numincart = mysql_num_rows($cartcheck);
         if($numincart < 1) {
-            $stickincart = mysql_query("INSERT INTO cart (source,emailaddress,imageid) VALUES ('$imagenewsource3','$repemail','$imageid')");
+            $stickincart = mysql_query("INSERT INTO cart (source,emailaddress,imageid,price) VALUES ('$imagenewsource3','$repemail','$imageid', '$pricephoto')");
             }
         }
         
@@ -169,6 +170,7 @@ require "functionscampaigns3.php";
             $imagesource[$iii] = mysql_result($incart,$iii,'source');
             $imageprice[$iii] = mysql_result($incart,$iii,'price');
             $imagecartid = mysql_result($incart,$iii,'imageid');
+            $totalcartprice = $imagecartid+$totalcartprice;
             $cartidlist = $cartidlist.",".$imagecartid;
             list($width, $height)=getimagesize($imagesource[$iii]);
             $width = $width/4;
@@ -267,7 +269,7 @@ require "functionscampaigns3.php";
                 <span style="float:left;font-size:30px;font-weight:100;">&nbsp;/&nbsp;</span>
                 <input style="float:left;padding:8px;position:relative;top:-7px;width:60px;font-size:18px;" type="text" class="card-expiry-year"/>
                
-   <button type="submit" class="button submit btn btn-success" style="font-size:16px;float:right;margin-right:30px;margin-top:15px;padding-top:10px;padding-bottom:10px;padding-right:40px;padding-left:40px;font-weight:200;">Submit Payment</button>
+   <button type="submit" class="button submit btn btn-success" style="font-size:16px;float:right;margin-right:30px;margin-top:15px;padding-top:10px;padding-bottom:10px;padding-right:40px;padding-left:40px;font-weight:200;">Submit Payment</button><br /><br /><br /><div></div>
         </div>';
         
         

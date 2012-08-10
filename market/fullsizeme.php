@@ -202,7 +202,7 @@ else {
 <html>
   <head>       
 	<title>Fullsize Photo - "<?php echo $title; ?>"</title>
-  <link rel="stylesheet" type="text/css" href="css/bootstrapnew.css" />
+  <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
   <link rel="stylesheet" href="css/reset.css" type="text/css" />
   <link rel="stylesheet" href="css/text.css" type="text/css" />
   <link rel="stylesheet" href="css/newfullsize.css" type="text/css" />
@@ -256,7 +256,7 @@ else {
 
 <body oncontextmenu="return false;" class="background" style="overflow-x: hidden;">
 
-<?php navbarnew(); ?>
+<?php navbarsweet(); ?>
 
 <div class="container_24" style="padding-bottom:30px;"><!--Grid container begin-->
  
