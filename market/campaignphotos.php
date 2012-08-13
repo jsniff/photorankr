@@ -144,9 +144,11 @@ opacity:.7;
 <?php navbarsweet(); ?>
 
 	<div id="container" class="container_24">
-		<div class="grid_24 pull_1" style="width: 1140px;margin-top:60px;">
-
+		<div class="grid_24" style="width: 1120px;top:65px;">
+  
 <?php
+
+$view = htmlentities($_GET['view']);
 
 //select all of the campaigns information
 $campaignquery = "SELECT * FROM campaigns WHERE id='$campaignID' LIMIT 1";
@@ -165,6 +167,28 @@ $additionalterms = mysql_result($campaignresult, 0, "additionalterms");
  //NUMBER PHOTOS IN CAMPAIGN
         $numphotosquery = mysql_query("SELECT * FROM campaignphotos WHERE campaign = '$campaignID'");
         $numphotos = mysql_num_rows($numphotosquery);
+        
+//TITLE
+echo'<div style="font-size: 25px;font-family:helvetica;font-weight:200;margin-top:80px;">',$title,'&nbsp;&nbsp;|&nbsp;&nbsp;$',$quote,'</div><br />';
+
+
+//NAVBAR              
+echo'
+<div class="grid_18 roundedright" style="background-color:#eeeff3;height:60px;margin-top:0px;width:940px;">
+
+<a style="text-decoration:none;color:black;" href="campaignphotos.php?id=',$campaignID,'&view=brief"><div class="clicked" style="width:230px;height:60px;border-right:1px solid #ccc;float:left;';if($view == 'brief') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:22px;font-weight:100;margin-top:10px;text-align:center;">Campaign Brief</div></div></a>
+
+<a style="text-decoration:none;color:black;" href="campaignphotos.php?id=',$campaignID,'"><div class="clicked" style="width:230px;height:60px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;';if($view == '') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:22px;font-weight:100;margin-top:10px;text-align:center;">Submissions</div></div></a>
+
+<a style="text-decoration:none;color:black;" href="campaignphotos.php?id=',$campaignID,'&view=photogs"><div class="clicked" style="width:230px;height:60px;border-right:1px solid #ccc;float:left;';if($view == 'photogs') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:22px;font-weight:100;margin-top:10px;text-align:center;">Photographers</div></div></a>
+
+<div style="width:180px;height:60px;float:left;margin-left:3px;"><div style="font-size:22px;font-weight:100;margin-top:6px;text-align:center;">
+<form class="navbar-search" method="GET">
+<input class="search" style="position:relative;margin-left:15px;margin-top:2px;font-family:helvetica;font-size:14px;font-weight:100;color:black;" name="searchterm" placeholder="Search Campaigns&nbsp;.&nbsp;.&nbsp;.&nbsp;" type="text">
+</form></div></div>';
+
+
+if($view == 'brief') {
 
 //display the title and description
 echo '<div class="dropshadow well grid_24" style="text-align: left; width: 860px;margin-top:20px;">
@@ -172,12 +196,6 @@ echo '<div class="dropshadow well grid_24" style="text-align: left; width: 860px
     if($logo != 'graphics/nologo.png') {
     echo'
 	<img style="border: 1px solid black;" src="',$logo,'" height="80" width="80" />';
-    }
-    if($name) {
-    echo'&nbsp;&nbsp;<span style="font-size: 16px;position:relative;top:65px;left:-90px;">Buyer: ',$name,'</span><span style="font-size: 30px;position:relative;left:-50px;">"',$title,'"</span><br /><br />';
-    }
-    if(!$name) {
-    echo'<span style="font-size: 30px;">"',$title,'"</span><br />';
     }
     echo'
     <br />
@@ -456,12 +474,17 @@ echo'
 </div>';
 }
 
+
+} //end of brief view
+
+elseif($view == 'photogs') {
+
 //FACEPILE
 $query3 = mysql_query("SELECT * FROM campaignphotos WHERE campaign = '$campaignID'");
 $numfaces = mysql_num_rows($query3);
 
-echo'<div class="grid_18 dropshadow well" style="postion:relative;float:top;width:860px;">
-<div style="font-size:16px;font-damily:helvetica neue,arial;padding-bottom:5px;"><b>Photographers in this competition:</b></div>';
+echo'<div class="grid_18 dropshadow well" style="margin-top:40px;width:890px;">
+<div style="font-size:18px;font-family:helvetica neue,arial;font-weight:200;padding-bottom:5px;">Photographers in this competition:</div>';
 for($iii=0; $iii < $numfaces; $iii++) {
     $facemail = mysql_result($query3,$iii,'emailaddress');
     $pos = strpos($prevlist,$facemail);
@@ -470,46 +493,44 @@ for($iii=0; $iii < $numfaces; $iii++) {
         }
      $query4 = mysql_query("SELECT profilepic,user_id FROM userinfo WHERE emailaddress = '$facemail'");
      $facephoto = mysql_result($query4,0,'profilepic');
+     $faceid = mysql_result($query4,0,'user_id');
     $facephoto = 'http://photorankr.com/' . $facephoto;
     
-    echo'<img class="item" src="',$facephoto,'" height="60" width="60" />';    
+    echo'<a class="hover" href="viewprofile.php?u=',$faceid,'"><img class="item" src="',$facephoto,'" height="100" width="100" /></a>';    
         
     $prevlist = $prevlist . $facemail;
 }
 echo'</div>';
 
-//View Options
-echo'<div class="grid_18" style="postion:relative;float:top;width:860px;float:left;padding-left:4px;padding-bottom:10px;">';
-if($_GET['view'] == "") {echo'
-<a class="btn btn-primary" style="width:115px;height:22px;font-size:14px;" href="campaignphotos.php?id=',$campaignID,'"><b>Grid View</b></a>&nbsp;&nbsp;
-<a class="btn btn-primary" style="width:115px;height:22px;font-size:14px;" href="campaignphotos.php?id=',$campaignID,'&style=natural"><b>Natural View</b></a>';
-}
-elseif($_GET['view'] == "newest") {
-echo'
-<a class="btn btn-primary" style="width:115px;height:22px;font-size:14px;" href="campaignphotos.php?id=',$campaignID,'&view=newest"><b>Grid View</b></a>&nbsp;&nbsp;
-<a class="btn btn-primary" style="width:115px;height:22px;font-size:14px;" href="campaignphotos.php?id=',$campaignID,'&view=newest&style=natural"><b>Natural View</b></a>';
-}
-echo'</div>';
+} // end of photog view
+
+
+
+elseif($view == '') {
+
+      $sort = htmlentities($_GET['sort']);    
+    
+        echo'<br /><br /><br /><br /><br /><div style="width:940px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($sort == 'newest') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="campaignphotos.php?id=',$campaignID,'&sort=newest">Newest Entries</a> | <a class="green" style="text-decoration:none;color:#333;'; if($sort == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="campaignphotos.php?id=',$campaignID,'">Top Ranked Entries</a></div></div>';
+                
 
 //select the photos in this campaign
-if($_GET['view'] == "newest") {
+if($sort == "newest") {
 	$photosquery = "SELECT * FROM campaignphotos WHERE campaign=".$campaignID." ORDER BY id DESC LIMIT 12";
 }
-else {
+elseif($sort == '') {
 	$photosquery = "SELECT * FROM campaignphotos WHERE campaign=".$campaignID." ORDER BY score DESC, id DESC LIMIT 12";
 }
 $photosresult = mysql_query($photosquery);
 
-if($_GET['style'] == "") {
-echo '<div id="thepics">';
+echo '<div id="thepics" class="grid_18" style="width:940px;margin-left:-45px;margin-top:-30px;padding:35px;">';
 //loop through the result to get all of the necessary information 
 for($iii=0; $iii < mysql_num_rows($photosresult); $iii++) {
 	//get the information for the current photo
 	$photo[$iii] = mysql_result($photosresult, $iii, "source");
-  $photo[$iii] = str_replace("userphotos/","userphotos/medthumbs/", $photo[$iii]);
+    $photo[$iii] = str_replace("userphotos/","userphotos/medthumbs/", $photo[$iii]);
 	$points = mysql_result($photosresult, $iii, "points");
 	$votes = mysql_result($photosresult, $iii, "votes");
-	$average[$iii] = $points / $votes;
+	$average[$iii] = number_format(($points / $votes),2);
 	$photoid[$iii] = mysql_result($photosresult, $iii, "id");
 	$caption[$iii] = mysql_result($photosresult, $iii, "caption");
 
@@ -519,12 +540,19 @@ for($iii=0; $iii < mysql_num_rows($photosresult); $iii++) {
    	$widthls = $width / 2.5;
 
 	echo '
-	<div class="phototitle fPic" id="',$photoid[$iii],'" style="width:280px;height:280px;overflow:hidden;">
-		<a href="fullsize.php?id=',$photoid[$iii],'">
-       		<div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:280px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$caption[$iii],'"<br />Score: ',$average[$iii],'</p></div>
-       		<img style="position:relative;top:-95px;min-height:300px;min-width:280px;" src="', $photo[$iii], '" height="',$heightls,'px" width="',$widthls,'px" />
-       	</a>
-    </div>';
+    
+    <div class="fPic" id="',$photoid[$iii],'" style="width:280px;overflow:hidden;float:left;margin-left:30px;margin-top:30px;"><a href="fullsize.php?id=',$photoid[$iii],'">
+                
+                <div style="width:280px;height:280px;overflow:hidden;">
+                <div class="statoverlay" style="z-index:1;left:0px;top:190px;position:relative;background-color:black;width:280px;height:90px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;font-weight:100;">',$caption[$iii],'</span><br><span style="font-size:14px;font-weight:100;">Rank: ',$average[$iii],'<br>Base Price: $',$price,'</span></p></div>
+
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:300px;min-width:280px;" src="',$photo[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a>
+                <br />      
+                </div>
+                
+                
+                </div>';
+    
 }
 echo '</div>';
 echo '<br /><div class="grid_24" id="loadMorePicsView" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Photos&hellip;</div>';
@@ -551,85 +579,16 @@ var last = 0;
 		}
 	});
 </script>';
-}
-
-if($_GET['style'] == "natural") {
-echo '<div id="thepics" style="margin-top:150px;">';
-//loop through the result to get all of the necessary information 
-for($iii=0; $iii < mysql_num_rows($photosresult); $iii++) {
-	//get the information for the current photo
-	$photobig[$iii] = mysql_result($photosresult, $iii, "source");
-    $findme   = 'photorankr.com';
-    $points = mysql_result($photosresult, $iii, "points");
-	$votes = mysql_result($photosresult, $iii, "votes");
-	$average[$iii] = number_format(($points / $votes),2);
-	$photoid[$iii] = mysql_result($photosresult, $iii, "id");
-	$caption[$iii] = mysql_result($photosresult, $iii, "caption");
-    
-    list($width, $height) = getimagesize($photobig[$iii]);
-    $heightls = $height / 2;
-   	$widthls = $width / 2;
-	$imgratio = $height / $width;
 
 
-	echo '
-	<div class="fPic" id="',$photoid[$iii],'" style="text-align:center;">
-		<a href="fullsize.php?id=',$photoid[$iii],'">
-       		
-       		<img style="float:bottom;margin-top:20px;" class="phototitle" onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-95px;" src="', $photobig[$iii], '" height="',$heightls,'px" width="',$widthls,'px" />
-       	</a>
-    </div>';
-}
-echo '</div>';
-echo '<br /><div class="grid_24" id="loadMorePicsView" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Photos&hellip;</div>';
-
-echo '<script>
-
-var last = 0;
-
-	$(window).scroll(function(){
-		if($(window).scrollTop() > $(document).height() - $(window).height()-100) {
-			if(last != $(".fPic:last").attr("id")) {
-				$("div#loadMorePicsViewNatural").show();
-				$.ajax({
-					url: "loadMorePicsViewNatural.php?lastPicture=" + $(".fPic:last").attr("id")+"&view=', $_GET['view'], '",
-					success: function(html) {
-						if(html) {
-							$("#thepics").append(html);
-							$("div#loadMorePicsViewNatural").hide();
-						}
-					}
-				});
-				last = $(".fPic:last").attr("id");
-			}
-		}
-	});
-</script>';
-}
+} //end of submissions view
 
 ?>
 
-<div class="grid_3" style="position:fixed;margin-left:10px;right:80px;">
-<div id="accordion2" class="accordion" style="margin-top:10px;width:150px;">
-
-<div class="accordion-group">
-<div style="background-color:#eeeff3;" class="accordion-heading dropshadow">
-<a class="accordion-toggle" style="color:#21608E;font-weight:bold;" href="campaignphotos.php?id=<?php echo $campaignID; ?>">Top Ranked</a>
-</div>
-<div id="collapseOne" class="accordion-body collapse">
-</div>
+<div class="grid_24" style="padding-bottom:30px;">
+<?php footer(); ?>     
 </div>
 
-<div class="accordion-group">
-<div style="background-color:#eeeff3;" class="accordion-heading dropshadow">
-<a class="accordion-toggle" style="color:#21608E;font-weight:bold;" href="campaignphotos.php?id=<?php echo $campaignID; ?>&view=newest">Newest</a>
-</div>
-<div id="collapseTwo" class="accordion-body collapse">
-</div>
-</div>
-
-</div>
-</div>
 </body>
 </html>
 <?php

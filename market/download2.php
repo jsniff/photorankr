@@ -15,7 +15,7 @@ require "functionscampaigns3.php";
 
     //start the session
     session_start();
-    
+    $repemail = $_SESSION['repemail'];
 
 ?>
 
@@ -127,13 +127,13 @@ require "functionscampaigns3.php";
     
     //PHOTO CART INFORMATION
     $imageid = htmlentities($_GET['imageid']);
-   $pricephoto = htmlentities($_GET['price']);
+    $pricephoto = htmlentities($_GET['price']);
     $imagequery = mysql_query("SELECT * FROM photos WHERE id = '$imageid'");
     $imagenewsource = mysql_result($imagequery,0,'source');
     $imagenewsource2 = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/",$imagenewsource);
     $imagenewsource3 = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "http://photorankr.com/userphotos/",$imagenewsource2); 
-    $imagenewprice = mysql_result($imagequery,0,'price'); 
-    
+    $imagenewprice = mysql_result($imagequery,0,'price');
+
     //ADD TO CART IN DB
     
         if($_SESSION['loggedin'] != 2) {
@@ -156,20 +156,22 @@ require "functionscampaigns3.php";
         echo'<div style="font-size:24px;padding-left:250px;padding-top:20px;padding-bottom:20px;background-color:#ddd;width:150px;margin-left:-230px;margin-top:30px;"><span style="font-size:27px;font-weight:200;">Your Cart</span></div><br />';
         
         if($imageid) {
-        $cartcheck = mysql_query("SELECT * FROM cart WHERE imageid = '$imageid'");
+        $cartcheck = mysql_query("SELECT * FROM cart WHERE imageid = '$imageid' ORDER BY id DESC");
         $numincart = mysql_num_rows($cartcheck);
         if($numincart < 1) {
             $stickincart = mysql_query("INSERT INTO cart (source,emailaddress,imageid,price) VALUES ('$imagenewsource3','$repemail','$imageid', '$pricephoto')");
             }
         }
         
-        $incart = mysql_query("SELECT * FROM cart WHERE emailaddress = '$repemail'");
+        $incart = mysql_query("SELECT * FROM cart WHERE emailaddress = '$repemail' ORDER BY id DESC");
         $incartresults = mysql_num_rows($incart);
-        
+                
         for($iii=0; $iii < $incartresults; $iii++) {
             $imagesource[$iii] = mysql_result($incart,$iii,'source');
-            $imageprice[$iii] = mysql_result($incart,$iii,'price');
+            $imageprice = mysql_result($incart,$iii,'price');
             $imagecartid = mysql_result($incart,$iii,'imageid');
+            $emailquery = mysql_query("SELECT emailaddress FROM photos WHERE id = '$imagecartid'");
+            $photogemail = mysql_result($emailquery,0,'emailaddress');
             $totalcartprice = $imagecartid+$totalcartprice;
             $cartidlist = $cartidlist.",".$imagecartid;
             list($width, $height)=getimagesize($imagesource[$iii]);
@@ -192,10 +194,10 @@ require "functionscampaigns3.php";
             <tbody>
             <tr>
             <td><div style="min-width:400px;height:<?php echo $height; ?>px;width:<?php echo $width; ?>px;"><img onmousedown="return false" oncontextmenu="return false;" src="',$imagesource[$iii],'" height=',$height,' width=',$width,' /></div></td>
-            <td>Medium</td>
+            <td>Medium ',$photogemail,'</td>
             <td>',$imagecartid,'</td>
             <td>Royalty Free</td>
-            <td>$',$imageprice[$iii],'</td>
+            <td>$',$imageprice,'</td>
             </tr>
             <tr>
             <td></td>
@@ -285,7 +287,13 @@ require "functionscampaigns3.php";
 
 </div>
 
-
 </div>
+
+</br>
+	<div class="container_24" style="float:center;margin-top:-175px;">
+	<?php footer(); ?>
+	</div>
+
 </body>
+
 </html>

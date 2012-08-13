@@ -510,27 +510,29 @@ height="100px" width="100px" />
 <div class="progress" style="margin-top:-15px;margin-left:28px;width:195px;height:15px;">
    <div class="bar" style="width: <?php echo $reputation; ?>%;"></div>
    </div>
+
 <div style="margin-left:30px;text-align:center;">
    <div style="float:left;"><p>Avg. Portfolio:&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
    <div style="float:left;margin-top:-4px;"><p><span style="font-size:20px;">#</span> Photos</p></div>
 </div>
 
-<div style="position:relative;top:-15px;margin-left:50px;text-align:center;font-size:20px;">
-   <div style="float:left;"><p><?php echo $portfolioranking; ?>/<span style="font-size:15px;">10</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
-   <div style="float:left;"><p><?php echo $numphotos; ?></p></div>
-</div>
+	<div style="position:relative;top:-25px;margin-left:15px;margin-right:15px;text-align:center;font-size:20px;">
+   		<div style="width:50%;float:left;"><?php echo $portfolioranking; ?>/<span style="font-size:15px;">10</span></div>
+   		<div style="width:50%;float:left;"><?php echo $numphotos; ?></div>
+	</div>
 
-<div style="position:relative;left:15px;top:-25px;margin-left:30px;text-align:center;">
-   <div style="float:left;"><p>Favorited:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
+<div style="position:relative;left:10px;top:-15px;margin-left:30px;text-align:center;">
+   <div style="float:left;"><p>Favorited:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
    <div style="float:left;"><p>Followers:</p></div>
 </div>
 
-<div style="position:relative;top:-35px;margin-left:52px;text-align:center;font-size:20px;">
-   <div style="float:left;"><p>&nbsp;&nbsp;<?php echo $portfoliofaves; ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
-   <div style="float:left;"><p><?php echo $numberfollowers; ?></p></div>
-</div>
+	<div style="position:relative;top:-35px;margin-left:15px;margin-right:15px;text-align:center;font-size:20px;">
+		<div style="width:50%;float:left;"><?php echo $portfoliofaves; ?></div>
+		<div style="width:50%;float:left;"><?php echo $numberfollowers; ?></div>
+	</div>
 
 </div>
+
 
 <div style="position:relative;top:-30px;">
 
@@ -1184,6 +1186,7 @@ elseif($view == 'about') {
 </div><!--end 24 grid-->
 
 </div>
+
 
 
 <!--TUMBLR SCRIPTS-->

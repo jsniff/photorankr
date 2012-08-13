@@ -1,5 +1,8 @@
 <?php
 
+//give this file some extra time to upload the photo
+ini_set('max_input_time', 3200);
+
 //connect to the database
 require "db_connection.php";
 require 'configcampaigns.php';
@@ -15,7 +18,7 @@ if ((($_FILES["file"]["type"] == "image/gif")
 || ($_FILES["file"]["type"] == "image/jpg")
 || ($_FILES["file"]["type"] == "image/JPG")
 || ($_FILES["file"]["type"] == "image/pjpeg")
-|| ($_FILES["file"]["type"] == "image/png")) && ($_FILES["file"]["size"] < 22000000) 
+|| ($_FILES["file"]["type"] == "image/png")) && ($_FILES["file"]["size"] < 45000000) 
 && $_SESSION['loggedin'] == 1)
 {
 	if ($_FILES["file"]["error"] > 0) {
@@ -27,9 +30,9 @@ if ((($_FILES["file"]["type"] == "image/gif")
         $terms = mysql_real_escape_string(htmlentities($_POST['terms']));
 		$campaignID = mysql_real_escape_string(htmlentities($_GET['campaign']));
 
-		if (!$caption || !$terms || !$campaignID) {
+		if (!$caption || !$campaignID) {
 			mysql_close();
-         	header("location:uploadcampaignphoto.php?id=$campaignID&action=uploadfailure");
+         	header("location:campaignphotos.php?id=$campaignID&view=upload&action=uploadfailure");
         	exit();
 		}		
 
@@ -71,7 +74,7 @@ if ((($_FILES["file"]["type"] == "image/gif")
 
     	if (file_exists("upload/" . $_FILES["file"]["name"])) {
             mysql_close();
-         	header("location:uploadcampaignphoto.php?id=$campaignID&action=uploadfailure");
+         	header("location:campaignphotos.php?id=$campaignID&view=upload&action=uploadfailure");
        		exit();
    		}
     	else {
@@ -87,13 +90,14 @@ if ((($_FILES["file"]["type"] == "image/gif")
 		mysql_query($insertquery);
 
         mysql_close();
-		echo '<META HTTP-EQUIV="Refresh" Content="0; URL=uploadcampaignphoto.php?id=', $campaignID, '&action=uploadsuccess">';
+		echo '<META HTTP-EQUIV="Refresh" Content="0; URL=campaignphotos.php?id=', $campaignID,'&view=upload&action=uploadsuccess">';
 		exit();
     }
 }
 else {
     mysql_close();
-	echo '<META HTTP-EQUIV="Refresh" Content="0; URL=uploadcampaignphoto.php?id=', $campaignID, '&action=uploadfailure">';
+    $campaignID = mysql_real_escape_string(htmlentities($_GET['campaign']));
+	echo '<META HTTP-EQUIV="Refresh" Content="0; URL=campaignphotos.php?id=', $campaignID, '&view=upload&action=uploadfailure">';
 	exit();
 }
 

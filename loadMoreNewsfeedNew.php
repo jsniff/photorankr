@@ -12,7 +12,7 @@ $(document).ready(function(){
 require("db_connection.php");
     
 //GET FOLLOWERS 
-$_SESSION['email']=$_POST['emailaddress'];
+$email = $_GET['email'];
 $emailquery=("SELECT following FROM userinfo WHERE emailaddress ='$email'");
 $followresult=mysql_query($emailquery);
 $followlist=mysql_result($followresult, 0, "following");
@@ -213,6 +213,130 @@ if($view == '') {
     <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
     echo '</div>';  
     }
+    
+    elseif ($type == "blogpost") {
+    $owner = $newsrow['emailaddress'];
+    $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
+    $ownerresult = mysql_query($ownersquery); 
+    $ownerrow = mysql_fetch_array($ownerresult);
+    $ownerfirst = $ownerrow['firstname'];
+    $ownerlast = $ownerrow['lastname'];
+    $ownerprofilepic = $ownerrow['profilepic'];
+    $ownerid = $ownerrow['user_id'];
+    $ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "</a>";
+    $ownerfull = ucwords($ownerfull);
+    $blogid = $newsrow['source'];
+    $phrase = $ownerfull . " wrote a new blog post";
+    
+    $bloginfo = mysql_query("SELECT * FROM blog WHERE id = '$blogid' AND emailaddress = '$owner'");
+    $title = mysql_result($bloginfo,0,'title');
+    $subject = mysql_result($bloginfo,0,'subject');
+    $content = mysql_result($bloginfo,0,'content');
+    $content = (strlen($content) > 700) ? substr($content,0,697). " &#8230;" : $content;
+
+    $photo = mysql_result($bloginfo,0,'photo');
+    $time = mysql_result($bloginfo,0,'time');
+    if($time) {
+    $date = date("m-d-Y", $time); }
+    
+    $profileshotquery = mysql_query("SELECT profilepic FROM userinfo WHERE emailaddress = '$email'");
+    $profileshot = mysql_result($profileshotquery,0,'profilepic');
+    
+     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
+    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
+    <br /><div style="margin-left:85px;margin-bottom:15px;clear:both;">
+
+            <a href="viewprofile.php?u=',$ownerid,'&view=blog#',$blogid,'">';
+            if($photo) {
+            echo'<div style="float:left;padding:20px;width:130px;height:130px;"><img src="',$photo,'" height="100" width="100" /></div>
+            <div style="text-decoration:underline;color:black;float:left;font-size:20px;font-weight:200;padding-top:30px;width:300px;">',$title,'</div></a>
+            <div style="float:left;font-size:15px;font-weight:200;padding-top:15px;">Subject: ',$subject,'&nbsp;|&nbsp;Date: ',$date,'</div>
+                       
+            <div style="float:left;margin-top:0px;width:450px;padding-left:20px;font-size:15px;font-weight:200;line-height:1.48;">',$content,'<br /><br />
+            </div><br />';
+            }
+            else {
+            echo'
+            <div style="text-decoration:underline;color:black;float:left;font-size:20px;font-weight:200;padding-top:30px;width:450px;">',$title,'</div></a>
+            <div style="float:left;font-size:15px;font-weight:200;padding-top:15px;">Subject: ',$subject,'&nbsp;|&nbsp;Date: ',$date,'</div>
+                       
+            <div style="float:left;margin-top:0px;width:450px;padding:20px;font-size:15px;font-weight:200;line-height:1.48;">',$content,'<br /><br />
+            </div><br />';
+            }
+            
+            
+            echo'
+                    <div style="float:left;margin-top:15px;margin-left:20px;width:650px;padding:10px;font-size:15px;font-weight:200;line-height:1.48;">
+                    <div class="panelblog',$blogid,'">';
+                    
+                        //Comment Loop
+                        $commentquery= mysql_query("SELECT * FROM blogcomments WHERE blogid = '$blogid'");
+                        $numcomments = mysql_num_rows($commentquery);
+                        
+                            for($ii=0; $ii < $numcomments; $ii++) {
+                                $comment = mysql_result($commentquery,$ii,'comment');
+                                $commenteremail = mysql_result($commentquery,$ii,'emailaddress');
+                                $userquery = mysql_query("SELECT user_id,profilepic,firstname,lastname FROM userinfo WHERE emailaddress = '$commenteremail'");
+                                $commenterpic = mysql_result($userquery,0,'profilepic');
+                                $commenterid = mysql_result($userquery,0,'user_id');
+                                $commentername = mysql_result($userquery,0,'firstname')." ".mysql_result($userquery,0,'lastname');
+                                
+                                echo'<div><a href="viewprofile.php?u=',$commenterid,'"><img src="',$commenterpic,'" height="30" width="30" /><span style="font-weight:bold;color:#3e608c;font-size:12px;padding-left:10px;">',$commentername,'</a></span>&nbsp;&nbsp;',$comment,'</div><hr>';
+                            }
+                    echo'
+                    <form action="newsfeed3.php?action=comment&blogid=',$blogid,'" method="POST">
+                    <div style="width:450px;"><img style="float:left;padding:10px;" src="',$profileshot,'" height="30" width="30" />
+                    <input style="float:left;height:20px;position:relative;top:10px;width:380px;" type="text" name="comment" placeholder="Leave a comment&#8230;" /></div>
+                    </form>
+                    <br /><br />
+                    </div>
+                    
+                    
+                    <a name="',$blogid,'" href="#"><p class="flipblog',$blogid,'" style="font-size:15px;"></a>',$numcomments,' Comments</p>
+                    </div>
+                    
+                    <style type="text/css">
+                    p.flipblog',$blogid,' {
+                    margin-left:-10px;
+                    padding:10px;
+                    width:470px;
+                    text-align:center;
+                    background:white;
+                    border:solid 1px #c3c3c3;
+                    }
+
+                    p.flipblog',$blogid,':hover {
+                    background-color: #ccc;
+                    }
+
+                    div.panelblog',$blogid,' {
+                    display:none;
+                    margin:-10px;
+                    width:460px;
+                    padding:15px;
+                    text-align:left;
+                    background:white;
+                    border:solid 1px #c3c3c3;
+                    }
+                    </style>';
+                    
+                    ?>
+                    
+                    <!--HIDDEN COMMENT SCRIPT-->
+                    <script type="text/javascript">   
+                    $(document).ready(function(){
+                    $(".flipblog<?php echo $blogid; ?>").click(function(){
+                        $(".panelblog<?php echo $blogid; ?>").slideToggle("slow");
+                    });
+                    });
+                    </script>
+                    
+                    <?php
+    
+    echo'
+    </div></a>';  
+    }
+
     
     elseif ($type == "follow") {
     $email4 = $newsrow['following'];

@@ -286,7 +286,7 @@ function logout() {
 function footer() {
     echo'
    <link rel="stylesheet" href="css/style.css" type="text/css"/> 
-
+    
     <div class="grid_24" style="height:30px;margin-top:70px;background-color:rgb:(238,239,243);text-align:center;padding-top:10px;background-color:none;text-decoration:none;">
     <hr style="color:#ccc"/>
     </div>
@@ -315,7 +315,7 @@ function footer() {
     <p1 class="navgreen">More</p1>
     <ul style="list-style:none;">
     <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/about.php">About</a></li>
-    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/contact.php">Contact US</a></li>
+    <li><a class="foot"  style="text-decoration:none;" href="http://photorankr.com/contact.php">Contact Us</a></li>
     <li>Careers</li>
     <li>Partners</li>
     </ul> 
@@ -336,13 +336,12 @@ function footer() {
     <ul style="list-style:none;">
     <li>(330) 573-3776</li>
     <li><a href="mailto:support@photorankr.com">support@photorankr.com</a></li>
-    </br>
+    </ul>
     <p1 class="navgreen">Follow</p1>
     
     <div style="padding-left:25px;width:250px">
-             <div style="margin-right:10px;float:left">
-             <a href="https://www.facebook.com/pages/PhotoRankr/140599622721692"><img style="width:25px;height:25px;" src="graphics/facebook.jpg"/></a>
-             </div>
+
+	     <div style="margin-right:10px;float:left" class="fb-like" data-href="http://photorankr.com" data-send="false" data-layout="button_count" data-width="300" data-show-faces="false" data-font="arial"></div>
 
              <div style="margin-right:10px;float:left">
              <a href="https://twitter.com/PhotoRankr" class="twitter-follow-button" data-show-count="false">Follow @PhotoRankr</a>
@@ -366,7 +365,7 @@ function footer() {
   </br>
   <p1>PhotoRankr is a trademark of PhotoRankr, Inc. The PhotoRankr Logo is a trademark of PhotoRankr, Inc.</p1>
 </br>
-<p1>Copyright � 2012 PhotoRankr, Inc.<p1>
+<p1>Copyright &#169; 2012 PhotoRankr, Inc.<p1>
 </div>
   </div> 
 </div>
@@ -376,7 +375,6 @@ function footer() {
     </div>';
     
 }
-
 
 function navbarsweet() {
 echo'
@@ -428,7 +426,7 @@ echo'
                         
                         echo'<li class="dropdown topcenter " id="accountmenu">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="font-family:helvetica;font-weight:100;"> Log In </b></a>
-                                <ul class="dropdown-menu" style="margin-top:0px;background-color:#fff;">
+                                <ul class="dropdown-menu" style="margin-top:0px;background-color:#fff;width:192px;">
 								<li><a style="color:#000;font-size:15px;" href="signin.php">Register for free today</a></li>
                                 <li class="divider"></li>
                                 <form name="login_form" method="post" action="',htmlentities($_SERVER['PHP_SELF']),'?action=login">
@@ -449,7 +447,6 @@ echo'
 		</div>
 	</div>';
 }
-
 
 
 

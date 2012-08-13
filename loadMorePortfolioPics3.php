@@ -12,7 +12,7 @@ if($_GET['lastPicture']) {
 
 	//DISPLAY 20 NEWEST OF ALL PHOTOS
 
-	echo'<div id="container" style="width:780px;margin-top:0px;margin-left:25px;">';
+	echo'<div id="container" class="grid_18" style="width:770px;margin-top:-68px;margin-left:-10px;padding:35px;">';
 
 	for($iii=0; $iii < 9 && $iii < $numphotos; $iii++) {
     $image[$iii] = mysql_result($mysqlquery, $iii, "source");

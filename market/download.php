@@ -28,7 +28,7 @@ require_once("stripe/lib/Stripe.php");
 <link rel="stylesheet" type="text/css" href="css/download.css"/>
 <link rel="stylesheet" type="text/css" href="css/reset.css"/>
 <link rel="stylesheet" type="text/css" href="css/text.css"/>
-<link rel="stylesheet" type="text/css" href="css/bootstrapnew.css"/>
+<link rel="stylesheet" type="text/css" href="css/bootstrapNew.css"/>
 <link rel="stylesheet" type="text/css" href="css/960_24.css"/>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="bootstrap.js"></script>   
@@ -111,7 +111,7 @@ require_once("stripe/lib/Stripe.php");
 
 <body style="background-color:rgb(238,239,243);">
 
-<?php navbarnew(); ?>
+<?php navbarsweet(); ?>
 
 <?php
 

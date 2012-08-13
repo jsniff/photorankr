@@ -9,7 +9,7 @@ if($_GET['lastPicture']) {
 
 //DISPLAY 20 NEWEST OF ALL PHOTOS
 
-echo'<div id="container" style="width:1140px;position:relative;left:-120px; top:55px;">';
+echo'<div id="container" style="width:1140px;position:relative;left:-75px; top:15px;">';
 for($iii=1; $iii <= 8; $iii++) {
 	$image = mysql_result($mysqlquery, $iii-1, "source");
 	$imageThumb = str_replace("userphotos/","userphotos/medthumbs/", $image);
@@ -30,12 +30,11 @@ for($iii=1; $iii <= 8; $iii++) {
     $widthls = $width / 3.5;
 
 
-     	echo '<div class="phototitle fPic" id="',$id,'" style="width:240px;height:240px;overflow:hidden;"><a href="http://www.photorankr.com/fullsize.php?image=',$image,'&v=n">
+     	echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:260px;height:260px;overflow:hidden;"><a href="http://photorankr.com/fullsize.php?image=',$image,'&v=n">
         
-        <div class="statoverlay" style="z-index:1;left:0px;top:170px;position:relative;background-color:black;width:240px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$caption,'"<br>By: ',$fullname,'</br>Score: ',$score,'</p></div>
+        <div class="statoverlay" style="z-index:1;left:0px;top:205px;position:relative;background-color:black;width:260px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-weight:100;font-size:18px;">',$caption,'</span><br/><span style="font-weight:100;font-size:12px;">By: ',$fullname,'</p></div>
         
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:240px;min-width:240px;" src="http://www.photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
-       
+        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:280px;min-width:260px;" src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';       
   
 	    
       } //end for loop

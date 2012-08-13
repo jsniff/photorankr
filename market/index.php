@@ -4,6 +4,7 @@
 require "db_connection.php";
 require "functionscampaigns3.php"; 
 
+
 //start the session
 session_start();
 
@@ -34,8 +35,7 @@ session_start();
     <link rel="stylesheet" href="css/text.css" type="text/css" />
     <link rel="stylesheet" href="css/960_24.css" type="text/css" />
     <link rel="stylesheet" href="css/index.css" type="text/css"/> 
-    <link rel="stylesheet" href="css/itunes.css" type="text/css"/> 
-	<link rel="stylesheet" type="text/css" href="css/all.css"/>
+    <link rel="stylesheet" type="text/css" href="css/all.css"/>
 
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
@@ -266,7 +266,7 @@ session_start();
 <div class="demo2">
 
 <div style="padding:20px;margin-left:-30px">
-	<label for="amount2" style="text-align:center;margin-left:16px;font-size:15px;font-family:helvetica neue,arial,lucida grande;padding:10px;margin-top:-45px;">Reputation Range: 
+	<label for="amount2" style="text-align:center;margin-left:16px;font-size:15px;font-family:helvetica neue,arial,lucida grande;padding:10px;margin-top:-45px;">Rep. range: 
     
     <a style="text-decoration:none;" href="#" id="reppopover" rel="popover" data-content="Adjust the slider on the right to return photos that are from photographers inside that reputation range. Photographers with a higher reputation generally submit higher quality images." data-original-title="What is reputation range?">(?)</a>
     <script>  
@@ -317,7 +317,7 @@ session_start();
 <div class="demo4">
 
 <div style="padding:20px;margin-left:-30px">
-	<label for="amount4" style="text-align:center;margin-left:15px;font-size:15px;font-family:helvetica neue,arial,lucida grande;padding:10px;margin-top:-45px;">Download Range: 
+	<label for="amount4" style="text-align:center;margin-left:15px;font-size:15px;font-family:helvetica neue,arial,lucida grande;padding:10px;margin-top:-45px;">Download range: 
     
      <a style="text-decoration:none;" href="#" id="downloadpopover" rel="popover" data-content="Adjust the slider on the right to return photos that have been downloaded that number of times." data-original-title="What is download range?">(?)</a>
     <script>  
@@ -346,7 +346,7 @@ session_start();
               <option value=''>Resolution</option>
               <option value="3050" >3000 - 5000</option>
               <option value="1530" >1500 - 3000</option>
-              <option value="15" > < 1500 /option>
+              <option value="15" > < 1500 </option>
             </select>
         </div>
     </div>
@@ -680,7 +680,7 @@ var last = 0;
 			if(last != $(".fPic:last").attr("id")) {
 				$("div#loadMorePics").show();
 				$.ajax({
-					url: "loadMoreMarket.php?lastPicture=" + $(".fPic:last").attr("id")+"&score=',$score,'"+"&views=',$views,'"+"&search=',$searchterm,'",
+					url: "loadMoreMarket.php?lastPicture=" + $(".fPic:last").attr("id")+"&score=',$score,'"+"&views=',$views,'"+"&search=',$searchterm,'"+"&points=',$points,'",
 					success: function(html) {
 						if(html) {
 							$("#thepics").append(html);
@@ -788,7 +788,11 @@ $(document).ready(function(){
 });
 </script>
 
+
 </div><!--end container-->
+
+
+
 </body>
 </html>
 

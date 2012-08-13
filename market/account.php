@@ -100,6 +100,33 @@ $numcampaigns = mysql_num_rows($numcampsquery);
             $downquery = mysql_query("SELECT source FROM campaignphotos WHERE campaign IN ('$idlistd') AND downloaded = '1' ORDER BY id DESC");
             $numdownloads = mysql_num_rows($downquery);
             
+            
+        if(htmlentities($_GET['saved']) == 'yes') {
+         
+            $singlestyletags = $_POST['singlestyletags'];	
+        	$singlecategorytags = $_POST['singlecategorytags'];
+            
+            //Concatenate single photo box tags
+        	$numbersinglestyletags = count($singlestyletags);
+    		for($i=0; $i < $numbersinglestyletags; $i++)
+    		{
+      			$singlestyletags2 = $singlestyletags2 . $singlestyletags[$i] . ",";
+    		}
+            
+        	$numbersinglecategorytags = count($singlecategorytags);
+    		for($j=0; $j < $numbersinglecategorytags; $j++)
+    		{
+       			$singlecategorytags2 = $singlecategorytags2 . $singlecategorytags[$j] . ",";
+        	}
+
+            $preferenceslist = $singlestyletags2 . $singlecategorytags2;
+            $preferenceslist = $preferenceslist;
+                        
+            $prefquery = "UPDATE campaignusers SET preferences = '$singlestyletags2' WHERE repemail = '$repemail'";
+            $runprefquery = mysql_query($prefquery);
+                     
+         }
+
   
 ?>
 
@@ -362,18 +389,24 @@ Portfolio Average: ',$portfolioranking,' <br /><br /><br /><br />
 <div style="font-size:18px;text-align:center;font-weight:200;"><?php echo $fullname; ?></div>
 </div>
 
+
+
+
 <div style="text-align:center;font-size:14px;font-weight:200;width:250px;height:100px;margin-top:20px;">
 <div style="margin-left:20px;text-align:center;">
    <div style="float:left;"><p>Campaigns:&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
    <div style="float:left;margin-top:-4px;"><p><span style="font-size:20px;">#</span> Saved Photos</p></div>
 </div>
 
-<div style="position:relative;top:-15px;margin-left:50px;text-align:center;font-size:20px;">
-   <div style="float:left;"><p><?php echo $numcampaigns; ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
-   <div style="float:left;"><p><?php echo $nump; ?></p></div>
-</div>
+	<div style="position:relative;top:-25px;margin-left:15px;margin-right:15px;text-align:center;font-size:20px;">
+   		<div style="width:50%;float:left;"><?php echo $numcampaigns; ?></div>
+   		<div style="width:50%;float:left;"><?php echo $nump; ?></div>
+	</div>
 
 </div>
+
+
+
 
 <div style="position:relative;top:-30px;">
 <hr style="font-size:50px;">
@@ -624,26 +657,6 @@ elseif($view == 'prefs') {
          
          
          if($_GET['saved'] == 'yes') {
-         
-            $singlestyletags = $_POST['singlestyletags'];	
-        	$singlecategorytags = $_POST['singlecategorytags'];
-            
-            //Concatenate single photo box tags
-        	$numbersinglestyletags = count($singlestyletags);
-    		for($i=0; $i < $numbersinglestyletags; $i++)
-    		{
-      			$singlestyletags2 = $singlestyletags2 . " " . mysql_real_escape_string($singlestyletags[$i]) . " ";
-    		}
-            
-        	$numbersinglecategorytags = count($singlecategorytags);
-    		for($i=0; $i < $numbersinglecategorytags; $i++)
-    		{
-       			$singlecategorytags2 = $singlecategorytags2 . " " . mysql_real_escape_string($singlecategorytags[$i]) . " ";
-        	}
-             
-            $preferenceslist = $singlestyletags2 . $singlecategorytags2;    
-            $prefquery = "UPDATE campaignusers SET prefs='$preferenceslist' WHERE repemail = '$repemail'";
-            $runprefquery = mysql_query($prefquery);
 
             echo'<div style="color:#6aae45;font-size:16px;">Preferences Saved</div>';
                      

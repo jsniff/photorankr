@@ -2,6 +2,11 @@
 
 //connect to the database
 require "db_connection.php";
+
+//start the session
+session_start();
+$useremail = $_SESSION['emailaddress'];
+
 require "functionscampaigns3.php"; 
     // if login form has been submitted
     if (htmlentities($_GET['action']) == "login") { 
@@ -10,9 +15,6 @@ require "functionscampaigns3.php";
     else if(htmlentities($_GET['action']) == "logout") { 
         logout();
     }
-
-//start the session
-//session_start();
 
 //find the current time
 $currenttime = time();
@@ -29,6 +31,7 @@ $view = htmlentities($_GET['view']);
 	<title>View all of the campaigns on PhotoRankr</title>
     <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
     <link rel="stylesheet" href="css/reset.css" type="text/css" />
+    <link rel="stylesheet" href="css/style.css" type="text/css" />
     <link rel="stylesheet" href="css/text.css" type="text/css" />
     <link rel="stylesheet" href="css/960_24.css" type="text/css" />
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -86,7 +89,7 @@ opacity:.7;
 <?php navbarsweet(); ?>
 
 	<div id="container" class="container_24">
-		<div class="grid_24 pull_2" style="width: 1140px;top:65px;">
+		<div class="grid_24" style="width: 1120px;top:65px;">
 <?php
 
 //STATS
@@ -119,6 +122,21 @@ Average Campaign Length: ',$avgtime,'
 </div>';
 */
 
+echo'
+<div class="grid_18 roundedright" style="background-color:#eeeff3;height:60px;margin-top:80px;width:940px;">
+
+<a style="text-decoration:none;color:black;" href="viewcampaigns.php"><div class="clicked" style="width:230px;height:60px;border-right:1px solid #ccc;float:left;';if($view == '') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:22px;font-weight:100;margin-top:10px;text-align:center;">All Campaigns</div></div></a>
+
+<a style="text-decoration:none;color:black;" href="viewcampaigns.php?view=current"><div class="clicked" style="width:230px;height:60px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;';if($view == 'current') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:22px;font-weight:100;margin-top:10px;text-align:center;">Current Campaigns</div></div></a>
+
+<a style="text-decoration:none;color:black;" href="viewcampaigns.php?view=previous"><div class="clicked" style="width:230px;height:60px;border-right:1px solid #ccc;float:left;';if($view == 'previous') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:22px;font-weight:100;margin-top:10px;text-align:center;">Past Campaigns</div></div></a>
+
+<div style="width:180px;height:60px;float:left;margin-left:3px;"><div style="font-size:22px;font-weight:100;margin-top:6px;text-align:center;">
+<form class="navbar-search" method="GET">
+<input class="search" style="position:relative;margin-left:15px;margin-top:2px;font-family:helvetica;font-size:14px;font-weight:100;color:black;" name="searchterm" placeholder="Search Campaigns&nbsp;.&nbsp;.&nbsp;.&nbsp;" type="text">
+</form></div></div>';
+
+
 //if the view wasn't set
 if($view == "" || $view == "current") {
 
@@ -140,13 +158,32 @@ elseif($view == "current") {
 	$randphotoresult = mysql_query($randphotoquery);
 
 	//loop through the results to create arrays of the needed campaign info and of a photo to display
+    echo'<div style="margin-top:80px;">';
 	for($iii=0; $iii < mysql_num_rows($allcampaignsresult); $iii++) {
 		//find out all the info about this campaign
 		$endtime           = mysql_result($allcampaignsresult, $iii, "endtime");
 		$quote[$iii]       = mysql_result($allcampaignsresult, $iii, "quote");
 		$title[$iii]       = mysql_result($allcampaignsresult, $iii, "title");
+        $title[$iii] = (strlen($title[$iii]) > 25) ? substr($title[$iii],0,23). " &#8230;" : $title[$iii];
 		$description[$iii] = mysql_result($allcampaignsresult, $iii, "description");
-		$id[$iii]          = mysql_result($allcampaignsresult, $iii, "id");
+        $repemail[$iii] =    mysql_result($allcampaignsresult, $iii, "repemail");
+		$id[$iii]            = mysql_result($allcampaignsresult, $iii, "id");
+        $topphotosquery =    mysql_query("SELECT source FROM campaignphotos WHERE campaign = '$id[$iii]' ORDER BY (points/votes) DESC");
+        $numentries = mysql_num_rows($topphotosquery);
+        $image1 =            mysql_result($topphotosquery, 0, "source");
+        if($image1 == '') {$image1 = 'graphics/nophotosubmit.png';}
+        $image2 =            mysql_result($topphotosquery, 1, "source");
+        if($image2 == '') {$image2 = 'graphics/nophotosubmit.png';}
+        $image3 =            mysql_result($topphotosquery, 2, "source");
+        if($image3 == '') {$image3 = 'graphics/nophotosubmit.png';}
+    
+        $campaignusersquery= mysql_query("SELECT logo,name FROM campaignusers WHERE repemail = '$repemail[$iii]'");
+        $logo =              mysql_result($campaignusersquery, 0, "logo");
+            if($logo == '') {
+                $logo = 'graphics/nologo.png';
+            }
+        $name =              mysql_result($campaignusersquery, 0, "name");
+
 		$timeleft          = $endtime - time();
 		//find out how many days hours minutes are left
 			$daysleft          = floor($timeleft / (24*60*60));
@@ -176,14 +213,34 @@ elseif($view == "current") {
 			$widthls = 280;
 		}
 
-		echo '
-		<div class="phototitle fPic" id="',$id[$iii],'" style="width:280px;height:280px;overflow:hidden; margin-right: 20px;">
-			<a href="campaignphotos.php?id=',$id[$iii],'">
-        		<div class="statoverlay" style="z-index:1;left:0px;top:200px;position:relative;background-color:black;width:280px;height:80px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$title[$iii],'"<br />Reward: $', $quote[$iii], '<br />Time Left:'; if($daysleft > 0) {echo $daysleft, ' days, ', $hoursleft, ' hours, ', $minutesleft, ' minutes';} elseif($daysleft < 0) {echo'This campaign is over.';} echo'</p></div>
-        		<img style="position:relative;top:-95px;min-height:300px;min-width:280px;" src="', $coverphoto[$iii], '" height="',$heightls,'px" width="',$widthls,'px" />
-        	</a>
-        </div>';
+		echo '<div class="rounded" style="width:930px;height:150px;padding:10px;">
+                <div style="float:left;width:130px;height:130px;padding:8px;"><img src="',$logo,'" height="130" width="130" /></div>
+                    <div style="float:left;border-left:1px solid #ccc;height:130px;margin-left:8px;margin-top:8px;">
+                        
+                        <div style="padding:15px;width:200px;float:left;margin-top:-10px;">
+                        <span style="font-size:16px;font-weight:200;"><a style="text-decoration:none;color:#3e608c;" href="campaignphotos.php?id=',$id[$iii],'">',$title[$iii],'</a></span><br /><br />',$name,'<br />Ends&nbsp;|&nbsp;4 Days<br />Photographers: 20<br />Photos: ',$numentries,'                     </div>
+                        
+                        <div style="width:470px;float:left;border-left:1px solid #ccc;"> 
+                            <div style="margin-left:10px;">
+                            <img style="padding:5px;" src="',$image1,'" height="120" width="120" />
+                            <img style="padding:5px;" src="',$image2,'" height="120" width="120" />
+                            <img style="padding:5px;" src="',$image3,'" height="120" width="120" />
+                            </div>
+                        </div>
+                        
+                        <div style="float:left;border-left:1px solid #ccc;height:130px;width:90px;margin-left:-50px;">
+                            <div style="padding-left:16px;padding-top:30px;text-align:center;">
+                            <span style="font-size:20px;font-weight:200;">Reward</span><br ><br /><span style="font-size:16px;font-weight:200;">$',$quote[$iii],'</span>
+                            </div>
+                        </div>
+                        
+                    </div>
+        
+		</div><br />';
+        
 	}
+    
+    echo'<div>';
 
 	//now display all the campaigns with the variables created above with a link to campaignphotos.php?id=id[$iii]
 }
@@ -198,17 +255,44 @@ else {
 	$randphotoresult = mysql_query($randphotoquery);
 
 	//loop through the results to create arrays of the needed campaign info and of a photo to display
+    echo'<div style="margin-top:80px;">';
 	for($iii=0; $iii < mysql_num_rows($allcampaignsresult); $iii++) {
 		//find out all the info about this campaign
+		$endtime           = mysql_result($allcampaignsresult, $iii, "endtime");
 		$quote[$iii]       = mysql_result($allcampaignsresult, $iii, "quote");
 		$title[$iii]       = mysql_result($allcampaignsresult, $iii, "title");
+        $title[$iii] = (strlen($title[$iii]) > 25) ? substr($title[$iii],0,23). " &#8230;" : $title[$iii];
 		$description[$iii] = mysql_result($allcampaignsresult, $iii, "description");
-		$id[$iii]          = mysql_result($allcampaignsresult, $iii, "id");
-		$coverphoto[$iii]  = mysql_result($allcampaignsresult, $iii, "winnerphoto");
-        $coverphotoid[$iii]  = mysql_result($allcampaignsresult, $iii, "winnerphoto");
-        $coverquery = mysql_query("SELECT source FROM campaignphotos WHERE id = '$coverphotoid[$iii]'");
-        $coverphoto[$iii] = mysql_result($coverquery, 0, "source");
+        $repemail[$iii] =    mysql_result($allcampaignsresult, $iii, "repemail");
+		$id[$iii]            = mysql_result($allcampaignsresult, $iii, "id");
+        $topphotosquery =    mysql_query("SELECT source FROM campaignphotos WHERE campaign = '$id[$iii]' ORDER BY (points/votes) DESC");
+        $numentries = mysql_num_rows($topphotosquery);
+        
+            for($i=0; $i < $numentries; $i++) {
+                
+                $owneremail = mysql_result($topphotosquery, $i, "emailaddress");
+                
+                if(strpos($checklist,'$owneremail') === false) {
+                    $checklist = $checklist . " " . $owneremail;
+                    $photogcount += 1;
+                }
+                
+            }
+        
+        $image1 =            mysql_result($topphotosquery, 0, "source");
+        if($image1 == '') {$image1 = 'graphics/nophotosubmit.png';}
+        $image2 =            mysql_result($topphotosquery, 1, "source");
+        if($image2 == '') {$image2 = 'graphics/nophotosubmit.png';}
+        $image3 =            mysql_result($topphotosquery, 2, "source");
+        if($image3 == '') {$image3 = 'graphics/nophotosubmit.png';}
+        $campaignusersquery= mysql_query("SELECT logo,name FROM campaignusers WHERE repemail = '$repemail[$iii]'");
+        $logo =              mysql_result($campaignusersquery, 0, "logo");
+            if($logo == '') {
+                $logo = 'graphics/nologo.png';
+            }
+        $name =              mysql_result($campaignusersquery, 0, "name");
 		$winner            = mysql_result($allcampaignsresult, $iii, "winneremail");
+        
 
 		//if a winner hasn't been selected yet for this campaign
 		if($coverphoto[$iii] == "") {
@@ -240,14 +324,34 @@ else {
 			$widthls = 280;
 		}
 
-		echo '
-		<div class="phototitle fPic" id="',$id[$iii],'" style="width:280px;height:280px;overflow:hidden; margin-right: 20px;">
-			<a href="campaignphotos.php?id=',$id[$iii],'">
-        		<div class="statoverlay" style="z-index:1;left:0px;top:200px;position:relative;background-color:black;width:280px;height:80px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$title[$iii],'"<br />Reward: $', $quote[$iii], '<br />This campaign is over.</p></div>
-        		<img style="position:relative;top:-95px;min-height:240px;min-width:240px;" src="', $coverphoto[$iii], '" height="',$heightls,'px" width="',$widthls,'px" />
-        	</a>
-        </div>';
+		echo '<div class="rounded" style="width:930px;height:150px;padding:10px;">
+                <div style="float:left;width:130px;height:130px;padding:8px;"><img src="',$logo,'" height="130" width="130" /></div>
+                    <div style="float:left;border-left:1px solid #ccc;height:130px;margin-left:8px;margin-top:8px;">
+                        
+                        <div style="padding:15px;width:200px;float:left;margin-top:-10px;">
+                        <span style="font-size:16px;font-weight:200;"><a style="text-decoration:none;color:#3e608c;" href="campaignphotos.php?id=',$id[$iii],'">',$title[$iii],'</a></span><br /><br />',$name,'<br /><span style="color:red;font-weight:400;">Campaign Over</span><br />Photographers: ',$photogcount,'<br />Entries: ',$numentries,'                    </div>
+                        
+                        <div style="width:470px;float:left;border-left:1px solid #ccc;"> 
+                            <div style="margin-left:10px;">
+                            <img style="padding:5px;" src="',$image1,'" height="120" width="120" />
+                            <img style="padding:5px;" src="',$image2,'" height="120" width="120" />
+                            <img style="padding:5px;" src="',$image3,'" height="120" width="120" />
+                            </div>
+                        </div>
+                        
+                        <div style="float:left;border-left:1px solid #ccc;height:130px;width:90px;margin-left:-50px;">
+                            <div style="padding-left:16px;padding-top:30px;text-align:center;">
+                            <span style="font-size:20px;font-weight:200;">Reward</span><br ><br /><span style="font-size:16px;font-weight:200;">$',$quote[$iii],'</span>
+                            </div>
+                        </div>
+                        
+                    </div>
+        
+		</div><br />';
+        
 	}
+    
+    echo'</div>';
 
 	//take the trailing comma off of the $winneremaillist
 	$winneremaillist = substr($winneremaillist, 0, -1);
@@ -271,39 +375,8 @@ else {
 }
 
 ?>
-<div class="grid_3" style="position:fixed;right:100px;">
-<div id="accordion2" class="accordion" style="margin-top:80px;width:150px;">
-
-<div class="accordion-group">
-<div style="background-color:#eeeff3;" class="accordion-heading dropshadow">
-<a class="accordion-toggle" style="color:#21608E;font-weight:bold;" href="viewcampaigns.php"> All </a>
-</div>
-<div id="collapseOne" class="accordion-body collapse">
-</div>
-</div>
-
-<div class="accordion-group">
-<div style="background-color:#eeeff3;" class="accordion-heading dropshadow">
-<a class="accordion-toggle" style="color:#21608E;font-weight:bold;" href="viewcampaigns.php?view=current">Current</a>
-</div>
-<div id="collapseOne" class="accordion-body collapse">
-</div>
-</div>
-
-<div class="accordion-group">
-<div style="background-color:#eeeff3;" class="accordion-heading dropshadow">
-<a class="accordion-toggle" style="color:#21608E;font-weight:bold;" href="viewcampaigns.php?view=previous">Previous</a>
-</div>
-<div id="collapseTwo" class="accordion-body collapse">
-</div>
-</div>
 
 
-</div>
-
-
-
-</div>
 
 <div class="grid_24" style="padding-bottom:30px;">
 <?php footer(); ?>     

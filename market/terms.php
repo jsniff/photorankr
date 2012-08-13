@@ -22,15 +22,16 @@ require "functionscampaigns3.php";
 <html>
 <head>
 
-	<link rel="stylesheet" href="css/bootstrapnew2.css" type="text/css" />
+    <link rel="stylesheet" href="css/bootstrapNew.css" type="text/css" />
     <link rel="stylesheet" href="css/reset.css" type="text/css" />
     <link rel="stylesheet" href="css/text.css" type="text/css" />
     <link rel="stylesheet" href="css/960_24.css" type="text/css" />
     <link rel="stylesheet" href="css/index.css" type="text/css"/> 
-    <link rel="stylesheet" href="css/itunes.css" type="text/css"/> 
-	<link rel="stylesheet" type="text/css" href="css/all.css"/>
+    <link rel="stylesheet" type="text/css" href="css/all.css"/>
 	
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
     <script src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-twipsy.js"></script>
     <script src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-popover.js"></script>
     <script src="bootstrap-dropdown.js" type="text/javascript"></script>
@@ -50,58 +51,13 @@ require "functionscampaigns3.php";
     </script>
     
 <style type="text/css">
-.navbar-inner
-{
-	text-align:center;
-}
-
-.center.navbar .nav,
-.center.navbar .nav > li {
-    float:none;
-    display:inline-block;
-    *display:inline; /* ie7 fix */
-    *zoom:1; /* hasLayout ie7 trigger */
-    vertical-align: top;
-}
-
-.center .navbar-inner {
-    text-align:center;
-}
-.navbar .nav,
-.navbar .nav > li {
-    float:none;
-    display:inline-block;
-    *display:inline; /* ie7 fix */
-    *zoom:1; /* hasLayout ie7 trigger */
-    vertical-align: top;
-}
-.center .dropdown-menu {
-    text-align: left;
-}
-
-.statoverlay
-
-{
-opacity:.0;
-filter:alpha(opacity=40);
-z-index:1;
-transition: opacity .5s;
--moz-transition: opacity .5s;
--webkit-transition: opacity .5s;
--o-transition: opacity .5s;
-}
-     
-.statoverlay:hover
-{
-opacity:.7;
-
 </style>
 
 </head>
 
 <body style="overflow-x:hidden;">
 
-<?php navbarnew(); ?>
+<?php navbarsweet(); ?>
 
 <div class="container_24">    
 <br /><br /><br />    

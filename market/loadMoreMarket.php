@@ -5,19 +5,23 @@ require("db_connection.php");
 if($_GET['lastPicture']) {
 
 $category = htmlentities($_GET['c']);
+$score = $_GET['score'];
 $search = $_GET['search'];
+$views = $_GET['views'];
+$points = $_GET['points'];
 
 if($category == '' && $search == '') {
 $query = mysql_query("SELECT * FROM photos WHERE id < ".$_GET['lastPicture']." AND price != ('Not For Sale') ORDER BY id DESC LIMIT 0, 20") or die(mysql_error());
+$numresults = mysql_num_rows($query);
 }
 
 elseif($category == 'top') {
-$query = mysql_query("SELECT * FROM photos ORDER BY points DESC LIMIT 0,20");
+$query = mysql_query("SELECT * FROM photos WHERE points < $points AND price != ('Not For Sale') ORDER BY points DESC LIMIT 0,20");
 $numresults = mysql_num_rows($query);
 }
 
 elseif($category == 'trending' || $category == '') {
-$query = mysql_query("SELECT * FROM photos WHERE score < ".$_GET['score']." AND price != ('Not For Sale') ORDER BY score DESC LIMIT 0,20");
+$query = mysql_query("SELECT * FROM photos WHERE score < $score AND price != ('Not For Sale') ORDER BY score DESC LIMIT 0,20");
 $numresults = mysql_num_rows($query);
 }
 

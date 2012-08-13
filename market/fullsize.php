@@ -16,14 +16,25 @@ session_start();
     
      //GET INFO FROM CURRENT PHOTO ID
     $id = htmlentities($_GET['id']);
-    $imagequery = "SELECT source,caption,campaign,points,votes FROM campaignphotos WHERE id = '$id'";
+    $imagequery = "SELECT source,caption,campaign,points,votes,emailaddress FROM campaignphotos WHERE id = '$id'";
     $imagequeryrun = mysql_query($imagequery);
+        
+    $owner = mysql_result($imagequeryrun, 0, 'emailaddress');
+    $photogquery = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$owner'");
+    $fullname = mysql_result($photogquery, 0, 'firstname') ." ". mysql_result($photogquery, 0, 'lastname');
+    $reputation = mysql_result($photogquery, 0, 'reputation');
+    $profilepic = mysql_result($photogquery, 0, 'profilepic');
+    $userid = mysql_result($photogquery, 0, 'user_id');
+    
     $image = mysql_result($imagequeryrun, 0, 'source');
     if($image == '') {
     $image = 'graphics/nophotosubmit.png';
     }
 	$title = mysql_result($imagequeryrun, 0, 'caption');
     $campaign = mysql_result($imagequeryrun, 0, 'campaign');
+     $votes =  mysql_result($imagequeryrun, 0, 'votes');
+     $points = mysql_result($imagequeryrun, 0, 'points');
+     $imagerank = number_format((points/votes),2);
      $numincampquery = mysql_query("SELECT id FROM campaignphotos WHERE campaign = '$campaign'");
     $numincamp = mysql_num_rows($numincampquery);
     $imageLast = "SELECT id FROM campaignphotos WHERE campaign = '$campaign' ORDER BY id DESC LIMIT 1";
@@ -102,8 +113,8 @@ session_start();
     
 //calculate the size of the picture
 
-$maxwidth=850;
-$maxheight=850;
+$maxwidth=600;
+$maxheight=600;
 
 list($width, $height)=getimagesize($image);
 $imgratio=$width/$height;
@@ -442,6 +453,7 @@ To view the photo, click here: http://photorankr.com/fullsize.php?image=".$image
   <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
   <link rel="stylesheet" href="css/reset.css" type="text/css" />
   <link rel="stylesheet" href="css/text.css" type="text/css" />
+  <link rel="stylesheet" type="text/css" href="../css/all.css"/>
   <link rel="stylesheet" href="css/newfullsize.css" type="text/css" />
   <link rel="stylesheet" href="css/960_24.css" type="text/css" />
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -495,176 +507,97 @@ To view the photo, click here: http://photorankr.com/fullsize.php?image=".$image
 
 <?php navbarsweet(); ?>
 
-<div class="container_24" style="padding-bottom:30px;"><!--Grid container begin-->
-
 <?php
 $campaigntitlequery = mysql_query("SELECT title from campaigns WHERE id = '$campaign'");
 $camptitle = mysql_result($campaigntitlequery,0,'title');
 ?>
  
-<!--TITLE OF PHOTO-->     
-<div class="grid_24" style="margin-top:60px;">
-<div class="grid_21 pull_2"><div style="margin-top:10px;padding-top:5px;padding-left:3px;line-height:30px;font-size:30px;
-"><?php echo '(<a href="campaignphotos.php?id=',$campaign,'">',$camptitle,'</a>) "',$title,'"'; ?>
-</div></div></div>
-
-<!--BIG IMAGE BOX-->
-<div class="grid_24">
-
-<div class="grid_15 pull_2" style="margin-top:150px;">
-
-<div class="imageContainer" style="margin-top:-135px;">
-<img class="phototitle" onmousedown="return false" oncontextmenu="return false;" alt="<?php echo $tags; ?>" src="<?php echo $image; ?>" /></div>
-  
-</div> 
-
-
-<!--ARROWS-->
-<div class="grid_4 push_6 arrows" style="width:218px;padding:2px;">
-<span style="margin-left:30px;"><a style="text-decoration:none;" href="fullsize.php?id=<?php echo $imageBeforeID; ?>"><img src="graphics/arrow left.png" alt="Scroll through photos in their full size glory"
-height="50" width="50"/></a></span>
-
-<span style="margin-left:55px;"><a style="text-decoration:none;" href="fullsize.php?id=<?php echo $imageNextID; ?>"><img  src="graphics/arrow right.png" alt="Scroll through photos in their full size glory"
-height="50" width="50"/></a></span>
-
+<!--Here the Grid Container Begins-->
+<div class="container_24 container-margin" style="margin-top:70px;">
+<div class="grid_15">	
+	<div class="grid_14 pull_1" style="color:red;float:left;"style="float:left;">
+		<h1 class="title" style="font-size:22px;padding-bottom:5px;font-weight:200;"> <?php echo $camptitle; ?> </h1>
+	</div>	
+	<div class="grid_17 pull_1" style="float:left;" >
+	<img onmousedown="return false" oncontextmenu="return false;" src="<?php echo $image; ?>" class="image" height="<?php echo $newheight; ?>px" width="<?php echo $newwidth; ?>px" />	
+	</div>
+    
+    <div class="grid_16 pull_1 comments-box">
+		<div class="grid_16 comment">
+        
+        <!--COMMENTS BOX-->   
+    
+        </div>	
+  </div>
 </div>
 
-    
-<!--PHOTO INFORMATION BOX-->    
-<div class="grid_4 push_6 photoinfo" style="padding:2px;width:218px;">
- <br />
- 
- 
- <?php
+	<!--PHOTOGRAPHER BOX-->
+    <div class="grid_7 push_2" style="margin-top:10px;">
+			<div class="grid_7 box"> <!--ID Tag-->
+				<div>
+					<div id="imgborder">
+					<img src="http://photorankr.com/<?php echo $profilepic; ?>" class="profilepic"/>
+				</div>
 
-//get the ranking variable and update the database
-$ranking=mysql_real_escape_string($_POST['ranking']);
-if($_POST['ranking']) { //if ranking was posted
-    $voteremail=$_SESSION['email'];
+			<div id="namewrap">
+				<h1 id="name"><a class="click" href="viewprofile.php?u=<?php echo $userid; ?>"><?php echo $fullname; ?></a></h1>
+				<div class="progress progress-success" style="width:110px;height: 10px;">
+                <div class="bar" style="width:<?php echo $reputation; ?>%;"> 
+                </div></div>
+
+				<h1 id="rep"> Rep: &nbsp <?php echo $reputation; ?> </h1>
+			</div>	
+		</div>
+        </div>
         
-    if($voteremail) {
- $rankcheck = mysql_query("SELECT voters FROM campaignphotos WHERE source='$image'") or die(mysql_error());
-    $votecheck = mysql_result($rankcheck, 0, "voters");
-		$search_string2 = $votecheck;
-		$regex=$voteremail;
-		$votematch=strpos($search_string2, $regex);
-         
-        //check if own photo
-        if($voteremail == $emailaddress) {
-        $voteself == 1;
-        }
+        <div class="grid_7 box underbox">
+            <img src="../graphics/rank_icon.png"/> <span id="rank"> Rank: </span> <span class="numbers"><?php echo $imagerank; ?></span><span id="littlenumbers"> /10 </span>
+        </div>
+
+
+    <!--PREVIEWS-->
+    
+			<div class="grid_7 box underbox"><!--Next photos-->
+				
+				<div id="images" style="margin-top:5px;">
+                
+                <?php if($imageNextID != '') {echo'<a href="fullsize.php?id=',$imageNextID,'">';} ?>
+                <img onmousedown="return false" oncontextmenu="return false;" src="<?php echo $imageNext; ?>" id="nextimg1"/></a>
+				</div>
+				<div class="nextimg">
+                
+                <?php if($imageTwoID != '') {echo'<a href="fullsize.php?id=',$imageTwoID,'">';} ?>
+                <img onmousedown="return false" oncontextmenu="return false;" src="<?php echo $imageTwo; ?>" id="nextimg2"/></a>
+				</div>
+				<div class="nextimg">	
+                
+                <?php if($imageThreeID != '') {echo'<a href="fullsize.php?id=',$imageThreeID,'">';} ?>
+                <img onmousedown="return false" oncontextmenu="return false;" src="<?php echo $imageThree; ?>"id="nextimg3"/></a>
+				</div>
+                
+				<a style="text-decoration:none;" href="fullsize.php?id=<?php echo $imageBeforeID; ?>"><div class="grid_1" id="hover_arrow_left">
+				</div></a>
+					<a style="text-decoration:none;" href="fullsize.php?id=<?php echo $imageNextID; ?>"><div class="grid_1" id="hover_arrow_right">
+				</div></a>
+            
+            </div>
+            
+            
+        <div class="grid_7 box underbox">
+            <div style="font-size:16px;font-weight:200;"><a style="color:black;" href="campaignphotos.php?id=<?php echo $campaign; ?>">Return to Campaign</a></div>
+        </div>
         
-		//if the image hasn't already been voted on
-		if(!$votematch && ($voteremail != $emailaddress)) {
-        
-	$ranking=mysql_real_escape_string($_POST['ranking']); //make ranking equal to the posted ranking as an integer data type
-	if ($ranking >= 1 & $ranking <= 10) {  //if ranking makes sense
-		
-        
-        if($ultimatereputationme > 70 && $ultimatereputationme < 100)
-        {
-        $prevpoints+=($ranking*2.5);
-		$prevvotes+=2.5;
-		$rankquery="UPDATE campaignphotos SET points='$prevpoints', votes='$prevvotes' WHERE source='$image'";
-		mysql_query($rankquery); 
-        }
-        
-        elseif($ultimatereputationme > 50 && $ultimatereputationme < 70)
-        {
-        $prevpoints+=($ranking*2.0);
-		$prevvotes+=2;
-		$rankquery="UPDATE campaignphotos SET points='$prevpoints', votes='$prevvotes' WHERE source='$image'";
-		mysql_query($rankquery); 
-        }
-        
-        elseif($ultimatereputationme > 30 && $ultimatereputationme < 50)
-        {
-        $prevpoints+=($ranking*1.5);
-		$prevvotes+=1.5;
-		$rankquery="UPDATE campaignphotos SET points='$prevpoints', votes='$prevvotes' WHERE source='$image'";
-		mysql_query($rankquery); 
-        }
-        
-        elseif($ultimatereputationme > 0 && $ultimatereputationme < 30)
-        {
-        $prevpoints+=$ranking;
-		$prevvotes+=1;
-		$rankquery="UPDATE campaignphotos SET points='$prevpoints', votes='$prevvotes' WHERE source='$image'";
-		mysql_query($rankquery); 
-        }
-        
-        }  //end querying points and votes count
-    
-        //Add voter's name to database    
-    $voter = "'" . $voteremail . "'";
-    $voter = ", " . $voter;
-    $voter = addslashes($voter);
-    $votersquery = mysql_query("UPDATE campaignphotos SET voters=CONCAT(voters,'$voter') WHERE source='$image'");
-    
-    echo '<div style="position: relative; top: 0px; text-align: center; font-size: 15px; font-family: arial;">Thanks for voting!</div>';
-
-	} 
-    
-    elseif(votematch && ($voteremail != $emailaddress)){
-    	echo '<div style="position: relative; top: 0px; text-align: center; font-size: 15px; font-family: arial;">You already voted!</div>';
-
-    }
-    
-    elseif($voteremail == $emailaddress) {
-    echo '<div style="position: relative;  top: 0px; text-align: center; font-size: 15px; font-family: arial;">Oops, your photo!</div>';
-
-    }
-    }
-    
-    else{
-        	echo '<div style="position: relative; top: 0px; text-align: center; font-size: 15px; font-family: arial;">Please login to vote</div>';
-
-    }
-       }
-
-//RANKING
-if($prevvotes >=1.0) {
-	$display=($prevpoints/$prevvotes);	
-	echo '<div style="position:relative; left: 30px; top: 0px;">
-	<span style="font-size:16px;">Rank:&nbsp;&nbsp;&nbsp;</span><span style="font-size:30px;">',round($display, 1),'</span><span style="opacity: .6; font-size: 18px;">/10.0</span><br />';
-    }
-else  {
-	echo '<div style="position:relative; left: 30px; top: 0px;"><span style="font-size:16px;">Rank:&nbsp;&nbsp;&nbsp;</span><span style="font-size:30px;">0.0</span><span style="opacity: .6; font-size: 18px;">/10.0</span><br />';
-    }	
-echo'
-<br />
-</div>';
-?> 
+			
+</div><!--end right sidebar-->
 
 
-<!--PREVIEWS-->
-<div class="grid_4">
-    <div style="float:left;">
-    
-   <?php if($imageNextID != '') {echo'<a href="fullsize.php?id=',$imageNextID,'">';} ?>
-   <img onmousedown="return false" oncontextmenu="return false;" class="preview" src="<?php echo $imageNext; ?>" height="200" width="210" /></a>
-    
-    <?php if($imageTwoID != '') {echo'<a href="fullsize.php?id=',$imageTwoID,'">';} ?>
-    <img onmousedown="return false" oncontextmenu="return false;" class="preview" style="margin-top:5px;" src="<?php echo $imageTwo; ?>" height="200" width="210" /></a>
-    
-    <?php if($imageThreeID != '') {echo'<a href="fullsize.php?id=',$imageThreeID,'">';} ?>
-    <img onmousedown="return false" oncontextmenu="return false;" class="preview" style="margin-top:5px;" src="<?php echo $imageThree; ?>" height="200" width="210" /></a>
-    
-    </div>
-</div>
 
-</div><!--end of 4 grid-->
+
+
 
 <!--Footer begin-->   
-<div class="grid_24" style="height:30px;margin-top:30px;background-color:rgb:(238,239,243);text-align:center;padding-top:10px;padding-bottom:20px; background-color:none;text-decoration:none;">
-<p style="text-decoration:none;">
-</br></br>
-<div style="text-align:center;">
-Copyright&nbsp;&copy;&nbsp;2012&nbsp;PhotoRankr, Inc.&nbsp;&nbsp;
-</div>
-<br />
-<br />
-</p>                   
+<div class="grid_24">
+<?php footer(); ?>               
 </div>
 <!--Footer end-->
 

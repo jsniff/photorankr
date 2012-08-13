@@ -19,8 +19,10 @@ if($_SESSION['loggedin'] != 1) {
 require "db_connection.php";
 require "functions.php";
 
+$image = htmlentities($_GET['image']);
+
 //add to the views column
-//$updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image'") or die(mysql_error());
+$updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image'") or die(mysql_error());
 
 if($_GET['view'] == "saveinfo") {
 
@@ -879,10 +881,10 @@ height="100px" width="100px" />
 
 <!--ARROWS-->
 <div class="grid_4 push_6 arrows" style="width:218px;padding:2px;">
-<span style="margin-left:30px;"><a style="text-decoration:none;" href="fullsizeview.php?image=<?php echo $imageBefore; ?>&v=<?php echo $view; ?>"><img src="graphics/arrow left.png" alt="Scroll through photos in their full size glory"
+<span style="margin-left:30px;"><a style="text-decoration:none;" href="fullsizeme.php?image=<?php echo $imageBefore; ?>&v=<?php echo $view; ?>"><img src="graphics/arrow left.png" alt="Scroll through photos in their full size glory"
 height="55" width="40"/></a></span>
 
-<span style="margin-left:75px;"><a style="text-decoration:none;" href="fullsizeview.php?image=<?php echo $imageOne; ?>&v=<?php echo $view; ?>"><img  src="graphics/arrow right.png" alt="Scroll through photos in their full size glory"
+<span style="margin-left:75px;"><a style="text-decoration:none;" href="fullsizeme.php?image=<?php echo $imageOne; ?>&v=<?php echo $view; ?>"><img  src="graphics/arrow right.png" alt="Scroll through photos in their full size glory"
 height="55" width="40"/></a></span>
 
 </div>
@@ -1057,11 +1059,11 @@ else  {
 <?php
 //in here we will display the arrows and previews
 
-echo '<span style="position: relative; top: 0px; left: 0px;"><a href="fullsizeview.php?image=',$imageOne,'&v=',$view,'"><img class="previews" alt="Preview some of the best photos on the web." src= "http://photorankr.com/', $imageOneThumb, '" height="150" width="190"/></a></span>
+echo '<span style="position: relative; top: 0px; left: 0px;"><a href="fullsizeme.php?image=',$imageOne,'&v=',$view,'"><img class="previews" alt="Preview some of the best photos on the web." src= "http://photorankr.com/', $imageOneThumb, '" height="150" width="190"/></a></span>
 
-<span style="position: relative; top: 0px; left: 0px;"><a href="fullsizeview.php?image=',$imageTwo,'&v=',$view,'"><img class="previews" alt="These previews allow you to see what is coming up next" src= "http://photorankr.com/', $imageTwoThumb, '" height="150" width="190"/></a></span>
+<span style="position: relative; top: 0px; left: 0px;"><a href="fullsizeme.php?image=',$imageTwo,'&v=',$view,'"><img class="previews" alt="These previews allow you to see what is coming up next" src= "http://photorankr.com/', $imageTwoThumb, '" height="150" width="190"/></a></span>
 
-<span style="position: relative; top: 0px; left: 0px;"><a href="fullsizeview.php?image=',$imageThree,'&v=',$view,'"><img class="previews" alt="Scroll through photos to find photos to buy" src= "http://photorankr.com/', $imageThreeThumb,'" height="150" width="190"/></a></span>';
+<span style="position: relative; top: 0px; left: 0px;"><a href="fullsizeme.php?image=',$imageThree,'&v=',$view,'"><img class="previews" alt="Scroll through photos to find photos to buy" src= "http://photorankr.com/', $imageThreeThumb,'" height="150" width="190"/></a></span>';
 
 ?>
 
@@ -1247,7 +1249,7 @@ $foundsetting = strpos($setting_string,$find);
 		$view = 't';
 	}
 
-    echo '<form action="http://photorankr.com/fullsizeview.php?image=', $image, '&v=', $view, '&action=comment" method="post">';
+    echo '<form action="http://photorankr.com/fullsizeme.php?image=', $image, '&v=', $view, '&action=comment" method="post">';
 
       
     echo '<table>
@@ -1267,7 +1269,7 @@ $foundsetting = strpos($setting_string,$find);
 
 }
 
-echo '<META HTTP-EQUIV="Refresh" Content="0; URL=fullsizeview.php?image=', $image, '&v=', $view, '">';
+echo '<META HTTP-EQUIV="Refresh" Content="0; URL=fullsizeme.php?image=', $image, '&v=', $view, '">';
 	exit();
 }
 else {
@@ -1294,7 +1296,7 @@ if($_SESSION['loggedin'] == 1)
 {
 echo '
 <div style="padding-left: 4px;font-size:16px;">Comment:</div>
-<form action="http://photorankr.com/fullsizeview.php?image=', $image, '&v=', $view, '&action=comment" method="post">
+<form action="http://photorankr.com/fullsizeme.php?image=', $image, '&v=', $view, '&action=comment" method="post">
     <table>
         <tr>
             <!--<td>Name:</td>

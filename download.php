@@ -12,6 +12,8 @@ if($_GET['action'] == logout) {
 require "db_connection.php";
 require_once("stripe/lib/Stripe.php");
 
+//echo "working";
+
 
 //start session
 session_start();
@@ -30,6 +32,9 @@ if (htmlentities($_GET['action']) == "login") { // if login form has been submit
     	}*/
     	$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '".mysql_real_escape_string($_POST['emailaddress'])."'")or die(mysql_error());
 	//Gives error if user dosen't exist
+
+
+
 
 	$check2 = mysql_num_rows($check);
     
@@ -54,6 +59,21 @@ die('Incorrect password, please try again. <a href="lostpassword.php"> Lost your
 $currentnots = "SELECT * FROM userinfo WHERE emailaddress = '$email'";
 $currentnotsquery = mysql_query($currentnots);
 $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
+
+
+$emailtrial = "tyler.sniff@gmail.com";
+
+ $getstripeinfo = "SELECT * FROM userinfo WHERE emailaddress = '$emailtrial'";
+$striperesult = mysql_query($getstripeinfo); 
+$stripepubkey = mysql_result($striperesult, 0, 'pubkey');
+echo $stripepubkey;
+echo "whatup";
+
+
+$getstripeinfo = "SELECT * FROM userinfo WHERE emailaddress = '$emailtrial'";
+$striperesult = mysql_query($getstripeinfo); 
+$stripekey = mysql_result($striperesult, 0, 'token');
+echo $stripekey;
 
 
 ?>
@@ -96,8 +116,15 @@ $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
         <script type="text/javascript">
             // this identifies your website in the createToken call below
-            Stripe.setPublishableKey('pk_NuzRruZd0ks8VMufKgWZtecdiIqFK');
-
+            var key = "<? print $stripepubkey; ?>";
+           
+//Tyler's
+           // Stripe.setPublishableKey('pk_07nH7wAErP9SujawnAdTmrkb047qv');
+           Stripe.setPublishableKey('pk_wyF8CPirmy3KmAv7lmf5gKwV5bElr');
+            //document.write("workplease");
+            //document.write(key);
+//echo $stripepubkey;
+         // Stripe.setPublishableKey(key); 
             function stripeResponseHandler(status, response) {
                 if (response.error) {
                     // re-enable the submit button
@@ -167,6 +194,7 @@ $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
 
 
 $email7 = $_SESSION['email'];
+
 
 //NOTIFICATION QUERIES  
 $emailquery=("SELECT following FROM userinfo WHERE emailaddress ='$email7'");
@@ -454,6 +482,8 @@ echo '<div class="grid_12 push_12 download1" style="margin-top:100px;margin-left
 <h1 class="field"> Price: Free</h1> 
 <h2 class="field"> Photographer: ',$firstname,' ',$lastname,'</h2>
 <h3 class="field"> Photo: "',$label,'" </h3>
+<h3 class="field"> StripeInfo: "',$stripekey,'" </h3>
+<h3 class="field"> StripeInfo: "',$stripekey,'" </h3>
 <h3 class="field"> Image ID: "',$imageID,'"</h3>
 </div>
 </div>
@@ -538,6 +568,9 @@ echo'
 <h1 class="field"> Price: USD $',$price,'</h1> 
 <h2 class="field"> Photographer: ',$firstname,' ',$lastname,'</h2>
 <h3 class="field"> Photo: "',$label,'" </h3>
+<h3 class="field"> Stripekey: "',$stripekey,'" </h3>
+<h3 class="field"> Stripepubkey: "',$stripepubkey,'" </h3>
+<h3 class="field"> Stripepubkey: "',$customeremail,'" </h3>
 <h3 class="field"> Image ID: "',$imageID,'"</h3>
 </div>
 </div>
@@ -612,7 +645,9 @@ $newprice = 20000;
 
 // set your secret key: remember to change this to your live secret key in production
 // see your keys here https://manage.stripe.com/account
-Stripe::setApiKey("I4xWtNfGWVVGzVuOr6mrSYZ5nOrfMA9X");
+//Stripe::setApiKey("I4xWtNfGWVVGzVuOr6mrSYZ5nOrfMA9X");
+
+//Stripe::setApiKey("jpdzMPMCFihJ43mXpa5I89wrtHDDxtlE");
 
 // get the credit card details submitted by the form
 $token = $_POST['stripeToken'];
@@ -641,14 +676,52 @@ Stripe::Charge.create(
 */
 
 
+$newprice = 20000;
+//Stripe::setApiKey("sk_08gH6o7QPOeoHI8lUAoGp0LjAPoL7");
+//Stripe::setApiKey($stripekey);
+//Stripe::setPubKey($stripepubkey); 
+
+///$photorankrfee = $newprice*.3;
+
+
 // create the charge on Stripe's servers - this will charge the user's card
-$charge = Stripe_Charge::create(array(
-  "amount" => $newprice, // amount in cents, again
-  "currency" => "usd",
+  // $charge = Stripe_Charge::create(array(
+  //   "amount" => $newprice,
+  //     "card" => $token,
+  //       "application_fee"=>$photorankrfee,
+  //  "currency" => "usd"
+  //  )
+//   // );
+// $charge = Stripe_Charge::create(array(
+//   "plan" => 1, // amount in cents, again
+//   "card" => $token,
+//   "customer" => $customeremail
+// )
+// );
+
+
+
+
+
+
+// $charge = Stripe_Charge::create(array(
+//   "plan" => "Exclusive Lifetime Plan", // amount in cents, again
+//   "card" => $token
+// )
+//  );
+
+
+Stripe::setApiKey("jpdzMPMCFihJ43mXpa5I89wrtHDDxtlE");
+
+//Working Subscription Code
+$customer = Stripe_Customer::create(array(
   "card" => $token,
-  "customer" => $customeremail,
-  "description" => $imageID)
+  "plan" => 1,
+  "email" => "paying@example.com")
 );
+
+
+
 
 $image = $_POST['image'];
 $image = str_replace("userphotos/","userphotos/medthumbs/", $image);   

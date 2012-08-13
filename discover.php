@@ -61,7 +61,7 @@ else {
 	$image = htmlentities($_GET['image']);
 	if(!$_GET['image'] || $_GET['image'] == "") {
 		mysql_close();
-		echo '<META HTTP-EQUIV="Refresh" Content="0; URL=trending.php">';
+		header("Location: myprofile.php?view=editinfo&error=disc#disc");
 		exit();			
 	}
 
@@ -153,7 +153,7 @@ $query="SELECT * FROM photos where source='$image'";
 $result=mysql_query($query);
 //if no images match what is in the url, then send them back to trending 
 if(mysql_num_rows($result) == 0) {
-	header("Location: trending.php");
+	header("Location: myprofile.php?view=editinfo&error=disc#disc");
 	exit();
 }
 

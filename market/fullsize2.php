@@ -146,7 +146,6 @@ else {
     <link rel="stylesheet" href="css/text.css" type="text/css" />
     <link rel="stylesheet" href="css/960_24.css" type="text/css" />
     <link rel="stylesheet" href="css/index.css" type="text/css"/> 
-    <link rel="stylesheet" href="css/itunes.css" type="text/css"/> 
 	<link rel="stylesheet" type="text/css" href="css/all.css"/>
 
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
@@ -336,10 +335,14 @@ $medprice = number_format(($price / 1.5),0,',','');
 var rowcount = 1;
 var rowcount2= 1;
 var rowcount3 = 1;
+var smallpricejava = "<? print $smallprice; ?>";
+var medpricejava =  "<? print $medprice; ?>";
+var largepricejava = "<? print $medprice; ?>";
             function showClicked() {
                 var select = document.getElementById('row');
                 select.className = 'clicked';
                 rowcount++;
+                selectedpricephoto = smallpricejava;
                 if(rowcount>2){
                     select.className = 'unclicked';
                     rowcount=rowcount-2;
@@ -357,6 +360,7 @@ var rowcount3 = 1;
                 function showClicked2() {
                 var select = document.getElementById('row2');
                 select.className = 'clicked';
+                selectedpricephoto = medpricejava;
                    rowcount2++;
                 if(rowcount2>2){
                     select.className = 'unclicked';
@@ -374,6 +378,7 @@ var rowcount3 = 1;
                 function showClicked3() { 
                 var select = document.getElementById('row3');
                 select.className = 'clicked';
+                selectedpricephoto = largepricejava;
                 rowcount3++;
                 if(rowcount3>2){
                     select.className = 'unclicked';
@@ -388,7 +393,7 @@ var rowcount3 = 1;
                select.className = 'unclicked';
                 }
             }
-
+    
 
 
         </script>
@@ -487,7 +492,7 @@ The Standard Content License Agreement governs this option.
 </script>
 
 </td>
-<td colspan="2">+ $30</td>
+<td colspan="2">+ 20</td>
 </tr>
 <tr>
 <td><a style="color:black;text-decoration:none;" href="#" id="unlimitprintpopover" rel="popover" data-content="<span style='font-size:13px;'>This Extended License Provision removes the 500,000 limit on reproductions and allows for unlimited reproductions.</br></br>The Extended Content License Provisions govern this option.</br></br></span>
@@ -501,7 +506,7 @@ The Standard Content License Agreement governs this option.
 </script>
 
 </td>
-<td colspan="2">+ $30</td>
+<td colspan="2">+ $35</td>
 </tr>
 <tr>
 <td><a style="color:black;text-decoration:none;" href="#" id="resalepopover" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to produce the following items for resale, license, or other distribution:</br>
@@ -523,7 +528,7 @@ The Extended Content License Provisions govern this option.
 </script>
 
 </td>
-<td colspan="2">+ $30</td>
+<td colspan="2">+ $35</td>
 </tr>
 <tr>
 <td><a style="color:black;text-decoration:none;" href="#" id="electronicresalepopover" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to produce the following items for resale, license, or other distribution:</br>
@@ -553,7 +558,7 @@ The Extended Content License Provisions govern this option.
 </script>
 
 </td>
-<td colspan="2">+ $30</td>
+<td colspan="2">+ $35</td>
 </tr>
 <tr>
 </tbody>
@@ -598,34 +603,17 @@ The Extended Content License Provisions govern this option.
 		$regex2="/$imageid/";
 		$cartmatch=preg_match($regex2,$search_string2);
         
-        if($rowcount==2) {
-            $selectedpricephoto = $smallprice;
-
-        }
-
-        if($rowcount==2) {
-            $selectedpricephoto = $medprice;
-
-        }
-
-        if($rowcount==2) {
-            $selectedpricephoto = $price;
-
-        }
-
-
-
+     
+        
 
         if($cartmatch > 0) {
         echo'<a class="btn btn-danger" style="margin-left:10px;width:120px;float:left;" href="fullsize2.php?imageid=',$imageid,'&action=removed">Remove from Cart</a>';
         }
         else {
-        echo'<a class="btn btn-success" style="margin-left:10px;width:80px;float:left;" href="download2.php?imageid=',$imageid,'&price=',$selectedpricephoto,'#added">Add to Cart</a>';
-                }
+            echo'<a class="btn btn-success" style="margin-left:10px;width:80px;float:left;" href="download2.php?imageid=',$imageid,'&action=added">Add to Cart</a>';		
+}
 
 ?>
-
-
 </div>
 
 <div class="span6" style="margin-left:0px;margin-top:10px;">

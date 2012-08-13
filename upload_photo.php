@@ -3,7 +3,6 @@
 //give this file some extra time to upload the photo
 ini_set('max_input_time', 3200);
 
-
 //CONNECT TO DB
 require "db_connection.php";
 require 'config.php';
@@ -88,11 +87,14 @@ if ((($_FILES["file"]["type"] == "image/gif")
     		$newfilename=str_replace("`","",$newfilename);
     		$newfilename=str_replace("_","",$newfilename);
     		$newfilename=str_replace("©","",$newfilename);
-		$currenttime = time();
-		$newfilename = $currenttime . $newfilename;
-    		$source = $_FILES['file']['tmp_name'];  
-    		$target = $path_to_image_directory . $newfilename;  
-
+            
+            $currenttime = time();
+            $newfilename = $currenttime . $newfilename;
+    		$source = $_FILES['file']['tmp_name']; 
+            list($width,$height) = getimagesize($source);
+ 
+    		$target = $path_to_image_directory . $newfilename;   
+            
     		if (file_exists("upload/" . $_FILES["file"]["name"]))
       		{
          		header("location:myprofile.php?view=upload&action=uploadfailure");
@@ -100,9 +102,9 @@ if ((($_FILES["file"]["type"] == "image/gif")
       		}
     		else
       		{
-      			move_uploaded_file($source, $target);
-			chmod ($target, 0644);
-
+      			    move_uploaded_file($source, $target);
+			    chmod($target, 0644);
+            
       			createThumbnail($newfilename); 
       			createMedThumbnail($newfilename); 
       			watermarkpic($newfilename);  
@@ -138,8 +140,8 @@ if ((($_FILES["file"]["type"] == "image/gif")
 
 		$target = $path_to_medimage_directory . $newfilename;
 		//insert the file information into the database
-		$insertquery="INSERT INTO photos (source, caption, emailaddress, tag, time, price, location, country, tag1, tag2, tag3, tag4, camera, focallength, shutterspeed, aperture, lens, filter, about, copyright, sets, maintags, settags, set_id, singlestyletags, singlecategorytags)
-		VALUES ('$target', '$name', '$email', '$tag', '$currenttime', '$price', '$location', '$country', '$tag1', '$tag2', '$tag3', '$tag4', '$camera', '$focallength', '$shutterspeed', '$aperture', '$lens', '$filter', '$about', '$copyright', '$addtoset', '$maintags2','$settags2','$set_id','$singlestyletags2','$singlecategorytags2')";
+		$insertquery="INSERT INTO photos (source, caption, emailaddress, tag, time, price, location, country, tag1, tag2, tag3, tag4, camera, focallength, shutterspeed, aperture, lens, filter, about, copyright, sets, maintags, settags, set_id, singlestyletags, singlecategorytags,width,height)
+		VALUES ('$target', '$name', '$email', '$tag', '$currenttime', '$price', '$location', '$country', '$tag1', '$tag2', '$tag3', '$tag4', '$camera', '$focallength', '$shutterspeed', '$aperture', '$lens', '$filter', '$about', '$copyright', '$addtoset', '$maintags2','$settags2','$set_id','$singlestyletags2','$singlecategorytags2','$width','$height')";
 		mysql_query($insertquery);
 
         	//userinfo query

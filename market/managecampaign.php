@@ -1,7 +1,11 @@
-navbarsweet<?php
+<?php
 
 //connect to the database
 require "db_connection.php";
+
+//start the session
+session_start();
+$repemail = $_SESSION['repemail'];
 
 require "functionscampaigns3.php"; 
     // if login form has been submitted
@@ -12,10 +16,20 @@ require "functionscampaigns3.php";
         logout();
     }
 
-//start the session
-session_start();
+//find out which campaign they are trying to look at
+$campaignID = htmlentities($_GET['id']);
 
-$repemail = $_SESSION['repemail'];
+$finduserquery = mysql_query("SELECT repemail FROM campaigns WHERE id = '$campaignID'");
+$owneremail = mysql_result($finduserquery,0,'repemail');
+
+//User information
+$userquery = mysql_query("SELECT * FROM campaignusers WHERE repemail = '$owneremail'");
+$logo = mysql_result($userquery,0,'logo');
+if($logo == '') {
+$logo = 'graphics/nologo.png';
+}
+$name = mysql_result($userquery,0,'name');
+$password = mysql_result($userquery,0,'password');
 
 //User information
 $userquery = mysql_query("SELECT * FROM campaignusers WHERE repemail = '$repemail'");
@@ -31,9 +45,6 @@ if($_SESSION['loggedin'] != 2) {
 	echo '<META HTTP-EQUIV="Refresh" Content="0; URL=campaignnewuser.php">';
 	exit();			
 }
-
-//find out which campaign they are trying to look at
-$campaignID = htmlentities($_GET['id']);
 
 //MESSAGE
 if(htmlentities($_GET['action']) == 'message') {
@@ -149,12 +160,12 @@ if($_GET['create']) {
 }
 
 if($_GET['view'] != "newest") {
+
 //recalculate the score for each of the photos
 $scorequery = "SELECT * FROM campaignphotos WHERE campaign='$campaignID'";
 $scoreresult = mysql_query($scorequery);
 
-if(mysql_num_rows($scoreresult) >= 1) {
-
+if(mysql_num_rows($scoreresult)) {
 //find out how many votes have been cast
 $totalvotes = 0;
 for($iii=0; $iii < mysql_num_rows($scoreresult); $iii++) {
@@ -167,9 +178,10 @@ $Scorequery = "UPDATE campaignphotos SET score = CASE ";
 for($iii=0; $iii < mysql_num_rows($scoreresult); $iii++) {
 	$points = mysql_result($scoreresult, $iii, "points");
 	$votes = mysql_result($scoreresult, $iii, "votes");
+	$scoreID = mysql_result($scoreresult, $iii, "id");
 	$avg = $points / $votes;
 	$voteshare = $votes / $totalvotes;
-	$score = $avg * $voteshare;
+	$score = $avg * $voteshare + $scoreID / 1000;
 	$source = mysql_result($scoreresult, $iii, "source");
 
 	$Scorequery .= "WHEN source='$source' THEN '$score' ";
@@ -183,40 +195,81 @@ mysql_query($Scorequery) or die(mysql_error());
 }
 }
 
-if (htmlentities($_GET['action']) == "editcampaign") {  
-	$title = mysql_real_escape_string(htmlentities($_POST['title']));
+
+if(isset($_GET['newsid'])){
+$newsid = htmlentities($_GET['newsid']);
+$idformatted = $newsid . " ";
+$unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$useremail'";
+$unhighlightqueryrun = mysql_query($unhighlightquery);
+
+//notifications query reset 
+if($currentnotsresult > 0) {
+$notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$useremail'";
+$notsqueryrun = mysql_query($notsquery); }
+} 
+
+
+if(htmlentities($_GET['action']) == 'savecampaign') {
+
+    $title = mysql_real_escape_string(htmlentities($_POST['title']));
+    $location = mysql_real_escape_string(htmlentities($_POST['location']));
+	$lengthofuse = mysql_real_escape_string(htmlentities($_POST['lengthofuse']));                                
+	$additionalterms = mysql_real_escape_string(htmlentities($_POST['additionalterms']));
+	$terms = mysql_real_escape_string(htmlentities($_POST['terms']));
+    $examplelink = mysql_real_escape_string(htmlentities($_POST['examplelink']));
+    
 	$description = mysql_real_escape_string(htmlentities($_POST['description']));
-    $editcampaignquery = mysql_query("UPDATE campaigns SET title='$title', description='$description' WHERE id = '$campaignID' AND repemail = '$repemail'");
+	$use = $_POST['use'];
+	$iii=0;
+	while($use[$iii]) {
+		$uses .= mysql_real_escape_string(htmlentities($use[$iii]));
+		$uses .= " ";
+		$iii++;
+	}
+	$uses = substr($uses, 0, -1);
+	$license = $_POST['license'];
+	$iii=0;
+	while($license[$iii]) {
+		$licenses .= mysql_real_escape_string(htmlentities($license[$iii]));
+		$licenses .= " ";
+		$iii++;
+	}
+	$licenses = substr($licenses, 0, -1);
+    
+    $updatecampaignquery = mysql_query("UPDATE campaigns SET title = '$title', description = '$description', license = '$licenses', used = '$uses', location = '$location', lengthofuse = '$lengthofuse', additionalterms = '$additionalterms', examplelink = '$examplelink' WHERE id = '$campaignID'");
+
 }
 
 
-
 ?>
-
 <!DOCTYPE html>
-<html>
 <head>
 	<title>View all of the photos from this campaign on PhotoRankr</title>
 	  <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
  <link rel="stylesheet" href="css/reset.css" type="text/css" />
   <link rel="stylesheet" href="css/text.css" type="text/css" />
   <link rel="stylesheet" href="css/960_24.css" type="text/css" />
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script src="js/bootstrap.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+      <script src="js/bootstrap.js" type="text/javascript"></script>
   <script src="js/bootstrap-dropdown.js" type="text/javascript"></script>
   <script src="js/bootstrap-collapse.js" type="text/javascript"></script>
   <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
   
-  <!--HIDDEN UPLOAD INFORMATION SCRIPT-->
-<script type="text/javascript">   
-$(document).ready(function(){
-  $(".flip").click(function(){
-    $(".panel").slideDown("slow");
-  });
-});
-</script>
-  
+   <!--Navbar Dropdowns-->
+  	<script type="text/javascript">
+ 	 $(function() {
+  	// Setup drop down menu
+  	$('.dropdown-toggle').dropdown();
+  	// Fix input element click problem
+  	$('.dropdown input, .dropdown label').click(function(e) {
+    e.stopPropagation();
+ 		 });
+	});
+    </script>
+    
+    
   <style type="text/css">
+
 
  .statoverlay {
 opacity:.7;
@@ -246,38 +299,64 @@ opacity:.7;
 
 </style>
 </head>
-<body style="overflow-x:hidden; background-color: #eeeff3;">
 
-<!--NAVIGATION BAR-->
+<body style="overflow-x:hidden; background-color: #eeeff3;">
 
 <?php navbarsweet(); ?>
 
 	<div id="container" class="container_24">
-    <div class="grid_24 pull_1" style="width: 1140px;margin-top:50px;">
-
+		<div class="grid_24" style="width: 1120px;top:65px;">
+  
 <?php
 
+$view = htmlentities($_GET['view']);
+
 //select all of the campaigns information
-$campaignquery = "SELECT * FROM campaigns WHERE id='$campaignID' AND repemail='$repemail' LIMIT 1";
+$campaignquery = "SELECT * FROM campaigns WHERE id='$campaignID' LIMIT 1";
 $campaignresult = mysql_query($campaignquery);
 
 if(mysql_num_rows($campaignresult) == 0) {
 	mysql_close();
-	echo '<META HTTP-EQUIV="Refresh" Content="0; URL=createcampaign.php">';
+	echo '<META HTTP-EQUIV="Refresh" Content="0; URL=account.php?view=mycampaigns&option=create">';
 	exit();	
 }
 
 //find the title and description of this campaign
 $title = mysql_result($campaignresult, 0, "title");
 $description = mysql_result($campaignresult, 0, "description");
+$quote = mysql_result($campaignresult, 0, "quote");
+$licenses = str_replace(" ", ", ", mysql_result($campaignresult, 0, "license"));
+$uses = str_replace(" ", ", ", mysql_result($campaignresult, 0, "used"));
 $location = mysql_result($campaignresult, 0, "location");
 $lengthofuse = mysql_result($campaignresult, 0, "lengthofuse");
 $examplelink = mysql_result($campaignresult, 0, "examplelink");
 $additionalterms = mysql_result($campaignresult, 0, "additionalterms");
 
-$quote = mysql_result($campaignresult, 0, "quote");
-$licenses = str_replace(" ", ", ", mysql_result($campaignresult, 0, "license"));
-$uses = str_replace(" ", ", ", mysql_result($campaignresult, 0, "used"));
+ //NUMBER PHOTOS IN CAMPAIGN
+        $numphotosquery = mysql_query("SELECT * FROM managecampaign WHERE campaign = '$campaignID'");
+        $numphotos = mysql_num_rows($numphotosquery);
+        
+//TITLE
+echo'<div style="font-size: 25px;font-family:helvetica;font-weight:200;margin-top:80px;">',$title,'&nbsp;&nbsp;|&nbsp;&nbsp;$',$quote,'</div><br />';
+
+
+//NAVBAR              
+echo'
+<div class="grid_18 roundedright" style="background-color:#eeeff3;height:60px;margin-top:0px;width:940px;">
+
+<a style="text-decoration:none;color:black;" href="managecampaign.php?id=',$campaignID,'&view=brief"><div class="clicked" style="width:230px;height:60px;border-right:1px solid #ccc;float:left;';if($view == 'brief') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:22px;font-weight:100;margin-top:10px;text-align:center;">Campaign Brief</div></div></a>
+
+<a style="text-decoration:none;color:black;" href="managecampaign.php?id=',$campaignID,'"><div class="clicked" style="width:230px;height:60px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;';if($view == '') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:22px;font-weight:100;margin-top:10px;text-align:center;">Submissions</div></div></a>
+
+<a style="text-decoration:none;color:black;" href="managecampaign.php?id=',$campaignID,'&view=photogs"><div class="clicked" style="width:230px;height:60px;border-right:1px solid #ccc;float:left;';if($view == 'photogs') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:22px;font-weight:100;margin-top:10px;text-align:center;">Photographers</div></div></a>
+
+<div style="width:180px;height:60px;float:left;margin-left:3px;"><div style="font-size:22px;font-weight:100;margin-top:6px;text-align:center;">
+<form class="navbar-search" method="GET">
+<input class="search" style="position:relative;margin-left:15px;margin-top:2px;font-family:helvetica;font-size:14px;font-weight:100;color:black;" name="searchterm" placeholder="Search Campaigns&nbsp;.&nbsp;.&nbsp;.&nbsp;" type="text">
+</form></div></div>';
+
+
+if($view == 'brief') {
 
 //display the title and description
 echo '<div class="dropshadow well grid_24" style="text-align: left; width: 860px;margin-top:20px;">
@@ -286,19 +365,73 @@ echo '<div class="dropshadow well grid_24" style="text-align: left; width: 860px
     echo'
 	<img style="border: 1px solid black;" src="',$logo,'" height="80" width="80" />';
     }
-    echo'<span style="font-size: 30px;">"',$title,'"</span><br />
-    <br />
-	<span style="font-size: 16px; margin-top: 15px;"><b>Description:</b> ',$description, ' <a href="',$examplelink,'">Click here to see an example photo</a></span><br />
-	<span style="font-size: 16px; margin-top: 5px;"><b>Price:</b> $',$quote, '</span><br />
-	<span style="font-size: 16px; margin-top: 5px;"><b>License(s)</b> required: ',$licenses, '</span><br />
-	<span style="font-size: 16px; margin-top: 5px;"><b>Use(s):</b> ',$uses, '</span><br />
-    <span style="font-size: 16px; margin-top: 5px;"><b>Location:</b> ',$location, '</span><br />
-	<span style="font-size: 16px; margin-top: 5px;"><b>Length of Use:</b> ',$lengthofuse, '</span><br />
-	<span style="font-size: 16px; margin-top: 5px;"><b>Additional Terms:</b> ',$additionalterms,'</span><br />';
     
-     //NUMBER PHOTOS IN CAMPAIGN
-    $numphotosquery = mysql_query("SELECT * FROM campaignphotos WHERE campaign = '$campaignID'");
-    $numphotos = mysql_num_rows($numphotosquery);
+    echo'
+    
+    <table class="table">
+    <tbody>
+    
+    <form action="managecampaign.php?id=',$campaignID,'&view=brief&action=savecampaign" method="POST">
+    
+    <tr>
+    <td>Campaign Title:</td>
+    <td><input style="width:300px;" type="text" name="title" value="',$title,'" placeholder="Bridge over troubled water" /></td>
+    </tr>
+
+    <tr>
+    <td>Description of Photo: </td>
+    <td><textarea style="width:600px;height:150px;" rows="4" cols="100" name="description">',$description,'</textarea></td>
+    </tr>
+    
+    <tr>
+    <td>Example/Logo Link:</td>
+    <td><input style="width:300px;" type="text" name="examplelink" value="',$examplelink,'" /></td>
+    </tr>
+    
+    <tr>
+    <td>What will you be using the photo for? </td>
+    <td><input type="checkbox" name="use[]" value="print" /> Print (magazine, newspaper, brochure, etc.) &nbsp;&nbsp;&nbsp; <input type="checkbox" name="use[]" value="webuse" /> Web Use &nbsp;&nbsp;&nbsp;<br /> <input type="checkbox" name="use[]" value="emailpromotion" /> Email Promotion &nbsp;&nbsp;&nbsp; <input type="checkbox" name="use[]" value="personaluse" /> Personal Use </td>
+    </tr>
+    
+    <tr>
+    <td>Choose the license you would like for your photo:</td>
+    <td><input type="checkbox" name="license[]" value="nonexclusive" /> Non-Exclusive &nbsp;&nbsp;&nbsp; <input type="checkbox" name="license[]" value="exclusive" /> Exclusive &nbsp;&nbsp;&nbsp;</td>
+    </tr>
+    
+    <tr>
+    <td>Location of Use:</td>
+    <td><input style="margin-top:5px;width:300px;" type="text" name="location" value="',$location,'" /></td>
+    </tr>
+    
+    <tr>
+    <td>Length of Use:</td>
+    <td><input style="margin-top:5px;width:300px;" type="text" name="lengthofuse" value="',$lengthofuse,'" /></td>
+    </tr>
+    
+    <tr>
+    <td>Additional Terms:</td>
+    <td><textarea style="margin-top:5px;width:300px;" rows="4" cols="100" name="additionalterms">',$additionalterms,'</textarea></td>
+    </tr>
+    
+    <tr>
+    <td>Budget: </td>
+    <td>$',$quote,'</td>
+    </tr>
+    
+    <tr>
+    <td>Time frame:</td>
+    <td>',$timeframe,'
+    </td>
+    </tr>
+    
+    <tr>
+    <td><input class="btn btn-success" style="width:150px;height:35px;" type="submit" value="Save Campaign" /></td>
+    </tr>
+    </form>
+    
+    </tbody>
+    </table>';
+
 
 //if the campaign is over
 if(mysql_result($campaignresult, 0, "endtime") <= time()) {
@@ -307,11 +440,9 @@ if(mysql_result($campaignresult, 0, "endtime") <= time()) {
     <span style="font-size: 16px; margin-top: 15px;"><b>Photos Submitted:</b> ',$numphotos,'</span>
     <h3 style="font-size: 18px; margin-top: 15px;color:red"><u>This campaign is already over.</u></h3>';
 
-	//find out who the winner was
+		//find out who the winner was
 	$winneremail = mysql_result($campaignresult, 0, "winneremail");
     $winnerphotoid = mysql_result($campaignresult, 0, "winnerphoto");
-
-
 
 	//if a winner has been selected
 	if($winneremail != "") {
@@ -325,79 +456,41 @@ if(mysql_result($campaignresult, 0, "endtime") <= time()) {
         $winnerphotoquery = mysql_query("SELECT caption FROM campaignphotos WHERE id = '$winnerphotoid'");
         $winnerphototitle = mysql_result($winnerphotoquery, 0, "caption");
         
-		echo '<div style="font-size: 17px; margin-top: -15px;"><b>Your Winner</b>: ',$fullname,'</div>
-        <div style="font-size: 17px;"><b>Your Chosen Photo:</b> "<a href="fullsizeme.php?id=',$winnerphotoid,'">',$winnerphototitle,'</a>"</div>';  
+		echo '<div style="font-size: 17px; margin-top: -15px;"><b>Winner</b>: ',$fullname,'</div>
+        <div style="font-size: 17px;"><b>Chosen Photo:</b> "<a href="fullsizeme.php?id=',$winnerphotoid,'">',$winnerphototitle,'</a>"</div>';
 	}
 	//otherwise a winner hasn't been selected
 	else {
 		//display "no winner has been chosen yet"
 		echo '<h3 style="font-size: 18px; margin-top: -15px;">No winner has been selected yet.</h3>';
 	}
-    
-    //display a link to edit the campaign
-    echo'<div style="font-size:16px;">(Click on a photo to purchase)</div>
-    
-	</div>';
+	echo '</div>';
 }
 //otherwise the campaign is not over yet 
-
-
 else {
 	//find out how much time is left in the campaign
 	$timeleft          = mysql_result($campaignresult, 0, "endtime") - time();
 	//find out how many days hours minutes are left
-	$daysleft          = floor($timeleft / (24*60*60));
-    $timeleft          -= 24*60*60*$daysleft;
-    $hoursleft         = floor($timeleft / (60*60));
-	$timeleft          -= 60*60*$hoursleft;
-	$minutesleft       = floor($timeleft / 60);
-    $today = date("F j, Y, g:i a");
-        
+			$daysleft          = floor($timeleft / (24*60*60));
+    			$timeleft          -= 24*60*60*$daysleft;
+    			$hoursleft         = floor($timeleft / (60*60));
+			$timeleft          -= 60*60*$hoursleft;
+			$minutesleft       = floor($timeleft / 60);
+          $today = date("F j, Y, g:i a");
+
 	//display how much time is left in the campaign
 	echo '<span style="font-size: 16px; margin-top: 15px;"><b>Time Left:</b> ', $daysleft, ' days ', $hoursleft, ' hours ', $minutesleft, ' minutes</span><br />
     <span style="font-size: 16px; margin-top: 15px;"><b>Photos Submitted:</b> ',$numphotos,'</span>
     <br /><br />
 ';
-    
-    
-        //Edit Campaign Modal
-    
-        echo'<div class="modal hide fade" id="editcampaign" style="overflow-y:scroll;overflow-x:hidden;">
 
-        <div class="modal-header">
-        <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
-        <img style="margin-top:-4px;" src="graphics/logoteal.png" height="28" width="100" />&nbsp;&nbsp;<span style="font-size:16px;">Edit your campaign\'s information below:</span>
-        </div>
-        <div modal-body" style="width:600px;">
-
-        <div id="content" style="font-size:16px;width:550px;height:230px;overflow-x:hidden;margin-top:10px;margin-left:10px;">
-
-        <form action="managecampaign.php?id=',$campaignID,'&action=editcampaign" method="post" enctype="multipart/form-data">
-
-    <span style="font-size:14px;">
-    Title:&nbsp;&nbsp; <input name="title" value="',$title,'">
-    <br />
-    Description:&nbsp;
-    <br />
-    <textarea style="width:480px" rows="5" cols="60" name="description" >',$description,'</textarea>
-    <br />
-    </span>
-    <button class="btn btn-success" type="submit">Save Info</button>
-    </form>
-    <br />
-
-</div>
-</div>
-</div>';
-
-
- //Campaign Agreement Modal
+    //Campaign Agreement Modal
     
         echo'<div class="modal hide fade" id="campaignagreement" style="overflow-y:scroll;overflow-x:hidden;width:850px;margin-left:-400px;">
 
         <div class="modal-header">
         <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
-        <img style="margin-top:-4px;" src="graphics/logoteal.png" height="28" width="100" />&nbsp;&nbsp;<span style="font-size:16px;">Campaign Content License Agreement</span>
+        <img style="margin-top:-4px;" src="graphics/logoteal.png" height="28" width="100" />&nbsp;&nbsp;<span style="font-size:16px;">INTELLECTUAL PROPERTY LICENSE AGREEMENT</span>
         </div>
         <div modal-body" style="width:700px;">
         <div id="content" style="font-size:16px;width:830px;height:400px;overflow-x:hidden;margin-top:10px;margin-left:10px;">
@@ -405,163 +498,178 @@ else {
         <pre style="font-family:helvetica,arial;font-size:13px;padding-left:10px;margin-right:20px;">
         
         
-        <div style="text-align:center;font-size:15px;font-weight:bold;">CAMPAIGN CONTENT LICENSE AGREEMENT</div>';
+        <div style="text-align:center;font-size:15px;font-weight:bold;">INTELLECTUAL PROPERTY LICENSE AGREEMENT</div>';
 echo
 htmlentities("
-	In the event that the Licensee selects as the Image, the image, or images, as the case may be, submitted by the Licensor as part of a PhotoRankr Tender, then the Licensee and Licensor will be deemed to enter into a separate binding agreement in relation to the license of the Image and the rights of the Licensor in relation to such Image.
+	 In the event the Licensee selects as the Image, the image, or images, as the case may be, submitted by the Licensor as part of a PhotoRankr Tender, then the Licensee and Licensor will be deemed to enter into a separate and identical binding agreement in relation to the license of the Image and the rights of the Licensor in relation to such Image.
 
-	For the avoidance of doubt:
+    For the avoidance of doubt:
 
-	This Agreement is in addition to the terms applicable to the Site, which includes without limitation the terms of use, non disclosure agreement, privacy policy, or any other policy or procedure communicated by PhotoRankr from time to time;
+    This Agreement is in addition to the terms applicable to the Site, which includes without limitation the terms of use, non disclosure agreement, privacy policy, or any other policy or procedure communicated by PhotoRankr from time to time;
 
-	PhotoRankr and its third party providers will not be a party to this separate agreement and will have no liability whatsoever in relation to the performance or failure to perform of a Licensor or Licensee under the terms of this separate agreement.
+    PhotoRankr and its third party providers will not be a party to this separate agreement and will have no liability whatsoever in relation to the performance or failure to perform of a Licensor or Licensee under the terms of this separate agreement.
 
-	The agreement of the Licensor to the terms and conditions set out below is shown by clicking on the 'Agree' button.  By clicking on the 'Agree' button below, you represent and warrant that you have read and understood all of the terms and conditions set forth below and agree to be bound by them.  If you do not agree to such terms, you should not click the 'Agree' button below.  If you click on the 'Agree' button on behalf of your employer, you represent and warrant that you have full legal authority to bind your employer or such other entity.  If you do not have such authority, you should not click the 'Agree' button below.
+    The agreement of the Licensor to the terms and conditions set out below is shown by clicking on the 'Agree' button.  By clicking on the 'Agree' button below, you represent and warrant that you have read and understood all of the terms and conditions set forth below and agree to be bound by them.  If you do not agree to such terms, you should not click the 'Agree' button below.  If you click on the 'Agree' button on behalf of your employer, you represent and warrant that you have full legal authority to bind your employer or such other entity.  If you do not have such authority, you should not click the 'Agree' button below.
 
-1. 	Definitions
+1.  Definitions
 
-	Unless inconsistent with the context, the following expressions shall have the following meanings:
+    Unless inconsistent with the context, the following expressions shall have the following meanings:
 
-	'Agreement' means this intellectual property license agreement;
+    'Agreement' means this Intellectual Property License Agreement;
 
-	'Business Day' means any day which is not a Saturday, Sunday, or a national holiday in the United States;
+    'Business Day' means any day which is not a Saturday, Sunday, or a national holiday in the United States;
 
-	'Image' means the image or images, as the case may be, which the Licensor selects as the winning image pursuant to the PhotoRankr Tender;
+    'Image' means the image or images, as the case may be, which the Licensee selects as the winning image pursuant to the PhotoRankr Tender;
 
-	'PhotoRankr' means PhotoRankr, Inc., a corporation of the State of Delaware located at 160 Greentree Drive, Suite 101, Dover, Delaware 19904;
+    'PhotoRankr' means PhotoRankr, Inc., a corporation of the State of Delaware, with registered agent located at 160 Greentree Drive, Suite 101, Dover, Delaware 19904;
 
-	'PhotoRankr Tender' means a tender held by the Licensor on the Site, pursuant to which prospective photographers submit images for review and consideration by the Licensor;
+    'PhotoRankr Tender' means a tender held by the Licensor on the Site, pursuant to which prospective photographers submit images for review and consideration by the Licensor;
 
-	 'Intellectual Property' means the Image; 'Licensee' means 'Sample Licensee,' identified also by the username '$repemail'; 'Licensor' means 'Content Creator', identified also by the username 'Content Creator'; 'Site' means www.photorankr.com. 
+    'Intellectual Property' means the Image; 
 
-2. 	Interpretation 
+    'Licensee' means 'Sample Licensee,' identified also by the username 'John Doe'; 
 
-	In these terms and conditions, unless the context otherwise indicates:
+    'Licensor' means 'Campaign Winner' identified also by the username 'Campaign Winner'; 
 
-(a)	References to any statute, ordinance, or other law shall include all regulations and other instruments thereunder and all consolidations, amendments, re-enactments or replacements thereof.
+    'Site' means www.photorankr.com. 
 
-(b)	Words importing the singular shall include the plural and vice versa, words importing a gender shall include other genders and references to a person shall be construed as references to an individual, firm, body corporate, association (whether incorporated or not), government, and governmental, semi-governmental, and local authority or agency.
+2.  Interpretation 
 
-(c)	Where any word or phrase is given a defined meaning in these terms and conditions, any other part of speech or other grammatical form in respect of such word or phrase shall have a corresponding meaning.
+    In these terms and conditions, unless the context otherwise indicates:
 
-3.	License
+(a) References to any statute, ordinance, or other law shall include all regulations and other instruments thereunder and all consolidations, amendments, re-enactments, or replacements thereof.
 
-(a)	Unless otherwise agreed by the Licensor and the Licensee in writing, the Licensor grants the Licensee a license to use the Image as follows:
+(b) Words importing the singular shall include the plural and vice versa, words importing a gender shall include other genders and references to a person shall be construed as references to an individual, firm, body corporate, association (whether incorporated or not), government, and governmental, semi-governmental, and local authority or agency.
 
-	(i)	Term:  $lengthofuse; starting from: $today;
+(c) Where any word or phrase is given a defined meaning in these terms and conditions, any other part of speech or other grammatical form in respect of such word or phrase shall have a corresponding meaning.
 
-	(ii)	Territory of Use:  $location; 
+3.  License
 
-	(iii)	Permitted Uses:  $uses;
+(a) Unless otherwise agreed by the Licensor and the Licensee in writing, the Licensor grants the Licensee a license to use the Image as follows:
 
-	(iv)	Exclusive or Non-Exclusive Use: $licenses;
 
-	(v)	if the Permitted Uses in (iii) above include Web Advertising, Digital Banners, Social Media, Web Video, E-mail Promotion and Electronic Brochure, Apps, E-Book, Corporate, Retail and Promotional Site, then worldwide territory is hereby granted;
+    (i) Term:  $lengthofuse, starting from $today;
 
-	(vi)	Additional Terms: $additionalterms
-             
-             
-             
-(b)	The Licensee must only use the Image as expressly permitted by this Agreement.
+    (ii)    Territory of Use: $location;
 
-(c)	Notwithstanding any other provision of this Agreement, the Licensee must not use the Image for any pornographic use, in a manner which is obscene or immoral, for any unlawful purpose, to defame any person, or to violate any person’s right to privacy or publicity.
+    (iii)   Permitted Uses: $uses;
 
-4.	Third Party Rights
+    (iv)    Exclusive or Non-Exclusive Use: $licenses;
 
-(a)	The Licensor agrees, represents and warrants that:
+    (v) if the Permitted Uses in (iii) above include Web Advertising, Digital Banners, Social Media, Web Video, E-mail Promotion and Electronic Brochure, Apps, E-Book, Corporate, Retail and Promotional Site, then worldwide territory is hereby granted;
 
-	(i)	the Image does not infringe any reputation or intellectual property right of a third party;
+    (vi)    Additional Terms: {AdditionalTerms}
 
-	(ii)	all relevant authors have agreed not to assert their moral rights (personal rights associated with authorship of a work under applicable law) in the Image;
+(b) The Licensee must only use the Image as expressly permitted by this Agreement.
 
-	(iii)	if the Image incorporates the intellectual property rights of a third party, then the Licensor has obtained a license from the relevant third party to incorporate the intellectual property rights of that third party in the Image ('Third Party License');
+(c) Notwithstanding any other provision of this Agreement, the Licensee must not use the Image for any pornographic use, in a manner which is obscene or immoral, for any unlawful purpose, to defame any person, or to violate any person’s right to privacy or publicity.
 
-	(iv)	the Third Party License permits the Licensee with a worldwide, royalty free, perpetual right to display, distribute, and reproduce (in any form) the intellectual property rights of the third party contained in the Image.
+4.  Third Party Rights
 
-(b)	In the event that the Third Party License is capable of assignment to the Licensee, then the Licensee hereby assigns and transfers to the Licensor, and the Licensee hereby agrees to take an assignment and transfer thereof, the Third Party License and all of the rights and obligations of the Licensor under the Third Party License.
+(a) The Licensor agrees, represents and warrants that:
 
-5.	Indemnity
+    (i) the Image does not infringe any reputation or intellectual property right of a third party;
 
-	The Licensor must indemnify and keep indemnified the Licensee from and against all loss, cost, expense (including legal costs and attorney's fees) or liability whatsoever incurred by the Licensee arising from any claim, demand, suit, action, or proceeding by any person against the Licensee where such loss or liability arose out of an infringement, or alleged infringement, of the intellectual property rights of any person, which occurred by reason of the license of the Image by the Licensor.
+    (ii)    all relevant authors have agreed not to assert their moral rights (personal rights associated with authorship of a work under applicable law) in the Image;
 
-6.	Liability of PhotoRankr and Its Third Party Providers
+    (iii)   if the Image incorporates the intellectual property rights of a third party, then the Licensor has obtained a license from the relevant third party to incorporate the intellectual property rights of that third party in the Image ('Third Party License');
 
-	Both the Licensor and the Licensee acknowledge and agree that: 
+    (iv)    the Third Party License permits the Licensee with a worldwide, royalty free, perpetual right to display, distribute, and reproduce (in any form) the intellectual property rights of the third party contained in the Image.
 
-(a)	PhotoRankr and its Third Party Providers are not parties to this Agreement; and
+(b) In the event that the Third Party License is capable of assignment to the Licensee, then the Licensee hereby assigns and transfers to the Licensor, and the Licensee hereby agrees to take an assignment and transfer thereof, the Third Party License and all of the rights and obligations of the Licensor under the Third Party License.
 
-(b)	each of PhotoRankr and its Third Party Providers shall each not be liable or responsible for any breach of this Agreement by any one or more of the Licensee and the Licensor.
+5.  Indemnity
 
-7.	Representations and Warranties
+    The Licensor must indemnify and keep indemnified the Licensee from and against all loss, cost, expense (including legal costs and attorneys’ fees) or liability whatsoever incurred by the Licensee arising from any claim, demand, suit, action, or proceeding by any person against the Licensee where such loss or liability arose out of an infringement, or alleged infringement, of the intellectual property rights of any person, which occurred by reason of the license of the Image by the Licensor.
 
-(a)	The Image is provided 'as is,' and, to the fullest extent permitted under the applicable law, the Licensor hereby expressly disclaims any and all warranties of any kind or nature, whether express, implied, or statutory.
+6.  Liability of PhotoRankr and Its Third Party Providers
 
-(b)	The Licensee acknowledges and confirms that the Licensor does not make any warranty or representation that the Image will satisfy the requirements of the Licensee.
+    Both the Licensor and the Licensee acknowledge and agree that: 
 
-8.	Termination
+(a) PhotoRankr and its Third Party Providers are not parties to this Agreement; and
 
-	Notwithstanding any other provisions of this Agreement, the Licensor has the right to immediately terminate this Agreement and the license granted hereunder if the Licensee has breached any of its obligations under this Agreement.
+(b) each of PhotoRankr and its Third Party Providers shall each not be liable or responsible for any breach of this Agreement by any one or more of the Licensee and the Licensor.
 
-9.	Assignment
+7.  Representations and Warranties
 
-	This Agreement is personal to each of the License and the Licensor, and may not be assigned without the prior written consent of the other party.
+(a) The Image is provided 'as is,' and, to the fullest extent permitted under the applicable law, the Licensor hereby expressly disclaims any and all warranties of any kind or nature, whether express, implied, or statutory.
 
-10.	Further Assurances
+(b) The Licensee acknowledges and confirms that the Licensor does not make any warranty or representation that the Image will satisfy the requirements of the Licensee.
 
-	Each of the parties will upon request by any other party hereto at any time and from time to time, execute, sign, and deliver all documents and do all things necessary or appropriate to evidence or carry out the intent and purposes of these Terms.
+8.  Termination
 
-11.	Entire Agreement
+    Notwithstanding any other provisions of this Agreement, the Licensor has the right to immediately terminate this Agreement and the license granted hereunder if the Licensee has breached any of its obligations under this Agreement.
 
-	These Terms, and any attachments thereto, including releases from models, minors, and property owners, constitute the entire agreement between the parties and supersedes all prior representations, agreements, statements, and understanding, whether verbal or in writing.
+9.  Assignment
 
-12.	Notices
+    This Agreement is personal to each of the Licensee and the Licensor, and may not be assigned without the prior written consent of the other party.
 
-	A notice or other communication given under this Agreement, including, but not limited to, a request, demand, consent or approval, to or by a party to this Agreement: 
+10. Further Assurances
 
-(a) 	must be in legible writing and in English;
+    Each of the parties will upon request by any other party hereto at any time and from time to time, execute, sign, and deliver all documents, and do all things necessary or appropriate to evidence or carry out the intent and purposes of these Terms.
 
-(b) 	must be addressed to the addressee at the mailing address or e-mail address set forth below or to any other mailing address or email address a party notifies to the others in writing:
+11. Entire Agreement
 
-	(i)	if to the Licensor: 
-		Content Creator
+    These Terms, and any attachments thereto, including, but not limited to, releases from models, property owners, and minors, constitute the entire agreement between the parties and supersedes all prior representations, agreements, statements, and understanding, whether verbal or in writing.
 
-	(ii)	if to the Licensee: 
-		    $repemail
-             
-             
-		
+12. Notices
 
-(c)	without limiting any other means by which a party may be able to prove that a notice has been received by another party, a notice is deemed to be received:
+    A notice or other communication given under this Agreement, including, but not limited to, a request, demand, consent, or approval, to or by a party to this Agreement: 
 
-	(i)	if sent by hand, when delivered to the addressee;
+(a)     must be in legible writing and in English;
 
-	(ii)	if by mail, three Business Days from, and including, the date of postmark; or
+(b)     must be addressed to the addressee at the mailing address or e-mail address set forth below or to any other mailing address or e-mail address a party notifies to the others in writing:
 
-	(iii)	if by e-mail transmission, on receipt by the sender of an e-mail acknowledgment or read receipt generated by the e-mail client to which the email was sent, but if the delivery or receipt is on a day which is not a Business Day or is after 5.00 p.m (addressee's time), it is deemed to be received at 9.00 a.m. on the following Business Day.
+    (i) if to the Licensor: 
+        {LicensorName}
+	{LicensorUserName}
+	{LicensorE-mailAddress}
 
-13.	Miscellaneous
 
-(a)	Tax Liability.  You agree to pay and be responsible for any and all sales taxes, use taxes, value added taxes and duties imposed by any jurisdiction as a result of the license granted to you, or of your use of the Content, pursuant to this Agreement. 
 
-(b)	Invalid Provisions.  If any provision of this Agreement is found to be invalid or otherwise unenforceable under any applicable law, such invalidity or unenforceability shall not be construed to render any other provisions contained herein as invalid or unenforceable, and all such other provisions shall be given full force and effect to the same extent as though the invalid or unenforceable provision were not contained herein.
+    (ii) if to the Licensee: 
+        {LicenseeName}
+	{LicenseeUserName}
+	{LicenseeE-mailAddress}
 
-(c)	Applicable Law.  This Agreement shall be governed by and construed in accordance with the laws of the State of Delaware without regard to the conflict of law principles of Delaware or any other jurisdiction.  This Agreement will not be governed by the United Nations Convention on Contracts for the International Sale of Goods, the application of which is expressly excluded.  You consent to service of any required notice or process upon you by registered mail or overnight courier with proof of delivery notice, addressed to the address or contact information provided by you at the time the Content was downloaded, or such other address as you may advise us in writing to use, from time to time.
+(c) without limiting any other means by which a party may be able to prove that a notice has been received by another party, a notice is deemed to be received:
 
-(d)	Arbitration.  Any controversy or claim arising out of or relating to this contract, or the breach thereof, shall be determined by arbitration administered by the American Arbitration Association in accordance with its International Arbitration Rules.  The number of arbitrators shall be one.  The place of arbitration shall be New York, NY.  The arbitration shall be held, and the award shall be rendered, in English.
+    (i) if sent by hand, when delivered to the addressee;
 
-(e)	Waiver.  No action of Licensor, other than express written waiver, may be construed as a waiver of any provision of this Agreement.  A delay on the part of Licensor in the exercise of its rights or remedies will not operate as a waiver of such rights or remedies, and a single or partial exercise by Licensor of any such rights or remedies will not preclude other or further exercise of that right or remedy.  A waiver of a right or remedy by Licensor on any one occasion will not be construed as a bar to or waiver of rights or remedies on any other occasion.
+    (ii)    if by mail, three Business Days from, and including, the date of postmark; or
 
-(f)	Severability.  If any provision of this Agreement is found to be invalid or otherwise unenforceable under any applicable law, such invalidity or unenforceability shall not be construed to render any other provisions contained herein as invalid or unenforceable, and all such other provisions shall be given full force and effect to the same extent as though the invalid or unenforceable provision were not contained herein.
+    (iii)   if by e-mail transmission, on receipt by the sender of an e-mail acknowledgment or read receipt generated by the e-mail client to which the email was sent, but if the delivery or receipt is on a day which is not a Business Day or is after 5.00 p.m. (addressee's time) it is deemed to be received at 9.00 a.m. on the following Business Day.
 
-(g)	Section Headings.  The descriptive headings of this Agreement are for convenience only and shall be of no force or effect in construing or interpreting any of the provisions of this Agreement.
+13. Miscellaneous
 
-14.	Acknowledgement
+(a) Tax Liability.  Licensee agrees to pay and be responsible for any and all sales taxes, use taxes, value added taxes and duties imposed by any jurisdiction as a result of the license granted to Licensee, or Licensee's use of the Image, pursuant to this Agreement. 
 
-	YOU ACKNOWLEDGE THAT YOU HAVE READ THIS AGREEMENT, UNDERSTAND IT, AND HAD AN OPPORTUNITY TO SEEK INDEPENDENT LEGAL ADVICE PRIOR TO AGREEING TO IT.  IN CONSIDERATION OF PHOTORANKR AGREEING TO PROVIDE THE CONTENT, YOU AGREE TO BE BOUND BY THE TERMS AND CONDITIONS OF THIS AGREEMENT.  YOU FURTHER AGREE THAT IT IS THE COMPLETE AND EXCLUSIVE STATEMENT OF THE AGREEMENT BETWEEN THE LICENSOR AND LICENSEE, WHICH SUPERSEDES ANY PROPOSAL OR PRIOR AGREEMENT, ORAL OR WRITTEN, AND ANY OTHER COMMUNICATION BETWEEN THE LICENSOR AND LICENSEE RELATING TO THE SUBJECT OF THIS AGREEMENT. 
+(b) Severability.  If any provision of this Agreement is found to be invalid or otherwise unenforceable under any applicable law, such invalidity or unenforceability shall not be construed to render any other provisions contained herein as invalid or unenforceable, and all such other provisions shall be given full force and effect to the same extent as though the invalid or unenforceable provision were not contained herein.
 
-15.	Electronic Acceptance
+(c) Applicable Law.  This Agreement shall be governed by and construed in accordance with the laws of the State of Delaware without regard to the conflict of law principles of Delaware or any other jurisdiction.  This Agreement will not be governed by the United Nations Convention on Contracts for the International Sale of Goods, the application of which is expressly excluded.  
 
-	The parties have executed this Agreement as of the date of the Licensor clicking the 'Agree' button.");
+(d) Arbitration.  Any controversy or claim arising out of or relating to this contract, or the breach thereof, shall be determined by arbitration administered by the American Arbitration Association in accordance with its International Arbitration Rules.  The number of arbitrators shall be one.  The arbitration shall be held, and the award shall be rendered, in English.
+
+(e) Waiver.  No action of Licensor, other than express written waiver, may be construed as a waiver of any provision of this Agreement.  A delay on the part of Licensor in the exercise of its rights or remedies will not operate as a waiver of such rights or remedies, and a single or partial exercise by Licensor of any such rights or remedies will not preclude other or further exercise of that right or remedy.  A waiver of a right or remedy by Licensor on any one occasion will not be construed as a bar to or waiver of rights or remedies on any other occasion.
+
+(f) Section Headings.  The descriptive headings of this Agreement are for convenience only and shall be of no force or effect in construing or interpreting any of the provisions of this Agreement.
+
+14. Electronic Acceptance
+
+    The parties have executed this Agreement as of the date of the Licensor clicking the 'Agree' button.
+
+THE LICENSOR
+
+{LicensorName}
+{LicensorUserName}
+{LicensorE-mailAddress}
+
+THE LICENSEE
+
+
+{LicenseeName}
+{LicenseeUserName}
+{LicenseeE-mailAddress}");
 
 echo'
 </pre>
@@ -572,115 +680,13 @@ echo'
 </div>
 </div>';
 
-
-
-	//display a link to edit the campaign
-    echo'<a data-toggle="modal" data-backdrop="static" href="#editcampaign"><button style="margin-top: 10px;" class="btn btn-success"><b>Edit Campaign</b></button></a>&nbsp;&nbsp
-    <a data-toggle="modal" data-backdrop="static" href="#campaignagreement"><button style="margin-top: 10px;" class="btn btn-success"><b>Campaign Agreement</b></button></a>
-
-<br /><br />
-
-<div>
-<div class="panel">
-
-<div style="position:relative;font-weight:bold;padding-bottom:10px;font-family:helvetica neue, lucida grande, georgia; font-size:14px;">Give feedback to photographers:</div>
-
-<form action="managecampaign.php?id=',$campaignID,'&action=message" method="post">
-<textarea style="width:825px" rows="4" cols="210" name="message"></textarea>    
-<button style="margin-left:725px;" class="btn btn-success" type="submit">Post Comment</button>
-</form>
-<br />
-
-<div style="padding-right:15px;">';
-
-
-$refer=htmlentities($_GET['refer']); 
-
-if ($refer == 'referralsuccess') {
-$sendemail = $_POST['email'];
-$to = $sendemail;
-$subject = "Help out my photo campaign on PhotoRankr";
-$message = "You've been invited by $repemail to help out their photo campaign on PhotoRankr. To help them out, visit:
-
-http://photorankr.com/campaignphotos.php?id=$campaignID
-
-Sincerely,
-The PhotoRankr Team
-";
-
-$headers = 'From:PhotoRankr <photorankr@photorankr.com>';
-mail($to, $subject, $message, $headers);
-
-echo '<span style="position:relative;top:0px;font-family:lucida grande, georgia, helvetica; font-size: 16px;" class="label label-success">Referral successfully sent</span><br /><br />';
-
-}
-
-
-echo'
-
-<div style="font-size:14px;margin-top:-20px;font-weight:bold;">Help promote your campaign by sharing it through social media and email:</div><br /><br />
-
-<!--FB-->
-<a name="fb_share" share_url="http://photorankr.com/campaignphotos.php?id=',$campaignID,'"></a> 
-<script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" 
-        type="text/javascript">
-</script>
-
-<!--TWITTER-->
-<div style="position:relative;margin-top:15px;">
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://photorankr.com/campaignphotos.php?id=',$campaignID,'" data-text="Help out my photo campaign on PhotoRankr" data-via="PhotoRankr" data-related="PhotoRankr">Tweet</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
-</script></div>
-
-<!--GOOGLE PLUS-->
-<div style="position:relative;margin-top:15px;">
-<div class="g-plus" data-action="share" data-href="http://photorankr.com/campaignphotos.php?id=',$campaignID,'"></div>';
-?>
-
-<script type="text/javascript">
-  (function() {
-    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-    po.src = 'https://apis.google.com/js/plusone.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-  })();
-</script>
-<?php
-echo'
-
-<!--TUMBLR-->
-<div style="position:relative;margin-top:15px;">
-<span id="tumblr_button_abc123"></span>
-</div>
-
-<br />
-
-<!--Email System-->
-
-<div style="position:relative; font-family:helvetica neue, lucida grande, georgia; font-size: 14px; font-weight:bold;">Send campaign to:</div>
-
-<form action="managecampaign.php?id=',$campaignID,'&refer=referralsuccess" method="POST">
-<div style="position:relative; top:-25px; left:150px;">
-<input style="width:180px;height:22px;" type="text" name="email" placeholder="Email Address"/>
-</div>
-<div style="position:relative; top:-25px; left:223px;">
-<button type="submit" name="Submit" class="btn btn-success">Send Campaign</button>
-</div>
-</form>
-</div>
-
-</div>
-
-</div>
-</div>
-<p class="flip" style="font-size:14px;font-weight:bold;">Post Feedback And Promote Your Campaign Here</p>
-</div>';
-
+    
+    echo'
+         <a data-toggle="modal" data-backdrop="static" href="#campaignagreement"><button class="btn btn-success"><b>LICENSE AGREEMENT</b></button></a>';
+    echo '</div>';    
 }
 
 echo '</div>';
-
-
-
 
 //GET MESSAGE
 $getmessage = "SELECT comments FROM campaigns WHERE id = '$campaignID'";
@@ -689,17 +695,22 @@ $message = mysql_result($getmessagequery, 0, "comments");
 
 if($message != '') {
 echo'
-<div class="grid_18 dropshadow well" style="postion:relative;float:top;width:860px;"><span style="font-size:16px;font-weight:bold;">Your Feedback:<br /></span>
+<div class="grid_18 dropshadow well" style="postion:relative;float:top;width:860px;"><span style="font-size:16px;font-weight:bold;">Buyer Feedback:<br /></span>
 <span style="font-size:14px;">',$message,'</span>
 </div>';
 }
+
+
+} //end of brief view
+
+elseif($view == 'photogs') {
 
 //FACEPILE
 $query3 = mysql_query("SELECT * FROM campaignphotos WHERE campaign = '$campaignID'");
 $numfaces = mysql_num_rows($query3);
 
-echo'<div class="grid_18 dropshadow well" style="postion:relative;float:top;width:860px;">
-<div style="font-size:16px;font-damily:helvetica neue,arial;padding-bottom:5px;"><b>Photographers in this competition:</b></div>';
+echo'<div class="grid_18 dropshadow well" style="margin-top:40px;width:890px;">
+<div style="font-size:18px;font-family:helvetica neue,arial;font-weight:200;padding-bottom:5px;">Photographers in this competition:</div>';
 for($iii=0; $iii < $numfaces; $iii++) {
     $facemail = mysql_result($query3,$iii,'emailaddress');
     $pos = strpos($prevlist,$facemail);
@@ -708,65 +719,75 @@ for($iii=0; $iii < $numfaces; $iii++) {
         }
      $query4 = mysql_query("SELECT profilepic,user_id FROM userinfo WHERE emailaddress = '$facemail'");
      $facephoto = mysql_result($query4,0,'profilepic');
+     $faceid = mysql_result($query4,0,'user_id');
     $facephoto = 'http://photorankr.com/' . $facephoto;
     
-    echo'<img class="item" src="',$facephoto,'" height="60" width="60" />';    
+    echo'<a class="hover" href="viewprofile.php?u=',$faceid,'"><img class="item" src="',$facephoto,'" height="100" width="100" /></a>';    
         
     $prevlist = $prevlist . $facemail;
 }
 echo'</div>';
 
-//View Options
-echo'<div class="grid_18" style="postion:relative;float:top;width:860px;float:left;padding-left:4px;padding-bottom:10px;">';
-if($_GET['view'] == "") {echo'
-<a class="btn btn-primary" style="width:115px;height:22px;font-size:14px;" href="managecampaign.php?id=',$campaignID,'"><b>Grid View</b></a>&nbsp;&nbsp;
-<a class="btn btn-primary" style="width:115px;height:22px;font-size:14px;" href="managecampaign.php?id=',$campaignID,'&style=natural"><b>Natural View</b></a>';
-}
-elseif($_GET['view'] == "newest") {
-echo'
-<a class="btn btn-primary" style="width:115px;height:22px;font-size:14px;" href="managecampaign.php?id=',$campaignID,'&view=newest"><b>Grid View</b></a>&nbsp;&nbsp;
-<a class="btn btn-primary" style="width:115px;height:22px;font-size:14px;" href="managecampaign.php?id=',$campaignID,'&view=newest&style=natural"><b>Natural View</b></a>';
-}
-echo'</div>';
+} // end of photog view
 
-if($_GET['action'] == "saved") {
-    $savedphotoid = $_GET['pd'];
-    $one = '1';
-    $savedquery = "UPDATE campaignphotos SET saved = '$one' WHERE id = '$savedphotoid'";
-    $savedqueryrun = mysql_query($savedquery);
-}
 
-if($_GET['action'] == "remove") {
-    $savedphotoid = $_GET['pd'];
-    $zero = 'zero';
-    $savedquery = "UPDATE campaignphotos SET saved = '$zero' WHERE id = '$savedphotoid'";
-    $savedqueryrun = mysql_query($savedquery);
-}
 
+elseif($view == '') {
+
+      $sort = htmlentities($_GET['sort']); 
+    
+        echo'<br /><br /><br /><br /><br /><div style="width:940px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($sort == 'newest') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="managecampaign.php?id=',$campaignID,'&sort=newest">Newest Entries</a> | <a class="green" style="text-decoration:none;color:#333;'; if($sort == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="managecampaign.php?id=',$campaignID,'">Top Ranked Entries</a></div></div>';
+        
+         if(htmlentities($_GET['action']) == 'rank') {
+        $id = mysql_real_escape_string($_POST['imageid']);
+        $ranking = mysql_real_escape_string($_POST['ranking']);
+        $rankquery = mysql_query("UPDATE campaignphotos SET votes = 1, points = '$ranking' WHERE id = '$id'");
+    
+    }
+    
+    if(htmlentities($_GET['action']) == 'delete') {
+        $id = mysql_real_escape_string($_POST['imageid']);
+        $imagecaption = mysql_real_escape_string($_POST['caption']);
+        $imagethumb = mysql_real_escape_string($_POST['thumb']);
+
+        $deletequery = mysql_query("UPDATE campaignphotos SET trash = 1 WHERE id = '$id'");
+        
+        echo'<div style="font-size:16px;font-weight:400;margin-top:20px;margin-left:35px;"><img src="',$imagethumb,'" height="40" width="40" />&nbsp;&nbsp;"',$imagecaption,'" Deleted</div>';
+    
+    }
+    
+    if(htmlentities($_GET['action']) == 'comment') {
+        $id = mysql_real_escape_string($_POST['imageid']);
+        $imagecaption = mysql_real_escape_string($_POST['caption']);
+        $comment = mysql_real_escape_string(htmlentities($_POST['comment']));
+        $imagethumb = mysql_real_escape_string($_POST['thumb']);
+
+        $commentquery = mysql_query("INSERT INTO campaigncomments (comment,campaign,emailaddress,imageid) VALUES ('$comment','$campaignID','$repemail','$id')");
+        
+        echo'<div style="font-size:16px;font-weight:400;margin-top:20px;margin-left:35px;"><img src="',$imagethumb,'" height="40" width="40" />&nbsp;&nbsp;"',$imagecaption,'" Comment Posted</div>';
+            
+    }
+                
 //select the photos in this campaign
-if($_GET['view'] == "newest") {
-	$photosquery = "SELECT * FROM campaignphotos WHERE campaign=".$campaignID." ORDER BY id DESC";
+if($sort == "newest") {
+	$photosquery = "SELECT * FROM campaignphotos WHERE campaign=".$campaignID." AND trash <> '1' ORDER BY id DESC LIMIT 12";
 }
-elseif($_GET['view'] == "saved") {
-    $photosquery = "SELECT * FROM campaignphotos WHERE campaign=".$campaignID." AND saved = '1' ORDER BY id DESC";
-}
-else {
-	$photosquery = "SELECT * FROM campaignphotos WHERE campaign=".$campaignID." ORDER BY score DESC";
+elseif($sort == '') {
+	$photosquery = "SELECT * FROM campaignphotos WHERE campaign=".$campaignID." AND trash <> '1' ORDER BY score DESC, id DESC LIMIT 12";
 }
 $photosresult = mysql_query($photosquery);
 
-if($_GET['style'] == "") {
+echo '<div id="thepics" class="grid_18" style="width:940px;margin-left:-45px;margin-top:-30px;padding:35px;">';
 //loop through the result to get all of the necessary information 
 for($iii=0; $iii < mysql_num_rows($photosresult); $iii++) {
 	//get the information for the current photo
 	$photo[$iii] = mysql_result($photosresult, $iii, "source");
-	$photo[$iii] = str_replace("userphotos/","userphotos/medthumbs/", $photo[$iii]);
+    $photo[$iii] = str_replace("userphotos/","userphotos/medthumbs/", $photo[$iii]);
 	$points = mysql_result($photosresult, $iii, "points");
 	$votes = mysql_result($photosresult, $iii, "votes");
 	$average[$iii] = number_format(($points / $votes),2);
-	$photoid[$iii] = mysql_result($photosresult, $iii, "id");
-    $photoid2[$iii] = mysql_result($photosresult, $iii, "id");
-    $caption[$iii] = mysql_result($photosresult, $iii, "caption");
+	$id = mysql_result($photosresult, $iii, "id");
+	$caption[$iii] = mysql_result($photosresult, $iii, "caption");
 
 	list($width, $height) = getimagesize($photo[$iii]);
 	$imgratio = $height / $width;
@@ -774,110 +795,149 @@ for($iii=0; $iii < mysql_num_rows($photosresult); $iii++) {
    	$widthls = $width / 2.5;
 
 	echo '
-	<div class="phototitle fPic" id="',$photoid[$iii],'" style="width:280px;height:280px;overflow:hidden;">
-		<a name="return" href="fullsizeme.php?id=',$photoid[$iii],'">
-       		<div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:280px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$caption[$iii],'"<br />Score: ',$average[$iii],'</p></div>
-       		<img style="position:relative;top:-95px;min-height:300px;min-width:280px;" src="', $photo[$iii], '" height="',$heightls,'px" width="',$widthls,'px" />
-       	</a>';
+    
+    <div class="fPic" id="',$id,'" style="width:280px;overflow:hidden;float:left;margin-left:30px;margin-top:30px;"><a href="fullsizeme.php?id=',$id,'">
+                
+                <div style="width:280px;height:280px;overflow:hidden;">
+                <div class="statoverlay" style="z-index:1;left:0px;top:215px;position:relative;background-color:black;width:280px;height:90px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;font-weight:100;">',$caption[$iii],'</span><br><span style="font-size:15px;font-weight:100;">Rank: ',$average[$iii],'<br></div>
+
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:300px;min-width:280px;" src="',$photo[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a>
+                <br />      
+                </div><br />
+                
+                <!--DROPDOWN FEEDBACK-->
+                    <div class="panel',$id,'">
+                    
+                 <div style="font-size:15px;font-family:helvetica;font-weight:200;">Feedback:</div>   
+                 
+                <form action="managecampaign.php?id=',$campaignID,'&sort=',$sort,'&action=comment" method="post">
+                <textarea style="width:255px;height:70px;" rows="4" cols="60" name="comment"></textarea>
+                <input type="hidden" name="imageid" value="',$id,'" />
+                <input type="hidden" name="caption" value="',$caption[$iii],'" />
+                <input type="hidden" name="thumb" value="',$photo[$iii],'" /> 
+                <div style="width:260px;padding:4px;"><button style="width:60px;float:right;" class="btn btn-success"type="submit">Post</a></div>
+                </form>
+                
+                
+                <br />
+             
+        <div style="width:260px;margin-top:20px;">
+            <div style="float:left;margin-left:30px;"><img src="../graphics/rank_icon.png"/> <span id="rank"> Rank: </span> <span class="numbers">', $average[$iii],'</span><span id="littlenumbers"> /10 </span></div>
+            
+            <script>
+                function submitMyForm(sel) {
+                    sel.form.submit();
+                }
+            </script>
+            
+           <div style="float:left;"><form id="Form1" action="managecampaign.php?id=',$campaignID,'&sort=',$sort,'&action=rank" method="post">
+            <select name="ranking" style="width:95px; height:30px;margin-left:15px;margin-top:-3px;" onchange="submitMyForm(this)">
+            <option value="" style="display:none;">&#8212;</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            </select>
+            <input type="hidden" name="imageid" value="',$id,'" />
+            </form>
+           </div>
+        </div>
         
-if($_GET['view'] != 'saved') {
-echo'<a href="managecampaign.php?id=',$campaignID,'&pd=',$photoid[$iii],'&action=saved#return"<button class="btn btn-primary" style="z-index:2;position:relative;top:-130px;left:185px;opacity:.9;">Save Photo</button></a>';
-}
-elseif($_GET['view'] == 'saved') {
-echo'<a name="removed" href="managecampaign.php?id=',$campaignID,'&view=saved&pd=',$photoid[$iii],'&action=remove#return"<button class="btn btn-primary" style="z-index:2;position:relative;top:-130px;left:205px;opacity:.9;">Remove</button></a>';
-}
-    echo'
-    </div>';
-}
+        <div style="float:left;">
+        <form action="managecampaign.php?id=',$campaignID,'&sort=',$sort,'&action=delete" method="post">
+         <input type="hidden" name="imageid" value="',$id,'" />
+         <input type="hidden" name="caption" value="',$caption[$iii],'" />
+         <input type="hidden" name="thumb" value="',$photo[$iii],'" /> 
+        <button type="submit" style="width:110px;padding:5px;margin-top:15px;margin-left:5px;" class="btn btn-danger">Delete</button></div>
+        </form>
+        
+        <br />
 
-} //end style == ''
+        <div style="flaot:left;"><a style="width:110px;padding:5px;margin-top:15px;margin-left:10px;" class="btn btn-warning" href="fullsizeme.php?id=',$id,'">Buy</a></div>
+        
+        <br/>
+        
+        </div>
+                    
+                    <a name="',$id,'" href="#"><p class="flip',$id,'" style="font-size:15px;font-weight:200;"></a>Give Feedback</p>
+                    
+                    
+                    <style type="text/css">
+                    p.flip',$id,' {
+                    padding:10px;
+                    width:258px;
+                    clear:both;
+                    text-align:center;
+                    background:white;
+                    border:solid 1px #c3c3c3;
+                    }
 
-if($_GET['style'] == "natural") {
-//loop through the result to get all of the necessary information 
-for($iii=0; $iii < mysql_num_rows($photosresult); $iii++) {
-	//get the information for the current photo
-	$photobig[$iii] = mysql_result($photosresult, $iii, "source");
-	$points = mysql_result($photosresult, $iii, "points");
-	$votes = mysql_result($photosresult, $iii, "votes");
-	$average[$iii] = number_format(($points / $votes),2);
-	$photoid[$iii] = mysql_result($photosresult, $iii, "id");
-    $photoid2[$iii] = mysql_result($photosresult, $iii, "id");
-    $caption[$iii] = mysql_result($photosresult, $iii, "caption");
+                    p.flip',$id,':hover {
+                    background-color: #ccc;
+                    }
 
-	list($width, $height) = getimagesize($photobig[$iii]);
-	$imgratio = $height / $width;
-   	$heightls = $height / 2;
-   	$widthls = $width / 2;
+                    div.panel',$id,' {
+                    display:none;
+                    clear:both;
+                    padding:300px;
+                    padding:5px;
+                    text-align:left;
+                    background:white;
+                    border:solid 1px #c3c3c3;
+                    }
+                    </style>
+                    
+                    <!--HIDDEN COMMENT SCRIPT-->
+                    <script type="text/javascript">   
+                    $(document).ready(function(){
+                    $(".flip',$id,'").click(function(){
+                        $(".panel',$id,'").slideToggle("slow");
+                    });
+                    });
+                    </script>
+                    
+                </div>
 
-	echo '
-		<a name="return" href="fullsizeme.php?id=',$photoid[$iii],'">
-        <img class="phototitle" style="margin-top:20px;" src="',$photobig[$iii], '" height="',$heightls,'px" width="',$widthls,'px" />
-       	</a>';
+                
+        ';
     
 }
+echo '</div>';
+echo '<br /><div class="grid_24" id="loadMorePicsView" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Photos&hellip;</div>';
 
-} //end style == 'natural'
+echo '<script>
+
+var last = 0;
+
+	$(window).scroll(function(){
+		if($(window).scrollTop() > $(document).height() - $(window).height()-100) {
+			if(last != $(".fPic:last").attr("id")) {
+				$("div#loadMorePicsView").show();
+				$.ajax({
+					url: "loadMorePicsView.php?lastPicture=" + $(".fPic:last").attr("id")+"&view=', $_GET['view'], '",
+					success: function(html) {
+						if(html) {
+							$("#thepics").append(html);
+							$("div#loadMorePicsView").hide();
+						}
+					}
+				});
+				last = $(".fPic:last").attr("id");
+			}
+		}
+	});
+</script>';
+
+
+} //end of submissions view
 
 ?>
-
-<div class="grid_3" style="position:fixed; right: 100px; margin-left:0px;">
-<div id="accordion2" class="accordion" style="margin-top:20px;width:150px;">
-
-<div class="accordion-group">
-<div style="background-color:#eeeff3;" class="accordion-heading dropshadow">
-<a style="color:#21608E;font-weight:bold;" class="accordion-toggle" href="managecampaign.php?id=<?php echo $campaignID; ?>&view=topranked">Top Ranked</a>
-</div>
-<div id="collapseOne" class="accordion-body collapse">
-</div>
-</div>
-
-<div class="accordion-group">
-<div style="background-color:#eeeff3;" class="accordion-heading dropshadow">
-<a style="color:#21608E;font-weight:bold;" class="accordion-toggle" href="managecampaign.php?id=<?php echo $campaignID; ?>&view=newest">Newest</a>
-</div>
-<div id="collapseTwo" class="accordion-body collapse">
-</div>
-</div>
-
-<div class="accordion-group">
-<div style="background-color:#eeeff3;" class="accordion-heading dropshadow">
-<a style="color:#21608E;font-weight:bold;" class="accordion-toggle" href="managecampaign.php?id=<?php echo $campaignID; ?>&view=saved">Saved Photos</a>
-</div>
-<div id="collapseTwo" class="accordion-body collapse">
-</div>
-</div>
-
-<?php
-if($_GET['action'] == "saved") {
-    echo'<br /><span class="label label-success" style="font-size:14px;font-family:helveetica neue,arial;margin-left:25px;padding:6px;">Photo Saved</span><br />';
-    }
-elseif($_GET['action'] == "remove") {
-    echo'<br /><span class="label label-important" style="font-size:14px;font-family:helvetica neue,arial;margin-left:15px;padding:6px;">Photo Removed</span><br />';
-}
-?>
-
-</div>
-</div>
-
-
-<!--TUMBLR SCRIPTS-->
-<script type="text/javascript">
-    var tumblr_link_url = "http://photorankr.com/campaignphotos.php?id=',$campaignID,'";
-    var tumblr_link_name = "My PhotoRankr Campaign";
-    var tumblr_link_description = "Help out my photo campaign on PhotoRankr";
-</script>
-
-<script type="text/javascript">
-    var tumblr_button = document.createElement("a");
-    tumblr_button.setAttribute("href", "http://www.tumblr.com/share/link?url=" + encodeURIComponent(tumblr_link_url) + "&name=" + encodeURIComponent(tumblr_link_name) + "&description=" + encodeURIComponent(tumblr_link_description));
-    tumblr_button.setAttribute("title", "Share on Tumblr");
-    tumblr_button.setAttribute("style", "display:inline-block; text-indent:-9999px; overflow:hidden; width:129px; height:20px; background:url('http://platform.tumblr.com/v1/share_3.png') top left no-repeat transparent;");
-    tumblr_button.innerHTML = "Share on Tumblr";
-    document.getElementById("tumblr_button_abc123").appendChild(tumblr_button);
-</script>
-
-<script type="text/javascript" src="http://platform.tumblr.com/v1/share.js"></script>
-
 
 
 </body>

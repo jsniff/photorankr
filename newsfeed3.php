@@ -16,6 +16,11 @@ session_start();
     }
 
     $email = $_SESSION['email'];
+    
+    if ($_SESSION['loggedin'] != 1) {
+        header("Location: signup.php");
+        exit();
+    } 
 
 $query="SELECT * FROM photos ORDER BY id DESC LIMIT 0, 16";
 $result=mysql_query($query);
@@ -437,6 +442,7 @@ echo'<div class="grid_4 push_2" style="margin-top:75px;">
 
 <!--NEWSFEED-->
 <div class="grid_16 push_4" id="thepics" style="margin-top:75px;border: 1 px solid black;">
+<div id="container">
 
 <?php
 if(isset($_GET['view'])) {
@@ -1308,6 +1314,7 @@ var last = 0;
 </script>';
 
 echo'
+</div>
 </div>';    
 
 ?>
