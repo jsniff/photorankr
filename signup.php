@@ -80,7 +80,7 @@ if($_GET['action'] == '') {
 echo'<div class="grid_24" style="text-shadow: 2px 2px 15px #333;list-style-type:none;color:white;font-family:helvetica neue;font-size:26px;line-height:1.28;font-weight:100;margin-top:50px;text-align:center;">Login to your PhotoRankr Account<br /><span style="font-size:15px;font-weight:300;"><a class="click2" href="signup3.php">Or Sign Up Free Today</a></span></div><br /><br /><br />
 
 <div class="grid_16 push_4" style="text-align:center;margin-top:30px;">
-<form name="login_form" method="post" action="discover.php?action=login">
+<form name="login_form" method="post" action="myprofile.php?action=login">
 
 <input type="text" style="width:220px;background-color:white;padding:8px;font-family:helvetica;font-size:14px;font-weight:100;color:black;" name="emailaddress" placeholder="Email Address" />
 &nbsp;&nbsp;&nbsp;

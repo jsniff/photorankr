@@ -10,6 +10,7 @@ if($_GET['action'] == "logout") {
 
 //connect to the database
 require "db_connection.php";
+require "functionsnav.php";
 
 //start session
 session_start();
@@ -139,10 +140,12 @@ $notsqueryrun = mysql_query($notsquery); }
 <!DOCTYPE html>
 <head>
 	<title>View all of the campaigns on PhotoRankr</title>
-    <link rel="stylesheet" type="text/css" href="bootstrapnew.css" />
-    <link rel="stylesheet" href="reset.css" type="text/css" />
-    <link rel="stylesheet" href="text.css" type="text/css" />
-    <link rel="stylesheet" href="960_24.css" type="text/css" />
+     <link rel="stylesheet" type="text/css" href="market/css/bootstrapNew.css" />
+ <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
+  <link rel="stylesheet" href="market/css/text.css" type="text/css" />
+   <link rel="stylesheet" href="css/style.css" type="text/css" />
+  <link rel="stylesheet" href="960_24.css" type="text/css" />
+  	<link rel="stylesheet" type="text/css" href="market/css/all.css"/>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   	<script src="market/js/bootstrap.js" type="text/javascript"></script>
   	<script src="market/js/bootstrap-dropdown.js" type="text/javascript"></script>
@@ -193,349 +196,63 @@ opacity:.7;
 </style>
 </head>
 
-<body style="overflow-x:hidden; background-color: #eeeff3;">
+<body style="overflow-x:hidden;">
 
-<!--NAVIGATION BAR-->
-<div class="navbar" style="z-index:10;min-width:1220px;padding-top:0px;font-size:16px;width:100%;">
-	<div class="navbar-inner">
-		<div class="container">
-			    <ul class="nav">
-					<li><a style="color:#fff;" class="brand" style="margin-top:10px;margin-right:20px;" href="../index.php"><div style="margin-top:-2px"><img src="../logo.png" width="160" /></div></a></li>
-                    
-                    <?php               
-                     if($_SESSION['loggedin'] == 1) {
-                     echo'
-                     <li style="color:#fff;margin-top:1px;" class="dropdown active, navbartext"><a style="color:rgb(56,85,103);margin-right:20px;" href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    <span style="font-size:18px;padding-right:3px;color:#fff;margin-top:2px;"><span style="position:relative;top:4px;"><i class="icon-exclamation-sign icon-white"></i></span> ',$currentnotsresult,'</a>
-                    <ul class="dropdown-menu" data-dropdown="dropdown">';
+<?php navbarnew(); ?>
 
-
-$email7 = $_SESSION['email'];
-
-//NOTIFICATION QUERIES  
-$emailquery=("SELECT following FROM userinfo WHERE emailaddress ='$email7'");
-$followresult=mysql_query($emailquery);
-$followinglist=mysql_result($followresult, 0, "following");
-
-$notsquery = "SELECT * FROM newsfeed WHERE (owner = '$email7' AND emailaddress != '$email7') OR following = '$email7' ORDER BY id DESC";
-$notsresult = mysql_query($notsquery);
-$numnots = mysql_num_rows($notsresult);
-
-$ctype = 'campaign';
-$campaignnews = "SELECT * FROM newsfeed WHERE type = '$ctype' ORDER BY id DESC";
-$campaignnewsquery = mysql_query($campaignnews);
-$numcamps = mysql_num_rows($campaignnewsquery);
-
-$cetype = 'campaignended';
-$campaignendednews = "SELECT * FROM newsfeed WHERE type = '$cetype' AND campaignentree LIKE '%$email7%' ORDER BY id DESC";
-$campaignendednewsquery = mysql_query($campaignendednews);
-$numendcamps = mysql_num_rows($campaignendednewsquery);
-
-$fetype = 'feedback';
-$campaignfeedbacknews = "SELECT * FROM newsfeed WHERE type = '$fetype' AND campaignentree LIKE '%$email7%' ORDER BY id DESC";
-$campaignfeedbacknewsquery = mysql_query($campaignfeedbacknews);
-$numfeedcamps = mysql_num_rows($campaignfeedbacknewsquery);
-
-//DECIDE WHICH NOTIFICATIONS TO WHITEN (ONES ALREADY CLICKED ON)
-$unhighlightquery = "SELECT * FROM userinfo WHERE emailaddress = '$email7'";
-$unhighlightqueryrun = mysql_query($unhighlightquery);
-$whitenlist=mysql_result($unhighlightqueryrun, 0, "unhighlight");
-
-
-if($numnots > 1) {
-echo'<div style="width:500px;height:400px;overflow-y:scroll;font-size:14px;">';
-
-for ($iii=1; $iii <= 20; $iii++) {
-$notsarray = mysql_fetch_array($notsresult);
-$campaignarray =  mysql_fetch_array($campaignnewsquery);
-$campaignendedarray =  mysql_fetch_array($campaignendednewsquery);
-$campaignfeedbackarray =  mysql_fetch_array($campaignfeedbacknewsquery);
-$firstname4 = $notsarray['firstname'];
-$lastname4 = $notsarray['lastname'];
-$fullname4 = $firstname4 . " " . $lastname4;
-$fullname4 = ucwords($fullname4);
-$type = $notsarray['type'];
-$typecamp = $campaignarray['type'];
-$typecampended = $campaignendedarray['type'];
-$typecampfeedback = $campaignfeedbackarray['type'];
-$id = $notsarray['id'];
-$typecampid = $campaignarray['id'];
-$typecampendedid = $campaignendedarray['id'];
-$typecampfeedbackid = $campaignfeedbackarray['id'];
-
-//SEARCH IF ID IS IN UNHIGHLIGHT LIST
-$search_string = $whitenlist;
-$regex = $id;
-$match=strpos($whitenlist,$regex);
-
-
-if($match < 1) {
-
-if($typecamp) {
-$caption4 = $campaignarray['caption'];
-$source= $campaignarray['source'];
-$quotecampquery = mysql_query("SELECT quote FROM campaigns WHERE id = '$source'");
-$quotecamp = mysql_result($quotecampquery, 0, "quote");
-$phrase = 'New Campaign: (Reward $' . $quotecamp . ')  "' . $caption4 . '"';
-$phrase = (strlen($phrase) > 56) ? substr($phrase,0,53). " &#8230;" : $phrase;
+	<div class="container_24">
+		<div class="grid_24" style="margin-top:65px;">
     
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="campaignphotos.php?id=',$source,'&newsid=',$typecampid,'"><div id="photoshadow2"><img src="graphics/smallcampaignicon.png" height="50" width="50" />&nbsp;<span style="color:black;">',$phrase,'</span></div></a><br />';
-}
-
-elseif($typecampended) {
-$caption4 = $campaignendedarray['caption'];
-$source= $campaignendedarray['source'];
-$phrase = 'Campaign Winner Picked: "'.$caption4.'"';
-$phrase = (strlen($phrase) > 56) ? substr($phrase,0,53). " &#8230;" : $phrase;
-    
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="campaignphotos.php?id=',$source,'&newsid=',$typecampendedid,'"><div id="photoshadow2"><img src="graphics/smallcampaignicon.png" height="50" width="50" />&nbsp;<span style="color:black;">',$phrase,'</span></div></a><br />';
-}
-
-elseif($typecampfeedback) {
-$caption4 = $campaignfeedbackarray['caption'];
-$source= $campaignfeedbackarray['source'];
-$phrase = 'Campaign Feedback: "'.$caption4.'"';
-$phrase = (strlen($phrase) > 56) ? substr($phrase,0,53). " &#8230;" : $phrase;
-    
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="campaignphotos.php?id=',$source,'&newsid=',$$typecampfeedbackid,'"><div id="photoshadow2"><img src="graphics/smallcampaignicon.png" height="50" width="50" />&nbsp;<span style="color:black;">',$phrase,'</span></div></a><br />';
-}
-
-elseif($type == "comment") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="graphics/newsfeedcomment.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:white">',$fullname4,' commented on your photo</span></div></a><br />';
-}
-
-elseif($type == "message") {
-$ownermessage = $notsarray['owner'];
-$thread = $notsarray['thread'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$ownermessage'";
-$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="myprofile.php?view=viewthread&thread=',$thread,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="graphics/messagesicon.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:white">',$fullname4,' sent you a message</span></div></a><br />';
-}
-
-elseif($type == "reply") {
-$ownermessage = $notsarray['owner'];
-$thread = $notsarray['thread'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$ownermessage'";$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="myprofile.php?view=viewthread&thread=',$thread,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="graphics/messagesicon.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:white">',$fullname4,' replied to your message</span></div></a><br />';
-}
-
-elseif($type == "fave") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="graphics/newsfeedfavorite.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:white">',$fullname4,' favorited your photo</span></div></a><br />';
-}
-
-elseif($type == "trending") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="graphics/newsfeedtrending.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:white">Your photo is now trending</span></div></a><br />';
-}
-
-elseif($type == "follow") {
-$caption4 = $notsarray['caption'];
-$followeremail= $notsarray['emailaddress'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$followeremail'";
-$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$ownerid = $accountrow['user_id'];
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="viewprofile.php?u=',$ownerid,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="graphics/newsfeednewfollower.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:white">',$fullname4,' is now following your photography</span></div></a><br />';
-}
-} //end if statement
-
-elseif($match > 0) {
-
-if($type == "comment") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadow2"><img src="graphics/newsfeedcomment.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:black">',$fullname4,' commented on your photo</span></div></a><br />';
-}
-
-elseif($type == "message") {
-$ownermessage = $notsarray['owner'];
-$thread = $notsarray['thread'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$ownermessage'";
-$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="myprofile.php?view=viewthread&thread=',$thread,'&id=',$id,'"><div id="photoshadow2"><img src="graphics/messagesicon.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:black">',$fullname4,' sent you a message</span></div></a><br />';
-}
-
-elseif($type == "reply") {
-$ownermessage = $notsarray['owner'];
-$thread = $notsarray['thread'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$ownermessage'";$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="myprofile.php?view=viewthread&thread=',$thread,'&id=',$id,'"><div id="photoshadow2"><img src="graphics/messagesicon.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:black">',$fullname4,' replied to your message</span></div></a><br />';
-}
-
-elseif($type == "fave") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadow2"><img src="graphics/newsfeedfavorite.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:black">',$fullname4,' favorited your photo</span></div></a><br />';
-}
-
-elseif($type == "trending") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadow2"><img src="graphics/newsfeedtrending.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:black">Your photo is now trending</span></div></a><br />';
-}
-
-elseif($type == "follow") {
-$caption4 = $notsarray['caption'];
-$followeremail= $notsarray['emailaddress'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$followeremail'";
-$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$ownerid = $accountrow['user_id'];
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="viewprofile.php?u=',$ownerid,'&id=',$id,'"><div id="photoshadow2"><img src="graphics/newsfeednewfollower.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:black">',$fullname4,' is now following your photography</div></a><br /></span>';
-}
-} //end ifelse statement
-
-} //end of for loop
-echo'</div>';
-
-}
-
-elseif($numnots < 1) {
-echo'<div style="position:relative;width:400px;height:80px;overflow-y:scroll;font-size:14px;top: 30px;">';
-echo'<div style="font-size:16px;color:white;text-align:center;">You have no new notifications &#8230;</div>';
-echo'</div>';
-}
-
-
-
+    <?php
 
 echo'
-    </ul>
-    </li>'; 
-            }
-     
-             if($_SESSION['loggedin'] == 1) {
-echo'
-     <li ><a style="color:#fff;margin-top:2px;" href="newsfeed.php">News</a></li>'; }
+    
+<div class="grid_18 roundedright underbox" style="background-color:#eeeff3;height:40px;margin-top:10px;width:940px;">
 
-     ?>
+<a style="text-decoration:none;color:black;" href="viewcampaigns.php"><div class="clicked" style="width:170px;height:40px;border-right:1px solid #ccc;float:left;';if($view == '' && !$_GET['searchterm']) {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:16px;font-weight:200;margin-top:8px;text-align:center;">All Campaigns</div></div></a>
 
-     
-     <li class="dropdown">
+<a style="text-decoration:none;color:black;" href="viewcampaigns.php?view=current"><div class="clicked" style="width:170px;height:40px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;';if($view == 'current') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:16px;font-weight:200;margin-top:8px;text-align:center;">Current Campaigns</div></div></a>
 
-						<a style="color:#fff;margin-top:2px;" href="trending.php" class="dropdown-toggle" data-toggle="dropdown">Galleries<b class="caret" style="background-color:#1a618a;
-"></b></a>
-						<ul class="dropdown-menu" data-dropdown="dropdown">
-							<li><a style="color:#fff;" href="trending.php">Trending</a></li>
-							<li><a style="color:#fff;" href="newest.php">Newest</a></li>
-                            <li><a style="color:#fff;" href="topranked.php">Top Ranked</a></li>
-                        </ul>
-                </li>
-                    
-                    
-					<li style="background-color:#587fa2;"><a style="color:#fff;margin-top:2px;" href="viewcampaigns.php">Campaigns</a></li>
-                                     <li ><a style="color:#fff;margin-top:2px;" href="http://photorankr.com/blog/post">Blog</a></li>
+<a style="text-decoration:none;color:black;" href="viewcampaigns.php?view=previous"><div class="clicked" style="width:170px;height:40px;border-right:1px solid #ccc;float:left;';if($view == 'previous') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:16px;font-weight:200;margin-top:8px;text-align:center;">Past Campaigns</div></div></a>
 
-                      <?php
-                    
-@session_start();
+<a style="text-decoration:none;color:black;" href="viewcampaigns.php?view=winners"><div class="clicked" style="width:170px;height:40px;border-right:1px solid #ccc;float:left;';if($view == 'winners') {echo'background-color:#bbb;color:white;';}echo'"><div style="font-size:16px;font-weight:200;margin-top:8px;text-align:center;">Past Winners</div></div></a>
 
-if($_SESSION['loggedin'] !== 1) {
-echo'
-     <li ><a style="color:#fff;margin-top:2px;" href="signup.php?action=disc">Discover</a></li>'; }
+<div style="width:180px;height:40px;float:left;margin-left:5px;"><div style="font-size:22px;font-weight:100;margin-top:-2px;text-align:center;">
+<form class="navbar-search" method="GET">
+<input class="searchcampaigns" style="position:relative;margin-left:15px;margin-top:2px;font-family:helvetica;font-size:13px;font-weight:200;color:black;" name="searchterm" placeholder="Search Campaigns&nbsp;.&nbsp;.&nbsp;.&nbsp;" type="text">
+</form></div></div>
 
-if($_SESSION['loggedin'] == 1) {
-
-	echo '			
-                <li><a style="color:#fff;margin-top:2px;" href="';
-                    if($nolikes) {echo 'myprofile.php?view=editinfo&action=discover#discover';}else { echo 'discover.php?image=',$discoverimage;} echo '">Discover</a></li>
-                         
-                    <li class="dropdown">
-						<a style="color:#fff;margin-top:2px;" href="../myprofile.php" class="dropdown-toggle" data-toggle="dropdown">My Profile<b class="caret" style="background-color:#1a618a;
-"></b></a>
-						<ul class="dropdown-menu" data-dropdown="dropdown">
-							<li><a style="color:#fff;" href="myprofile.php">Portfolio</a></li>
-                            <li><a style="color:#fff;" href="myprofile.php?view=info">Information</a></li>
-							<li><a style="color:#fff;" href="myprofile.php?view=upload">Upload</a></li>
-							<li><a style="color:#fff;" href="myprofile.php?view=followers">Followers</a></li>
-							<li><a style="color:#fff;" href="myprofile.php?view=following">Following</a></li>
-							<li><a style="color:#fff;" href="myprofile.php?view=faves">Favorites</a></li>
-                            <li><a style="color:#fff;" href="myprofile.php?view=messages">Messages</a></li>
-							<li><a style="color:#fff;" href="newest.php?action=logout">Log Out</a></li>
-						</ul>'; 
-} else {
-				echo '	
-                <li class="dropdown">
-                <a style="color:#fff;margin-top:2px;" href="../signin.php" class="dropdown-toggle" data-toggle="dropdown">Log In<b class="caret"></b></a>
-						<ul class="dropdown-menu" data-dropdown="dropdown">
-							<li><a style="color:#fff;margin-left:-29px;font-size:15px;" href="signin.php">Register for free today</a></li>
-							<li><br/></li>
-							<form name="login_form" method="post" action="viewcampaigns.php?action=login">
-							<li style="margin-left: 5px; margin-right: 5px; width: 185px;"><span style="color: white; margin-bottom: 5px;margin-left:10px;">Email: <br /></span><input type="text" style="width:150px;margin-top:3px;margin-left:10px;" name="emailaddress" /></li>
-							<li><span style="color:white;margin-left:-16px;">Password: <br /></span><input type="password" style="width:150px;margin-top:3px;margin-left:-16px;" name="password"/></li>
-                        <li style="margin-left: 110px;"><input type="submit" class="btn btn-success" value="Sign In" id="loginButton"/></li>
-						</ul>';
-} ?>
-					</li>
-					<form class="navbar-search" action="../search.php" method="get">
-						<input type="text" style="width:150px;border-color:#fff;background-color:#fff;margin-left:20px;" class="search-query" name="searchterm" placeholder="Search">
-					 </form>
-					 
-				</ul>
-			
-		</div> <!--/end boostrap divs navbar-->
-        
-    </div>
-</div>
-
-
-	<div id="container" class="container_24">
-		<div class="grid_24 pull_2" style="width: 1140px;margin-top:70px;">
-        
-       <div class="well dropshadow" style="font-size:15px;font-family:helvetica, arial;"><img style="margin-top:-6px;" src="market/graphics/logocampaign.png" width="260" />&nbsp;&nbsp;&nbsp;&nbsp;Campaigns allow you to submit photography to businesses and individuals looking for specific photography. All campaigns are open and you may submit as many photos as you wish. To enter a campaign, click on one that interests you and click on the green upload button. When the campaign is over, a winner will be announced, and seventy percent of the prize money will be awarded to the winner.<br /><a href="viewcampaigns.php?view=winners"><div style="margin-top:10px;font-size:16px;">View Past Winners</div></a></div> 
+<br /><br /><br /><br />';
  
         
-<?php
-
 //if the view wasn't set
+if($view == "" || $view == "current") {
+
 if($view == "") {
+    //select all the campaigns sort descending
+	$allcampaignsquery = "SELECT * FROM campaigns ORDER BY endtime DESC";
+	$allcampaignsresult = mysql_query($allcampaignsquery);
+}
+//view is current
+elseif($view == "current") {
 	//they are viewing the ongoing campaigns
 
 	//select all the campaigns that are still live and show the one closest to ending first
 	$allcampaignsquery = "SELECT * FROM campaigns WHERE endtime > '$currenttime' ORDER BY endtime ASC";
 	$allcampaignsresult = mysql_query($allcampaignsquery);
+    
+    if(mysql_num_rows($allcampaignsresult) == 0) {  
+        echo'<div class="grid_24" style="margin-top:100px;text-align:center;font-size:18px;font-family:helvetica,arial;font-weight:200;">There are currently no campaigns running</div>';
+    }
+    
+}
+
+if($view == "" && $_GET['searchterm']) {
+    //select all the campaigns sort descending
+    $searchterm = htmlentities($_GET['searchterm']);
+	$allcampaignsquery = "SELECT * FROM campaigns WHERE concat(title,description) LIKE '%$searchterm%' ORDER BY endtime DESC";
+	$allcampaignsresult = mysql_query($allcampaignsquery);
+}
 
 	//now group photos by their campaign which will be used later on
 	$randphotoquery = "SELECT source, campaign FROM campaignphotos GROUP BY campaign";
@@ -545,10 +262,46 @@ if($view == "") {
 	for($iii=0; $iii < mysql_num_rows($allcampaignsresult); $iii++) {
 		//find out all the info about this campaign
 		$endtime           = mysql_result($allcampaignsresult, $iii, "endtime");
-		$quote[$iii]       = mysql_result($allcampaignsresult, $iii, "quote");
+		$quote[$iii]       = (mysql_result($allcampaignsresult, $iii, "quote") * .7);
+        $repemail[$iii]       = mysql_result($allcampaignsresult, 0, "repemail");
 		$title[$iii]       = mysql_result($allcampaignsresult, $iii, "title");
+        $title[$iii] = (strlen($title[$iii]) > 25) ? substr($title[$iii],0,23). " &#8230;" : $title[$iii];
 		$description[$iii] = mysql_result($allcampaignsresult, $iii, "description");
 		$photoid[$iii]          = mysql_result($allcampaignsresult, $iii, "id");
+        $topphotosquery =    mysql_query("SELECT source FROM campaignphotos WHERE campaign = '$photoid[$iii]' ORDER BY (points/votes) DESC");
+        $numentries = mysql_num_rows($topphotosquery);
+        
+        $image1 = mysql_result($topphotosquery, 0, "source");
+        if(strpos($image1,'http://') === false) {
+            $image1 = 'market/' . $image1;
+        }
+        if($image1 == '' || $image1 == 'market/') {
+            $image1 = 'graphics/nophotopost.png';
+        }
+
+        $image2 = mysql_result($topphotosquery, 1, "source");
+        if(strpos($image2,'http://') === false) {
+            $image2 = 'market/' . $image2;
+        }
+        if($image2 == '' || $image2 == 'market/') {
+            $image2 = 'graphics/nophotopost.png';
+        }
+        
+        $image3 = mysql_result($topphotosquery, 2, "source");
+        if(strpos($image3,'http://') === false) {
+            $image3 = 'market/' . $image3;
+        }
+        if($image3 == '' || $image3 == 'market/') {
+            $image3 = 'graphics/nophotopost.png';
+        }
+        
+        $campaignusersquery= mysql_query("SELECT logo,name FROM campaignusers WHERE repemail = '$repemail[$iii]'");
+        $logo = 'market/' . mysql_result($campaignusersquery, 0, "logo");
+            if($logo == 'market/') {
+                $logo = 'market/graphics/no_logo.png';
+            }
+        $name =              mysql_result($campaignusersquery, 0, "name");
+        
 		$timeleft          = $endtime - time();
 		//find out how many days hours minutes are left
 		$daysleft          = floor($timeleft / (24*60*60));
@@ -587,26 +340,43 @@ if($view == "") {
 			$widthls = 280;
 		}
 
-		echo '
-		<div class="phototitle fPic" id="',$photoid[$iii],'" style="width:280px;height:280px;overflow:hidden; margin-right: 30px;">
-			<a href="campaignphotos.php?id=',$photoid[$iii],'">
-        		<div class="statoverlay" style="z-index:1;left:0px;top:200px;position:relative;background-color:black;width:280px;height:80px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$title[$iii],'"<br />Reward: $', $quote[$iii], '<br />Time Left: ', $daysleft, ' days, ', $hoursleft, ' hours, ', $minutesleft, ' minutes</p></div>
-        		<img style="position:relative;top:-95px;min-height:300px;min-width:280px;" src="', $coverphoto[$iii], '" height="',$heightls,'px" width="',$widthls,'px" />
-        	</a>
-        </div>';
+    echo '<div class="rounded" style=" background-color: #eeeff3;width:930px;height:150px;padding:10px;">
+                <div style="float:left;width:130px;height:130px;padding:8px;"><img src="',$logo,'" height="130" width="130" /></div>
+                    <div style="float:left;border-left:1px solid #ccc;height:130px;margin-left:8px;margin-top:8px;">
+                        
+                        <div style="padding:15px;width:200px;float:left;margin-top:-10px;">
+                        <span style="font-size:16px;font-weight:200;"><a style="text-decoration:none;color:#3e608c;" href="campaignphotos.php?id=',$photoid[$iii],'">',$title[$iii],'</a></span><br /><br />',$name,'<br />Ends&nbsp;|&nbsp;'; if($daysleft > 0) {echo $daysleft,' days,', $hoursleft, ' hour';} else {echo '<span style="color:red;font-weight:200;">Campaign Over.</span>';} echo'<br />Photographers: 20<br />Entries: ',$numentries,'                     </div>
+                        
+                        <div style="width:470px;float:left;border-left:1px solid #ccc;"> 
+                            <div style="margin-left:10px;">
+                            <img style="padding:5px;" src="',$image1,'" height="120" width="120" />
+                            <img style="padding:5px;" src="',$image2,'" height="120" width="120" />
+                            <img style="padding:5px;" src="',$image3,'" height="120" width="120" />
+                            </div>
+                        </div>
+                        
+                        <div style="float:left;border-left:1px solid #ccc;height:130px;width:90px;margin-left:-50px;">
+                            <div style="padding-left:16px;padding-top:30px;text-align:center;">
+                            <span style="font-size:20px;font-weight:200;">Reward</span><br ><br /><span style="font-size:16px;font-weight:200;">$',$quote[$iii],'</span>
+                            </div>
+                        </div>
+                        
+                    </div>
+        
+		</div><br />';
+        
 	}
-
+    
 	//now display all the campaigns with the variables created above with a link to campaignphotos.php?id=id[$iii]
 }
 //otherwise they are looking at the past campaigns
 
-elseif($view == winners) {
-
-echo'
-<div style="float:left;font-size:22px;margin-bottom:15px;">Past Campaign Winners:</div><br /><br />';
+elseif($view == 'winners') {
 
 $winquery = mysql_query("SELECT * FROM campaigns WHERE winnerphoto != '' ORDER BY id ASC");
 $numwins = mysql_num_rows($winquery);
+
+echo'<div style="margin-top:-20px;">';
 
 for($iii=0;$iii < $numwins; $iii++) {
 $campaign = mysql_result($winquery,$iii,'title');
@@ -627,17 +397,19 @@ $lastname = mysql_result($profquery,0,'lastname');
 $winnername = $firstname . " " . $lastname;
 $winnerid = mysql_result($profquery,0,'user_id');
 
-echo'<div class="phototitle well" style="width:860px;font-size:17px;font-family:helvetica neue, arial;">
-<img class="dropshadow" style="border:1px solid black;" src="',$coverphoto,'" height="170" width="170" />
-<div style="margin-left:20px;float:right;width:650px;height:170px;">
+echo'<div class="rounded" style="background-color:#eeeff3;width:930px;height:150px;padding:10px;font-size:15px;font-family:helvetica neue,helvetica,arial;margin-top:20px;font-weight:200;">
+<img class="dropshadow" style="float:left;border:1px solid black;margin-top:10px;margin-left:5px;" src="',$coverphoto,'" height="130" width="130" />
+<div style="margin-left:50px;float:left;width:650px;height:160px;">
 Campaign: <span style="font-size:22px;">"<a style="color:black;" href="campaignphotos.php?id=',$id,'">',$campaign,'</a>"</span><br /><br />
-Winner: &nbsp;<img class="dropshadow" style="border: 1px solid black;" src="',$profilephoto,'" width="60" height="60" />&nbsp;&nbsp;<a style="color:black;" href="viewprofile.php?u=',$winnerid,'"><span style="font-size:15px;">',$winnername,'</span></a><br /><br />
-Winning Photo: <span style="font-size:15px;">"<a style="color:black;" href="fullsizecampaign.php?id=',$winnerphoto,'">',$winningphotocaption,'</a>"</span><br />
+Winner: &nbsp;<img class="dropshadow" style="border: 1px solid black;" src="',$profilephoto,'" width="40" height="40" />&nbsp;&nbsp;<a style="color:black;" href="viewprofile.php?u=',$winnerid,'"><span style="font-size:15px;">',$winnername,'</span></a><br /><br />
+Winning Photo: <span style="font-size:15px;"><a style="color:black;" href="fullsizecampaign.php?id=',$winnerphoto,'">',$winningphotocaption,'</a></span><br />
 
 </div>
 </div>';
 
 }
+
+echo'</div>';
 
 }
 
@@ -654,10 +426,49 @@ else {
 	//loop through the results to create arrays of the needed campaign info and of a photo to display
 	for($iii=0; $iii < mysql_num_rows($allcampaignsresult); $iii++) {
 		//find out all the info about this campaign
-		$quote[$iii]       = mysql_result($allcampaignsresult, $iii, "quote");
+		$quote[$iii]       = (mysql_result($allcampaignsresult, $iii, "quote")*.7);
 		$title[$iii]       = mysql_result($allcampaignsresult, $iii, "title");
 		$description[$iii] = mysql_result($allcampaignsresult, $iii, "description");
 		$photoid[$iii]          = mysql_result($allcampaignsresult, $iii, "id");
+        $title[$iii]       = mysql_result($allcampaignsresult, $iii, "title");
+        $title[$iii] = (strlen($title[$iii]) > 25) ? substr($title[$iii],0,23). " &#8230;" : $title[$iii];
+		$description[$iii] = mysql_result($allcampaignsresult, $iii, "description");
+		$photoid[$iii]          = mysql_result($allcampaignsresult, $iii, "id");
+        $topphotosquery =    mysql_query("SELECT source FROM campaignphotos WHERE campaign = '$photoid[$iii]' ORDER BY (points/votes) DESC");
+        $numentries = mysql_num_rows($topphotosquery);
+        
+        $image1 = mysql_result($topphotosquery, 0, "source");
+        if(strpos($image1,'http://') === false) {
+            $image1 = 'market/' . $image1;
+        }
+        if($image1 == '' || $image1 == 'market/') {
+            $image1 = 'graphics/nophotopost.png';
+        }
+
+        $image2 = mysql_result($topphotosquery, 1, "source");
+        if(strpos($image2,'http://') === false) {
+            $image2 = 'market/' . $image2;
+        }
+        if($image2 == '' || $image2 == 'market/') {
+            $image2 = 'graphics/nophotopost.png';
+        }
+        
+        $image3 = mysql_result($topphotosquery, 2, "source");
+        if(strpos($image3,'http://') === false) {
+            $image3 = 'market/' . $image3;
+        }
+        if($image3 == '' || $image3 == 'market/') {
+            $image3 = 'graphics/nophotopost.png';
+        }
+        
+        
+        $campaignusersquery= mysql_query("SELECT logo,name FROM campaignusers WHERE repemail = '$repemail[$iii]'");
+        $logo = 'market/' . mysql_result($campaignusersquery, 0, "logo");
+            if($logo == 'market/') {
+                $logo = 'market/graphics/no_logo.png';
+            }
+        $name =              mysql_result($campaignusersquery, 0, "name");
+
 		$coverphotoid[$iii]  = mysql_result($allcampaignsresult, $iii, "winnerphoto");
         $coverquery = mysql_query("SELECT source FROM campaignphotos WHERE id = '$coverphotoid[$iii]'");
         $coverphoto[$iii] = mysql_result($coverquery, 0, "source");
@@ -680,7 +491,7 @@ else {
 			$winneremaillist .= $winner;
 			$winneremaillist .= "',";
 		}	
-    $coverphoto[$iii] = str_replace("userphotos/","userphotos/medthumbs/", $coverphoto[$iii]);
+    $coverphoto[$iii] = str_replace("userphotos/","market/userphotos/medthumbs/", $coverphoto[$iii]);
 
 		list($width, $height) = getimagesize($coverphoto[$iii]);
 		$imgratio = $height / $width;
@@ -689,18 +500,35 @@ else {
 
     	//if there aren't any photos in the campaign at all, set it to the default
 		if($coverphoto[$iii] == "") {
-			$coverphoto[$iii] = "graphics/nophotopost.png";
+			$coverphoto[$iii] = "market/graphics/nophotopost.png";
 			$heightls = 280;
 			$widthls = 280;
 		}
 
-		echo '
-		<div class="phototitle fPic" id="',$photoid[$iii],'" style="width:280px;height:280px;overflow:hidden;">
-			<a href="campaignphotos.php?id=',$photoid[$iii],'">
-        		<div class="statoverlay" style="z-index:1;left:0px;top:200px;position:relative;background-color:black;width:280px;height:80px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$title[$iii],'"<br />Reward: $', $quote[$iii], '<br />This campaign is over.</p></div>
-        		<img style="position:relative;top:-95px;min-height:300px;min-width:280px;" src="market/', $coverphoto[$iii], '" height="',$heightls,'px" width="',$widthls,'px" />
-        	</a>
-        </div>';
+		echo '<div class="rounded" style="background-color:#eeeff3;width:930px;height:150px;padding:10px;">
+                <div style="float:left;width:130px;height:130px;padding:8px;"><img src="',$coverphoto[$iii],'" height="130" width="130" /></div>
+                    <div style="float:left;border-left:1px solid #ccc;height:130px;margin-left:8px;margin-top:8px;">
+                        
+                        <div style="padding:15px;width:200px;float:left;margin-top:-10px;">
+                        <span style="font-size:16px;font-weight:200;"><a style="text-decoration:none;color:#3e608c;" href="campaignphotos.php?id=',$photoid[$iii],'">',$title[$iii],'</a></span><br /><br />',$name,'<br />Ends&nbsp;|&nbsp;<span style="color:red;font-weight:200;">Campaign is Over.</span><br />Photographers: 20<br />Photos: 143                     </div>
+                        
+                        <div style="width:470px;float:left;border-left:1px solid #ccc;"> 
+                            <div style="margin-left:10px;">
+                            <img style="padding:5px;" src="',$image1,'" height="120" width="120" />
+                            <img style="padding:5px;" src="',$image2,'" height="120" width="120" />
+                            <img style="padding:5px;" src="',$image3,'" height="120" width="120" />
+                            </div>
+                        </div>
+                        
+                        <div style="float:left;border-left:1px solid #ccc;height:130px;width:90px;margin-left:-50px;">
+                            <div style="padding-left:16px;padding-top:30px;text-align:center;">
+                            <span style="font-size:20px;font-weight:200;">Reward</span><br ><br /><span style="font-size:16px;font-weight:200;">$',$quote[$iii],'</span>
+                            </div>
+                        </div>
+                        
+                    </div>
+        
+		</div><br />';
 	}
 
 	//take the trailing comma off of the $winneremaillist
@@ -725,45 +553,8 @@ else {
 }
 
 ?>
-<div class="grid_3" style="position:fixed;right:100px;">
-<div id="accordion2" class="accordion" style="margin-top:20px;width:150px;">
-
-<div class="accordion-group">
-<div class="accordion-heading">
-<a class="accordion-toggle" style="background-color:#1a618a;color:white;" href="viewcampaigns.php">Current</a>
-</div>
-<div id="collapseOne" class="accordion-body collapse">
-</div>
-</div>
-
-<div class="accordion-group">
-<div class="accordion-heading">
-<a class="accordion-toggle" style="background-color:#1a618a;color:white;" href="viewcampaigns.php?view=previous">Previous</a>
-</div>
-<div id="collapseTwo" class="accordion-body collapse">
-</div>
-</div>
-
 
 </div>
-</div>
-
-
-<!--Footer begin-->   
-<div class="grid_24" style="height:30px;margin-top:30px;background-color:rgb:(238,239,243);text-align:center;padding-top:10px;padding-bottom:20px; background-color:none;text-decoration:none;">
-<p style="text-decoration:none;">
-</br></br>
-Copyright&nbsp;&copy;&nbsp;2012&nbsp;PhotoRankr, Inc.&nbsp;&nbsp;
-<a href="http://photorankr.com/about.php">About</a>&nbsp;&nbsp;                                       
-<a href="http://photorankr.com/terms.php">Terms</a>&nbsp;&nbsp;
-<a href="http://photorankr.com/privacy.php">Privacy</a>&nbsp;&nbsp;
-<a href="http://photorankr.com/help.php">Help<a>&nbsp;&nbsp;
-<a href="http://photorankr.com/contact.php">Contact&nbsp;Us<a>
-<br />
-<br />
-</p>                   
-</div>
-<!--Footer end-->
 
 
 </body>

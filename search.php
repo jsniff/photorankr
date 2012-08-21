@@ -85,7 +85,7 @@ $filter = htmlentities($_GET['filter']);
   <script src="bootstrap-collapse.js" type="text/javascript"></script>
   <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
 
-<title>PR Search - "<?php echo $searchterm; ?>"</title>
+<title><?php echo $searchterm; ?></title>
 
 <script type="text/javascript">
   $(function() {
@@ -122,11 +122,16 @@ $filter = htmlentities($_GET['filter']);
 
 <div class="container_24">
 
-<div class="grid_4" style="margin-top:120px;">
+<div class="grid_4" style="margin-top:70px;">
 <span style="font-weight:bold;font-size:14px;">Search Filters</span>
 <hr style="width:160px;">
+
 <div <?php if($filter == ''){echo'style="background-color:#ddd;padding:5px;"';} ?>><a style="color:#3e608c;" href="search.php?searchterm=<?php echo $searchterm; ?>">Photos</a></div><br />
+
 <div <?php if($filter == 'photogs'){echo'style="background-color:#ddd;padding:5px;"';} ?>><a style="color:#3e608c;" href="search.php?searchterm=<?php echo $searchterm; ?>&filter=photogs">Photographers</a></div><br />
+
+<div <?php if($filter == 'exhibits'){echo'style="background-color:#ddd;padding:5px;"';} ?>><a style="color:#3e608c;" href="search.php?searchterm=<?php echo $searchterm; ?>&filter=exhibits">Exhibits</a></div><br />
+
 <div <?php if($filter == 'campaigns'){echo'style="background-color:#ddd;padding:5px;"';} ?>><a style="color:#3e608c;" href="search.php?searchterm=<?php echo $searchterm; ?>&filter=campaigns">Campaigns</a></div><br />
 </div>
 
@@ -175,7 +180,14 @@ $filter = htmlentities($_GET['filter']);
                 }
                 elseif($portfoliovotes = 0){$portfolioranking="N/A";}
             
-            echo'<div style="padding:15px;float:left;"><img src="',$profilepic,'" height="100" width="100" /></div><div style="float:left;margin-top:15px;"><a style="color:#3e608c;font-weight:bold;font-size:14px;" href="viewprofile.php?u=',$userid,'">',$photographer,'</a><br />Reputation: ',$reputation,'<br />Followers: ',$numberfollowers,'<br />Portfolio Ranking: ',$portfolioranking,'<br />Favorites: ',$portfoliofaves,'</div><div style="float:left;margin-top:15px;margin-left:30px;">';if($numphotos > 3){echo'<img style="padding:3px;" src="',$profileimage,'" height="100" width="100" /><img style="padding:3px;" src="',$profileimage2,'" height="100" width="100" /><img style="padding:3px;" src="',$profileimage3,'" height="100" width="100" /><img style="padding:3px;" src="',$profileimage4,'" height="100" width="100" />';}echo'</div><hr>';
+            echo'<div style="padding:15px;float:left;"><img src="',$profilepic,'" height="100" width="100" alt="',$photographer,'" />';
+                            
+                if($reputation > 60) {
+                    echo'<img style="margin-top:-10px;margin-left:10px;" src="graphics/toplens.png" height="75" />';
+                }
+            
+        echo'
+            </div><div style="float:left;margin-top:15px;"><a style="color:#3e608c;font-weight:bold;font-size:14px;" href="viewprofile.php?u=',$userid,'">',$photographer,'</a><br />Reputation: ',$reputation,'<br />Followers: ',$numberfollowers,'<br />Portfolio Ranking: ',$portfolioranking,'<br />Favorites: ',$portfoliofaves,'</div><div style="float:left;margin-top:15px;margin-left:30px;">';if($numphotos > 3){echo'<img style="padding:3px;" src="',$profileimage,'" height="100" width="100" /><img style="padding:3px;" src="',$profileimage2,'" height="100" width="100" /><img style="padding:3px;" src="',$profileimage3,'" height="100" width="100" /><img style="padding:3px;" src="',$profileimage4,'" height="100" width="100" />';}echo'</div><hr>';
         }
     }    
     
@@ -209,7 +221,20 @@ $filter = htmlentities($_GET['filter']);
             $width = $width/4.5;
             $height = $height/4.5;
             
-            echo'<div class="fPic" id="',$views,'" style="padding:15px;float:left;width:300px;"><img style="max-width:300px;max-height:300px;" src="',$imagemed,'" height="',$height,'" width="',$width,'" /></div><div style="margin-left:30px;float:left;margin-top:',$height/2,';"><span style="font-size:24px;color:black;">"<a style="color:black;" href="fullsize.php?image=',$image,'">',$caption,'</a>"</span><br /><br /><img src="',$profilepic,'" width="40" height="40" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$userid,'" style="color:#3e608c;font-weight:bold;font-size:14px;">',$photographer,'</a><br />Photo Rank:&nbsp;<span style="font-size:22px;">',$ranking,'</span><span style="opacity:.7;">/10</span><br />Favorites: <span style="font-size:22px;">',$faves,'</span><br />Views: <span style="font-size:22px;">',$views,'</span><br /><br /></div><hr>';
+            echo'<div class="fPic" id="',$views,'" style="padding:15px;float:left;width:300px;">';
+            
+            if($faves > 5 || $points > 120 || $views > 100) {
+            echo'
+            <div style="margin-top:-50px;"><img style="max-width:300px;max-height:300px;" src="',$imagemed,'" alt="',$caption,'" height="',$height,'" width="',$width,'" />
+            <img style="margin-top:',$height,'px;margin-left:',$newwidth-55,'px;" src="graphics/toplens2.png" height="85" /></div>';
+            }
+            else {
+            echo'
+           <img style="max-width:300px;max-height:300px;" src="',$imagemed,'" alt="',$caption,'" height="',$height,'" width="',$width,'" />';            
+            }
+
+        echo'
+            </div><div style="margin-left:30px;float:left;margin-top:',$height/2,';"><span style="font-size:24px;color:black;">"<a style="color:black;" href="fullsize.php?image=',$image,'">',$caption,'</a>"</span><br /><br /><img src="',$profilepic,'" alt="',$photographer,'" width="40" height="40" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$userid,'" style="color:#3e608c;font-weight:bold;font-size:14px;">',$photographer,'</a><br />Photo Rank:&nbsp;<span style="font-size:22px;">',$ranking,'</span><span style="opacity:.7;">/10</span><br />Favorites: <span style="font-size:22px;">',$faves,'</span><br />Views: <span style="font-size:22px;">',$views,'</span><br /><br /></div><hr>';
             
         }
         
@@ -281,10 +306,79 @@ $filter = htmlentities($_GET['filter']);
 
 
 
-            echo'<div style="padding:15px;float:left;"><img src="',$coverphoto,'" height="100" width="100" /></div><div style="float:left;margin-top:15px;"><a style="color:#3e608c;font-weight:bold;font-size:14px;" href="campaignphotos.php?id=',$campid,'">',$title,'</a><br />Reward: $',$quote,'<br />License Needed: ',$license,'<br />Photos Submitted: ',$numphotos,'<br />Winner:'; if($winneremail != '') {echo'<img src="',$profilepic,'" width="30" height="30" /> <a href="viewprofile.php?u=',$photographerid,'">',$photographer,'</a>';}else{echo'&nbsp;<i>Winner not chosen.</i>';} echo'</div><div style="float:left;margin-top:15px;margin-left:30px;">';if($numphotos > 3){echo'<img style="padding:3px;" src="',$coverphoto2,'" height="100" width="100" /><img style="padding:3px;" src="',$coverphoto3,'" height="100" width="100" /><img style="padding:3px;" src="',$coverphoto4,'" height="100" width="100" /><img style="padding:3px;" src="',$coverphoto5,'" height="100" width="100" />';}echo'</div><hr>';
+            echo'<div style="padding:15px;float:left;"><img src="',$coverphoto,'" alt="',$title,'" height="100" width="100" /></div><div style="float:left;margin-top:15px;"><a style="color:#3e608c;font-weight:bold;font-size:14px;" href="campaignphotos.php?id=',$campid,'">',$title,'</a><br />Reward: $',$quote,'<br />License Needed: ',$license,'<br />Photos Submitted: ',$numphotos,'<br />Winner:'; if($winneremail != '') {echo'<img src="',$profilepic,'" alt="',$photographer,'" width="30" height="30" /> <a href="viewprofile.php?u=',$photographerid,'">',$photographer,'</a>';}else{echo'&nbsp;<i>Winner not chosen.</i>';} echo'</div><div style="float:left;margin-top:15px;margin-left:30px;">';if($numphotos > 3){echo'<img style="padding:3px;" src="',$coverphoto2,'" height="100" width="100" /><img style="padding:3px;" src="',$coverphoto3,'" height="100" width="100" /><img style="padding:3px;" src="',$coverphoto4,'" height="100" width="100" /><img style="padding:3px;" src="',$coverphoto5,'" height="100" width="100" />';}echo'</div><hr>';
 
     }
 }
+
+ if($filter == 'exhibits') {
+        $query = mysql_query("SELECT * FROM sets WHERE concat(title,maintags,about,settag1,settag2,settag3,settag4) LIKE '%$searchterm%'");
+        $numresults = mysql_num_rows($query);
+        echo'<div style="font-size:18px;margin-top:10px;padding:15px;">Exhibits | ',$numresults,' Results<hr></div>'; 
+        
+            for($iii=0; $iii<$numresults; $iii++) {
+            $title = mysql_result($query,$iii,'title');
+            $title = (strlen($title) > 30) ? substr($title,0,27). " &#8230;" : $title;
+            $setid = mysql_result($query,$iii,'id');
+            $views = mysql_result($query,$iii,'views');
+            $owner = mysql_result($query,$iii,'owner');
+
+            $userquery =  mysql_query("SELECT user_id,firstname,lastname,profilepic FROM userinfo WHERE emailaddress = '$owner'");
+            $photographer = mysql_result($userquery,0,'firstname')." ".mysql_result($userquery,0,'lastname');
+            $profilepic = mysql_result($userquery,0,'profilepic');
+            $photographerid = mysql_result($userquery,0,'user_id');
+
+        $query2 = mysql_query("SELECT source,points,votes FROM photos WHERE set_id = '$setid' ORDER BY (points/votes) DESC");
+        $numphotos = mysql_num_rows($query2);
+        $coverphoto = mysql_result($query2,0,'source');
+        if($coverphoto) {
+            $coverphoto = str_replace('userphotos/','userphotos/medthumbs/',$coverphoto);
+            }
+        $coverphoto2 = mysql_result($query2,1,'source');
+        if($coverphoto2) {
+            $coverphoto2 = str_replace('userphotos/','userphotos/medthumbs/',$coverphoto2);
+            }
+        $coverphoto3 = mysql_result($query2,2,'source');
+        if($coverphoto3) {
+            $coverphoto3 = str_replace('userphotos/','userphotos/medthumbs/',$coverphoto3);
+            }
+        $coverphoto4 = mysql_result($query2,3,'source');
+        if($coverphoto4) {
+            $coverphoto4 = str_replace('userphotos/','userphotos/medthumbs/',$coverphoto4);
+            }
+        $coverphoto5 = mysql_result($query2,4,'source');
+        if($coverphoto5) {
+            $coverphoto5 = str_replace('userphotos/','userphotos/medthumbs/',$coverphoto5);
+            }
+
+            echo'<div style="padding:15px;float:left;">';
+            if($coverphoto) {
+                echo'<img src="',$coverphoto,'" alt="',$title,'" height="100" width="100" />';
+            }
+            elseif(!$coverphoto) {
+                echo'<img src="graphics/no_cover.png" alt="',$title,'" height="100" width="100" />';
+            }
+            echo'</div><div style="float:left;margin-top:15px;width:190px;"><a style="color:#3e608c;font-weight:bold;font-size:14px;" href="viewprofile.php?u=',$photographerid,'&view=exhibits&set=',$setid,'">',$title,'</a><br />
+            <div style="padding:4px;"><img src="',$profilepic,'" width="25" /> <a style="color:black;" href="viewprofile.php?u=',$photographerid,'">',$photographer,'</a></div>
+            # Photos: ',$numphotos,'<br />Views: ',$views,'</div><div style="float:left;margin-top:15px;margin-left:30px;">';
+            if($coverphoto2) {
+                echo'<img style="padding:3px;" src="',$coverphoto2,'" height="100" width="100" />';
+                }
+            if($coverphoto3) {
+                echo'<img style="padding:3px;" src="',$coverphoto3,'" height="100" width="100" />';
+                }
+            if($coverphoto4) {
+                echo'<img style="padding:3px;" src="',$coverphoto4,'" height="100" width="100" />';
+                }
+            if($coverphoto5) {
+                echo'<img style="padding:3px;" src="',$coverphoto5,'" height="100" width="100" />';
+                }
+               
+                echo'</div><hr>';
+
+    }
+}
+
 
 ?>
 

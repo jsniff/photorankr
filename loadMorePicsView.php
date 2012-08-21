@@ -21,6 +21,7 @@ if($_GET['lastPicture']) {
 	$mysqlquery = mysql_query($query);
 	$numphotos = mysql_num_rows($mysqlquery);
 
+echo '<div style="width:1210px;margin-left:-32px;margin-top:-30px;padding:35px;">';
 	//DISPLAY 20 NEWEST OF ALL PHOTOS
 	for($iii=0; $iii < $numphotos; $iii++) {
 		$photo[$iii] = mysql_result($mysqlquery, $iii, "source");
@@ -39,7 +40,7 @@ if($_GET['lastPicture']) {
 	
 			echo '
     
-    <div class="fPic" id="',$photoid[$iii],'" style="width:280px;overflow:hidden;float:left;margin-left:30px;margin-top:30px;"><a href="fullsizecampaign.php?id=',$photoid[$iii],'">
+    <div class="fPic" id="',$photoid[$iii],'" style="width:280px;overflow:hidden;float:left;margin-right:20px;margin-top:20px;"><a href="fullsizecampaign.php?id=',$photoid[$iii],'">
                 
                 <div style="width:280px;height:280px;overflow:hidden;">
                 <div class="statoverlay" style="z-index:1;left:0px;top:215px;position:relative;background-color:black;width:280px;height:90px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;font-weight:100;">',$caption,'</span><br><span style="font-size:15px;font-weight:100;">Rank: ',$average,'</span></p></div>
@@ -52,6 +53,8 @@ if($_GET['lastPicture']) {
                 </div>';
         
     } //end for loop
+  
+  echo'</div>';
     
 }//end if clause
 

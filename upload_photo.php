@@ -52,9 +52,13 @@ if ((($_FILES["file"]["type"] == "image/gif")
         	$voters = "'support@photorankr.com'";
         	$voters = addslashes($voters);
 
-
             
-      
+		if (!$name | !$camera) 
+		{
+         		header("location:myprofile.php?view=upload&action=uploadfailure");
+        		exit();
+		}
+            
 
     		$filename = $_FILES['file']['name'];  
     		$newfilename=str_replace(" ","",$filename);

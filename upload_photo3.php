@@ -65,6 +65,12 @@ if ((($_FILES["file"]["type"] == "image/gif")
             }
             $extendedlicenses = substr($extendedlicenses, 0, -1);
             
+            if (!$name | !$camera) 
+		{
+         		header("location:myprofile.php?view=upload&action=uploadfailure");
+        		exit();
+		}
+            
             
     		$filename = $_FILES['file']['name'];  
     		$newfilename=str_replace(" ","",$filename);
@@ -172,7 +178,7 @@ if ((($_FILES["file"]["type"] == "image/gif")
         	$type = "photo";
         	$newsfeedquery=mysql_query("INSERT INTO newsfeed (firstname, lastname,emailaddress,type,source,caption) VALUES ('$firstname','$lastname','$email','$type','$target','$name')");
 
-		echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile3.php?view=upload&action=uploadsuccess">';
+		echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=upload&action=uploadsuccess">';
 		exit();
     	}
 }

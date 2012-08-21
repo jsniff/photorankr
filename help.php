@@ -9,6 +9,7 @@ if($_GET['action'] == logout) {
 
 //connect to the database
 require "db_connection.php";
+require "functionsnav.php";
 
 
 //start session
@@ -119,280 +120,28 @@ $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
 <html>
 <head>
 <title></title>
+
+<link rel="stylesheet" type="text/css" href="market/css/bootstrapNew.css" />
+ <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
+ <link rel="stylesheet" type="text/css" href="help.css"/>
+  <link rel="stylesheet" href="market/css/text.css" type="text/css" />
+   <link rel="stylesheet" href="css/style.css" type="text/css" />
+  <link rel="stylesheet" href="960_24.css" type="text/css" />
+	<script type="text/javascript" href="js/bootstrap-dropdown.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+<script type="text/javascript" src="http://masonry.desandro.com/jquery.masonry.min.js"></script>
+<script type="text/javascript" src="https://raw.github.com/desandro/imagesloaded/master/jquery.imagesloaded.min.js"></script>
+    <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+    
 <meta name="Help Frequently Asked Questions"> </meta>
-<link rel="stylesheet" type="text/css" href="help.css"/>
-<link rel="stylesheet" type="text/css" href="reset.css"/>
-<link rel="stylesheet" type="text/css" href="text.css"/>
-<link rel="stylesheet" type="text/css" href="bootstrapnew.css"/>
-<link rel="stylesheet" type="text/css" href="960_24.css"/>
+
 
 </head>
 <body style="overflow-x:hidden; background-color:rgb(238,239,243);min-width:1220px;">
 
- <!--NAVIGATION BAR-->
-<div class="navbar" style="z-index:10;min-width:1100px;padding-top:0px;font-size:16px;width:100%;">
-	<div class="navbar-inner">
-		<div class="container">
-			    <ul class="nav">
-					<li><a style="color:#fff;" class="brand" style="margin-top:10px;margin-right:20px;" href="../index.php"><div style="margin-top:-2px"><img src="../logo.png" width="160" /></div></a></li>
-                    
-                    <?php               
-                     if($_SESSION['loggedin'] == 1) {
-                     echo'
-                     <li style="color:#fff;margin-top:1px;" class="dropdown active, navbartext"><a style="color:rgb(56,85,103);margin-right:20px;" href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    <span style="font-size:18px;padding-right:3px;color:#fff;margin-top:2px;"><span style="position:relative;top:4px;"><i class="icon-exclamation-sign icon-white"></i></span> ',$currentnotsresult,'</a>
-                    <ul class="dropdown-menu" data-dropdown="dropdown">';
-
-
-$email7 = $_SESSION['email'];
-
-//NOTIFICATION QUERIES  
-$emailquery=("SELECT following FROM userinfo WHERE emailaddress ='$email7'");
-$followresult=mysql_query($emailquery);
-$followinglist=mysql_result($followresult, 0, "following");
-
-$notsquery = "SELECT * FROM newsfeed WHERE (owner = '$email7' AND emailaddress != '$email7') OR following = '$email7' ORDER BY id DESC";
-$notsresult = mysql_query($notsquery);
-$numnots = mysql_num_rows($notsresult);
-
-//DECIDE WHICH NOTIFICATIONS TO WHITEN (ONES ALREADY CLICKED ON)
-$unhighlightquery = "SELECT * FROM userinfo WHERE emailaddress = '$email7'";
-$unhighlightqueryrun = mysql_query($unhighlightquery);
-$whitenlist=mysql_result($unhighlightqueryrun, 0, "unhighlight");
-
-
-if($numnots > 1) {
-echo'<div style="width:500px;height:400px;overflow-y:scroll;font-size:14px;">';
-
-for ($iii=1; $iii <= 20; $iii++) {
-$notsarray = mysql_fetch_array($notsresult);
-$firstname4 = $notsarray['firstname'];
-$lastname4 = $notsarray['lastname'];
-$fullname4 = $firstname4 . " " . $lastname4;
-$fullname4 = ucwords($fullname4);
-$type = $notsarray['type'];
-$id = $notsarray['id'];
-
-//SEARCH IF ID IS IN UNHIGHLIGHT LIST
-$search_string = $whitenlist;
-$regex = $id;
-$match=strpos($whitenlist,$regex);
-
-if($match < 1) {
-if($type == "comment") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="../fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="../graphics/newsfeedcomment.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:white">',$fullname4,' commented on your photo</span></div></a><br />';
-}
-
-elseif($type == "message") {
-$ownermessage = $notsarray['owner'];
-$thread = $notsarray['thread'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$ownermessage'";
-$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "../profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="../myprofile.php?view=viewthread&thread=',$thread,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="../graphics/messagesicon.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:white">',$fullname4,' sent you a message</span></div></a><br />';
-}
-
-elseif($type == "reply") {
-$ownermessage = $notsarray['owner'];
-$thread = $notsarray['thread'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$ownermessage'";$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "../profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="../myprofile.php?view=viewthread&thread=',$thread,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="../graphics/messagesicon.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:white">',$fullname4,' replied to your message</span></div></a><br />';
-}
-
-elseif($type == "fave") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="../fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="../graphics/newsfeedfavorite.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:white">',$fullname4,' favorited your photo</span></div></a><br />';
-}
-
-elseif($type == "trending") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="../fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="../graphics/newsfeedtrending.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:white">Your photo is now trending</span></div></a><br />';
-}
-
-elseif($type == "follow") {
-$caption4 = $notsarray['caption'];
-$followeremail= $notsarray['emailaddress'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$followeremail'";
-$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$ownerid = $accountrow['user_id'];
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "../profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="../viewprofile.php?u=',$ownerid,'&id=',$id,'"><div id="photoshadowhighlight2"><img src="../graphics/newsfeednewfollower.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:white">',$fullname4,' is now following your photography</span></div></a><br />';
-}
-} //end if statement
-
-elseif($match > 0) {
-if($type == "comment") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="../fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadow2"><img src="../graphics/newsfeedcomment.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:black">',$fullname4,' commented on your photo</span></div></a><br />';
-}
-
-elseif($type == "message") {
-$ownermessage = $notsarray['owner'];
-$thread = $notsarray['thread'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$ownermessage'";
-$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "../profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="../myprofile.php?view=viewthread&thread=',$thread,'&id=',$id,'"><div id="photoshadow2"><img src="../graphics/messagesicon.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:black;">',$fullname4,' sent you a message</span></div></a><br />';
-}
-
-elseif($type == "reply") {
-$ownermessage = $notsarray['owner'];
-$thread = $notsarray['thread'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$ownermessage'";$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "../profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="../myprofile.php?view=viewthread&thread=',$thread,'&id=',$id,'"><div id="photoshadow2"><img src="../graphics/messagesicon.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:black;">',$fullname4,' replied to your message</span></div></a><br />';
-}
-
-elseif($type == "fave") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="../fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadow2"><img src="../graphics/newsfeedfavorite.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:black">',$fullname4,' favorited your photo</span></div></a><br />';
-}
-
-elseif($type == "trending") {
-$caption4 = $notsarray['caption'];
-$source= $notsarray['source'];
-$newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
-echo'<a style="text-decoration:none" href="../fullsize.php?image=',$source,'&id=',$id,'"><div id="photoshadow2"><img src="../graphics/newsfeedtrending.png" height="50" width="50" />&nbsp;<img src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<span style="color:black">Your photo is now trending</span></div></a><br />';
-}
-
-elseif($type == "follow") {
-$caption4 = $notsarray['caption'];
-$followeremail= $notsarray['emailaddress'];
-$newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$followeremail'";
-$accountresult = mysql_query($newaccount); 
-$accountrow = mysql_fetch_array($accountresult);
-$ownerid = $accountrow['user_id'];
-$profilepic4 = $accountrow['profilepic'];
-if($profilepic4 == "") {
-$profilepic4 = "../profilepics/default_profile.jpg";
-}
-echo'<a style="text-decoration:none" href="../viewprofile.php?u=',$ownerid,'&id=',$id,'"><div id="photoshadow2"><img src="../graphics/newsfeednewfollower.png" height="50" width="50" />&nbsp;<img src="',$profilepic4,'" height="50" width="50" />&nbsp;<span style="color:black">',$fullname4,' is now following your photography</div></a><br /></span>';
-}
-} //end ifelse statement
-
-} //end of for loop
-echo'</div>';
-
-}
-
-elseif($numnots < 1) {
-echo'<div style="position:relative;width:400px;height:80px;overflow-y:scroll;font-size:14px;top: 30px;">';
-echo'<div style="font-size:16px;color:white;text-align:center;">You have no new notifications &#8230;</div>';
-echo'</div>';
-}
-
-
-
-echo'
-    </ul>
-    </li>'; 
-            }
-     
-             if($_SESSION['loggedin'] == 1) {
-echo'
-     <li ><a style="color:#fff;margin-top:2px;" href="newsfeed.php">News</a></li>'; }
-
-     ?>
-
-                    
-					<li class="dropdown">
-                    <a style="color:#fff;margin-top:2px;" href="newest.php" class="dropdown-toggle" data-toggle="dropdown">Galleries<b class="caret" style="background-color:#1a618a;
-"></b></a>
-						<ul class="dropdown-menu" data-dropdown="dropdown">
-							<li ><a style="color:#fff;margin-top:2px;" href="trending.php">Trending</a></li>
-                            <li><a style="color:#fff;margin-top:2px;" href="newest.php">Newest</a></li>
-                            <li><a style="color:#fff;margin-top:2px;" href="topranked.php">Top Ranked</a></li>
-                        </ul>
-                </li>
-                
-                <li ><a style="color:#fff;margin-top:2px;" href="viewcampaigns.php">Campaigns</a></li>
-                 <li ><a style="color:#fff;margin-top:2px;" href="http://photorankr.com/blog/post">Blog</a></li>
-
-					
-  <?php
+<?php navbarnew(); ?>
   
-  echo'
-  <li><a style="color:#fff;margin-top:2px;" href="';
-                    if($nolikes) {echo 'myprofile.php?view=editinfo&action=discover#discover';}else { echo 'discover.php?image=',$discoverimage;} echo '">Discover</a></li>';
-                    
-@session_start();
-if($_SESSION['loggedin'] == 1) {
-
-	echo '			
-                   
-                    <li class="dropdown">
-						<a style="color:#fff;margin-top:2px;" href="../myprofile.php" class="dropdown-toggle" data-toggle="dropdown">My Profile<b class="caret" style="background-color:#1a618a;
-"></b></a>
-						<ul class="dropdown-menu" data-dropdown="dropdown">
-							<li><a style="color:#fff;" href="myprofile.php">Portfolio</a></li>
-                            <li><a style="color:#fff;" href="myprofile.php?view=info">Information</a></li>
-							<li><a style="color:#fff;" href="myprofile.php?view=upload">Upload</a></li>
-							<li><a style="color:#fff;" href="myprofile.php?view=followers">Followers</a></li>
-							<li><a style="color:#fff;" href="myprofile.php?view=following">Following</a></li>
-							<li><a style="color:#fff;" href="myprofile.php?view=faves">Favorites</a></li>
-                            <li><a style="color:#fff;" href="myprofile.php?view=messages">Messages</a></li>
-							<li><a style="color:#fff;" href="newest.php?action=logout">Log Out</a></li>
-						</ul>'; 
-} else {
-				echo '	
-                <li class="dropdown">
-                <a style="color:#fff;margin-top:2px;" href="../signin.php" class="dropdown-toggle" data-toggle="dropdown">Log In<b class="caret"></b></a>
-						<ul class="dropdown-menu" data-dropdown="dropdown">
-							<li><a style="color:#fff;" href="../signin.php">Register Now</a></li>
-							<li><br/></li>
-							<form name="login_form" method="post" action="../newest.php?action=login">
-							<li style="margin-left: 5px; margin-right: 5px; width: 200px;"><span style="color: white; margin-bottom: 5px;">Email: </span><input type="text" style="width:100px; margin-left: 40px;" name="emailaddress" /></li>
-							<li style="margin-left: 10px;"><span style="color: white">Password: </span>&nbsp<input type="password" style="width:100px; margin-left: 1px;" name="password"/></li>
-							<li style="margin-left: 70px;"><input type="submit" value="sign in" id="loginButton"/></li>
-							</form>
-						</ul>';
-} ?>
-					</li>
-					<form class="navbar-search" action="../search.php" method="get">
-						<input type="text" style="width:150px;border-color:#fff;background-color:#fff;margin-left:20px;" class="search-query" name="searchterm" placeholder="Search">
-					 </form>
-					 
-				</ul>
-			
-		</div> <!--/end boostrap divs navbar-->
-                            
-    </div>
-</div>
-
-  
-<div class="container_24" style="padding-top:80px;"><!--container begin-->
+<div class="container_24" style="padding-top:90px;"><!--container begin-->
  <div class="grid_24">
   <div class="faq">
    <h1 class="header">Support and Frequently Asked Questions</h1>
@@ -604,22 +353,10 @@ To purchase a photo, click on the "Buy This Photo" button and a window that will
   </div>
  </div> 
 </div><!--container end-->
+<br />
+<br />
 
-<!--Footer begin-->   
-<div class="grid_24" style="height:30px;margin-left:390px;margin-top:30px;background-color:rgb:(238,239,243);text-align:center;padding-top:10px;padding-bottom:20px; background-color:none;text-decoration:none;">
-<p style="text-decoration:none;">
-</br></br>
-Copyright&nbsp;&copy;&nbsp;2012&nbsp;PhotoRankr, Inc.&nbsp;&nbsp;
-<a href="http://photorankr.com/about.php">About</a>&nbsp;&nbsp;                                       
-<a href="http://photorankr.com/terms.php">Terms</a>&nbsp;&nbsp;
-<a href="http://photorankr.com/privacy.php">Privacy</a>&nbsp;&nbsp;
-<a href="http://photorankr.com/help.php">Help<a>&nbsp;&nbsp;
-<a href="http://photorankr.com/contact.php">Contact&nbsp;Us<a>
-<br />
-<br />
-</p>                   
-</div>
-<!--Footer end-->
+<?php footer(); ?>
          
 </body>
 </html>

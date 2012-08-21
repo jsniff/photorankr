@@ -10,6 +10,11 @@ session_start();
 $sender = $_SESSION['email'];
 $receiver = mysql_real_escape_string($_REQUEST['emailaddressofviewed']);
 
+//newsfeed entry
+$idquery = mysql_query("SELECT user_id FROM userinfo WHERE emailaddress = '$receiver'");
+$userid = mysql_result($idquery,0,'user_id');
+
+
 //run a query to retreive a message which would belong to the same thread
 $threadquery = "SELECT * FROM messages WHERE (sender='$sender' AND receiver='$receiver') OR (sender='$receiver' AND receiver='$sender') LIMIT 0, 1";
 $threadresult = mysql_query($threadquery) or die(mysql_error());
@@ -42,18 +47,12 @@ $messageresult = mysql_query($messagequery) or die(mysql_error());
 //now that the message has been sent, we need to make a notification for the receiver
 mysql_query("UPDATE userinfo SET notifications=(notifications + 1) WHERE emailaddress = '$receiver'") or die(mysql_error());
 
-//newsfeed entry
-$select_query2="SELECT * FROM userinfo WHERE emailaddress ='$receiver'";
-$result2=mysql_query($select_query2);
-$row2=mysql_fetch_array($result2);
-$first=$row2['firstname'];
-$last=$row2['lastname'];
-
 $select_query="SELECT * FROM userinfo WHERE emailaddress ='$sender'";
 $result=mysql_query($select_query);
 $row=mysql_fetch_array($result);
 $firstname=$row['firstname'];
 $lastname=$row['lastname'];
+//$userid=$row['user_id'];
 $type = "message";
 $newsfeedsignupquery=mysql_query("INSERT INTO newsfeed (firstname, lastname, owner,type,thread) VALUES ('$firstname', '$lastname', '$receiver','$type','$thread')");
 
@@ -62,6 +61,6 @@ $newsfeedsignupquery=mysql_query("INSERT INTO newsfeed (firstname, lastname, own
 
 //now send them back to whence they came
 //redirect them to whence they came
-header("Location: viewprofile.php?first=$first&last=$last&view=contact&action=messagesent");
+header("Location: viewprofile.php?u=$userid&view=contact&action=messagesent");
 
 ?>

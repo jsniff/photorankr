@@ -45,6 +45,9 @@ $stripepublishablekey = $parsedresult["stripe_publishable_key"];
 $stripescope = $parsedresult["scope"];
 $stripeaccesstoken = $parsedresult["access_token"];
 //$result = post_request('https://connect.stripe.com/oauth/authorize', $post_data);
+echo $stripepublishablekey;
+echo $stripeaccesstoken;
+
 
 //curl -u $stripeaccesstoken: https://api.stripe.com/v1/account
 

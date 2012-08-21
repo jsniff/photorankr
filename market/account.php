@@ -2,11 +2,56 @@
 
 //connect to the database
 require "db_connection.php";
+require "functionscampaigns3.php"; 
+
+if($_GET['signup'] == 'true') {
+//find the posted information
+$repemail = mysql_real_escape_string(htmlentities($_POST['repemail']));
+$password = mysql_real_escape_string(htmlentities($_POST['password']));
+$firstname = mysql_real_escape_string(htmlentities($_POST['firstname']));
+$lastname = mysql_real_escape_string(htmlentities($_POST['lastname']));
+$terms = mysql_real_escape_string(htmlentities($_POST['terms']));
+$fullname = $firstname . " " . $lastname;
+
+//if they didnt fill the whole form in
+if(!($repemail && $password && $terms)) {
+//close the connection and send them back to sign up with a message that there was a failure
+mysql_close();
+echo '<META HTTP-EQUIV="Refresh" Content="0; URL=signup2.php?error=1">';
+exit();
+}
+//otherwise they filled the whole form in
+else {
+//check the database for a similar emailaddress
+$checkquery = "SELECT id FROM campaignusers WHERE repemail='$repemail' LIMIT 0, 1";
+$checkresult = mysql_query($checkquery);
+
+//if there is a matching emailaddress
+if(mysql_num_rows($checkresult) > 0) {
+//close the connection and send them back to sign up with a message that there was a failure
+mysql_close();
+echo '<META HTTP-EQUIV="Refresh" Content="0; URL=signup2.php?error=2">';
+exit();	
+}
+//otherwise this is a new person
+else {
+//insert them into the database
+$newuserquery = "INSERT INTO campaignusers (repemail, password, name) VALUES ('$repemail', '$password', '$fullname')";
+$newuserresult = mysql_query($newuserquery);
 
 //start the session
 session_start();
 
-require "functionscampaigns3.php"; 
+//set the session variables to show that they are signed in
+$_SESSION['loggedin'] = 2;
+$_SESSION['repemail'] = $repemail;
+}
+}
+}
+
+//start the session
+session_start();
+
     // if login form has been submitted
     if (htmlentities($_GET['action']) == "login") { 
         login();
@@ -110,20 +155,20 @@ $numcampaigns = mysql_num_rows($numcampsquery);
         	$numbersinglestyletags = count($singlestyletags);
     		for($i=0; $i < $numbersinglestyletags; $i++)
     		{
-      			$singlestyletags2 = $singlestyletags2 . $singlestyletags[$i] . ",";
+      			$singlestyletags2 .= mysql_real_escape_string($singlestyletags[$i]) . ",";
     		}
             
         	$numbersinglecategorytags = count($singlecategorytags);
     		for($j=0; $j < $numbersinglecategorytags; $j++)
     		{
-       			$singlecategorytags2 = $singlecategorytags2 . $singlecategorytags[$j] . ",";
+       			$singlecategorytags2 .= mysql_real_escape_string($singlecategorytags[$j]) . ",";
         	}
 
-            $preferenceslist = $singlestyletags2 . $singlecategorytags2;
-            $preferenceslist = $preferenceslist;
-                        
-            $prefquery = "UPDATE campaignusers SET preferences = '$singlestyletags2' WHERE repemail = '$repemail'";
-            $runprefquery = mysql_query($prefquery);
+            $preferenceslist = $singlestyletags2;
+            
+            $preferenceslist = substr($preferenceslist, 0, -1);
+            
+            $prefquery = mysql_query("UPDATE campaignusers SET preferences = '$preferenceslist' WHERE repemail = '$repemail'") or die();
                      
          }
 
@@ -785,7 +830,6 @@ elseif($view == 'saved') {
         
         
     elseif($option == 'campaigns') {
-    
             for($iii=0; $iii < mysql_num_rows($photosresult); $iii++) {
             //get the information for the current photo
             $photobig[$iii] = mysql_result($photosresult, $iii, "source");
@@ -802,11 +846,11 @@ elseif($view == 'saved') {
             $heightnew = $height / 3.8;
     
             echo'
-                  <div class="fPic" id="',$id,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="fullsize2.php?imageid=',$photoid,'">
+                  <div class="fPic" id="',$id,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="fullsize2.php?imageid=',$id,'">
                 
                 <div class="statoverlay" style="z-index:1;left:0px;top:180px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br><span style="font-size:20px;font-weight:100;">Score: ',$average,'</span></p><a name="removed" href="account.php?view=saved&option=campaigns&pd=',$photoid,'&action=remove#return"><button class="btn btn-primary" style="z-index:12;position:relative;top:-52px;float:right;margin-right:5px;">Remove Photo</button></a></div>
                 
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$photo[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$photo[$iii],'" height="',$heightnew,'px" width="',$widthnew,'px" /></a></div>';
                 
             } //end foor loop
               
@@ -818,30 +862,78 @@ elseif($view == 'saved') {
     }
     
 
+
+
+
+
+
+
+
+
+
 elseif($view == 'downloads') {
 
          echo'<div id="container" class="grid_18" style="width:770px;margin-top:-10px;padding-left:20px;">';    
-    
+
     for($iii=0;$iii<$numdownloads;$iii++) {
     $downloadsource = mysql_result($downquery,$iii,'source');
-    
+   $photoid = mysql_result($photosresult, $iii, "id");
     list($height,$width) = getimagesize($downloadsource);
-    $widthnew = $width / 3;
-    $heightnew = $height / 3;
+        $imgratio = $height / $width;
+    $widthnew = $width / 2.5;
+    $heightnew = $height / 2.5;
     
     
             echo'
-                  <div class="fPic" id="',$id,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="fullsize2.php?imageid=',$id,'">
-                
+             <div class="fPic" id="',$photoid,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="fullsize2.php?imageid=',$photoid,'">
             <div class="statoverlay" style="z-index:1;left:0px;top:180px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br>
             <form name="download_form" method="post" action="downloadphoto.php">
                 <input type="hidden" name="image" value="',$downloadsource,'">
                 <button type="submit" name="submit" value="download" class="btn btn-warning" style="margin-top:-45px;opacity:1;margin-left:12px;width:220px;height:35px;font-size:18px;">Download Photo</button>
             </form>
             </div>
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$downloadsource,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$downloadsource,'" height="',$heightnew,'px" width="',$widthnew,'px" /></a></div>';
                 
         }//end for loop
+
+
+    
+           
+
+
+    
+//Also Output the Users's Downloaded Files
+
+    $downbuyerquery = mysql_query("SELECT source FROM buyerdownloads WHERE emailaddress = '$repemail' ORDER BY id DESC");
+    $numbuyerdownloads = mysql_num_rows($downbuyerquery);
+    $photosresultbuyers = mysql_query($allcampaignsquery);
+
+            
+    for($iii=0;$iii<$numbuyerdownloads;$iii++) {
+    $downloadsource = mysql_result($downbuyerquery,$iii,'source');
+       $photoid = mysql_result($photosresultbuyers, $iii, "id");
+    list($height,$width) = getimagesize($downloadsource);
+    $widthnew = $width / 2.5;
+    $heightnew = $height / 2.5;
+
+
+
+
+ echo'
+              <div class="fPic" id="',$photoid,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;">
+            <div class="statoverlay" style="z-index:1;left:0px;top:180px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><br>
+            <form name="download_form" method="post" action="downloadphoto.php">
+                <input type="hidden" name="image" value="',$downloadsource,'">
+                <button type="submit" name="submit" value="download" class="btn btn-warning" style="margin-top:-45px;opacity:1;margin-left:12px;width:220px;height:35px;font-size:18px;">Download Photo</button>
+            </form>
+            </div>
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$downloadsource,'" height="',$widthnew,'px" width="',$heigthnew,'px" /></a></div>';
+
+
+    }
+   
+
+
         
     echo'</div>';
 

@@ -399,18 +399,76 @@ echo'
 		<div class="navbar-inner">
 			<div class="container" style="height:50px;width:1040px;">
 				<ul class="nav" style="height:50px;">
-					<li class="margint"> <a href="newsfeed.php"><img class="logo" src="graphics/coollogo.png" style="position:relative;left:-10px;height:45px;width:186px;margin-top:-8px;padding-right:20px;"/></a></li>
+					<li class="margint"> <a href="index.php"><img class="logo" src="graphics/coollogo.png" style="position:relative;left:-10px;height:45px;width:186px;margin-top:-8px;padding-right:20px;"/></a></li>
 					<li class="margint" style="margin-left:-15px;"> <form class="navbar-search" action="search.php" method="get">
 <input class="search3 margint marginl" style="height:1.4em;padding-right:25px;margin-top:2px;margin-left:5em;margin-right:5.5em;font-family:helvetica;font-size:13px;font-weight:100;color:black;" name="searchterm" type="text" placeholder="Search for photos & people">
 </form></li>
-					<li> <a href="newsfeed.php"> Home </a> </li>
+					<li> <a href="newsfeed.php"> News </a> </li>
 					<li class="dropdown topcenter"'; if($_SERVER['REQUEST_URI'] == '/newest3.php') {echo'style="color:white;"';} echo'id="accountmenu">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#"> Photos </b></a>
 							<ul class="dropdown-menu" style="margin-top:0px;background-color:#fff;">
+                                <li> <a href="trending.php"> Trending </a></li>
 								<li> <a href="newest.php"> Newest </a></li>
-								<li> <a href="trending.php"> Trending </a></li>
-								<li class="divider"></li> 	<li> <a href="topranked.php"> Top Ranked </a></li>
-								<li> <a href="discover.php"> Discover </a> </li>
+								<li class="divider"></li> 	<li> <a href="topranked.php"> Top Ranked </a></li>';
+                                
+                                
+  //get the users information from the database
+  $email = $_SESSION['email'];
+  
+  $likesquery = "SELECT * FROM userinfo WHERE emailaddress='$email'";
+  $likesresult = mysql_query($likesquery) or die(mysql_error());
+  $discoverseen = mysql_result($likesresult, 0, "discoverseen");
+
+  //find out what they like
+  $likes = mysql_result($likesresult, 0, "viewLikes");
+    if($likes=="") {
+		$nolikes = 1;
+        		
+	}
+
+  $likes .= "  ";
+  $likes .= mysql_result($likesresult, 0, "buyLikes");
+
+  //create an array from what they like
+  $likesArray = explode("  ", $likes);
+
+  //loop through the array to format the likes in the proper format for the query
+  $formattedLikes = "%";
+  for($iii=0; $iii < count($likesArray); $iii++) {
+    $formattedLikes .= $likesArray[$iii];
+    $formattedLikes .= "%";
+  }
+
+    //make an array of the photos they have already seen
+  if($discoverseen != "") {
+    $discoverArray = explode(" ", $discoverseen);
+    $discoverFormatted = "";
+    for($iii=0; $iii < count($discoverArray)-1; $iii++) {
+      $discoverFormatted .= "'";
+      $discoverFormatted .= $discoverArray[$iii];
+      $discoverFormatted .= "', ";
+    }
+    $discoverFormatted .= "'";
+    $discoverFormatted .= $discoverArray[count($discoverArray)-1];
+    $discoverFormatted .= "'";
+  }
+  
+  //select the image that they will be seeing next
+  //delineate between whether they have used discover feature before
+  if($discoverseen != "") {     //get the photos that match this person's view interests
+    $viewquery = "SELECT *, MATCH(maintags, singlecategorytags, singlestyletags) AGAINST ('$formattedLikes') AS matching FROM photos WHERE MATCH(maintags, singlecategorytags, singlestyletags) AGAINST ('$formattedLikes') AND id NOT IN(" . $discoverFormatted . ") ORDER BY matching DESC, points DESC LIMIT 0, 1";
+    $viewresult = mysql_query($viewquery) or die(mysql_error());
+  }
+  else {
+    //get the photos that match this person's view interests
+    $viewquery = "SELECT *, MATCH(maintags, singlecategorytags, singlestyletags) AGAINST ('$formattedLikes') AS matching FROM photos WHERE MATCH(maintags, singlecategorytags, singlestyletags) AGAINST ('$formattedLikes') ORDER BY matching DESC, points DESC LIMIT 0, 1";
+    $viewresult = mysql_query($viewquery) or die(mysql_error());
+  }
+
+  $discoverimage = mysql_result($viewresult, 0, "id");
+                                
+                        echo'
+								<li> <a href="discover.php?image=',$discoverimage,'"> Discover </a> </li>
 							</ul>
 						</li>
 						<li class="dropdown topcenter" id="accountmenu">
@@ -454,7 +512,7 @@ echo'
                             $profilequery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$email'");
                             $profilepic = mysql_result($profilequery,0,'profilepic');
                             $fullname = mysql_result($profilequery,0,'firstname')." ".mysql_result($profilequery,0,'lastname');
-                            $fullname = (strlen($fullname) > 14) ? substr($fullname,0,11). "&#8230;" : $fullname;
+                            $fullname = (strlen($fullname) > 13) ? substr($fullname,0,10). "&#8230;" : $fullname;
 
                         
                         echo'
@@ -474,6 +532,9 @@ echo'
 $emailquery=("SELECT following FROM userinfo WHERE emailaddress ='$email'");
 $followresult=mysql_query($emailquery);
 $followinglist=mysql_result($followresult, 0, "following");
+
+$blogquery = mysql_query("SELECT id FROM blog WHERE emailaddress ='$email'");
+$blogidlist = mysql_result($blogquery, 0, "id");
 
 $notsquery = "SELECT * FROM newsfeed WHERE (owner = '$email' AND emailaddress != '$email') OR following = '$email' ORDER BY id DESC";
 $notsresult = mysql_query($notsquery);
@@ -566,6 +627,16 @@ $newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
 echo'<a style="text-decoration:none" href="fullsize.php?image=',$source,'&id=',$id,'"><div id="greenshadowhighlight"><img style="float:left;padding:5px;" src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<div style="color:black;float:left;margin-top:20px;margin-left:10px;">',$fullname4,' commented on your photo</div></div></a><hr>';
 }
 
+elseif($type == "blogcomment") {
+$blogcommenteremail = $notsarray['emailaddress'];
+$source= $notsarray['source'];
+$blogcommenterquery = mysql_query("SELECT profilepic,firstname,lastname FROM userinfo WHERE emailaddress = '$blogcommenteremail'");
+$blogcommenterpic = mysql_result($blogcommenterquery,0,'profilepic');
+$blogcommentername = mysql_result($blogcommenterquery,0,'firstname') ." ". mysql_result($blogcommenterquery,0,'lastname');
+
+echo'<a style="text-decoration:none" href="myprofile.php?view=blog&bi=',$source,'#',$source,'"><div id="greenshadowhighlight"><img style="float:left;padding:5px;" src="',$blogcommenterpic,'" height="50" width="50" />&nbsp;<div style="color:black;float:left;margin-top:20px;margin-left:10px;">',$blogcommentername,' commented on your blog post</div></div></a><hr>';
+}
+
 elseif($type == "message") {
 $ownermessage = $notsarray['owner'];
 $thread = $notsarray['thread'];
@@ -627,6 +698,16 @@ $caption4 = $notsarray['caption'];
 $source= $notsarray['source'];
 $newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
 echo'<a style="text-decoration:none" href="fullsize.php?image=',$source,'&id=',$id,'"><div id="greenshadow"><img style="float:left;padding:5px;" src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<div style="color:black;float:left;margin-top:20px;margin-left:10px;">',$fullname4,' commented on your photo</div></div></a><hr>';
+}
+
+elseif($type == "blogcomment") {
+$blogcommenteremail = $notsarray['emailaddress'];
+$source= $notsarray['source'];
+$blogcommenterquery = mysql_query("SELECT profilepic,firstname,lastname FROM userinfo WHERE emailaddress = '$blogcommenteremail'");
+$blogcommenterpic = mysql_result($blogcommenterquery,0,'profilepic');
+$blogcommentername = mysql_result($blogcommenterquery,0,'firstname') ." ". mysql_result($blogcommenterquery,0,'lastname');
+
+echo'<a style="text-decoration:none" href="myprofile.php?view=blog&bi=',$source,'#',$source,'"><div id="greenshadow"><img style="float:left;padding:5px;" src="',$blogcommenterpic,'" height="50" width="50" />&nbsp;<div style="color:black;float:left;margin-top:20px;margin-left:10px;">',$blogcommentername,' commented on your blog post</div></div></a><hr>';
 }
 
 elseif($type == "message") {
@@ -698,15 +779,15 @@ echo'</div>';
 								</ul>	
 							</li>
 						<li class="dropdown topcenter marginT" id="accountmenu" style="position:relative;">
-							<a class="dropdown-toggle" data-toggle="dropdown" href="myprofile.php"><img src="',$profilepic,'" style="width:30px;height:30px;"/><span style="font-size:13px;color:white;font-weight:200;">&nbsp;&nbsp;&nbsp;',$fullname,'</span></a>
+							<a style="text-decoration:none;" class="dropdown-toggle" data-toggle="dropdown" href="myprofile.php"><div class="profile" style="text-decoration:none;margin-top:-15px;padding:4px;padding-right:8px;"><a style="text-decoration:none;" href="myprofile.php"><img src="',$profilepic,'" style="width:30px;height:30px;"/><span style="font-size:13px;color:white;font-weight:200;">&nbsp;&nbsp;&nbsp;',$fullname,'</span></a></div></a>
 								<ul class="dropdown-menu" style="margin-top:0px;background-color:#fff;width:150px;">
                                     <li> <a href="myprofile.php?view=upload"> Upload </a> </li>
                                     <li class="divider"></li>
-                                    <li> <a href="myprofile.php"> Portfolio </a> </li>
+                                    <li> <a href="myprofile.php"> My Portfolio </a> </li>
                                     <li class="divider"></li>
                                     <li> <a href="myprofile.php?view=store"> My Store </a> </li>
                                     <li class="divider"></li>
-                                    <li> <a href="myprofile.php?view=messages"> Messages </a> </li>
+                                    <li> <a href="myprofile.php?view=blog"> My Blog</a> </li>
                                     <li class="divider"></li>
 									<li> <a href="myprofile.php?view=settings"> Settings </a> </li>
 									<li class="divider"></li>';
@@ -803,7 +884,43 @@ echo'
 ';
 }
 
+
 function footer() {
+
+echo'
+<link rel="stylesheet" href="css/all.css" type="text/css"/> 
+<div class="fixed-bottom" style="width:100%;background:#ccc;box-shadow: inset 1px 1px 1px #999;">
+	<div class="container_24">
+	<div class="grid_24" style="margin-top:.1em;">	
+	<div class="grid_18 push_2">
+		<ul class="footer">
+			<li> <a href="about.php"><div class="footer_grid"> About </div> </a> </li>
+			<li> <a href="contact.php"><div class="footer_grid">Contact Us </div></a> </li>
+			<li> <a href="help.php"><div class="footer_grid">Help/FAQ </div></a> </li>
+			<li> <a href="terms.php"><div class="footer_grid">Terms </div></a> </li>
+			<li> <a href="privacy.php"><div class="footer_grid">Privacy Policy </div></a> </li>
+			<li> <a href="blog/post"><div class="footer_grid">Blog  </div></a></li>
+			<li> <a href="press.php"><div class="footer_grid">Press </div></a></li>
+		</ul>
+	</div>	
+		<div class="grid_4 pull_1" style="margin: 1em 3em 0 0 ">
+			<div class="grid_1" style="float:right;"><a class="twitter" href="https://twitter.com/photorankr"><img src="graphics/twitter.png"/> </a>
+			</div>
+			<div class="grid_1" style="float:right;"><a class="twitter" href="http://www.facebook.com/pages/PhotoRankr/140599622721692"><img src="graphics/facebook.png"/> </a>
+			</div>
+			<div class="grid_1" style="float:right;"><a class="twitter" href="https://plus.google.com/102253183291914861528/posts"><img src="graphics/g+.png"/> </a>
+			</div>
+	</div>
+<div class="grid_24">
+	<p class="copyright" style="margin-top:1em;">PhotoRankr is a trademark of PhotoRankr, Inc. The PhotoRankr Logo is a trademark of PhotoRankr, Inc. </p>
+<p class="copyright" style="margin-bottom:1em;">Copyright &copy 2012 PhotoRankr, Inc.</p>
+</div>
+</div>';
+
+}
+
+
+function footermarket() {
     echo'
    <link rel="stylesheet" href="css/style.css" type="text/css"/> 
     
@@ -895,6 +1012,7 @@ function footer() {
     </div>';
     
 }
+
 
 
 ?>

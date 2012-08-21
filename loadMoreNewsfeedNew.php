@@ -1,12 +1,3 @@
-<!--HIDDEN COMMENT SCRIPT-->
-<script type="text/javascript">   
-$(document).ready(function(){
-  $(".flip").click(function(){
-    $(".panel").slideDown("slow");
-  });
-});
-</script>
-
 <?php 
 
 require("db_connection.php");
@@ -294,7 +285,8 @@ if($view == '') {
                     
                     <a name="',$blogid,'" href="#"><p class="flipblog',$blogid,'" style="font-size:15px;"></a>',$numcomments,' Comments</p>
                     </div>
-                    
+                     </div>
+                     
                     <style type="text/css">
                     p.flipblog',$blogid,' {
                     margin-left:-10px;
@@ -423,7 +415,7 @@ if($view == '') {
     echo '</div>'; 
     }
     
-    elseif ($type == "comment") {
+elseif ($type == "comment") {
     $owner = $newsrow['owner'];
     $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
     $ownerresult = mysql_query($ownersquery); 
@@ -442,10 +434,12 @@ if($view == '') {
     $lastname = $newsrow['lastname'];
     $lastname = ucwords($lastname);
     $image = $newsrow['source'];
+    $id = $newsrow['id'];
    
     $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
+    $imageID = mysql_result($imageinfo,0,'id');
     $votes = mysql_result($imageinfo,0,'votes');
     $rank = ($points / $votes);
     $rank = number_format($rank,2);
@@ -465,29 +459,109 @@ if($view == '') {
     <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
     <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
     
-    $txt=".txt";
-	$imagenew=str_replace("userphotos/","", $image);
-	$searchchars=array('.jpg','.png','.tiff','.JPG','.jpeg','.JPEG','.gif');
-	$imagenew=str_replace($searchchars,"", $imagenew);
-	$file = "comments/" . $imagenew . $txt; 
 	echo '<br /><br /><div style="margin-left: 85px;padding:15px;width:480px;clear:both;">
-    <div class="panel">';
-    @include("$file");
+    
+    <div class="panel',$id,'">';
+    
+   $grabcomments = mysql_query("SELECT * FROM comments WHERE imageid = '$imageID' ORDER BY id DESC");
+        $numcomments = mysql_num_rows($grabcomments);
+        
+        for($iii = 0; $iii < $numcomments; $iii++) {
+        
+            $comment = mysql_result($grabcomments,$iii,'comment');
+            $commentid = mysql_result($grabcomments,$iii,'id');
+            $commenteremail = mysql_result($grabcomments,$iii,'commenter');
+            $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
+            $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
+            $commenterid = mysql_result($commenterinfo,0,'user_id');
+            $commenterpic = mysql_result($commenterinfo,0,'profilepic');
+            $commenterrep = number_format(mysql_result($commenterinfo,0,'reputation'),2);
+        
+        //SHOW PREVIOUS COMMENTS
+        echo'
+            <div style="width:460px;clear:both;margin-top:10px;">
+            <a href="viewprofile.php?u=',$commenterid,'"><div style="float:left;"><img class="roundedall" src="',$commenterpic,'" height="40" width="35"/></a></div>
+           
+             <div style="float:left;padding-left:6px;width:410px;">
+               
+                 <div style="float:left;color:#3e608c;font-size:14px;font-family:helvetica;font-weight:500;border-bottom: 1px solid #ccc;width:410px;"><div style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> &nbsp;<span style="font-size:16px;font-weight:100;color:black;margin-top:2">|</span>&nbsp;<span style="color:#333;font-size:12px;">Rep: ',$commenterrep,'</span></div>&nbsp;&nbsp;&nbsp;
+                   
+                     <div class="progress progress-success" style="float:left;width:110px;height:7px;opacity:.8;margin:7px;">
+                    <div class="bar" style="width:',$commenterrep,'%;">
+                    </div></div>
+                   
+                </div>
+                <div style="float:left;width:370px;padding:10px;font-size:13px;font-family:helvetica;font-weight:300;color:#555;">',$comment,'</div>
+            </div>
+            </div>';
+            
+        }
+        
+        
+        $imagenew=str_replace("userphotos/","", $image);
+        $imagelink=str_replace(" ","", $image);
+        $searchchars=array('.jpg','.png','.tiff','.JPG','.jpeg','.JPEG','.gif');
+        $imagenew=str_replace($searchchars,"", $imagenew);
+        $txt=".txt";
+        $file = "comments/" . $imagenew . $txt;
+        echo'
+        <div style="width:460px;">';
+        @include("$file"); 
+
+        echo'</div>
+        <br /><br /><br />';
+
     echo'
     </div>
-    <p class="flip" style="font-size:15px;">View comment thread</p>';
-	if (@file_get_contents($file) == '') {
-		echo '<div style="text-align: center;">Be the first to leave a comment!<br /><br /></div>';
-	}
+    
+    <p class="flip',$id,'" style="font-size:15px;">View comment thread</p>';
 	echo '</div>';
     
     echo'
     <br />
     <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
-    echo '</div>';    
+    echo '</div>
+    
+          <style type="text/css">
+                    p.flip',$id,' {
+                    margin-left:-10px;
+                    padding:10px;
+                    width:470px;
+                    text-align:center;
+                    background:white;
+                    border:solid 1px #c3c3c3;
+                    }
+
+                    p.flip',$id,':hover {
+                    background-color: #ccc;
+                    }
+
+                    div.panel',$id,' {
+                    display:none;
+                    margin:-10px;
+                    width:460px;
+                    padding:15px;
+                    text-align:left;
+                    background:white;
+                    border:solid 1px #c3c3c3;
+                    }
+                    </style>';
+                    
+                    ?>
+                    
+                    <!--HIDDEN COMMENT SCRIPT-->
+                    <script type="text/javascript">   
+                    $(document).ready(function(){
+                    $(".flip<?php echo $id; ?>").click(function(){
+                        $(".panel<?php echo $id; ?>").slideToggle("slow");
+                    });
+                    });
+                    </script>
+                    
+                <?php
     }
     
-    } //end view == ''   
+    } //end view == ''    
     
  
 //UPLOAD VIEW

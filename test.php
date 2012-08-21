@@ -2,7 +2,7 @@
 
 //connect to the database
 require "db_connection.php";
-require "functions.php";
+require "functionsnav.php";
 
 
 ?>
@@ -12,12 +12,11 @@ require "functions.php";
 <html>
 <head>
 
-	<link rel="stylesheet" href="market/css/bootstrapnew2.css" type="text/css" />
+	<link rel="stylesheet" href="css/bootstrapNew.css" type="text/css" />
     <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
-    <link rel="stylesheet" href="text.css" type="text/css" />
+    <link rel="stylesheet" href="css/text2.css" type="text/css" />
     <link rel="stylesheet" href="market/css/960_24.css" type="text/css" />
     <link rel="stylesheet" href="market/css/index.css" type="text/css"/> 
-    <link rel="stylesheet" href="market/css/itunes.css" type="text/css"/> 
 	<link rel="stylesheet" type="text/css" href="market/css/all.css"/>
     <link rel="stylesheet" href="market/css/style.css" type="text/css"/> 
 
@@ -28,43 +27,56 @@ require "functions.php";
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
 
     
-    <style type="text/css">
-.navbar-inner
+   <style type="text/css">
+
+
+ .statoverlay
+
 {
-	text-align:center;
+opacity:.8;
+filter:alpha(opacity=40);
+z-index:1;
+transition: opacity .5s;
+-moz-transition: opacity .5s;
+-webkit-transition: opacity .5s;
+-o-transition: opacity .5s;
 }
 
-.center.navbar .nav,
-.center.navbar .nav > li {
-    float:none;
-    display:inline-block;
-    *display:inline; /* ie7 fix */
-    *zoom:1; /* hasLayout ie7 trigger */
-    vertical-align: top;
+
+
+ .statoverlay2
+
+{
+opacity:.6;
+filter:alpha(opacity=40);
+z-index:1;
+transition: opacity .5s;
+-moz-transition: opacity .5s;
+-webkit-transition: opacity .5s;
+-o-transition: opacity .5s;
+}
+                         
+
+.item {
+  margin: 10px;
+  float: left;
+  border: 2px solid transparent;
 }
 
-.center .navbar-inner {
-    text-align:center;
+.item:hover {
+  margin: 10px;
+  float: left;
+  border: 2px solid black;
 }
-.navbar .nav,
-.navbar .nav > li {
-    float:none;
-    display:inline-block;
-    *display:inline; /* ie7 fix */
-    *zoom:1; /* hasLayout ie7 trigger */
-    vertical-align: top;
-}
-.center .dropdown-menu {
-    text-align: left;
-}
+
 </style>
 
 <body style="background-color: #fff; min-width:1220px;">
 
 <?php navbarnew(); ?>
 
+                <div id="thepics">
 
-				<div id="container2" style="z-index:1;position:relative;top:75px;margin-left:50px;">
                 
          
 				<?php 
@@ -77,7 +89,7 @@ require "functions.php";
                 $photo[$iii] = mysql_result($newestphotos,$iii,'source');
                 $photobig[$iii] = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/", $photo[$iii]);
                 $photo[$iii] = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "http://photorankr.com/userphotos/medthumbs/", $photobig[$iii]);
-                $imageid[$iii] = mysql_result($newestphotos,$iii,'id');
+                $id = mysql_result($newestphotos,$iii,'id');
                 $owneremail[$iii] = mysql_result($newestphotos,$iii,'emailaddress');
                 $caption[$iii] = mysql_result($newestphotos,$iii,'caption');
 
@@ -94,24 +106,56 @@ require "functions.php";
                 
                 echo'
 				<div class="masonryImage">
-                <div class="phototitle5">
-					<a href="fullsize2.php?imageid=',$imageid[$iii],'"><img style="text-align:center;padding-bottom:20px;min-width:265px;" src="',$photo[$iii],'" height="',$heightnew,'px" width="',$widthnew,'px" /></a>
-                    <div style="background-color:#eee;height:35px;margin-top:-14px;">
-                    <img style="position:relative;left:3px;top:2px;float:left;" class="dropshadow" src="',$profilepic[$iii],'" height="30" width="30" />&nbsp;<div style="font-size:14px;font-weight:150;margin-left:7px;margin-top:6px;font-family:helvetica neue;float:left;">"',$caption[$iii],'"</div></div>
+                <div class="phototitle5 fPic" id="',$id,'">
+					<a href="fullsize2.php?imageid=',$id,'"><img style="text-align:center;padding-bottom:20px;min-width:265px;" src="',$photo[$iii],'" height="',$heightnew,'px" width="',$widthnew,'px" /></a>
+                        
                     </div>
 				</div>';
                 }
                 
                 
-                
-                ?>
+                echo'
+                     </div>
+
+            
+<!--AJAX CODE HERE-->
+   <div class="grid_6 push_9" style="padding-top:50px;">
+   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Photos&hellip;</div>
+   </div>';
+
+
+echo '<script>
+
+var last = 0;
+
+	$(window).scroll(function(){
+		if($(window).scrollTop() > $(document).height() - $(window).height()-100) {
+			if(last != $(".fPic:last").attr("id")) {
+				$("div#loadMorePics").show();
+				$.ajax({
+					url: "loadMoreNewPics2.php?lastPicture=" + $(".fPic:last").attr("id"),
+					success: function(html) {
+						if(html) {
+							$("#thepics").append(html);
+							$("div#loadMorePics").hide();
+                            $container.masonry( "appended", $(".masonryImage"), true);
+
+						}
+					}
+				});
+				last = $(".fPic:last").attr("id");
+			}
+		}
+	});
+</script>';
+
+                            
+?>
+
 		
-		</div>
   <script type="text/javascript">
 
-    $(document).ready(function() {
-
-        var $container = $('#container2');
+        var $container = $('#thepics');
           $container.imagesLoaded(function(){
             $container.masonry({
               itemSelector : '.masonryImage',
@@ -119,7 +163,6 @@ require "functions.php";
           });
         });
 
-    });
   </script>
     
     

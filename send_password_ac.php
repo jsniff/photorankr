@@ -8,6 +8,7 @@
 
 //connect to the database
 require "db_connection.php";
+require "functionsnav.php";
 
 //get the posted email address
 $email_to = mysql_real_escape_string($_REQUEST['emailaddress']);
@@ -35,15 +36,15 @@ if($count == 1) {
 }
 // else if $count not equal 1
 else {
-	echo '<div style="margin-top:200px;text-align:center; font-family:lucida grande, georgia, helvetica;font-size:20px;">Oops, your email was not found.</div>';
+	echo '<div style="margin-top:200px;text-align:center;font-size:20px;text-shadow: 2px 2px 15px #333;list-style-type:none;color:white;font-family:helvetica neue;font-size:26px;line-height:1.28;font-weight:100;">Oops, your email was not found.</div>';
 }
 
 // if your email succesfully sent
 if($sentmail){
-	echo '<div style="margin-top:200px;text-align:center;font-family:lucida grande, georgia, helvetica;font-size:20px;">Your Password Has Been Sent To Your Email Address. You should receive it shortly.</div>';
+	echo '<div style="margin-top:200px;text-align:center;font-size:20px;text-shadow: 2px 2px 15px #333;list-style-type:none;color:white;font-family:helvetica neue;font-size:26px;line-height:1.28;font-weight:100;">Your Password Has Been Sent To Your Email Address. You should receive it shortly.</div>';
 }
 else {
-	echo '<div style="margin-top:100px;text-align:center;font-family:lucida grande, georgia, helvetica;font-size:20px;">There must have been an error. Please try again.</div>';
+	echo '<div style="margin-top:100px;text-align:center;font-size:20px;text-shadow: 2px 2px 15px #333;list-style-type:none;color:white;font-family:helvetica neue;font-size:26px;line-height:1.28;font-weight:100;">There must have been an error. Please try again.</div>';
 }
 
 ?>
@@ -55,12 +56,11 @@ else {
 
 <head>
 
-<link rel="stylesheet" href="registernewuser.css" type="text/css" />
-<link rel="stylesheet" href="signupstyle.css" type="text/css" />
-<link rel="stylesheet" href="signin.css" type="text/css" />
-<link rel="stylesheet" href="bootstrap.css" type="text/css" />
-<link rel="stylesheet" href="bootsrap.min.css" type="text/css" />
-<link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+ <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
+ <link rel="stylesheet" href="960_24.css" type="text/css" />
+ <link rel="stylesheet" href="css/style.css" type="text/css" />
+ <link rel="stylesheet" href="text2.css" type="text/css" />
+ <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
 
 <title>Photorankr- Upload. Rank. Discover.</title>
 
@@ -81,30 +81,10 @@ else {
 
 </head>
 
+<body style="background-image:url('img/longview.jpg');background-size: 100%;
+background-repeat:no-repeat;overflow-x:hidden;">
 
-<body style="overflow-x:hidden">
-
-
-<!--FRAME SO SITE READJUSTS PROPORTIONALLY-->
-
-
-
-<div style="border:0px solid black;width:1150px;height:auto;overflow-y:hidden;overflow-x:scroll;">
-
-
-
-<!--SET PAGE WIDTH AUTOMATICALLY AND ADD LOGO-->
-
-<div id="header">
-<div style="text-align:left">
-<div class="logo">
-<a href="trending.php"><img src="graphics/photorankr2.png"></img></a>
-</div>
-<div class="slogan">
-<a href="trending.php"><img src="graphics/slogan.png"></img></a>
-</div>
-</div>
-
+<?php navbarnew(); ?>
 
 </body>
 </html>

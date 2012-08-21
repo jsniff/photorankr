@@ -218,7 +218,7 @@ elseif($view == "current") {
                     <div style="float:left;border-left:1px solid #ccc;height:130px;margin-left:8px;margin-top:8px;">
                         
                         <div style="padding:15px;width:200px;float:left;margin-top:-10px;">
-                        <span style="font-size:16px;font-weight:200;"><a style="text-decoration:none;color:#3e608c;" href="campaignphotos.php?id=',$id[$iii],'">',$title[$iii],'</a></span><br /><br />',$name,'<br />Ends&nbsp;|&nbsp;4 Days<br />Photographers: 20<br />Photos: ',$numentries,'                     </div>
+                        <span style="font-size:16px;font-weight:200;"><a style="text-decoration:none;color:#3e608c;" href="campaignphotos.php?id=',$id[$iii],'">',$title[$iii],'</a></span><br /><br />',$name,'<br />Ends&nbsp;|&nbsp;'; if($daysleft > 0) {echo $daysleft,' days,', $hoursleft, ' hour';} else {echo '<span style="color:red;font-weight:200;">Campaign Over.</span>';} echo'<br />Photos: ',$numentries,'                     </div>
                         
                         <div style="width:470px;float:left;border-left:1px solid #ccc;"> 
                             <div style="margin-left:10px;">

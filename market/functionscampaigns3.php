@@ -411,10 +411,10 @@ echo'
                                     <li> <a href="account.php"> My Account </a> </li>
                                     <li class="divider"></li>
 									<li> <a href="account.php?view=saved"> Saved Photos </a> </li>
-                                    <li> <a href="account.php?view=settings"> Downloads </a> </li>
-                                    <li> <a href="account.php?view=settings"> Photographers </a> 
+                                    <li> <a href="account.php?view=downloads"> Downloads </a> </li>
+                                    <li> <a href="account.php?view=photogs"> Photographers </a> 
                                     <li class="divider"></li>
-                                    <li> <a href="account.php?view=settings"> Edit Account </a> </li>	
+                                    <li> <a href="account.php?view=account"> Edit Account </a> </li>	
                                     <li class="divider"></li>
 									<li> <a href="index.php?action=logout"> Log Out </a> </li>
                                 </ul>				

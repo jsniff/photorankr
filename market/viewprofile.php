@@ -107,6 +107,9 @@ $notsqueryrun = mysql_query($notsquery); }
     
   //ADD PAGEVIEW TO THEIR PROFILE
   $profileviewquery = mysql_query("UPDATE userinfo SET profileviews = (profileviews + 1) WHERE user_id = '$userid'");
+  
+  //ADD BUYER PAGEVIEW TO THEIR PROFILE
+  $buyerprofileviewquery = mysql_query("UPDATE userinfo SET buyerprofileviews = (buyerprofileviews + 1) WHERE user_id = '$userid'");
 
   //GET VIEW
   $view = htmlentities($_GET['view']);

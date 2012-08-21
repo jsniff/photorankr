@@ -77,10 +77,10 @@ a.menu:after, .dropdown-toggle:after
 				<div class="grid_4 pull_1" style="border-right:1px solid grey;margin-top:20px;padding-right:10px;"><b>Photographers.</b></br>Share and sell photos like never before.</div>
 				<div class="grid_4 pull_1" style="border-right:1px solid grey;margin-top:20px;padding-right:10px;"><b>Image Buyers.</b></br>Easy to buy fresh and affordable images.</div>
 				<div class="grid_4 pull_1" style="border-right:1px solid grey;margin-top:20px;"><b>Photo Lovers.</b></br>Discover thousands of great photos.</div>
-				<div class="grid_2 push_1" style="margin-top:40px;"><a class="btn btn-success" data-toggle="button" style="width:75px;">Sign In</a></div>
-
+				<div>
+				<div style="position:absolute;left:1000px;margin-top:20px;"><a class="btn btn-success" data-toggle="button" style="width:125px;margin-bottom:10px;" href="signup.php">Photographer Sign In</a></br> <a class="btn btn-success" data-toggle="button" style="width:125px;" href="marketsignup.php">Buyer Sign In</a></div>
 				</div>
-					
+	
 				</div>
 			</div>
 		</div>
@@ -97,7 +97,7 @@ a.menu:after, .dropdown-toggle:after
 		<div class="roundedall" style="float:left;width:400px;height:325px;">
 			<div style="width:100%;height:100px;padding-left:10px;padding-right:10px;padding-top:10px;"><p1 style="text-shadow: 5px 5px 15px #333;color:white;font-family:arial,helvetica neue;font-size:30px;line-height:1.48;">Join the best photography network and marketplace.</p1></div>
 			
-			<form action="signup2.php? action=signuponboard" method="post" style="width:100%;height:200px;padding-left:10px;padding-right:10px;padding-top:10px;">
+			<form id="form1" action="signup3.php" method="post" style="width:100%;height:200px;padding-left:10px;padding-right:10px;padding-top:10px;">
 				<div>
 					<div style="width:400px;"><input style="float:left;width:150px;font-size:13px;margin-right:10px;margin-bottom:8px;background-color:white;" type="text" name="firstname" placeholder="First name" />
 						<input style="float:left;width:150px;font-size:13px;margin-bottom:8px;background-color:white;" type="text" name="lastname" placeholder="Last name" /></div></br>
@@ -108,16 +108,8 @@ a.menu:after, .dropdown-toggle:after
 
 <div style="width:100%;">
 
-<form action="signup">
-<select name="accounttypeype" style="float:left;width:160px;margin-right:10px;">
-<option value="accounttype" selected="selected">Account type</option>
-<option value="photographer">Photographer looking to share or sell photos.</option>
-<option value="buyer">Buyer looking for fresh and affordable images.</option>
-<option value="buyer">Photo lover looking to discover great photos.</option>
-</select>
-</form>
-
-<button class="btn btn-success" data-toggle="button" style="float:left;width:160px;">Sign Up</button>
+<button type="submit"  onclick='this.form.action="signup3.php";' class="btn btn-success" data-toggle="button" style="float:left;width:160px;padding-right:10px;margin-right:10px;">Photographer Sign Up</button>
+<button type="submit"  onclick='this.form.action="signup2.php";' class="btn btn-success" data-toggle="button" style="float:left;width:160px;">Buyer Sign Up</button>
 </div>
 
 				</div>
@@ -127,7 +119,9 @@ a.menu:after, .dropdown-toggle:after
 		</div>
 		<div style="margin-top:100px;padding-left:100px;float:left;width:500px;height:100px;">
 			<p1 style="text-shadow: 5px 5px 15px #333;color:white;font-family:arial,helvetica neue;font-size:20px;line-height:1.48;">Or begin searching the Marketplace.</p1></br></br>
-			<input type="text" class="search5 roundedall" style="padding:13px;font-size:15px;"/>
+            <form action="market/" method="GET">
+			<input type="text" class="search5 roundedall" name="searchterm" style="padding:13px;font-size:15px;"/>
+            </form>
 		</div>
 	</div>
 
@@ -141,7 +135,7 @@ a.menu:after, .dropdown-toggle:after
 		<div class="roundedall" style="float:left;width:400px;height:325px;">
 			<div style="width:100%;height:100px;padding-left:10px;padding-right:10px;padding-top:10px;"><p1 style="text-shadow: 5px 5px 15px #333;color:white;font-family:arial,helvetica neue;font-size:30px;line-height:1.48;">Share your best shots with the world for free . . .</p1></div>
 			
-			<form action="signin.php? action=signuponboard" method="post" style="width:100%;height:200px;padding-left:10px;padding-right:10px;padding-top:10px;">
+			<form action="" method="post" style="width:100%;height:200px;padding-left:10px;padding-right:10px;padding-top:10px;">
 				<div>
 					<div style="width:400px;"><input style="float:left;width:150px;font-size:13px;margin-right:10px;margin-bottom:8px;background-color:white;" type="text" name="firstname" placeholder="First name" />
 						<input style="float:left;width:150px;font-size:13px;margin-bottom:8px;background-color:white;" type="text" name="lastname" placeholder="Last name" /></div></br>
@@ -152,16 +146,8 @@ a.menu:after, .dropdown-toggle:after
 
 <div style="width:100%;">
 
-<form action="signup">
-<select name="accounttypeype" style="float:left;width:160px;margin-right:10px;">
-<option value="accounttype" selected="selected">Account type</option>
-<option value="photographer">Photographer looking to share or sell photos.</option>
-<option value="buyer">Buyer looking for fresh and affordable images.</option>
-<option value="buyer">Photo lover looking to discover great photos.</option>
-</select>
-</form>
-
-<button class="btn btn-success" data-toggle="button" style="float:left;width:160px;">Sign Up</button>
+<button type="submit"  onclick='this.form.action="signup3.php";' class="btn btn-success" data-toggle="button" style="float:left;width:160px;padding-right:10px;margin-right:10px;">Photographer Sign Up</button>
+<button type="submit"  onclick='this.form.action="signup2.php";' class="btn btn-success" data-toggle="button" style="float:left;width:160px;">Buyer Sign Up</button>
 </div>
 
 				</div>
@@ -199,16 +185,9 @@ a.menu:after, .dropdown-toggle:after
 
 <div style="width:100%;">
 
-<form action="signup">
-<select name="accounttypeype" style="float:left;width:160px;margin-right:10px;">
-<option value="accounttype" selected="selected">Account type</option>
-<option value="photographer">Photographer looking to share or sell photos.</option>
-<option value="buyer">Buyer looking for fresh and affordable images.</option>
-<option value="buyer">Photo lover looking to discover great photos.</option>
-</select>
-</form>
 
-<button class="btn btn-success" data-toggle="button" style="float:left;width:160px;">Sign Up</button>
+<button type="submit" onclick='this.form.action="signup3.php";'class="btn btn-success" data-toggle="button" style="float:left;width:160px;padding-right:10px;margin-right:10px;">Photographer Sign Up</button>
+<button type="submit" onclick='this.form.action="signup2.php";'class="btn btn-success" data-toggle="button" style="float:left;width:160px;">Buyer Sign Up</button>
 </div>
 
 				</div>
@@ -222,7 +201,7 @@ a.menu:after, .dropdown-toggle:after
 			<ul style="text-shadow: 5px 5px 15px #333;list-style-type:none;color:white;font-family:helvetica neue;font-size:20px;line-height:1.48;">
 				<li><li><img src="img/checkmark2.png" width="30" height="30"/>Satisfy your image need.  Describe the photo needed, the use, and let our photographers do the work.</li></br>
 				<li><li><img src="img/checkmark2.png" width="30" height="30"/>Hassle-free.  A tailored license agreement is automatically generated at the end of each Campaign.</li></br>
-				<a href="http://photorankr.com/viewcampaigns2.php"><button class="btn btn-success" data-toggle="button" style="float:left;width:160px;">Search Campaigns</button></a></li>
+				<a href="http://photorankr.com/market/viewcampaigns.php"><button class="btn btn-success" data-toggle="button" style="float:left;width:160px;">Search Campaigns</button></a></li>
 			</ul>
 		</div>
 

@@ -1,8 +1,6 @@
 <?php
 
-$caption = $_POST['caption'];
-$imageID = $_POST['imageID'];
-$image = $_POST['image'];
+$image = trim($_POST['image']);
 $image = str_replace("userphotos/","userphotos/bigphotos/", $image);
 $path = $image;
 

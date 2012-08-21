@@ -20,7 +20,10 @@ $email = $_SESSION['email'];
     $imageid = htmlentities($_GET['imageid']);
     
     //add to the views column
-    $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE   id='$imageid'") or die(mysql_error());
+    $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE id='$imageid'") or die(mysql_error());
+    
+    //add to the usermarketviews column
+    $userupdatequery = mysql_query("UPDATE photos SET usermarketviews=usermarketviews+1 WHERE id='$imageid'") or die(mysql_error());
 
     $imagequery = "SELECT * FROM photos WHERE id = '$imageid'";
     $imagequeryrun= mysql_query($imagequery);
@@ -28,6 +31,8 @@ $email = $_SESSION['email'];
     $owner = mysql_result($imagequeryrun,0,'emailaddress');
     $price = mysql_result($imagequeryrun,0,'price');
     $points = mysql_result($imagequeryrun,0,'points');
+    $faves = mysql_result($imagequeryrun,0,'faves');
+    $views = mysql_result($imagequeryrun,0,'views');
     $caption = mysql_result($imagequeryrun,0,'caption');
     $votes = mysql_result($imagequeryrun,0,'votes');
     $ranking = ($points/$votes);
@@ -135,19 +140,21 @@ else {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
 "http://w3.org/TR/html4/strict.dtd">
 <html>
-  <head>      
-   <meta name="description" content="View the fullsize image of a photo from a campaign">
-   <meta name="keywords" content="campaign, view, image, full-size, photo, photography">
-   <meta name="author" content="The PhotoRankr Team">
- 
+  <head>     
 	<title>Fullsize Photo - "<?php echo $title; ?>"</title>
+    
+    <meta property="og:image" content="http://photorankr.com/<?php echo $image; ?>">
+   <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="PhotoRankr, PhotoRankr.com">
+  <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
+  <meta name="Description" content="Purchase this photo from PhotoRankr.">
+  
+  
  <link rel="stylesheet" href="market/css/bootstrapNew.css" type="text/css" />
     <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
     <link rel="stylesheet" href="market/css/text.css" type="text/css" />
     <link rel="stylesheet" href="market/css/960_24.css" type="text/css" />
-    <link rel="stylesheet" href="market/css/index.css" type="text/css"/> 
-	<link rel="stylesheet" type="text/css" href="market/css/all.css"/>
-
+    
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
@@ -192,7 +199,7 @@ else {
 
 </head>
 
-<body class="background" style="overflow-x: hidden;">
+<body class="background" style="overflow-x: hidden;min-width:1220px;">
 
 <?php navbarnew(); ?>
 
@@ -207,7 +214,7 @@ if($_SESSION['loggedin'] != 1) {
 echo'
 <div class="modal-header">
 <a style="float:right" class="btn btn-primary" data-dismiss="modal" >Close</a>
-<img style="margin-top:-4px;float:left;" src="graphics/logomarket.png" width="180" />
+<img style="margin-top:-4px;float:left;" src="graphics/blacklogo.png" width="180" />
   </div>
   <div modal-body" style="width:600px;">
 
@@ -246,7 +253,7 @@ Please Login to Save this Photo.<br /><br /><br />
             echo'
                 <div class="modal-header">
                 <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
-                <img style="margin-top:-4px;" src="graphics/logomarket.png" width="150" />&nbsp;&nbsp;<span style="font-size:16px;">You already saved this photo</span>
+                <img style="margin-top:-4px;" src="graphics/blacklogo.png" width="150" />&nbsp;&nbsp;<span style="font-size:16px;">You already saved this photo</span>
                 </div>
                 <div modal-body" style="width:600px;">
 
@@ -268,8 +275,8 @@ height="100px" width="100px" />
             
 			echo'
                 <div class="modal-header">
-                <a style="float:right" class="btn btn-primary" href="fullsize2.php?imageid=',$imageid,'&ml=saved">Close</a>
-                <img style="margin-top:-4px;" src="graphics/logomarket.png" width="150" /></div>
+                <a style="float:right" class="btn btn-primary" href="fullsizemarket.php?imageid=',$imageid,'&ml=saved">Close</a>
+                <img style="margin-top:-4px;" src="graphics/blacklogo.png" width="150" /></div>
                 
                 <div modal-body" style="width:700px;">
 
@@ -316,8 +323,15 @@ $camptitle = mysql_result($campaigntitlequery,0,'title');
 <div class="grid_24">
 
 <div class="grid_10 pull_2" style="margin-top:150px;">
-<div class="phototitletest" style="height:<?php echo $newheight; ?>px;width:<?php echo $newwidth; ?>px;margin-top:-135px;">
-<img onmousedown="return false" oncontextmenu="return false;" alt="<?php echo $tags; ?>" src="<?php echo $imagebig2; ?>" height="<?php echo $newheight; ?>px" width="<?php echo $newwidth; ?>px" /></div>
+<div style="z-index:1;height:<?php echo $newheight; ?>px;width:<?php echo $newwidth; ?>px;margin-top:-135px;">
+<img onmousedown="return false" oncontextmenu="return false;" alt="<?php echo $tags; ?>" src="<?php echo $imagebig2; ?>" alt="<?php echo $title; ?>" height="<?php echo $newheight; ?>px" width="<?php echo $newwidth; ?>px" /></div>
+
+<?php
+    if($faves > 5 || $points > 120 || $views > 100) {
+        echo'<img style="margin-top:-40px;margin-left:',$newwidth-55,'px;" src="graphics/toplens2.png" height="85" />';
+    }
+?>
+                
 </div> 
 
 <?php
@@ -403,21 +417,25 @@ var rowcount3 = 1;
 </tr>
 </thead>
 <tbody>
-<tr id="row" onclick="showClicked();">
+
+<!--<tr id="row" onclick="showClicked();">
 <td>Small</td>
 <td><?php echo $smallwidth; ?> X <?php echo $smallheight; ?></td>
 <td>$<?php echo $smallprice; ?></td>
 </tr>
+
 <tr id="row2" onclick="showClicked2();">  
 <td>Medium</td>
 <td><?php echo $medwidth; ?> X <?php echo $medheight; ?></td>
 <td>$<?php echo $medprice; ?></td>
-</tr>
+</tr>-->
+
 <tr id="row3" onclick="showClicked3();">
-<td>Large</td>
+<td>X Large</td>
 <td><?php echo $originalwidth; ?> X <?php echo $originalheight; ?></td>
 <td>$<?php echo $price; ?></td>
 </tr>
+
 <tr>
 <td>License</td>
 <td colspan="2"><input style="margin-left:130px;"  type="radio" name="license" value="standard"  onclick="showSelectHide();" /><a style="color:black;text-decoration:none;" href="#" id="licensepopover" rel="popover" data-content="
@@ -616,10 +634,10 @@ The Extended Content License Provisions govern this option.
 
 
         if($cartmatch > 0) {
-        echo'<a class="btn btn-danger" style="margin-left:10px;width:120px;float:left;" href="fullsize2.php?imageid=',$imageid,'&action=removed">Remove from Cart</a>';
+        echo'<a class="btn btn-danger" style="margin-left:10px;width:120px;float:left;" href="fullsizemarket.php?imageid=',$imageid,'&action=removed">Remove from Cart</a>';
         }
         else {
-        echo'<a class="btn btn-success" style="margin-left:10px;width:80px;float:left;" href="myprofile.php?view=store&option=cart&imageid=',$imageid,'&price=',$selectedpricephoto,'#added">Add to Cart</a>';
+        echo'<a class="btn btn-success" style="margin-left:10px;width:80px;float:left;" href="myprofile.php?view=store&option=cart&size=xl&imageid=',$imageid,'#added">Add to Cart</a>';
                 }
 
 ?>
@@ -629,7 +647,7 @@ The Extended Content License Provisions govern this option.
 
 <div class="span6" style="margin-left:0px;margin-top:10px;">
 <b>Photo Details</b><br /><hr />
-<div><span style="float:left;">Photographer:</span><a style="font-weight:bold;color:#3e608c;" href="viewprofile.php?u=<?php echo $userid; ?>"><img style="float:left;margin-top:-10px;margin-left:5px;border: 1px solid rgb(115,115,115);" src="<?php echo $profilepic; ?>" height="30" width="30" /><span style="padding-left:5px;"><?php echo $fullname; ?></span></a></div>
+<div><span style="float:left;">Photographer:</span><a style="font-weight:bold;color:#3e608c;" href="viewprofile.php?u=<?php echo $userid; ?>"><img style="float:left;margin-top:-10px;margin-left:5px;border: 1px solid rgb(115,115,115);" src="<?php echo $profilepic; ?>" alt="<?php echo $fullname; ?>" height="30" width="30" /><span style="padding-left:5px;"><?php echo $fullname; ?></span></a></div>
 <div style="margin-top:20px;">Photo Rank: <?php echo $ranking; ?>
 <br />
 <?php 
@@ -652,7 +670,7 @@ Keywords: ',$keywords,'<br />'; }
 
 <!--SIMILAR PHOTOS CODE-->
 <?php
-$similarquery = mysql_query("SELECT * FROM photos WHERE (caption LIKE '$title' OR location LIKE '$location') ORDER BY (views) DESC");
+$similarquery = mysql_query("SELECT * FROM photos WHERE (caption LIKE '$caption' OR location LIKE '$location' OR caption LIKE '$tag1' OR caption LIKE '$tag2' OR caption LIKE '$tag3') ORDER BY RAND() LIMIT 0,5");
 $numsimilar = mysql_num_rows($similarquery);
 if($numsimilar > 4) {
 echo'
@@ -677,9 +695,10 @@ echo'
 
 </div><!--end 24 grid-->
 
-<?php footer(); ?>
-
 </div><!--end container-->
+</div>
+<br /><br />
+<?php footer(); ?>
 
 <!--Javascripts-->
 <script src="market/js/bootstrap.js" type="text/javascript"></script>

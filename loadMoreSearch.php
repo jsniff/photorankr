@@ -32,7 +32,20 @@ if($_GET['lastPicture']) {
             $width = $width/4.5;
             $height = $height/4.5;
             
-            echo'<div class="fPic" id="',$views,'" style="padding:15px;float:left;width:300px;"><img style="max-width:300px;max-height:300px;" src="',$imagemed,'" height="',$height,'" width="',$width,'" /></div><div style="margin-left:30px;float:left;margin-top:',$height/2,';"><span style="font-size:24px;color:black;">"<a style="color:black;" href="fullsize.php?image=',$image,'">',$caption,'</a>"</span><br /><br /><img src="',$profilepic,'" width="40" height="40" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$userid,'" style="color:#3e608c;font-weight:bold;font-size:14px;">',$photographer,'</a><br />Photo Rank:&nbsp;<span style="font-size:22px;">',$ranking,'</span><span style="opacity:.7;">/10</span><br />Favorites: <span style="font-size:22px;">',$faves,'</span><br />Views: <span style="font-size:22px;">',$views,'</span><br /><br /></div><hr>';
+            echo'<div class="fPic" id="',$views,'" style="padding:15px;float:left;width:300px;">';
+            
+            if($faves > 5 || $points > 120 || $views > 100) {
+            echo'
+            <div style="margin-top:-50px;"><img style="max-width:300px;max-height:300px;" src="',$imagemed,'" height="',$height,'" width="',$width,'" />
+            <img style="margin-top:',$height,'px;margin-left:',$newwidth-55,'px;" src="graphics/toplens2.png" height="85" /></div>';
+            }
+            else {
+            echo'
+           <img style="max-width:300px;max-height:300px;" src="',$imagemed,'" height="',$height,'" width="',$width,'" />';            
+            }
+            
+        echo'
+            </div><div style="margin-left:30px;float:left;margin-top:',$height/2,';"><span style="font-size:24px;color:black;">"<a style="color:black;" href="fullsize.php?image=',$image,'">',$caption,'</a>"</span><br /><br /><img src="',$profilepic,'" width="40" height="40" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$userid,'" style="color:#3e608c;font-weight:bold;font-size:14px;">',$photographer,'</a><br />Photo Rank:&nbsp;<span style="font-size:22px;">',$ranking,'</span><span style="opacity:.7;">/10</span><br />Favorites: <span style="font-size:22px;">',$faves,'</span><br />Views: <span style="font-size:22px;">',$views,'</span><br /><br /></div><hr>';
             
     }
     

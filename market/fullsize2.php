@@ -21,6 +21,9 @@ $repemail = $_SESSION['repemail'];
     
     //add to the views column
     $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE   id='$imageid'") or die(mysql_error());
+    
+    //add to the usermarketviews column
+    $buyerupdatequery = mysql_query("UPDATE photos SET buyermarketviews=buyermarketviews+1 WHERE id='$imageid'") or die(mysql_error());
 
     $imagequery = "SELECT * FROM photos WHERE id = '$imageid'";
     $imagequeryrun= mysql_query($imagequery);

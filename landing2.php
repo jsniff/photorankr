@@ -61,7 +61,7 @@ require 'functionsnav.php';
                Login
                 <b class="caret"></b>
              </a>
-             <div class="dropdown-menu" style="width:10em;margin-left:-80px;">
+             <div class="dropdown-menu" style="width:300px;margin-left:-100px;">
                <form style="margin: 0px;float:left;" accept-charset="UTF-8" action="/sessions" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="4L/A2ZMYkhTD3IiNDMTuB/fhPRvyCNGEsaZocUUpw40=" /></div>
                  <div style="width:5em;">
                  <fieldset class='textbox' style="width:10em;">

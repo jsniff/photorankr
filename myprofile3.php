@@ -4,6 +4,73 @@
 require "db_connection.php";
 require "functionsnav.php";
 
+
+if($_GET['action'] == "signup") { //if they tried to sign up from signin.php
+	$firstname = addslashes($_REQUEST['firstname']);
+    $firstname = trim($firstname);
+    $firstname = ucwords($firstname);
+	$lastname = addslashes($_REQUEST['lastname']);
+    $optin = addslashes($_REQUEST['optin']);
+    $lastname = trim($lastname);
+    $lastname = ucwords($lastname);
+	$newemail = mysql_real_escape_string($_REQUEST['emailaddress']);
+	$password = mysql_real_escape_string($_REQUEST['password']);
+	$confirmpassword = mysql_real_escape_string($_REQUEST['confirmpassword']);
+	$terms = mysql_real_escape_string($_REQUEST['terms']);
+	$mattfollow = "'support@photorankr.com'";
+	$originalfave = "'userphotos/paintedbuilding1.jpg'";
+	$originalfave = addslashes($originalfave);
+	$mattfollow = addslashes($mattfollow);
+	$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$newemail'");
+	$others = mysql_num_rows($check);
+
+	//if they forgot to enter any information
+	if(!$_REQUEST['firstname'] or !$_REQUEST['lastname'] or !$_REQUEST['emailaddress'] or !$_REQUEST['password'] or !$_REQUEST['confirmpassword'] or !$_REQUEST['terms']) {
+		mysql_close();
+        echo '<META HTTP-EQUIV="Refresh" Content="0; URL=signup3.php?error=1">';
+        exit();
+	}
+	else if($password != $confirmpassword) { //if passwords dont match
+		mysql_close();
+        echo '<META HTTP-EQUIV="Refresh" Content="0; URL=signup3.php?error=2">';
+        exit();
+	}
+	//else if that email address is already in the database
+	else if($others != 0) {
+		header("Location: lostpassword.php");
+	}
+	else {
+		//put their info in database
+        $settinglist = " emailcomment emailreturncomment emailfave emailfollow ";
+		$newuserquery = "INSERT INTO userinfo (firstname, lastname, emailaddress, password, following, faves, settings, promos) VALUES ('$firstname', '$lastname', '$newemail', '$password', '$mattfollow', '$originalfave','$settinglist','$optin')";
+		mysql_query($newuserquery);
+        
+         //newsfeed query
+        $type = "signup";
+        $newsfeedsignupquery=mysql_query("INSERT INTO newsfeed (firstname, lastname, emailaddress,type) VALUES ('$firstname', '$lastname', '$newemail','$type')");
+        
+        //SEND REGISTRATION GREETING
+        
+        $to = $newemail;
+        $subject = 'Welcome to PhotoRankr!';
+        $message = 'Thank you for signing up with PhotoRankr! You can now upload your own photos and sell them at your own price, follow the best photographers, and become part of a growing community. If you have any questions about PhotoRankr or would like to suggest an improvement, you can email us at photorankr@photorankr.com. We greatly value your feedback and hope you will spread the word about PhotoRankr to your friends and family by referring them to the site with the link below:
+        
+		http://photorankr.com/referral.php        
+
+		Again, welcome to the site!
+
+		Sincerely,
+		PhotoRankr';
+        $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
+        mail($to, $subject, $message, $headers);  
+              
+		session_start();
+		$_SESSION['email'] = $newemail;
+		$_SESSION['loggedin'] = 1;
+            
+    }
+}
+
 //start the session
 session_start();
 
@@ -151,6 +218,7 @@ if(isset($_GET['view'])) {
   $twitter = mysql_result($userquery,0,'twitteraccount');
   $faves = mysql_result($userquery,0,'faves');
   $reputation = number_format(mysql_result($userquery,0,'reputation'),1);
+  $promos = mysql_result($userquery,0,'promos');
   $password = mysql_result($userquery,0,'password');
   $background = mysql_result($userquery,0,'background');
   $background = str_replace('userphotos/','userphotos/medthumbs/',$background);
@@ -173,7 +241,10 @@ if(isset($_GET['view'])) {
                     
             $commentinsertion = mysql_query("INSERT INTO blogcomments (comment,blogid,emailaddress) VALUES ('$comment','$blogid','$email')");
             
-            echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile3.php?view=blog#',$blogid,'">';
+            $type = 'blogownercomment';
+            $blogcommentnewsfeed = mysql_query("INSERT INTO newsfeed (type,source,owner) VALUES ('$type','$blogid','$email')");
+            
+            echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=blog#',$blogid,'">';
             exit();
 
     
@@ -194,7 +265,7 @@ if(isset($_GET['view'])) {
             
             $blognewsfeed = mysql_query("INSERT INTO newsfeed (firstname,lastname,emailaddress,type,source) VALUES ('$firstname','$lastname','$email','blogpost','$lastblogid')");
             
-            echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile3.php?view=blog">';
+            echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=blog">';
             exit();
 
     
@@ -210,6 +281,99 @@ if(isset($_GET['view'])) {
     
         }
 
+
+//Grab OWNERS reputation score
+    
+ $toprankedphotos2 = "SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY points DESC";
+    $toprankedphotosquery2 = mysql_query($toprankedphotos2);
+    $numtoprankedphotos2 = mysql_num_rows($toprankedphotos2);
+
+    for($i=0;$i<15;$i++){
+    $toprankedphotopoints2 = (mysql_result($toprankedphotosquery2, $i, "points")/mysql_result($toprankedphotosquery2, $i, "votes")) + $toprankedphotopoints2;
+    }
+        
+    $userphotos2="SELECT * FROM photos WHERE emailaddress = '$email'";
+    $userphotosquery2=mysql_query($userphotos2);
+    $numphotos2=mysql_num_rows($userphotosquery2);
+    
+    //Gather Total Number of Votes for All Photos (This is Visibility)
+    for($ii=0; $ii<$numphotos2;$ii++){
+    $totalvotes2 = mysql_result($userphotosquery2, $ii, "votes") + $totalvotes2; 
+    }
+    
+
+    $followersquery2="SELECT * FROM userinfo WHERE following LIKE '%$email%'";
+	$followersresult2 = mysql_query($followersquery2);
+    $numberfollowers2 = mysql_num_rows($followersresult2);
+    $totalpgviews2 = $totalvotes2;
+    $ranking2 = $toprankedphotopoints2;
+    $followerlimit2 = 50;
+    $totalpgviewslimit2 = 800;
+    $rankinglimit2 = 150; 
+    $followerweight2 = .3;
+    $totalpgviewsweight2 = .3;
+    $rankingweight2 = .4; 
+
+    
+    if($numberfollowers2 > $followerlimit2) {
+    $followerweighted2 = $followerweight2;
+    }
+    
+    else{
+    $followerdivisionfactor2 = ($numberfollowers2)/($followerlimit2);    
+    $followerweighted2 = $followerweight2*$followerdivisionfactor2;
+    }
+
+    if($totalpgviews2 > $totalpgviewslimit2) {
+        $totalpgviewsweighted2 = $totalpgviewsweight2;
+    }
+    
+    else {
+        $totalpgviewsdivisionfactor2 = ($totalpgviews2)/($totalpgviewslimit2); 
+        $totalpgviewsweighted2 = $totalpgviewsweight2*$totalpgviewsdivisionfactor2;
+
+    }
+    
+
+    
+   if($ranking2 > 145) {
+        $rankingweighted2 = $rankingweight2;
+    }
+    
+    elseif($ranking2 > 135) {
+        $rankingweighted2 = $rankingweight2 * .90;
+    }
+    
+    elseif($ranking2 <= 135 && $ranking2 > 120) {       
+     $rankingweighted2 = $rankingweight2 *.85;
+    }
+    
+    elseif($ranking2 <= 120 && $ranking2 > 105) {
+        $rankingweighted2 = $rankingweight2 *.75;
+    }
+    
+    elseif($ranking2 <= 105 && $ranking2 > 90) {
+        $rankingweighted2 = $rankingweight2 *.50;
+    }
+    
+    elseif($ranking2 <= 90 && $ranking2 > 75) {
+        $rankingweighted2 = $rankingweight2 *.30;
+    }
+    
+    else {
+       $rankingweighted2 = $rankingweight2 *.10;
+    }
+        
+    if($numphotos2 < 14) { 
+    $rankingweighted2 = .1;
+    }
+
+    $ultimatereputation = ($followerweighted2+$rankingweighted2+$totalpgviewsweighted2) * 100;
+
+
+    $insertquery=mysql_query("UPDATE userinfo SET reputation = $ultimatereputation WHERE emailaddress='$email'");
+    mysql_query($insertquery);
+    
 
 ?>
 
@@ -383,19 +547,25 @@ background-color:#fff;overflow-x:hidden;">
 
 <div style="width:240px;height:140px;">
 <div style="float:left;overflow:hidden;margin-left:15px;margin-top:15px;">
-<a href="viewprofile.php?u=<?php echo $userid; ?>"><img class="roundedall" src="<?php echo $profilepic; ?>" height="115" width="115"/></a>
+<a href="viewprofile.php?u=<?php echo $userid; ?>"><img class="roundedall" src="<?php echo $profilepic; ?>" height="120" width="120"/></a>
 </div>
-<a class="btn btn-success" style="float:left;width:70px;margin-top:40px;margin-left:10px;font-size:14px;font-weight:150;" href="myprofile3.php?view=upload">Upload</a>
-<a class="btn btn-primary" style="float:left;width:70px;margin-top:7px;margin-left:10px;font-size:14px;font-weight:150;" href="myprofile3.php?view=promote">Promote</a>
-</div>
-
-<div style="width:250px;margin-top:0px;">
-<div style="font-size:18px;text-align:center;font-weight:200;"><?php echo $fullname; ?></div>
+<a class="btn btn-success" style="float:left;width:70px;margin-top:40px;margin-left:10px;font-size:14px;font-weight:150;" href="myprofile.php?view=upload">Upload</a>
+<a class="btn btn-primary" style="float:left;width:70px;margin-top:7px;margin-left:10px;font-size:14px;font-weight:150;" href="myprofile.php?view=promote">Promote</a>
 </div>
 
-<div style="text-align:center;font-size:14px;font-weight:200;width:250px;height:190px;margin-top:20px;">
+<?php
+    if($reputation > 60) {
+        echo'<img style="margin-top:-45px;margin-left:100px;" src="graphics/toplens.png" height="80" />';
+    }
+?>
+
+<div style="width:250px;margin-top:10px;">
+<div style="font-size:20px;text-align:center;font-weight:300;"><?php echo $fullname; ?></div>
+</div>
+
+<div style="text-align:center;font-size:14px;font-weight:200;width:250px;height:190px;margin-top:15px;">
 <p>Reputation: <span style="font-size:20px;"><?php echo $reputation; ?>/</span><span style="font-size:15px;">100</span></p>
-<div class="progress" style="margin-top:-15px;margin-left:28px;width:195px;height:15px;">
+<div class="progress progress-success" style="margin-top:-15px;margin-left:28px;width:195px;height:15px;">
    <div class="bar" style="width: <?php echo $reputation; ?>%;"></div>
    </div>
 
@@ -424,28 +594,28 @@ background-color:#fff;overflow-x:hidden;">
 
 <div style="position:relative;top:-30px;">
 <hr>
-<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=info"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile.php?view=info"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
 <span class="green" style="text-align:center;font-size:24px;padding-left:15px;<?php if($view == 'info' || $view == 'editinfo') {echo'color:#6aae45;';} ?>">Info&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
 </div></a>
 
 <hr>
-<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=network"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
-<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'network') {echo'color:#6aae45;';} ?>">Network&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
+<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile.php?view=network"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'network') {echo'color:#6aae45;';} ?>">Network&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/follower.png" height="30" width="50"></span>
 </div></a>
 
 <hr>
-<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=favorites"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
-<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'favorites') {echo'color:#6aae45;';} ?>">Favorites&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
+<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile.php?view=favorites"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'favorites') {echo'color:#6aae45;';} ?>">Favorites&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/fave.png" height="30" width="30"></span>
 </div></a>
 
 <hr>
-<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=messages"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile.php?view=messages"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
 <span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'messages' || $view == 'viewthread') {echo'color:#6aae45;';} ?>">Messages&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;"src="graphics/messages.png" height="30" width="30"></span>
 </div></a>
 
 <hr>
-<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile3.php?view=settings"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
-<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'settings') {echo'color:#6aae45;';} ?>">Settings&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;"src="graphics/messages.png" height="30" width="30"></span>
+<a style="text-decoration:none;color:black;font-weight:100;" href="myprofile.php?view=settings"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'settings') {echo'color:#6aae45;';} ?>">Settings&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;"src="graphics/settings.png" height="30" width="30"></span>
 </div></a>
 </div>
 
@@ -453,15 +623,15 @@ background-color:#fff;overflow-x:hidden;">
 
 <div class="grid_18 roundedright pull_1" style="background-color:#eeeff3;height:60px;margin-top:80px;width:830px;margin-left:-43px;">
 
-<a style="text-decoration:none;color:black;" href="myprofile3.php"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;<?php if($view == '') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:25px;font-weight:100;margin-top:10px;text-align:center;">Portfolio</div></div></a>
+<a style="text-decoration:none;color:black;" href="myprofile.php"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;<?php if($view == '') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:23px;font-weight:100;margin-top:10px;text-align:center;">My Portfolio</div></div></a>
 
-<a style="text-decoration:none;color:black;" href="myprofile3.php?view=store"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;float:left;<?php if($view == 'store') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:25px;font-weight:100;margin-top:10px;text-align:center;">My Store</div></div></a>
+<a style="text-decoration:none;color:black;" href="myprofile.php?view=store"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;float:left;<?php if($view == 'store') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:23px;font-weight:100;margin-top:10px;text-align:center;">My Store</div></div></a>
 
-<a style="text-decoration:none;color:black;" href="myprofile3.php?view=blog"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;float:left;<?php if($view == 'blog') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:25px;font-weight:100;margin-top:10px;text-align:center;">Blog</div></div></a>
+<a style="text-decoration:none;color:black;" href="myprofile.php?view=blog"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;float:left;<?php if($view == 'blog') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:23px;font-weight:100;margin-top:10px;text-align:center;">My Blog</div></div></a>
 
 <div style="width:180px;height:60px;float:left;"><div style="font-size:25px;font-weight:100;margin-top:6px;text-align:center;margin-left:20px;">
-<form class="navbar-search" action="myprofile3.php?view=search" method="post">
-<input class="search" style="position:relative;margin-left:15px;margin-top:2px;" name="searchterm" type="text">
+<form class="navbar-search" action="myprofile.php?view=search" method="post">
+<input class="search" style="position:relative;margin-left:15px;margin-top:2px;" name="searchterm" type="text" placeholder="Search Portfolio&#8230" >
 </form></div></div>
 
 
@@ -471,7 +641,21 @@ background-color:#fff;overflow-x:hidden;">
     
         $option = htmlentities($_GET['option']);    
     
-        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php">Newest</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'top') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'fave') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?view=exhibits">Exhibits</a></div></div>';
+        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php">Newest</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'top') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'fave') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile.php?view=exhibits">Exhibits</a></div></div>';
+        
+        if($_GET['action'] == 'signup') {
+        echo'<div class="grid_18" style="width:770px;margin-top:-34px;margin-left:-10px;padding:35px;text-align:center;font-size:16px;font-family:helvetica;font-weight:200;">
+        <br /><br />
+        Welcome to your new PhotoRankr profile. Here are a couple pointers to get you started:
+        <br /><br />
+        <a href="myprofile.php?view=editinfo">Click here</a> to finish filling out your photographer profile.
+        <br /><br />
+        <a href="myprofile.php?view=upload">Click here</a> to begin uploading your best shots.
+        <br /><br />
+        <a href="newsfeed.php">Click here</a> to view your photostream of your followers on PhotoRankr
+        <br />.
+        </div>'; 
+        }
         
         if($option == '') {        
         $query = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY id DESC LIMIT 0,21");
@@ -489,7 +673,7 @@ background-color:#fff;overflow-x:hidden;">
         }
         
         echo'<div id="thepics">';
-        echo'<div id="container" class="grid_18" style="width:770px;margin-top:-34px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);">';
+        echo'<div id="container" class="grid_18" style="width:770px;margin-top:-34px;margin-left:-10px;padding:35px;">';
 
         for($iii=0; $iii < $numresults; $iii++) {
               
@@ -507,18 +691,18 @@ background-color:#fff;overflow-x:hidden;">
                 $lastname = mysql_result($query, 0, "lastname");
                 $reputation = mysql_result($query, 0, "lastname");
                 $fullname = $firstname . " " . $lastname;
-                list($width, $height) = getimagesize($image);
+                list($width, $height) = getimagesize($image[$iii]);
                 $imgratio = $height / $width;
                 $heightls = $height / 3.5;
                 $widthls = $width / 3.5;
 
                 echo '   
 
-                <div class="fPic" id="',$id,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="http://photorankr.com/fullsize.php?image=', $image[$iii], '">
+                <div class="fPic" id="',$id,'" style="width:245px;height:230px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="http://photorankr.com/fullsizeme.php?image=', $image[$iii], '">
 
                 <div class="statoverlay" style="z-index:1;left:0px;top:155px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br><span style="font-size:14px;font-weight:100;">Score: ',$score,'<br>Favorites: ',$faves,'</span></p></div>
 
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="http://www.photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-width:245px;" src="http://www.photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
 	    
                 } //end for loop      
         
@@ -560,7 +744,7 @@ var last = 0;
     
     elseif($view == 'exhibits') {
     
-    echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php">Newest</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile3.php?option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#333;'; if($view == 'exhibits') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=exhibits">Exhibits</a></div></div>';
+    echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#333;" href="myprofile.php">Newest</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile.php?option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile.php?option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#333;'; if($view == 'exhibits') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=exhibits">Exhibits</a></div></div>';
 
 
         if(isset($_GET['set'])){
@@ -571,8 +755,19 @@ var last = 0;
 if(isset($_GET['mode'])){
 		$mode = ($_GET['mode']);
 	}
+    
+if($mode == 'delete') {
 
-if($mode == 'added') {
+$image = htmlentities($_GET['image']);
+$set = htmlentities($_GET['set']);
+$deletephotofromset = mysql_query("UPDATE photos SET set_id = '' WHERE source = '$image'");
+
+echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=exhibits&set=',$set,'">';
+exit();
+
+}
+
+elseif($mode == 'added') {
 //add checked photos to existing exhibit
 
 if(!empty($_POST['addthese'])) {
@@ -583,10 +778,10 @@ if(!empty($_POST['addthese'])) {
         }
         }
 	
-echo'<span style="position:relative;margin-top:-130px;font-size: 16px;"><span class="label label-success" style="font-size:16px;" >Your exhibits have been updated successfully!</span><br /><br /><a href="myprofile.php?ex=y">Click here to view them</a><br /><br /></span>';
+echo'<div style="position:relative;margin-top:30px;font-size: 16px;text-align:center;"><span style="font-size:16px;font-weight:200;color:green;" >Your exhibits have been updated successfully!</span><br /><br /><a href="myprofile.php?view=exhibits">Click here to view them</a><br /><br /></div>';
 }
 
-if($mode == 'coverchanged') {
+elseif($mode == 'coverchanged') {
 //edit existing exhibit
 
     $newcaption = mysql_real_escape_string($_POST['caption']);
@@ -606,12 +801,12 @@ $numbersets = mysql_num_rows($allsetsrun);
 echo'<div style="margin-top:-60px">';
 
 if($numbersets == 0) {
-echo'<div style="font-size:18px;font-weight:200;padding:40px;text-align:center;margin-left:-35px;margin-top:120px;"><a style="color:#333;" href="myprofile3.php?view=upload&option=newexhibit">Click here to create your first exhibit.</a></div>';
+echo'<div style="font-size:18px;font-weight:200;padding:40px;text-align:center;margin-left:-35px;margin-top:120px;"><a style="color:#333;" href="myprofile.php?view=upload&option=newexhibit">Click here to create your first exhibit.</a></div>';
 }
 
 if($set == '' & $numbersets > 0) {
 
-echo'<div class="grid_18" style="width:770px;margin-top:22px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);"><a href="myprofile3.php?view=upload&option=newexhibit"><button class="btn btn-success">Create New Exhibit</button></a><br /><br />
+echo'<div class="grid_18" style="width:770px;margin-top:22px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);"><a href="myprofile.php?view=upload&option=newexhibit"><button class="btn btn-success">Create New Exhibit</button></a><br /><br />
 '; 
 
 for($iii=0; $iii < $numbersets; $iii++) {
@@ -633,7 +828,7 @@ $grabphotosrun = mysql_query($grabphotos);
 $numphotosgrabbed = mysql_num_rows($grabphotosrun);
 
 
-    echo'<div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="myprofile3.php?view=exhibits&set=',$set_id[$iii],'">
+    echo'<div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="myprofile.php?view=exhibits&set=',$set_id[$iii],'">
 
     <div class="statoverlay" style="z-index:1;left:0px;top:190px;position:relative;background-color:black;width:245px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$setname2[$iii],'</span><br><span style="font-size:14px;font-weight:100;">Number Photos: ',$numphotosgrabbed,'<br></span></p></div>
 
@@ -690,11 +885,13 @@ for($iii=0; $iii < $numphotosgrabbed; $iii++) {
             $heightls = $height / 3.5;
             $widthls = $width / 3.5;
                 
-    echo'<div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="fullsizeme.php?image=',$insetsource[$iii],'">
+    echo'<div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;">
+    
+    <div class="statoverlay" style="z-index:1;left:0px;top:170px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;color:white;">',$caption,'</span><a style="color:#eee;text-decoration:none;" href="myprofile.php?view=exhibits&set=',$set,'&image=',$insetsource[$iii],'&mode=delete"><span style="float:right;">X</span></a><br><span style="font-size:14px;font-weight:100;">Score: ',$score,'<br>Favorites: ',$faves,'</span></p></div>
 
-    <div class="statoverlay" style="z-index:1;left:0px;top:180px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br><span style="font-size:14px;font-weight:100;">Score: ',$score,'<br>Favorites: ',$faves,'</span></p></div>
-
-    <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$newsource,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+    <a style="text-decoration:none;" href="fullsizeme.php?image=',$insetsource[$iii],'"><img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$newsource,'" height="',$heightls,'px" width="',$widthls,'px" /></a>
+        
+    </div>';
  
     } //end for loop
 
@@ -724,7 +921,7 @@ height="100px" width="100px" />
 
 <div style="width:540px;margin-left:130px;margin-top:-100px;overflow-y:scroll;overflow-x:hidden;">
 
-<form action="myprofile.php?vie=-exhibits&set=',$set,'&mode=added" method="post" enctype="multipart/form-data">
+<form action="myprofile.php?view=exhibits&set=',$set,'&mode=added" method="post" enctype="multipart/form-data">
     <span style="font-size:14px;">
     Exhibit Name:&nbsp;&nbsp;',$settitle,'
     <br />
@@ -767,7 +964,42 @@ height="100px" width="100px" />
     
     }
     
-    
+        elseif($view == 'stats') { 
+         
+         $profileviews = mysql_result($userquery,0,'profileviews');
+         $buyerprofileviews = mysql_result($userquery,0,'buyerprofileviews');
+        
+          $allusersphotosquery = "SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY id DESC";
+          $query = mysql_query($allusersphotosquery);
+          $numphotos = mysql_num_rows($query);
+         
+         for($iii=0; $iii<$usernumphotos; $iii++) {
+                 
+            $photoviews .= mysql_result($query,$iii,'views');
+            $usermarketviews .= mysql_result($query,$iii,'usermarketviews');
+            $buyermarketviews .= mysql_result($query,$iii,'buyermarketviews');
+             $source .= mysql_result($query,$iii,'source');
+        
+         }
+         
+         echo'<div class="grid_18" style="margin-top:60px;font-size:16px;">Network Profile Views: ',
+         
+         $profileviews,'
+         <br /><br />Buyer Profile Views: ',
+         $buyerprofileviews,'
+         
+         <br /><br />Total Photo Views: ',
+         $photoviews,'
+         
+         <br /><br />Photographer Market Views: ',
+         $usermarketviews,'
+         
+         <br /><br />Buyer Market Views: ',
+         $source,'
+         
+         </div>';
+         
+        }
     
     elseif($view == 'info') {
         
@@ -835,7 +1067,7 @@ height="100px" width="100px" />
         echo'
         </tbody>
         </table>
-        <a class="btn btn-success" href="myprofile3.php?view=editinfo">Edit Profile</a>
+        <a class="btn btn-success" href="myprofile.php?view=editinfo">Edit Profile</a>
         </div>';
     
     }
@@ -952,7 +1184,7 @@ height="100px" width="100px" />
 		$infoupdateresult=mysql_query($infoupdatequery);
 
         mysql_close();
-        echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile3.php?view=editinfo&action=saved">';
+        echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=editinfo&action=saved">';
         exit();
 	}
     else if($action == "saved") {
@@ -964,7 +1196,7 @@ echo'
         <div class="span9" style="margin-top:0px;;margin-left:-5px;padding:20px;padding-left:67px;background-color:rgba(245,245,245,0.6);">
         <span style="font-size:18px;font-weight:200;">Edit Your Information:</span>
         <br /><br />
-        <form action="myprofile3.php?view=editinfo&action=submit" method="post" enctype="multipart/form-data">
+        <form action="myprofile.php?view=editinfo&action=submit" method="post" enctype="multipart/form-data">
         <table class="table">
         <tbody>
         
@@ -1115,7 +1347,7 @@ echo'
     
         $option = htmlentities($_GET['option']);    
     
-        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=store">Manage Store</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'addtostore') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=store&option=addtostore">Add to Store</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'cart') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=store&option=cart">My Cart</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'maybe') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=store&option=maybe">Maybe Later</a></div></div>';
+        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=store">Manage Store</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'addtostore') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=store&option=addtostore">Add to Store</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'cart') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=store&option=cart">My Cart</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'maybe') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=store&option=maybe">Maybe Later</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'purchases') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=store&option=purchases">Purchases</a></div></div>';
                 
         if($option == '') {        
         
@@ -1226,7 +1458,7 @@ echo'
         <td>Base Price:</td>
         <td>
             <div>
-            <form action="myprofile3.php?view=store&updateimage=',$id,'" method="post">
+            <form action="myprofile.php?view=store&updateimage=',$id,'" method="post">
             <select id="price" name="price" style="width:120px;float:left;margin-left:-70px;margin-top:-20px;" onchange="showOtherPrice()">
             <option value="">Price:</option>
             <option value=".00">Free</option>
@@ -1443,7 +1675,7 @@ var last = 0;
         
     elseif($option == 'maybe') {  
         
-        echo'<div class="grid_18" style="margin:auto;margin-top:30px;margin-left:20px;">';
+        echo'<div class="grid_18" style="margin:auto;margin-top:30px;margin-left:20px;width:800px;">';
 
         $marketquery = mysql_query("SELECT * FROM usersmaybe WHERE emailaddress = '$email'");
                 $numsavedinmarket = mysql_num_rows($marketquery);
@@ -1463,10 +1695,53 @@ var last = 0;
                 echo'
                   <div class="fPic" id="',$id,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;">
                 
-                <div class="statoverlay" style="z-index:1;left:0px;top:180px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br><span style="font-size:20px;font-weight:100;">$',$price,'</span></p><a name="removed" href="account.php?view=saved&pd=',$photoid[$iii],'&action=remove#return"><button class="btn btn-primary" style="z-index:12;position:relative;top:-52px;float:right;margin-right:5px;">Remove Photo</button></a></div>
+                <div class="statoverlay" style="z-index:1;left:0px;top:180px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br><span style="font-size:20px;font-weight:100;">$',$price,'</span></p><a name="removed" href="myprofile.php?view=saved&pd=',$photoid[$iii],'&action=remove#return"><button class="btn btn-primary" style="z-index:12;position:relative;top:-52px;float:right;margin-right:5px;">Remove Photo</button></a></div>
                 
                 <a href="fullsizemarket.php?imageid=',$imageid[$iii],'">
                 <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$photo[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+   
+                }
+        
+        echo'</div>';
+        
+}
+
+
+    elseif($option == 'purchases') {  
+        
+        echo'<div class="grid_18" style="margin:auto;margin-top:30px;margin-left:20px;width:800px;padding-bottom:100px;">';
+
+            $downloadquery = mysql_query("SELECT * FROM userdownloads WHERE emailaddress = '$email'");
+            $numpurchased = mysql_num_rows($downloadquery);
+          
+                for($iii=0; $iii<$numpurchased; $iii++) {
+                
+                        $photo[$iii] = mysql_result($downloadquery, $iii, "source");
+                        $photo2[$iii] = str_replace("http://photorankr.com/userphotos/","userphotos/medthumbs/", $photo[$iii]);
+                        $photoid[$iii] = mysql_result($downloadquery, $iii, "id");
+                        $imageid[$iii] = mysql_result($downloadquery, $iii, "imageid");
+                        $captionquery =  mysql_query("SELECT caption FROM photos WHERE id = '$imageid[$iii]'");
+                        $caption = mysql_result($captionquery, 0, "caption");
+                        
+                        list($height,$width) = getimagesize($photo2[$iii]);
+                        $widthnew = $width / 2.8;
+                        $heightnew = $height / 2.8;
+                
+                echo'
+                  <div class="fPic" id="',$id,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;">
+                            
+                  <a href="fullsizemarket.php?imageid=',$imageid[$iii],'">
+                  <img onmousedown="return false" oncontextmenu="return false;" style="min-height:265px;min-width:245px;" src="',$photo2[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a>
+                  
+                   
+                    <div class="statoverlay" style="left:0px;top:-60px;position:relative;background-color:black;width:245px;height:45px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;font-weight:100;">',$caption,'</span></p></div>
+                  
+                  <form action="downloadphoto.php" method="POST">
+                  <input type="hidden" name="image" value="',$photo[$iii],'">
+                  <button type="submit" name="submit" value="download" class="btn btn-success" style="margin-top:-605px;opacity:1;margin-left:2px;width:110px;height:30px;font-size:15px;font-family:helvetica;font-weight:200;">Download</button>
+                  </form>
+                  
+                  </div>';
    
                 }
         
@@ -1478,11 +1753,44 @@ var last = 0;
         elseif($option == 'cart') {  
         
             echo'<div id="container" class="grid_18" style="width:770px;margin-top:20px;padding-left:20px;">';
+            
+            
+            if(htmlentities($_GET['action']) == 'download') {
+               
+               $images = $_POST['downloadedimages'];
+               $imagesid = $_POST['imagesid'];
+
+
+               $numberimages = count($images);
+    		
+                for($i=0; $i < $numberimages; $i++) {
+
+                    $images[$i] = mysql_real_escape_string($images[$i]);
+                    $imagesid[$i] = mysql_real_escape_string($imagesid[$i]);
+                    
+                    $downloadcheck = mysql_query("SELECT * FROM userdownloads WHERE imageid = '$imagesid[$i]'");
+                    $downloadcheckrows = mysql_num_rows($downloadcheck);
+                    
+                    if($downloadcheckrows < 1) {
+                    
+                        $stickintouserdownloads = mysql_query("INSERT INTO userdownloads (emailaddress,imageid,source) VALUES ('$email','$imagesid[$i]','$images[$i]')");
+                        $deletephotofromcart = mysql_query("DELETE FROM userscart WHERE emailaddress = '$email' AND imageid = '$imagesid[$i]'");
+                    
+                        //Tell them download was successful
+                        echo'<div style="font-size:16px;font-weight:200;margin-top:20px;margin-left:35px;"><img src="',$images[$i],'" height="40" width="40" />&nbsp;&nbsp;&nbsp;Photo Saved in Purchases </div>';
+                    
+                    }
+                 
+                }
+                 
+            }
+         
          
     //PHOTO CART INFORMATION
     $imageid = htmlentities($_GET['imageid']);
-    $pricephoto = htmlentities($_GET['price']);
-    $imagequery = mysql_query("SELECT * FROM photos WHERE id = '$imageid'");
+    $size= htmlentities($_GET['size']);
+    if($size == 'xl') {$size = 'X Large';}
+    $imagequery = mysql_query("SELECT source,price FROM photos WHERE id = '$imageid'");
     $imagenewsource = mysql_result($imagequery,0,'source');
     $imagenewsource2 = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/",$imagenewsource);
     $imagenewsource3 = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "http://photorankr.com/userphotos/",$imagenewsource2); 
@@ -1511,19 +1819,22 @@ var last = 0;
         $cartcheck = mysql_query("SELECT * FROM userscart WHERE imageid = '$imageid'");
         $numincart = mysql_num_rows($cartcheck);
         if($numincart < 1) {
-            $stickincart = mysql_query("INSERT INTO userscart (source,emailaddress,imageid,price) VALUES ('$imagenewsource3','$repemail','$imageid', '$pricephoto')");
+            $stickincart = mysql_query("INSERT INTO userscart (source,size,emailaddress,imageid,price) VALUES ('$imagenewsource3','$size','$email','$imageid', '$imagenewprice')");
             }
         }
         
-        $incart = mysql_query("SELECT * FROM userscart WHERE emailaddress = '$repemail'");
+        $incart = mysql_query("SELECT * FROM userscart WHERE emailaddress = '$email' ORDER BY id ASC");
         $incartresults = mysql_num_rows($incart);
         
         for($iii=0; $iii < $incartresults; $iii++) {
             $imagesource[$iii] = mysql_result($incart,$iii,'source');
+            $sourcelist[] .= " " . $imagesource[$iii];
             $imageprice[$iii] = mysql_result($incart,$iii,'price');
+            $imagesize[$iii] = mysql_result($incart,$iii,'size');
             $imagecartid = mysql_result($incart,$iii,'imageid');
-            $totalcartprice = $imagecartid+$totalcartprice;
-            $cartidlist = $cartidlist.",".$imagecartid;
+            $idlist[] .= " " . $imagecartid;
+            $cartidlist = $cartidlist.",".$imagecartid[$iii];
+            $totalcharge = $totalcharge + $imageprice[$iii];
             list($width, $height)=getimagesize($imagesource[$iii]);
             $width = $width/5.5;
             $height = $height/5.5;
@@ -1544,18 +1855,12 @@ var last = 0;
             <tbody>
             <tr>
             <td><div style="min-width:400px;height:<?php echo $height; ?>px;width:<?php echo $width; ?>px;"><img onmousedown="return false" oncontextmenu="return false;" src="',$imagesource[$iii],'" height=',$height,' width=',$width,' /></div></td>
-            <td>Medium</td>
+            <td>',$imagesize[$iii],'</td>
             <td>',$imagecartid,'</td>
             <td>Royalty Free</td>
             <td>$',$imageprice[$iii],'</td>
             </tr>
-            <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            </tr>
+            
             </tbody>
             </table>
             </a>
@@ -1563,7 +1868,7 @@ var last = 0;
 
         }
         
-        //check if image already in db
+        /* check if image already in db
         $found = strpos($cartidlist, $imageid);
         
         if($imageid && $found === false) {
@@ -1603,31 +1908,75 @@ var last = 0;
             
             <div><a class="btn btn-success" href="',$_SERVER['HTTP_REFERER'],'">Continue Shopping</a>
             </div>';
-        }
+        } */
         
         
     if($incartresults > 0) {
         
-        echo'<div class="grid_18"><a name="added" style="color:black;text-decoration:none;" href="#"><div style="padding:15px;padding-right:200px;background-color:#ddd;width:100px;margin-left:-0px;margin-top:20px;"><span style="font-size:22px;font-weight:200;">Payment</span></div></a></div><br />
+        echo'<div class="grid_18"><a name="added" style="color:black;text-decoration:none;" href="#"><div style="padding:15px;padding-right:200px;background-color:#ddd;width:100px;margin-left:-0px;margin-top:20px;"><span style="font-size:22px;font-weight:200;">Payment</span></div></a>
         
-        <!--STRIPE PAYMENT FORM-->
-    
-        <div class="grid_18" style="margin-top:35px;">
+        <table class="table">
+            <thead>
+            <tr>
+            <th># Photos</th>
+            <th>Total Price</th>
+            </thead>
+            
+            <tbody>
+        
+            <tr>
+            <td>',$incartresults,'</td>
+            <td>$',$totalcharge,'</td>
+            </tr>
+        
+            </tbody>
+            </table>
+        
+        
+        </div><br />';
+        
+        //STRIPE PAYMENT FORM AND DOWNLOAD SYSTEM
+        
+        if($totalcharge > 0) {
+        
+        echo'
+        <div class="grid_20" style="margin-top:35px;">
          <label class="creditcards" style="float:left;font-size:16px;">We accept:&nbsp;&nbsp;<img src="card.jpg" style="width:215px;height:25px;margin-top:0px;border-radius:2px;"/> </label> <br /><br /><br />
          <label style="float:left;font-size:16px;" class="creditcards">Card Number:&nbsp;&nbsp;</label>
-         <input style="float:left;font-size:15px;padding:6px;position:relative;top:-7px;width:170px;" type="text" size="20" autocomplete="off" class="card-number" style;"/><br /><br /><br />
+         <input style="float:left;font-size:15px;padding:6px;position:relative;top:-7px;width:170px;" type="text" size="20" autocomplete="off" class="card-number" style;"/>
             
-                <label style="float:left;font-size:16px;" class="creditcards">CVC <span style="font-size:15px;">(Verification #):</span>&nbsp;&nbsp;</label>
-                <input style="float:left;font-size:16px;padding:6px;position:relative;top:-7px;width:40px;" type="text" size="4" autocomplete="off" class="card-cvc"/><br /><br /><br />
+                <label style="float:left;padding-left:10px;font-size:16px;" class="creditcards">CVC <span style="font-size:15px;">(Verification #):</span>&nbsp;&nbsp;</label>
+                <input style="float:left;font-size:16px;padding:6px;position:relative;top:-7px;width:40px;" type="text" size="4" autocomplete="off" class="card-cvc"/>
                 
-                <label style="float:left;font-size:16px;" class="creditcards" >Expiration <span style="font-size:15px;">(MM/YYYY):</span>&nbsp;&nbsp;</label>
+                <label style="float:left;padding-left:10px;font-size:16px;" class="creditcards" >Expiration: <span style="font-size:15px;"></span>&nbsp;&nbsp;</label>
                 <input type="text" style="float:left;width:50px;padding:6px;position:relative;top:-7px;width:30px;font-size:16px;" class="card-expiry-month"/>
-                <span style="float:left;font-size:30px;font-weight:100;">&nbsp;/&nbsp;</span>
+                <span style="float:left;font-size:30px;font-weight:100;margin-top:-10px;">&nbsp;/&nbsp;</span>
                 <input style="float:left;padding:6px;position:relative;top:-7px;width:60px;font-size:16px;" type="text" class="card-expiry-year"/><br /><br /><br />
                
    <button type="submit" class="button submit btn btn-success" style="font-size:16px;float:left;margin-top:5px;padding-top:10px;padding-bottom:10px;padding-right:40px;padding-left:40px;font-weight:200;">Submit Payment</button>
    <br /><br /><br /><div></div>
-        </div>';
+        </div>'; 
+       
+         }
+         
+         else {
+         
+         echo'
+            <form name="download_form" method="post" action="myprofile.php?view=store&option=cart&action=download">';
+          
+            foreach($sourcelist as $value) {
+                echo '<input type="hidden" name="downloadedimages[]" value="'. $value. '">';
+            }
+            
+            foreach($idlist as $value) {
+                echo '<input type="hidden" name="imagesid[]" value="'. $value. '">';
+            }
+            
+            echo'
+            <button type="submit" name="submit" value="download" class="button submit btn btn-success"  style="font-size:16px;font-weight:200;width:295px;height:40px;">Download Free</button>
+            </form>';
+         
+         }
         
         }
         
@@ -1688,7 +2037,7 @@ echo'</div>';
             
         <div>
         <div style="padding:10px;"><a style="width:150px;padding:8px;float:left;" class="btn btn-success" data-toggle="modal" data-backdrop="static" href="#marketphoto">Add Photo To Market</a></div>
-                <form action="myprofile3.php?view=store&option=addtostore&action=submittomarket" method="POST">
+                <form action="myprofile.php?view=store&option=addtostore&action=submittomarket" method="POST">
             <div style="float:left;padding:10px;">
             <select id="price" name="newprice" style="width:150px;margin-top:-15px;margin-left:10px;" onchange="showOtherPrice()">
             <option value="">Choose Price&#8230;</option>
@@ -1756,7 +2105,7 @@ echo'</div>';
 
             <div class="modal-header">
             <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
-            <img style="margin-top:-4px;" src="graphics/logoteal.png" height="28" width="90" />&nbsp;&nbsp;<span style="font-size:16px;">Choose a photo to add to your blog post:</span>
+            <img style="margin-top:-4px;" src="graphics/blacklogo.png" height="28" width="90" />&nbsp;&nbsp;<span style="font-size:16px;">Choose a photo to add to your blog post:</span>
             </div>
             <div modal-body" style="width:600px;">
 
@@ -1818,7 +2167,7 @@ echo'</div>';
     
         $option = htmlentities($_GET['option']);    
     
-        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#000;';if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=network">Following</a> | <a class="green" style="text-decoration:none;color:#000;';if($option == 'followers') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=network&option=followers">Followers</a></div></div>';
+        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#000;';if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=network">Following</a> | <a class="green" style="text-decoration:none;color:#000;';if($option == 'followers') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=network&option=followers">Followers</a></div></div>';
         
         if($option == '') {
             $query = mysql_query("SELECT following FROM userinfo WHERE emailaddress = '$email'");
@@ -1844,7 +2193,7 @@ echo'</div>';
 		
                 echo '   
 
-                <div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="http://photorankr.com/viewprofile3.php?u=',$followingid,'">
+                <div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="http://photorankr.com/viewprofile.php?u=',$followingid,'">
 
                 <div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:245px;height:35px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;font-weight:100;">',$fullname,'</span></p></div>
 
@@ -2032,7 +2381,7 @@ var last = 0;
     
                 $option = htmlentities($_GET['option']);    
 
-                echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;';if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=upload">Single Upload</a> | <a class="green" style="text-decoration:none;';if($option == 'batch') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=upload&option=batch">Batch Upload</a> | <a class="green" style="text-decoration:none;';if($option == 'newexhibit') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=upload&option=newexhibit">Create an Exhibit</a></div></div>';
+                echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;';if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=upload">Single Upload</a> | <a class="green" style="text-decoration:none;';if($option == 'batch') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=upload&option=batch">Batch Upload</a> | <a class="green" style="text-decoration:none;';if($option == 'newexhibit') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=upload&option=newexhibit">Create an Exhibit</a></div></div>';
                         
                 if($option == '') {
                         
@@ -2631,12 +2980,27 @@ var last = 0;
     
     elseif($view == 'blog') {
     
+        //unhighlight query for blog comments
+    
+            if(isset($_GET['bi'])){
+                $id = htmlentities($_GET['bi']);
+                $idformatted = $id . " ";
+                $unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$email'";
+                $unhighlightqueryrun = mysql_query($unhighlightquery);
+
+        //notifications query reset 
+        
+            if($currentnotsresult > 0) {
+                $notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email'";
+                $notsqueryrun = mysql_query($notsquery); }
+            }
+    
   
          $option = htmlentities($_GET['option']);
   
-         echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($option == 'newpost') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=blog&option=newpost">Make New Post</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile3.php?view=blog">View Blog</a></div></div>';
+         echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($option == 'newpost') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=blog&option=newpost">Make New Post</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=blog">View Blog</a></div></div>';
          
-        echo'<div id="container" class="grid_18" style="width:770px;margin-top:-38px;margin-left:-10px;padding:35px;background-color:rgba(245,245,245,0.6);">';
+        echo'<div id="container" class="grid_18" style="width:770px;margin-top:-38px;margin-left:-10px;padding:35px;">';
 
         if($option == 'newpost') {
         
@@ -2650,10 +3014,10 @@ var last = 0;
             </script>
             
             <div class="grid_18" style="margin:auto;border:1px solid #ccc;margin-top:30px;margin-left:20px;">
-            <div style="float:left;padding:15px;width:130px;height:130px;"><img style="width:130px;height:130px;" src="" height="120" width="120" /><br /><div style="padding:10px;"><a style="width:80px;" class="btn btn-success" data-toggle="modal" data-backdrop="static" href="#blogphoto">Add Photo</a></div></div>
+            <div style="float:left;padding:15px;width:130px;height:130px;"><div style="width:130px;"></div><br /><div style="padding-left:10px;"><a style="width:90px;padding:7px;" class="btn btn-success" data-toggle="modal" data-backdrop="static" href="#blogphoto">Add Photo</a></div></div>
             <div style="float:left;font-size:15px;font-weight:200;padding-top:25px;">Title:<br /><br />Subject:<br /><br />Content (400 words):</div>
            
-            <form action="myprofile3.php?view=blog&action=submitpost" method="POST">
+            <form action="myprofile.php?view=blog&action=submitpost" method="POST">
             
             <div style="float:left;padding:25px;width:350px;"><input style="width:220px;height:20px;" type="text" name="title" placeholder="Title of Blog Post" /><br />
             <input style="width:220px;height:20px;" type="text" name="subject" placeholder="Subject of Blog Post" /></div>
@@ -2666,7 +3030,7 @@ var last = 0;
 
             <div class="modal-header">
             <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
-            <img style="margin-top:-4px;" src="graphics/logoteal.png" height="28" width="90" />&nbsp;&nbsp;<span style="font-size:16px;">Choose a photo to add to your blog post:</span>
+            <img style="margin-top:-4px;" src="graphics/blacklogo.png"  width="120" />&nbsp;&nbsp;<span style="font-size:16px;">Choose a photo to add to your blog post:</span>
             </div>
             <div modal-body" style="width:600px;">
 
@@ -2731,7 +3095,7 @@ var last = 0;
             echo'<div class="grid_18" style="margin:auto;border:1px solid #ccc;margin-top:30px;margin-left:20px;">';
             
             if($numblogposts == 0) {
-                echo'<div style="font-size:18px;font-weight:200;padding:40px;text-align:center;"><a style="color:#333;" href="myprofile3.php?view=blog&option=newpost">You have no blog posts yet. Click here to write your first post.</a></div>';
+                echo'<div style="font-size:18px;font-weight:200;padding:40px;text-align:center;"><a style="color:#333;" href="myprofile.php?view=blog&option=newpost">You have no blog posts yet. Click here to write your first post.</a></div>';
             }
             
                 for($iii=0; $iii < $numblogposts; $iii++) {
@@ -2784,7 +3148,7 @@ var last = 0;
                                 echo'<div><a href="viewprofile.php?u=',$commenterid,'"><img src="',$commenterpic,'" height="30" width="30" /><span style="font-weight:bold;color:#3e608c;font-size:12px;padding-left:10px;">',$commentername,'</a></span>&nbsp;&nbsp;',$comment,'</div><hr>';
                             }
                     echo'
-                    <form action="myprofile3.php?view=blog&action=comment&blogid=',$id,'" method="POST">
+                    <form action="myprofile.php?view=blog&action=comment&blogid=',$id,'" method="POST">
                     <div style="width:620px;"><img style="float:left;padding:10px;" src="',$profilepic,'" height="30" width="30" />
                     <input style="float:left;width:440px;height:20px;position:relative;top:10px;" type="text" name="comment" placeholder="Leave a comment&#8230;" /></div>
                     </form>
@@ -2861,7 +3225,7 @@ var last = 0;
 	else {
 		echo '</div>';
 	
-		echo '<div class="grid_18" style="background-color:rgba(245,245,245,0.6);padding-left:30px;padding-right:90px;padding-bottom:20px;padding-top:20px;margin-left:-45px;">';
+		echo '<div class="grid_18" style="padding-left:30px;padding-right:90px;padding-bottom:20px;padding-top:20px;margin-left:-45px;">';
 
 		$comma = 0;
 
@@ -2916,7 +3280,7 @@ var last = 0;
 
 			//now lets display the message with the other's profile picture and name
 			echo '
-			<a href="myprofile3.php?view=viewthread&thread=', $currentthread, '" style="text-decoration: none;">
+			<a href="myprofile.php?view=viewthread&thread=', $currentthread, '" style="text-decoration: none;">
 			<div class="grid_18 message" style="margin-bottom:20px; font-family: helvetica neue; font-size:14px;">
 				<div  class="grid_3">
 					<img src="', $otherspic, '" width="60px" height="60px" alt="profile picture" style="margin-bottom: 5px;"/>
@@ -2982,11 +3346,12 @@ $notsqueryrun = mysql_query($notsquery); }
 			mysql_query($updatequery); 
 
 			//find out all the info we need about the other person
-			$othersquery = "SELECT firstname, lastname, profilepic, emailaddress FROM userinfo WHERE emailaddress='" . $othersemail . "' LIMIT 0, 1";
+			$othersquery = "SELECT user_id, firstname, lastname, profilepic, emailaddress FROM userinfo WHERE emailaddress='" . $othersemail . "' LIMIT 0, 1";
 			$othersresult = mysql_query($othersquery);
 			$otherspic = mysql_result($othersresult, 0, "profilepic");
 			$othersfirst = mysql_result($othersresult, 0, "firstname");
 			$otherslast = mysql_result($othersresult, 0, "lastname");
+            $othersid = mysql_result($othersresult, 0, "user_id");
 			
 			//for loop to go through all the messages in reverse order so that the newest one is last
 			for($iii=$numberofmessages-1; $iii >= 0; $iii--) {
@@ -2998,12 +3363,14 @@ $notsqueryrun = mysql_query($notsquery); }
 					$currentfirst = $firstname;
 					$currentlast = $lastname;
 					$currentpic = $profilepic;
+                    $currentuserid = $userid;
 				}
 				//otherwise the other person is the message's sender, so set the variables accordingly
 				else {
 					$currentfirst = $othersfirst;
 					$currentlast = $otherslast;
 					$currentpic = $otherspic;
+                    $currentuserid = $othersid;
 				}
 				
 				//find out what the current message is
@@ -3012,7 +3379,7 @@ $notsqueryrun = mysql_query($notsquery); }
 				//now that we have everything in line, display the message
 				echo '
 				<div class="grid_18 message" style="margin-bottom: 20px; font-family: arial;">
-					<a href="viewprofile.php?first=', $currentfirst, '&last=', $currentlast,'">
+					<a href="viewprofile.php?u=',$currentuserid,'">
 					<div class="grid_3">
 						<img src="', $currentpic, '" width="60px" height="60px" alt="profile_picture" style="margin-bottom: 5px;"/><br />',$currentfirst,' ', $currentlast,' 
 					</div>
@@ -3159,28 +3526,46 @@ elseif($view == 'settings') {
         $action = htmlentities($_GET['action']);
 
 if ($action == 'savesettings') {
+
+//Sharing Settings
+$sharing = mysql_real_escape_string($_POST['sharing']);
+
+    if($sharing == 'optin') {
+        $optin = 'optin';
+        $sharequery = mysql_query("UPDATE userinfo SET promos = '$optin' WHERE emailaddress = '$email'");
+    }
     
-$emailcomment = mysql_real_escape_string($_POST['emailcomment']);
-$emailreturncomment = mysql_real_escape_string($_POST['emailreturncomment']);
-$emailfave = mysql_real_escape_string($_POST['emailfave']);		
-$emailfollow = mysql_real_escape_string($_POST['emailfollow']);	
+    elseif($sharing == 'optout') {
+        $sharequery = mysql_query("UPDATE userinfo SET promos = '' WHERE emailaddress = '$email'");
+    }
+    
+    
+$emailcomment = mysql_real_escape_string(htmlentities($_POST['emailcomment']));
+$emailreturncomment = mysql_real_escape_string(htmlentities($_POST['emailreturncomment']));
+$emailfave = mysql_real_escape_string(htmlentities($_POST['emailfave']));		
+$emailfollow = mysql_real_escape_string(htmlentities($_POST['emailfollow']));	
 
 $settinglist = $emailcomment . $emailreturncomment . $emailfave . $emailfollow;
 
-$settingquery = "UPDATE userinfo SET settings = '$settinglist' WHERE emailaddress='$email'";
-$settingrun = mysql_query($settingquery);
+$settingquery = "UPDATE userinfo SET settings = '".$settinglist."' WHERE emailaddress = '$email'";
+//echo '<br /><br /><br /><br />' . $settingquery;
+$settingrun = mysql_query($settingquery) or die('Error querying database.');
+
 
 //Grab what they have checked
 $settingemail = $_SESSION['email'];
-$settingquery = "SELECT * FROM userinfo WHERE emailaddress = '$settingemail'";
+$settingquery = "SELECT settings,promos FROM userinfo WHERE emailaddress = '$settingemail'";
 $settingqueryrun = mysql_query($settingquery);
 $settinglist = mysql_result($settingqueryrun, 0, "settings");
+$promos = mysql_result($settingqueryrun, 0, "promos");
 
 echo'
 <div class="grid_18" style="background-color:rgba(245,245,245,0.6);padding-left:30px;padding-right:95px;padding-bottom:20px;padding-top:20px;margin-left:-5px;">
 <span style="font-size:16px;">Notification Settings:</span>
 <br />
-<span class="label label-success" style="font-size:16px;position:relative;top:15px;">Settings Saved</span><br /><br />
+
+    <span style="font-size:18px;position:relative;top:15px;font-weight:200;color:green;">Settings Saved</span><br /><br />
+
 <form action="', htmlentities($_SERVER['PHP_SELF']), '?view=settings&action=savesettings" method="post" enctype="multipart/form-data">
 <br />';
         
@@ -3224,8 +3609,25 @@ echo'
 echo'
 <button type="submit" name="Submit" class="btn btn-success">Save Notification Settings</button>
 </form>
-</div>
-';
+
+<span style="font-size:16px;">Allow your photos to be shared on networks such as Facebook & Twitter?</span>
+<br /><br />
+<form action="', htmlentities($_SERVER['PHP_SELF']), '?view=settings&action=savesettings" method="POST" />';
+
+if($promos == 'optin') { echo'
+<input type="radio" name="sharing" value="optin" checked />&nbsp;Yes, allow others to share my work<br /><br /> 
+<input type="radio" name="sharing" value="optout" />&nbsp;No, do not allow others to spread my work<br /><br />
+<button type="submit" name="Submit" class="btn btn-success">Save Sharing Settings</button>';
+}
+elseif($promos == '') { echo'
+<input type="radio" name="sharing" value="optin" />&nbsp;Yes, allow others to share my work<br /><br /> 
+<input type="radio" name="sharing" value="optout" checked />&nbsp;No, do not allow others to spread my work<br /><br />
+<button type="submit" name="Submit" class="btn btn-success">Save Sharing Settings</button>';
+}
+
+echo'
+</form>
+</div>';
 
 }
     
@@ -3233,12 +3635,12 @@ else {
  
  
 $settingemail = $_SESSION['email'];
-$settingquery = "SELECT * FROM userinfo WHERE emailaddress = '$settingemail'";
+$settingquery = "SELECT settings FROM userinfo WHERE emailaddress = '$settingemail'";
 $settingqueryrun = mysql_query($settingquery);
 $settinglist = mysql_result($settingqueryrun, 0, "settings");
 
 echo'
-<div class="grid_18" style="background-color:rgba(245,245,245,0.6);padding-left:30px;padding-right:95px;padding-bottom:20px;padding-top:20px;margin-left:-5px;">
+<div class="grid_18" style="padding-left:30px;padding-right:95px;padding-bottom:20px;padding-top:20px;margin-left:-5px;">
 <span style="font-size:16px;">Notification Settings:</span>
 <form action="', htmlentities($_SERVER['PHP_SELF']), '?view=settings&action=savesettings" method="post" enctype="multipart/form-data">
 <br />';
@@ -3284,6 +3686,25 @@ echo'
 <button type="submit" name="Submit" class="btn btn-success">Save Notification Settings</button>
 </form>
 
+<!--OPT IN/OPT-OUT SHARING-->
+
+<span style="font-size:16px;">Allow your photos to be shared on networks such as Facebook & Twitter?</span>
+<br /><br />
+<form action="', htmlentities($_SERVER['PHP_SELF']), '?view=settings&action=savesettings" method="POST" />';
+
+if($promos == 'optin') { echo'
+<input type="radio" name="sharing" value="optin" checked />&nbsp;Yes, allow others to share my work<br /><br /> 
+<input type="radio" name="sharing" value="optout" />&nbsp;No, do not allow others to spread my work<br /><br />
+<button type="submit" name="Submit" class="btn btn-success">Save Sharing Settings</button>';
+}
+elseif($promos == '')  { echo'
+<input type="radio" name="sharing" value="optin" />&nbsp;Yes, allow others to share my work<br /><br /> 
+<input type="radio" name="sharing" value="optout" checked />&nbsp;No, do not allow others to spread my work<br /><br />
+<button type="submit" name="Submit" class="btn btn-success">Save Sharing Settings</button>';
+}
+
+echo'
+</form>
 
 <!--Choose Background Photo-->';
 
@@ -3291,10 +3712,10 @@ if($_GET['mode'] == 'updatebackground') {
 echo'<br /><span style="position:relative;margin-top:-130px;font-size: 16px;"><span class="label label-success" style="font-size:16px;" >Background Saved</span><br /><br /<br /><br /></span>';
 }
 
-echo'
+/*echo'
 <a data-toggle="modal" data-backdrop="static" href="#submitfromportfolio"><button style="margin-top:20px;" class="btn btn-success"><b>Choose Background Image</b></button></a>
 
-</div>';
+</div>';*/
 
 }
 
@@ -3303,7 +3724,7 @@ echo'<div class="modal hide fade" id="submitfromportfolio" style="overflow-y:scr
 
 <div class="modal-header">
 <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
-<img style="margin-top:-4px;" src="graphics/logoteal.png" height="30" width="100" />&nbsp;&nbsp;<span style="font-size:16px;">Choose your profile background image:</span>
+<img style="margin-top:-4px;" src="graphics/blacklogo.png" height="30" width="100" />&nbsp;&nbsp;<span style="font-size:16px;">Choose your profile background image:</span>
   </div>
   <div modal-body" style="width:600px;">
 
@@ -3316,7 +3737,7 @@ height="100px" width="100px" />
 
 <div style="width:540px;margin-left:130px;margin-top:-125px;overflow-y:scroll;overflow-x:hidden;">
 
-<form action="myprofile3.php?view=settings&mode=updatebackground" method="post">
+<form action="myprofile.php?view=settings&mode=updatebackground" method="post">
     <span style="font-size:14px;">
     <br /><br />';
     $allusersphotos = "SELECT * FROM photos WHERE emailaddress = '$email'";
@@ -3367,7 +3788,7 @@ echo'<div class="modal hide fade" id="editexhibit" style="overflow-y:scroll;over
 
 <div class="modal-header">
 <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
-<img style="margin-top:-4px;" src="graphics/logoteal.png" height="28" width="90" />&nbsp;&nbsp;<span style="font-size:16px;">Edit your exhibit\'s information below:</span>
+<img style="margin-top:-4px;" src="graphics/blacklogo.png" height="28" width="90" />&nbsp;&nbsp;<span style="font-size:16px;">Edit your exhibit\'s information below:</span>
   </div>
   <div modal-body" style="width:600px;">
 

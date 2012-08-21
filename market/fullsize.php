@@ -535,9 +535,8 @@ $camptitle = mysql_result($campaigntitlequery,0,'title');
     <div class="grid_7 push_2" style="margin-top:10px;">
 			<div class="grid_7 box"> <!--ID Tag-->
 				<div>
-					<div id="imgborder">
-					<img src="http://photorankr.com/<?php echo $profilepic; ?>" class="profilepic"/>
-				</div>
+										<div style="float:left;">
+<img class="roundedall" src="http://photorankr.com/<?php echo $profilepic; ?>" width="80px" height="80px" /></div>
 
 			<div id="namewrap">
 				<h1 id="name"><a class="click" href="viewprofile.php?u=<?php echo $userid; ?>"><?php echo $fullname; ?></a></h1>

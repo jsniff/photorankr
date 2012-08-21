@@ -524,8 +524,8 @@ $camptitle = mysql_result($campaigntitlequery,0,'title');
 <!--Here the Grid Container Begins-->
 <div class="container_24 container-margin" style="margin-top:70px;">
 <div class="grid_15">	
-	<div class="grid_14 pull_1" style="color:red;float:left;"style="float:left;">
-		<h1 class="title" style="font-size:22px;padding-bottom:5px;font-weight:200;"> <?php echo $camptitle; ?> </h1>
+	<div class="grid_14 pull_1" style="float:left;">
+		<h1 style="font-size:22px;padding-bottom:5px;font-weight:200;"> <?php echo $title; ?> </h1>
 	</div>	
 	<div class="grid_17 pull_1" style="float:left;" >
 	<img onmousedown="return false" oncontextmenu="return false;" src="<?php echo $image; ?>" class="image" height="<?php echo $newheight; ?>px" width="<?php echo $newwidth; ?>px" />	
@@ -579,9 +579,9 @@ $camptitle = mysql_result($campaigntitlequery,0,'title');
     <div class="grid_7 push_2" style="margin-top:10px;">
 			<div class="grid_7 box"> <!--ID Tag-->
 				<div>
-					<div id="imgborder">
-					<img src="http://photorankr.com/<?php echo $profilepic; ?>" class="profilepic"/>
-				</div>
+					
+                     <div style="float:left;">
+<img class="roundedall" src="http://photorankr.com/<?php echo $profilepic; ?>" width="80px" height="80px" /></div>
 
 			<div id="namewrap">
 				<h1 id="name"><a class="click" href="viewprofile.php?u=<?php echo $userid; ?>"><?php echo $fullname; ?></a></h1>

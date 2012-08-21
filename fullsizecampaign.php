@@ -63,7 +63,7 @@ die('Incorrect password, please try again. <a href="lostpassword.php"> Lost your
     $owner = mysql_result($imagequeryrun, 0, 'emailaddress');
     $photogquery = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$owner'");
     $fullname = mysql_result($photogquery, 0, 'firstname') ." ". mysql_result($photogquery, 0, 'lastname');
-    $reputation = mysql_result($photogquery, 0, 'reputation');
+    $reputation = number_format(mysql_result($photogquery, 0, 'reputation'),2);
     $profilepic = mysql_result($photogquery, 0, 'profilepic');
     $userid = mysql_result($photogquery, 0, 'user_id');
 
@@ -92,7 +92,22 @@ die('Incorrect password, please try again. <a href="lostpassword.php"> Lost your
     $imageFirst = "SELECT id FROM campaignphotos WHERE campaign = '$campaign' ORDER BY id ASC LIMIT 1";
     $imageFirstquery = mysql_query($imageFirst);
     $firstID = mysql_result($imageFirstquery, 0, 'id');
+    
+    //calculate the size of the picture
+    $maxwidth=800;
+    $maxheight=800;
 
+    list($width, $height)=getimagesize($image);
+    $imgratio=$width/$height;
+
+    if($imgratio > 1) {
+        $newwidth=$maxwidth;
+        $newheight=$maxwidth/$imgratio;
+    }
+    else {
+        $newheight=$maxheight;
+        $newwidth=$maxheight*$imgratio;
+    }
     
     //GET ID's OF PREVIEWS AND NEXT/BACK FUNCTIONS        
     $imageBeforequery = "SELECT id FROM campaignphotos WHERE campaign = '$campaign' AND id < '$id' ORDER BY id DESC LIMIT 1";
@@ -433,7 +448,7 @@ To view the photo, click here: http://photorankr.com/fullsize.php?image=".$image
      
 </head>
 
-<body class="background" style="overflow-x: hidden;min-width:1220px;">
+<body class="background" style="overflow-x: hidden;min-width:1220px;background-color:rgb(245,245,245);">
 
 <?php navbarnew(); ?>
 
@@ -449,14 +464,13 @@ $camptitle = mysql_result($campaigntitlequery,0,'title');
 
 <!--Here the Grid Container Begins-->
 <div class="container_24 container-margin" style="margin-top:70px;">
-<div class="grid_15">	
-	<div class="grid_14 pull_1" style="float:left;"style="float:left;">
-		<h1 class="title" style="font-size:22px;padding-bottom:5px;font-weight:200;"> <?php echo $title; ?> </h1>
+<div class="grid_15 pull_2">	
+	<div class="grid_14 pull_1" style="float:left;">
+		<h1 style="font-size:22px;padding-bottom:15px;font-weight:200;"> <?php echo $title; ?> </h1>
 	</div>	
-	<div class="grid_17 pull_1" style="float:left;" >
-	<img onmousedown="return false" oncontextmenu="return false;" src="<?php echo $image; ?>" class="image" height="<?php echo $newheight; ?>px" width="<?php echo $newwidth; ?>px" />	
-	</div>
-    
+	<div class="grid_21 pull_1" style="float:left;" >
+	<img onmousedown="return false" oncontextmenu="return false;" src="<?php echo $image; ?>" alt="<?php echo $title; ?>" class="image" height="<?php echo $newheight; ?>px" width="<?php echo $newwidth; ?>px" />
+        </div>
 
 
 <!--COMMENTS BOX-->   
@@ -519,20 +533,21 @@ $camptitle = mysql_result($campaigntitlequery,0,'title');
 
 
 	<!--PHOTOGRAPHER BOX-->
-    <div class="grid_7 push_2" style="margin-top:10px;">
+    <div class="grid_7 push_4" style="margin-top:10px;">
 			<div class="grid_7 box"> <!--ID Tag-->
-				<div>
-					<div id="imgborder">
-					<img src="http://photorankr.com/<?php echo $profilepic; ?>" class="profilepic"/>
+				<div style="height:130px;">
+					<div class="roundedall" style="float:left;overflow:hidden;margin-left:5px;margin-top:5px;">
+					<img src="<?php echo $profilepic; ?>" alt="<?php echo $fullname; ?>" height="95" width="95" />
 				</div>
 
-			<div id="namewrap">
+
+			<div id="namewrap" style="text-align:center;">
 				<h1 id="name"><a class="click" href="viewprofile.php?u=<?php echo $userid; ?>"><?php echo $fullname; ?></a></h1>
-				<div class="progress progress-success" style="width:110px;height: 10px;">
+				<div class="progress progress-success" style="width:110px;height: 10px;margin-left:30px;">
                 <div class="bar" style="width:<?php echo $reputation; ?>%;"> 
                 </div></div>
 
-				<h1 id="rep"> Rep: &nbsp <?php echo $reputation; ?> </h1>
+				<h1 id="rep" style="margin-right:15px;"> Rep: &nbsp <?php echo $reputation; ?> </h1>
 			</div>	
 		</div>
         </div>
@@ -595,12 +610,6 @@ $camptitle = mysql_result($campaigntitlequery,0,'title');
 			
 </div><!--end right sidebar-->
 
-
-<!--Footer begin-->   
-<div class="grid_24">
-<?php footer(); ?>               
-</div>
-<!--Footer end-->
 
 </body>
 </html>

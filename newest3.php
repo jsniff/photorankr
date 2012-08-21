@@ -103,7 +103,7 @@ $notsqueryrun = mysql_query($notsquery); }
      <meta name="viewport" content="width=1200" /> 
 
 
-  <link rel="stylesheet" type="text/css" href="market/css/bootstrapnew2.css" />
+  <link rel="stylesheet" type="text/css" href="market/css/bootstrapNew.css" />
  <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
   <link rel="stylesheet" href="market/css/text.css" type="text/css" />
    <link rel="stylesheet" href="css/style.css" type="text/css" />
@@ -194,7 +194,7 @@ transition: opacity .5s;
 </head>
 <body style="overflow-x:hidden; background-color: #eeeff3;min-width:1220px;">
 
-<?php navbar(); ?>
+<?php navbarnew(); ?>
 
    <!--big container-->
     <div id="container" class="container_24" >
@@ -208,13 +208,16 @@ if(isset($_GET['view'])){
 $view = htmlentities($_GET['view']);
 }
 
-
+        echo'<br /><br /><br /><br /><div style="text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#000;';if($view == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="newest.php">Newest Photos</a> | <a class="green" style="text-decoration:none;color:#000;';if($view == 'prs') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="newest.php?view=prs">Newest Photographers</a> | <a class="green" style="text-decoration:none;color:#000;';if($view == 'exts') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="newest.php?view=exts">Newest Exhibits</a></div></div>';
+        
+        
 if($view == '') {
         
     //DISPLAY 20 NEWEST OF ALL PHOTOS
-         echo'<div id="thepics">';
-
-    echo'<div id="container" style="width:1140px;position:relative;left:-75px;top:55px;">';
+         
+    echo'<div id="thepics">';
+    echo'<div id="container" style="width:1210px;margin-left:-112px;top:15px;">';
+    
 for($iii=1; $iii <= 16; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
     $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
@@ -231,14 +234,14 @@ for($iii=1; $iii <= 16; $iii++) {
 
 	list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
-    $heightls = $height / 3.5;
-    $widthls = $width / 3.5;
+    $heightls = $height / 2.5;
+    $widthls = $width / 2.5;
 
-		echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:260px;height:260px;overflow:hidden;"><a href="http://photorankr.com/fullsize.php?image=',$image,'&v=n">
+		echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a href="http://photorankr.com/fullsize.php?image=',$image,'&v=n">
         
-        <div class="statoverlay" style="z-index:1;left:0px;top:195px;position:relative;background-color:black;width:260px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-weight:100;font-size:18px;">',$caption,'</span><br/><span style="font-weight:100;font-size:12px;">By: ',$fullname,'</br>Score: ',$score,'</span></p></div>
+        <div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:280px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-weight:100;font-size:18px;">',$caption,'</span><br/><span style="font-weight:100;font-size:12px;">By: ',$fullname,'</p></div>
         
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:280px;min-width:260px;" src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
        
 	    
       } //end for loop
@@ -284,7 +287,7 @@ elseif($view == 'prs') {
 $prsquery="SELECT * FROM userinfo WHERE (profilepic != 'http://www.photorankr.com/profilepics/default_profile.jpg' AND profilepic != 'profilepics/default_profile.jpg') ORDER BY user_id DESC";
 $prsresult=mysql_query($prsquery);
 
-echo'<div id="container" style="width:1140px;position:relative;left:-120px;top:55px;">';
+echo'<div id="container" style="width:1210px;margin-left:-112px;top:15px;">';
 for($iii=1; $iii <= 16; $iii++) {
 	$profpic = mysql_result($prsresult, $iii-1, "profilepic");
     if($profpic == 'http://www.photorankr.com/profilepics/default_profile.jpg') {
@@ -296,7 +299,12 @@ for($iii=1; $iii <= 16; $iii++) {
     $fullname = ucwords($fullname);
 	$userid = mysql_result($prsresult, $iii-1, "user_id");
 
-		echo '<div class="phototitle" id="',$id,'" style="width:240px;height:270px;overflow:hidden;background-color:white;color:#1a618a;font-size:15px;"><a href="http://photorankr.com/viewprofile.php?u=',$userid,'"><img onmousedown="return false" oncontextmenu="return false;" style="min-height:240px;min-width:240px;" src="http://photorankr.com/',$profpic,'" height="240" width="240" /></a><br /><div style="margin-top:4px;text-align:center;">',$fullname,'</div></div>';
+		echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a href="viewprofile.php?u=',$userid,'">
+        
+        <div class="statoverlay" style="z-index:1;left:0px;top:215px;position:relative;background-color:black;width:280px;height:40px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-weight:100;font-size:22px;">',$fullname,'</span></div>
+        
+        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="',$profpic,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+
     } //end for loop
     echo'</div>';
     
@@ -305,17 +313,17 @@ for($iii=1; $iii <= 16; $iii++) {
 
 
 elseif($view == 'exts') {
-$query="SELECT * FROM sets ORDER BY id DESC";
+$query="SELECT * FROM sets ORDER BY id DESC LIMIT 0,30";
 $result=mysql_query($query);
 $numberexhibits=mysql_num_rows($result);
 
-echo'<div id="container" style="width:1140px;position:relative;left:-120px;top:55px;">';
+echo'<div id="container" style="width:1210px;margin-left:-112px;top:15px;">';
 for($iii=1; $iii <= $numberexhibits; $iii++) {
 	$coverpic = mysql_result($result, $iii-1, "cover");
     $caption = mysql_result($result, $iii-1, "title");
     $set_id = mysql_result($result, $iii-1, "id");
     if($coverpic == '') {
-    $coverpic = 'profilepics/nocoverphoto.png';
+    $coverpic = 'graphics/no_cover.png';
     }
     $owner = mysql_result($result, $iii-1, "owner");
     $exhibitquery = mysql_query("SELECT * FROM photos WHERE set_id = '$set_id'");
@@ -336,12 +344,14 @@ for($iii=1; $iii <= $numberexhibits; $iii++) {
     $fullname = $firstname . " " . $lastname;
     
 	$userid = mysql_result($ownerquery, 0, "user_id");
-
-		echo '<div class="phototitle" id="',$id,'" style="width:240px;height:240px;overflow:hidden;"><a href="http://photorankr.com/viewprofile.php?u=',$userid,'&ex=y&set=',$set_id,'">
+    
+    echo'
+    <div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a href="http://photorankr.com/viewprofile.php?u=',$userid,'&ex=y&set=',$set_id,'">
         
-        <div class="statoverlay2" style="z-index:1;left:0px;top:170px;position:relative;background-color:black;width:240px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$caption,'"<br>By: ',$fullname,'</br>Exhibit Score: ',$score,'</p></div>
+        <div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:280px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-weight:100;font-size:18px;">',$caption,'</span><br/><span style="font-weight:100;font-size:12px;">By: ',$fullname,'</p></div>
         
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:240px;min-width:240px;" src="http://photorankr.com/',$coverpic,'" height="240" width="240" /></a></div>';
+        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="http://photorankr.com/',$coverpic,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+        
     } //end for loop
     echo'</div>';
 

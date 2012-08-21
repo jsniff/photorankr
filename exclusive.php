@@ -1,12 +1,60 @@
 <?php
 
+//connect to the database
 require "db_connection.php";
 require "functionsnav.php";
 require_once("stripe/lib/Stripe.php");
 
+//start the session
+session_start();
+
+    // if login form has been submitted
+    if (htmlentities($_GET['action']) == "login") { 
+        login();
+    }
+    else if(htmlentities($_GET['action']) == "logout") { 
+        logout();
+    }
+
+    $email = $_SESSION['email'];
+
+if (!$email) {
+    header("Location: http://photorankr.com/signup.php");
+}
+
+
+
+$futuretime = strtotime("August 20, 2012");
+$currenttime = time();
+$timeleft          = $futuretime -$currenttime;
+    //find out how many days hours minutes are left
+    $daysleft          = floor($timeleft / (24*60*60));
+    $timeleft          -= 24*60*60*$daysleft;
+      $hoursleft         = floor($timeleft / (60*60));
+    $timeleft          -= 60*60*$hoursleft;
+    $minutesleft       = floor($timeleft / 60);
+if($currenttime>$futuretime) {
+    header("Location: http://photorankr.com/myprofile.php");
+}
+
+
+// $exclusivequery = "SELECT * FROM userinfo WHERE emailaddress='$email'";
+// $exclusiveresult = mysql_query($exclusivequery) 
+ //$exclusiveupdated = mysql_result($exclusiveresult, 0, "offerviews");
+// $exclusiveupdated = $exclusiveupdated+1;
+
+// if($exclusiveupdated >3) {
+//     header("Location: http://photorankr.com/myprofile.php");
+// }
+
+// $updatexclusive = "UPDATE userinfo SET offerviews = $exclusiveupdated WHERE emailaddress = '$email'";
+// $updatedateexclusivequery = mysql_query($updatexclusive); 
+
+// }
+
 
 $code = $_REQUEST['code'];
-$email = $_REQUEST['emailaddress'];
+
 
 $post_data = array(
     'code' => $code,
@@ -91,7 +139,11 @@ mysql_query($updatestripe);
 <html>
 <head>
 <meta name="Contact Us"></meta>
-	<link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />		<link rel="stylesheet" href="960_24.css" type="text/css" />		<link rel="stylesheet" href="css/style.css" type="text/css" />		<link rel="stylesheet" href="text2.css" type="text/css" />		<link rel="stylesheet" type="text/css" href="css/all.css"/>
+	<link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
+		<link rel="stylesheet" href="960_24.css" type="text/css" />
+		<link rel="stylesheet" href="css/style.css" type="text/css" />
+		<link rel="stylesheet" href="text2.css" type="text/css" />
+		<link rel="stylesheet" type="text/css" href="css/all.css"/>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="bootstrap.js"></script>   
 <script src="bootstrap-dropdown.js" type="text/javascript"></script>
@@ -103,7 +155,64 @@ mysql_query($updatestripe);
         .show { display: block;  }
         .hide { display: none; }
 
-.btn-signup 			{  				background-color: hsl(101, 55%, 52%) !important;  				background-repeat: repeat-x;  				filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#a9de90", endColorstr="#6bc741");  				background-image: -khtml-gradient(linear, left top, left bottom, from(#a9de90), to(#6bc741));  				background-image: -moz-linear-gradient(top, #a9de90, #6bc741);  				background-image: -ms-linear-gradient(top, #a9de90, #6bc741);  				background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #a9de90), color-stop(100%, #6bc741));  				background-image: -webkit-linear-gradient(top, #a9de90, #6bc741);  				background-image: -o-linear-gradient(top, #a9de90, #6bc741); 				background-image: linear-gradient(#a9de90, #6bc741);  				border-color: #6bc741 #6bc741 hsl(101, 55%, 47%);  				color: #fff !important;  				text-shadow: 0 1px 1px rgba(102, 102, 102, 0.88);  				-webkit-font-smoothing: antialiased;  				padding:1em 2em 1em 2em;  				font-weight: 500;}		.btn-explore { 			 background-color: hsl(0, 0%, 31%) !important;  			background-repeat: repeat-x;  			filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#828282", endColorstr="#4f4f4f");  			background-image: -khtml-gradient(linear, left top, left bottom, from(#828282), to(#4f4f4f));  			background-image: -moz-linear-gradient(top, #828282, #4f4f4f);  			background-image: -ms-linear-gradient(top, #828282, #4f4f4f);  			background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #828282), color-stop(100%, #4f4f4f));  			background-image: -webkit-linear-gradient(top, #828282, #4f4f4f);  			background-image: -o-linear-gradient(top, #828282, #4f4f4f);  			background-image: linear-gradient(#828282, #4f4f4f); 			border-color: #4f4f4f #4f4f4f hsl(0, 0%, 26%); 			color: #fff !important;  			text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.33);  			-webkit-font-smoothing: antialiased;  			padding:1em 2em 1em 2em;}.btn-go {    background-color: hsl(207, 55%, 46%) !important;  background-repeat: repeat-x;  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#68a3d3", endColorstr="#347bb5");  background-image: -khtml-gradient(linear, left top, left bottom, from(#68a3d3), to(#347bb5));  background-image: -moz-linear-gradient(top, #68a3d3, #347bb5);  background-image: -ms-linear-gradient(top, #68a3d3, #347bb5);  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #68a3d3), color-stop(100%, #347bb5));  background-image: -webkit-linear-gradient(top, #68a3d3, #347bb5);  background-image: -o-linear-gradient(top, #68a3d3, #347bb5);  background-image: linear-gradient(#68a3d3, #347bb5);  border-color: #347bb5 #347bb5 hsl(207, 55%, 42%);  color: #fff !important;  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.26);  -webkit-font-smoothing: antialiased;  padding:.5em 1.6em .5em 1.6em;  font-weight:700;  font-size:14px;  margin-left: .1em;}
+.btn-signup 
+			{
+  				background-color: hsl(101, 55%, 52%) !important;
+  				background-repeat: repeat-x;
+  				filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#a9de90", endColorstr="#6bc741");
+  				background-image: -khtml-gradient(linear, left top, left bottom, from(#a9de90), to(#6bc741));
+  				background-image: -moz-linear-gradient(top, #a9de90, #6bc741);
+  				background-image: -ms-linear-gradient(top, #a9de90, #6bc741);
+  				background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #a9de90), color-stop(100%, #6bc741));
+  				background-image: -webkit-linear-gradient(top, #a9de90, #6bc741);
+  				background-image: -o-linear-gradient(top, #a9de90, #6bc741);
+ 				background-image: linear-gradient(#a9de90, #6bc741);
+  				border-color: #6bc741 #6bc741 hsl(101, 55%, 47%);
+  				color: #fff !important;
+  				text-shadow: 0 1px 1px rgba(102, 102, 102, 0.88);
+  				-webkit-font-smoothing: antialiased;
+  				padding:1em 2em 1em 2em;
+  				font-weight: 500;
+
+}
+		.btn-explore {
+ 			 background-color: hsl(0, 0%, 31%) !important;
+  			background-repeat: repeat-x;
+  			filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#828282", endColorstr="#4f4f4f");
+  			background-image: -khtml-gradient(linear, left top, left bottom, from(#828282), to(#4f4f4f));
+  			background-image: -moz-linear-gradient(top, #828282, #4f4f4f);
+  			background-image: -ms-linear-gradient(top, #828282, #4f4f4f);
+  			background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #828282), color-stop(100%, #4f4f4f));
+  			background-image: -webkit-linear-gradient(top, #828282, #4f4f4f);
+  			background-image: -o-linear-gradient(top, #828282, #4f4f4f);
+  			background-image: linear-gradient(#828282, #4f4f4f);
+ 			border-color: #4f4f4f #4f4f4f hsl(0, 0%, 26%);
+ 			color: #fff !important;
+  			text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.33);
+  			-webkit-font-smoothing: antialiased;
+  			padding:1em 2em 1em 2em;
+}
+.btn-go {
+    background-color: hsl(207, 55%, 46%) !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#68a3d3", endColorstr="#347bb5");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#68a3d3), to(#347bb5));
+  background-image: -moz-linear-gradient(top, #68a3d3, #347bb5);
+  background-image: -ms-linear-gradient(top, #68a3d3, #347bb5);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #68a3d3), color-stop(100%, #347bb5));
+  background-image: -webkit-linear-gradient(top, #68a3d3, #347bb5);
+  background-image: -o-linear-gradient(top, #68a3d3, #347bb5);
+  background-image: linear-gradient(#68a3d3, #347bb5);
+  border-color: #347bb5 #347bb5 hsl(207, 55%, 42%);
+  color: #fff !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.26);
+  -webkit-font-smoothing: antialiased;
+  padding:.5em 1.6em .5em 1.6em;
+  font-weight:700;
+  font-size:14px;
+  margin-left: .1em;
+}
+
 
 
  </style>
@@ -177,11 +286,19 @@ mysql_query($updatestripe);
             }
         </script>
 
-	</head><body style="background-color:rgb(245,245,245);"><?php navbarnew(); ?>  
-
-<!--container begin-->
-<div id="topbar" style="height:100px;padding-top:30px;font-size:22px;font-family:helvetica;font-weight:100;"><div style="text-align:center;padding-left:10px;padding-right:10px;">PhotoRankr is on the verge of even bigger and better things.  &nbsp;We appreciate your support and loyalty in our early days.  &nbsp;As a thank you, we are offering you a lifetime of access to the highest upcoming subscription level for a low, one-time fee.  &nbsp;As we grow, we want to help you grow as a photographer.</div>
-	</div>	<div class="container_24">	<div class="grid_22 push_1" id="formshell">		<div id="container">		<div class="grid_11" id="form">		<!--<form action="none" method="">-->			<h1 class="description"> Lifetime Subscription Offer </h1>			<fieldset id="formfields">
+	</head>
+<body style="background-color:rgb(245,245,245);">
+<?php navbarnew(); 
+echo'
+<div id="topbar" style="height:100px;padding-top:30px;font-size:22px;font-family:helvetica;font-weight:100;"><div style="text-align:center;padding-left:10px;padding-right:10px;">PhotoRankr is on the verge of even bigger and better things.  &nbsp;We appreciate your support and loyalty in our early days.  &nbsp;As a thank you, we are offering you a lifetime of access to the highest upcoming subscription level for a low, one-time fee.  &nbsp;As we grow, we want to help you grow as a photographer.</div>
+	</div>	
+<div class="container_24">
+	<div class="grid_22 push_1" id="formshell">
+		<div id="container">
+		<div class="grid_11" id="form">
+		<!--<form action="none" method="">-->
+			<h1 class="description"> Lifetime Subscription Offer</br> ',$daysleft,' Days, ',$hoursleft,' Hours Left</h1>
+			<fieldset id="formfields">
 
 
 <div style="margin-top:-30px;font-size:18px;font-weight:200;font-family:helvetica;">
@@ -205,7 +322,17 @@ mysql_query($updatestripe);
 
         </div>
 
-					</fieldset>					</div>		<div class="grid_9">		<h1 class="description" style="text-align:center;"> Secure Payment with Stripe </h1>		<div class="upload">			<fieldset id="formfields">	<div style="color:black;background-color:white;width:350px;font-family:helvetica;font-weight:200;height;200px;">
+		
+			</fieldset>
+				
+	</div>	
+
+
+	<div class="grid_9">
+		<h1 class="description" style="text-align:center;"> Secure Payment with Stripe </h1>
+		<div class="upload">
+			<fieldset id="formfields">
+	<div style="color:black;background-color:white;width:350px;font-family:helvetica;font-weight:200;height;200px;">
 
         <!-- to display errors returned by createToken -->
         <span class="payment-errors" style="font-weight:bold;font-size:15px;"></span>
@@ -227,11 +354,11 @@ mysql_query($updatestripe);
             </div>
               <div class="form-row" style="text-align:left;">
                 <label class="creditcards">First Name</label>
-                <input type="text" size="4" autocomplete="off" class="card-cvc"/>
+                <input type="text" size="4" autocomplete="off" class="card-name"/>
             </div>
             <div class="form-row" style="text-align:left;">
                 <label class="creditcards">Last Name</label>
-                <input type="text" size="4" autocomplete="off" class="card-cvc"/>
+                <input type="text" size="4" autocomplete="off" class="card-name"/>
             </div>
             <div class="form-row" style="text-align:left;">
                 <label class="creditcards">CVC (Verification #)</label>
@@ -242,6 +369,7 @@ mysql_query($updatestripe);
                 <input type="text" style="width:50px" size="2" class="card-expiry-month"/>
                 <span style="font-size: 22px"> / </span>
                 <input type="text" style="width:100px" size="4" class="card-expiry-year"/>
+              </div>
            <div class="">  
    <button type="submit" class="button submit btn btn-success" style="text-align:center;font-size:16px;margin-top:5px;padding-top:10px;padding-bottom:10px;padding-right:55px;padding-left:50px;">Submit Payment</button>
 
@@ -271,4 +399,49 @@ mysql_query($updatestripe);
 <input type="hidden" name="email" value="',$emailretrieve,'">  
 
 
-			</fieldset>				</div>				</div>	</div>	<!--<div class="grid_22" style="text-align:center;">	<button class="btn btn-signup"/>Become a PhotoRankr Beta Tester</button>		<p style="font-size:9px;"> (You get access to cool things)</p>--></div></div>	</br>	<div class="container_24" style="float:center;margin-top:-100px;">	<?php footer(); ?>	</div>	</body></html>	
+			</fieldset>	
+			</div>
+		
+		</div>
+	</div>
+	<!--<div class="grid_22" style="text-align:center;">
+	<button class="btn btn-signup"/>Become a PhotoRankr Beta Tester</button>
+		<p style="font-size:9px;"> (You get access to cool things)</p>-->
+</div>
+
+</div>
+
+	</br>
+	<div class="container_24" style="float:center;margin-top:-100px;">';
+
+
+if($_GET['charge'] == 1){
+
+echo'<div class="grid_24" style="margin-top:50px;font-size:22px;font-weight:200;text-align:center;">Congrats! You are now a lifetime member of PhotoRankr!</div>';
+
+
+//Stripe::setPubKey($stripepubkey);
+  $signedupemail = $_POST['email'];
+  //echo $email;
+$token = $_POST['stripeToken'];
+
+Stripe::setApiKey("I4xWtNfGWVVGzVuOr6mrSYZ5nOrfMA9X");
+
+//Working Subscription Code
+$customer = Stripe_Customer::create(array(
+  "card" => $token,
+  "plan" => 1,
+  "email" => $email)
+);
+
+}
+	echo'</div><br /><br /><br /><br /><br /><br />';
+
+
+
+footer();
+
+?>
+
+	</body>
+</html>	
