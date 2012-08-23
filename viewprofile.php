@@ -21,13 +21,21 @@ session_start();
 $currentnots = "SELECT * FROM userinfo WHERE emailaddress = '$email'";
 $currentnotsquery = mysql_query($currentnots);
 $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
-$myprofilepic = mysql_result($currentnotsquery, 0, "profilepic");
 
+//DE-HIGHLIGHT NOTIFICATIONS IF CLICKED ON
+
+if(isset($_GET['id'])){
+$id = htmlentities($_GET['id']);
+$idformatted = $id . " ";
+$unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$email'";
+$unhighlightqueryrun = mysql_query($unhighlightquery);
 
 //notifications query reset 
 if($currentnotsresult > 0) {
-$notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email6'";
+$notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email'";
 $notsqueryrun = mysql_query($notsquery); }
+}
+
 
 //DISCOVER SCRIPT
     
@@ -211,7 +219,7 @@ $foundsetting = strpos($setting_string,$find);
     
         		$to = '"' . $firstname . ' ' . $lastname . '"' . '<'.$useremail.'>';
         		$subject = $viewerfirst . " " . $viewerlast . ' is now following your photography on PhotoRankr!';
-        		$message = 'You have a new follower on PhotoRankr! Visit their photography here: http://photorankr.com/viewprofile.php?first=' . $viewerfirst . '&last=' . $viewerlast;
+        		$message = 'You have a new follower on PhotoRankr! Visit their photography here: http://photorankr.com/viewprofile.php?u='.$sessionuserid;
         		$headers = 'From:PhotoRankr <photorankr@photorankr.com>';
                 if($foundsetting > 0) {
         		mail($to, $subject, $message, $headers);   
@@ -722,7 +730,7 @@ Avg. Portfolio: ',$portfolioranking,' <br /><br /><br />
 
                 echo '   
 
-                <div class="fPic" id="',$id,'" style="width:245px;height:230px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="http://photorankr.com/fullsizeview.php?image=', $image[$iii], '">
+                <div class="fPic" id="',$id,'" style="width:245px;height:230px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="http://photorankr.com/fullsizeview.php?image=', $image[$iii], '">
 
                 <div class="statoverlay" style="z-index:1;left:0px;top:155px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br><span style="font-size:14px;font-weight:100;">Score: ',$score,'<br>Favorites: ',$faves,'</span></p></div>
 

@@ -1,5 +1,58 @@
 <?php
 
+$size = mysql_real_escape_string($_POST['size']);
+
+if(!$size) {
+    $size = 'Large';
+} 
+
+$width = mysql_real_escape_string($_POST['width']);
+
+if(!$width) {
+    $width = mysql_real_escape_string($_POST['originalwidth']);
+}
+
+$height = mysql_real_escape_string($_POST['height']);
+
+if(!$height) {
+    $height = mysql_real_escape_string($_POST['originalheight']);
+}
+
+$price = mysql_real_escape_string($_POST['price']);
+
+if(!$price) {
+    $price = mysql_real_escape_string($_POST['originalprice']);
+}
+
+$imageid = mysql_real_escape_string($_POST['imageid']);
+
+$multiseat = mysql_real_escape_string($_POST['multiseat']);
+$unlimited = mysql_real_escape_string($_POST['unlimited']);
+$resale = mysql_real_escape_string($_POST['resale']);
+$electronic = mysql_real_escape_string($_POST['electronic']);
+
+if($multiseat == 'checked') {
+    $licenses = ' Multi-Seat,';
+    $price += 20;
+}
+if($unlimited == 'checked') {
+    $licenses = $licenses . ' Unlimited Reproduction / Print Runs,';
+    $price += 35;
+}
+if($resale  == 'checked') {
+    $licenses = $licenses . ' Items for Resale,';
+    $price += 35;
+}
+if($electronic == 'checked') {
+    $licenses = $licenses . ' Electronic Use,';
+    $price += 35;
+}
+
+if(!$licenses) {
+    $licenses = 'Standard Use';
+}
+
+
 //connect to the database
 require "db_connection.php";
 require "functionscampaigns3.php";
@@ -56,6 +109,18 @@ require_once("stripe/lib/Stripe.php");
 
 }
 
+
+ //REMOVE PHOTO QUERY
+    if(htmlentities($_GET['action']) == "removed") { 
+        $removeid = $_GET['imageid'];
+        $querycheck = mysql_query("SELECT emailaddress FROM cart WHERE imageid = '$removeid'");
+        $emailcheck = mysql_result($querycheck,0,'emailaddress');
+        if($repemail == $emailcheck) {
+            $removequery = mysql_query("DELETE FROM cart WHERE imageid = '$removeid' AND emailaddress = '$repemail'");
+        }
+    }
+           
+
 ?>
 
 
@@ -64,7 +129,8 @@ require_once("stripe/lib/Stripe.php");
 "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-<meta name="Contact Us"></meta>
+<title>Your Cart</title>
+<meta name="Your Cart"></meta>
 <link rel="stylesheet" type="text/css" href="css/download.css"/>
 <link rel="stylesheet" type="text/css" href="css/reset.css"/>
 <link rel="stylesheet" type="text/css" href="css/text.css"/>
@@ -172,9 +238,11 @@ require_once("stripe/lib/Stripe.php");
 
 
 <?php
+
+
+
     
     //PHOTO CART INFORMATION
-    $imageid = htmlentities($_GET['imageid']);
     $pricephoto = htmlentities($_GET['price']);
     $imagequery = mysql_query("SELECT * FROM photos WHERE id = '$imageid'");
     $imagenewsource = mysql_result($imagequery,0,'source');
@@ -201,13 +269,13 @@ require_once("stripe/lib/Stripe.php");
     
         elseif($_SESSION['loggedin'] == 2) {
        
-        echo'<div style="font-size:24px;padding-left:250px;padding-top:20px;padding-bottom:20px;background-color:#ddd;width:150px;margin-left:-230px;margin-top:30px;"><span style="font-size:27px;font-weight:200;">Your Cart</span></div><br />';
+        echo'<div style="padding:15px;padding-right:200px;background-color:#ddd;width:130px;margin-left:25px;margin-top:20px;"><span style="font-size:27px;font-weight:200;">Your Cart</span></div><br />';
         
         if($imageid) {
         $cartcheck = mysql_query("SELECT * FROM cart WHERE imageid = '$imageid' ORDER BY id DESC");
         $numincart = mysql_num_rows($cartcheck);
         if($numincart < 1) {
-            $stickincart = mysql_query("INSERT INTO cart (source,emailaddress,imageid,price) VALUES ('$imagenewsource3','$repemail','$imageid', '$pricephoto')");
+            $stickincart = mysql_query("INSERT INTO cart (source,size,width,height,license,price,emailaddress,imageid) VALUES ('$imagenewsource3','$size','$width','$height','$licenses','$price','$repemail','$imageid')");
             }
         }
         
@@ -218,9 +286,15 @@ require_once("stripe/lib/Stripe.php");
             $imagesource[$iii] = mysql_result($incart,$iii,'source');
             $imageprice[$iii] = mysql_result($incart,$iii,'price');
             $imagecartid = mysql_result($incart,$iii,'imageid');
+            $imagelicenses = mysql_result($incart,$iii,'license');
+            $standard = strpos($imagelicenses,'Standard');
+            if($standard === false) { 
+                $imagelicenses = substr($imagelicenses, 0, -1); 
+            }
+            $imagesize = mysql_result($incart,$iii,'size');
             $emailquery = mysql_query("SELECT emailaddress FROM photos WHERE id = '$imagecartid'");
             $photogemail = mysql_result($emailquery,0,'emailaddress');
-            $totalcartprice = $imagecartid+$totalcartprice;
+            $totalcharge = $totalcharge + $imageprice[$iii];
             $cartidlist = $cartidlist.",".$imagecartid;
             list($width, $height)=getimagesize($imagesource[$iii]);
             $width = $width/4;
@@ -245,28 +319,21 @@ $stripekey = mysql_result($striperesult, 0, 'token');
             <tr>
             <th>Photo</th>
             <th>Size</th>
-            <th>Image ID</th>
-            <th>License</th>
+            <th>License(s)</th>
             <th>Price</th>  
             </tr>
             </thead>
             <tbody>
+            
             <tr>
-            <td><div style="min-width:400px;height:<?php echo $height; ?>px;width:<?php echo $width; ?>px;"><img onmousedown="return false" oncontextmenu="return false;" src="',$imagesource[$iii],'" height=',$height,' width=',$width,' /></div></td>
-            <td>Medium ',$photogemail,'</td>
-            <td>',$imagecartid,'</td>
-            <td>',$stripepubkey,'</td>
-            <td>',$stripekey,'</td>
-             <td>Royalty Free</td>
-            <td>$',$imageprice[$iii],'</td>
+            <td><div style="min-width:400px;height:<?php echo $height; ?>px;width:<?php echo $width; ?>px;"><img onmousedown="return false" oncontextmenu="return false;" src="',$imagesource[$iii],'" height=',$height,' width=',$width,' /><br /><br />
+           <!-- <div style="text-align:left;"><a style="color:#aaa;font-size:12px;" href="download2.php?imageid=',$imagecartid,'&action=removed">Remove from cart</a></div>--></div>
+            </td>
+            <td style="width:140px;">',$imagesize,'</td>
+            <td style="width:140px;">',$imagelicenses,'</td>
+            <td style="width:140px;">$',$imageprice[$iii],'</td>
             </tr>
-            <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            </tr>
+
             </tbody>
             </table>
             </a>
@@ -274,7 +341,7 @@ $stripekey = mysql_result($striperesult, 0, 'token');
 
         }
         
-        //check if image already in db
+        /*check if image already in db
         $found = strpos($cartidlist, $imageid);
         
         if($imageid && $found === false) {
@@ -310,26 +377,49 @@ $stripekey = mysql_result($striperesult, 0, 'token');
             </tbody>
             </table>
             </a>
-            </div>
-            
-            <div><a class="btn btn-success" href="',$_SERVER['HTTP_REFERER'],'">Continue Shopping</a>
             </div>';
-        }
+        } 
+           */
         
-        echo'
+    
+ //TOTAL CHARGES           
+    if($incartresults > 0) {
+    
+         echo'
+        <div><a class="btn btn-success" style="margin-left:30px;" href="',$_SERVER['HTTP_REFERER'],'">Continue Shopping</a>
+        </div>';
+        
+            echo'<div class="grid_18"><a name="added" style="color:black;text-decoration:none;" href="#"><div style="padding:15px;padding-right:200px;background-color:#ddd;width:130px;margin-left:25px;margin-top:50px;"><span style="font-size:22px;font-weight:200;">Payment</span></div></a>
+        
+        <div class="span12">
+        <table class="table">
+            <thead>
+            <tr>
+            <th># Photos</th>
+            <th>Total Price</th>
+            </thead>
+            
+            <tbody>
+        
+            <tr>
+            <td style="width:760px;">',$incartresults,'</td>
+            <td>$',$totalcharge,'</td>
+            </tr>
+        
+            </tbody>
+            </table>
+        </div>
+        
+        </div><br />';
+        
+    }
 
-<div class="container_24" style="padding-top:80px;"> <!--container begin-->
-<div class="grid_21 push_1 download1">
-<div style="font-size:22px;text-align:center;">Download a watermark-free, high resolution copy below:</div>
-<br />
-<div class="grid_8">
-<div class="grid_8 form">
- <div class="grid_8 title">
-  <h1 class="titleh" style="text-shadow: 0.05em 0.05em 0.05em #665"> Secure payment with Stripe </h1>
- <div class="grid_7" style="margin-left:5px;background-color:rgb(243,245,246);padding:10px;border-radius:10px;">
+if($totalcharge > 0) {
 
-        <!-- to display errors returned by createToken -->
-        <span class="payment-errors" style="font-weight:bold;font-size:15px;"></span>
+echo'
+    
+    <!-- to display errors returned by createToken -->
+    <span class="payment-errors" style="font-weight:bold;font-size:15px;"></span>
 
     <form action="',htmlentities($_SERVER['PHP_SELF']),'?charge=1" method="POST" id="payment-form">
     <div class="form-row" style="margin-left:25px;">
@@ -342,121 +432,100 @@ $stripekey = mysql_result($striperesult, 0, 'token');
 <input type="hidden" name="imageID" value="',$imageID,'">
 <input type="hidden" name="customeremail" value="',$customeremail,'">
 
+ <div class="grid_20" style="margin-top:35px;">
+         <label class="creditcards" style="float:left;font-size:16px;">We accept:&nbsp;&nbsp;<img src="card.jpg" style="width:215px;height:25px;margin-top:0px;border-radius:2px;"/> </label> <br /><br /><br />
+         <label style="float:left;font-size:16px;" class="creditcards">Card Number:&nbsp;&nbsp;</label>
+         <input style="float:left;font-size:15px;padding:6px;position:relative;top:-7px;width:170px;" type="text" size="20" autocomplete="off" class="card-number" style;"/>
+            
+                <label style="float:left;padding-left:10px;font-size:16px;" class="creditcards">CVC <span style="font-size:15px;">(Verification #):</span>&nbsp;&nbsp;</label>
+                <input style="float:left;font-size:16px;padding:6px;position:relative;top:-7px;width:40px;" type="text" size="4" autocomplete="off" class="card-cvc"/>
+                
+                <label style="float:left;padding-left:10px;font-size:16px;" class="creditcards" >Expiration: <span style="font-size:15px;"></span>&nbsp;&nbsp;</label>
+                <input type="text" style="float:left;width:50px;padding:6px;position:relative;top:-7px;width:30px;font-size:16px;" class="card-expiry-month"/>
+                <span style="float:left;font-size:30px;font-weight:100;margin-top:-10px;">&nbsp;/&nbsp;</span>
+                <input style="float:left;padding:6px;position:relative;top:-7px;width:60px;font-size:16px;" type="text" class="card-expiry-year"/><br /><br /><br />
+               
+   <button type="submit" class="button submit btn btn-success" style="font-size:16px;float:left;margin-top:5px;padding-top:10px;padding-bottom:10px;padding-right:40px;padding-left:40px;font-weight:200;">Submit Payment</button>
+   </form>
+   <br /><br /><br /><div></div>
+        </div>'; 
+}
 
-                <label class="creditcards" style="margin-bottom:10px;">Card Number. We accept:<img src="card.jpg" style="width:215px;height:25px;margin-top:4px;border-radius:2px;"/> </label> 
-                <input type="text" size="20" autocomplete="off" class="card-number" style;"/>
-            </div>
-            <div class="form-row" style="margin-left:25px;">
-                <label class="creditcards">CVC (Verification #)</label>
-                <input type="text" size="4" autocomplete="off" class="card-cvc"/>
-            </div>
-            <div class="form-row" style="margin-left:25px;">
-                <label class="creditcards" >Expiration (MM/YYYY)</label>
-                <input type="text" style="width:50px" size="2" class="card-expiry-month"/>
-                <span style="font-size: 22px"> / </span>
-                <input type="text" style="width:100px" size="4" class="card-expiry-year"/>
-           <div class="">  <h1 class="creditcards1"> Your information is passed through Stripe\'s secure API. We never see it. </h1>   
-           
+
+elseif($totalcharge == 0 && $incartresults > 0) {
+         
+         echo'
+            <form name="download_form" method="post" action="myprofile.php?view=store&option=cart&action=download">';
+          
+            foreach($sourcelist as $value) {
+                echo '<input type="hidden" name="downloadedimages[]" value="'. $value. '">';
+            }
+            
+            foreach($idlist as $value) {
+                echo '<input type="hidden" name="imagesid[]" value="'. $value. '">';
+            }
+            
+            echo'
+            <button type="submit" name="submit" value="download" class="button submit btn btn-success"  style="font-size:16px;font-weight:200;width:295px;height:40px;">Download Free</button>
+            </form>';
+         
+    }
     
-    <a href="#" id="learnit" rel="popover" data-content="All payment information is sent directly through Stripe\'s secure API and never touches our servers. Your information is never collected and is securely processed with Stripe. Visit Stripe\'s website to learn more." data-original-title="Secure Payments With Stripe">Learn More</a> 
-    </div>     
-    </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>  
-    <script src="bootstrap.js" type="text/javascript"></script>
+if($incartresults == 0) {
 
-  
-    <script>  
-    $(function ()  
-    { $("#learnit").popover();  
-    });  
-    </script>
-    
-</div>
-</div>
-</div>
+    echo'<div style="margin-left:380px;font-size:25px;margin-top:180px;font-family:helvetica neue,helvetica,arial;font-weight:200;">Your cart is empty</div>';
 
-   <button type="submit" class="button submit btn btn-success" style="font-size:16px;margin-left:45px;margin-top:22px;padding-top:15px;padding-bottom:15px;padding-right:55px;padding-left:55px;">Submit Payment</button>
-  </div> 
-          </form>
-</div>
-</div>';
+}
 
-        
-        
-        
-        
+                        
  } //end if logged in
- 
-
 
 
 if($_GET['charge'] == 1){
 
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
+$totalcharge = ($totalcharge * 100);
 
 //Stripe::setPubKey($stripepubkey);
 
 Stripe::setApiKey('jpdzMPMCFihJ43mXpa5I89wrtHDDxtlE');
 
-//for($iii=0; $iii < 3; $iii++) {
-
 $token = $_POST['stripeToken'];
 //Stripe::setApiKey($stripekey);
-$newprice = 20000;
-$photorankrfee = $newprice*.3;
+//$newprice = 20000;
+//$photorankrfee = $newprice*.3;
 
 // create the charge on Stripe's servers - this will charge the user's card
   $charge = Stripe_Charge::create(array(
-    "amount" => $newprice, // amount in cents, again
+    "amount" => $totalcharge, // amount in cents, again
    "currency" => "usd",
   "card" => $token
    )
   );
 
-
-
-//}
 for($iii=0; $iii < $incartresults; $iii++) {
 $imagesource = mysql_result($incart,$iii,'source');
 $imageprice = mysql_result($incart,$iii,'price');
 $imagecartid = mysql_result($incart,$iii,'imageid');
+$imagewidth = mysql_result($incart,$iii,'width');
+$imageheight = mysql_result($incart,$iii,'height');
 $emailquery = mysql_query("SELECT emailaddress FROM photos WHERE id = '$imagecartid'");
-    $photogemail = mysql_result($emailquery,0,'emailaddress');
-$stickintouserdownloads = mysql_query("INSERT INTO buyerdownloads (emailaddress,imageid,source) VALUES ('$repemail','$imagecartid','$imagesource')");
+
+$photogemail = mysql_result($emailquery,0,'emailaddress');
+$stickintouserdownloads = mysql_query("INSERT INTO buyerdownloads (emailaddress,imageid,source,width,height) VALUES ('$repemail','$imagecartid','$imagesource','$imagewidth','$imageheight')");
  $deletephotofromcart = mysql_query("DELETE FROM cart WHERE emailaddress = '$repemail' AND imageid = '$imagecartid'");
-
-
-
-
     }           
-
-//    header('Location: http://www.photorankr.com/myprofile.php');
-
-    echo "Purchase Successful";
-     
-                        //Tell them download was successful
-           }           
+ 
+header('Location: account.php?view=downloads');
+           
+    }           
 
 
 ?>
 
 
 </div>
-
-
 </div>
+
+
 </body>
 </html>

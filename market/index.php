@@ -506,7 +506,19 @@ $lowerdown = htmlentities($_GET['dc']);
 $higherdown = htmlentities($_GET['dc2']);
 
     if($resolution || $orientation || $license || $keyword || $cat || $higherprice || $lowerrep || $higherrep || $lowerdown || $higherdown && !$category) {
+                
+                  $searchterm = htmlentities($_GET['searchterm']);
+                  echo $searchterm;
+                if($searchterm) {
+$query ="SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE concat(caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) LIKE '%$searchterm%' AND price != ('Not For Sale') ORDER BY (views) DESC LIMIT 0,60 AND";
+
+                }
+
+                else{
                 $query = "SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE";
+}
+
+
 
                 if(!empty($cat)) {
                 $query .= " singlecategorytags LIKE '%$cat%'";
@@ -542,7 +554,7 @@ $higherdown = htmlentities($_GET['dc2']);
                 if(!empty($lowerrep)) {
                 $query .= " AND userinfo.reputation > $lowerrep";
                 }
-                                
+      
                 if(!empty($keyword)) {
                 $query .= " AND concat(caption,tag1,tag2,tag3,tag4,singlestyletags,singlecategorytags) LIKE '%$keyword%'";
                 }
@@ -583,7 +595,9 @@ $higherdown = htmlentities($_GET['dc2']);
                         $query .= " ORDER BY (points/votes) ASC";
                     }
                 }
-                                
+                            
+                            echo $query;
+                            echo $searchterm;
                 $query = mysql_query($query);
                                         
                 $numresults = mysql_num_rows($query);

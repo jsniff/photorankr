@@ -52,7 +52,7 @@ $numberofpics=mysql_num_rows($result);
 </head>
 <body>
 
-<?php navbartest(); ?>
+<?php navbarnots(); ?>
 
  <!--big container-->
     <div id="container" class="container_24" >

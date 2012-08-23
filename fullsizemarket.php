@@ -177,8 +177,16 @@ else {
      <style type="text/css">
             .show { display: block;  }
             .hide { display: none; }
-            .click { }
-            .clicked {background-color:black;}
+            .click { cursor:pointer; }
+            .clicked {background-color:#ddd;color:#000;cursor:pointer;}
+            #row { cursor:pointer; }
+            #row2 { cursor:pointer; }
+            #row3 { cursor:pointer; }
+            #row4 { cursor:pointer; }
+            #row5 { cursor:pointer; }
+            #row6 { cursor:pointer; }
+            #row7 { cursor:pointer; }
+            
             .rollover {border:1px solid transparent;}
             .rollover:hover {border:1px solid black;}
         </style>
@@ -206,19 +214,19 @@ else {
 
 
 <!--MAYBE LATER MODAL-->
-<div class="modal hide fade" id="maybemodal" style="overflow:hidden;">
+<div class="modal hide fade" id="maybemodal" style="overflow:hidden;border:5px solid rgba(102,102,102,.8);">
       
 <?php
 if($_SESSION['loggedin'] != 1) {
 
 echo'
-<div class="modal-header">
-<a style="float:right" class="btn btn-primary" data-dismiss="modal" >Close</a>
-<img style="margin-top:-4px;float:left;" src="graphics/blacklogo.png" width="180" />
+<div class="modal-header" style="background-color:#111;color:#fff;">
+<a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Please login to save this photo</span>
   </div>
   <div modal-body" style="width:600px;">
 
-<div id="content" style="font-size:16px;width:500px;">
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(245,245,245);">
 		
 <img style="border: 1px solid black;margin-left:10px;margin-top:5px;" src="',$imagebig2,'" 
 height="100px" width="100px" /> 
@@ -226,7 +234,7 @@ height="100px" width="100px" />
 <div style="width:500px;margin-left:130px;margin-top:-70px;">
 "',$title,'"<br />                 
 
-Please Login to Save this Photo.<br /><br /><br />
+<br /><br /><br />
 
 </div>
 </div>';
@@ -251,13 +259,13 @@ Please Login to Save this Photo.<br /><br /><br />
         if ($match > 0) {
 			
             echo'
-                <div class="modal-header">
-                <a style="float:right" class="btn btn-primary" data-dismiss="modal">Close</a>
-                <img style="margin-top:-4px;" src="graphics/blacklogo.png" width="150" />&nbsp;&nbsp;<span style="font-size:16px;">You already saved this photo</span>
+                <div class="modal-header" style="background-color:#111;color:#fff;">
+<a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">&nbsp;&nbsp;<span style="font-size:16px;">You already saved this photo</span>
                 </div>
                 <div modal-body" style="width:600px;">
 
-                <div id="content" style="font-size:16px;width:500px;">
+                <div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(245,245,245);">
 		
                 <img style="border: 1px solid black;margin-left:10px;margin-top:5px;" src="',$imagebig2,'" 
 height="100px" width="100px" />
@@ -274,21 +282,19 @@ height="100px" width="100px" />
         else {
             
 			echo'
-                <div class="modal-header">
-                <a style="float:right" class="btn btn-primary" href="fullsizemarket.php?imageid=',$imageid,'&ml=saved">Close</a>
-                <img style="margin-top:-4px;" src="graphics/blacklogo.png" width="150" /></div>
+                <div class="modal-header" style="background-color:#111;color:#fff;">
+<a style="float:right" class="btn btn-success" href="fullsizemarket.php?imageid=',$imageid,'&ml=saved">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Photo saved in your profile</span></div>
                 
                 <div modal-body" style="width:700px;">
 
-                <div id="content" style="font-size:16px;width:500px;">
+                <div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(245,245,245);">
 		
                 <img style="border: 1px solid black;margin-left:10px;margin-top:20px;" src="',$imagebig2,'" 
 height="100px" width="100px" />
 
                 <div style="width:500px;margin-left:130px;margin-top:-70px;">
-                "',$caption,'"<br />                 
-
-                Photo saved. 
+                "',$caption,'"<br />                
 
                <br /><br /><br />
 
@@ -337,22 +343,33 @@ $camptitle = mysql_result($campaigntitlequery,0,'title');
 <?php
 $smallwidth = number_format(($originalwidth/2.5),0,',','');
 $smallheight = number_format(($originalheight/2.5),0,',','');
-$smallprice = number_format(($price / 2.5),0,',','');
+$smallprice = number_format(($price / 2.5),2);
 $medwidth = number_format(($originalwidth/1.3),0,',','');
 $medheight = number_format(($originalheight/1.3),0,',','');
-$medprice = number_format(($price / 1.5),0,',','');
+$medprice = number_format(($price / 1.5),2);
 ?>
 
 
-        <script type="text/javascript">
+      <script type="text/javascript">
 
-var rowcount = 1;
-var rowcount2= 1;
-var rowcount3 = 1;
+        var rowcount = 1;
+        var rowcount2= 1;
+        var rowcount3 = 1;
+        var rowcount4 = 1;
+        var rowcount5 = 1;
+        var rowcount6 = 1;
+        var rowcount7 = 1;
+
+
             function showClicked() {
                 var select = document.getElementById('row');
                 select.className = 'clicked';
                 rowcount++;
+                document.getElementById('size').value = 'Small';
+                document.getElementById('width').value = '<?php echo $smallwidth; ?>';
+                document.getElementById('height').value = '<?php echo $smallheight; ?>';
+                document.getElementById('price').value = '<?php echo $smallprice; ?>';
+
                 if(rowcount>2){
                     select.className = 'unclicked';
                     rowcount=rowcount-2;
@@ -360,16 +377,23 @@ var rowcount3 = 1;
                 if(rowcount2>1){
             var select = document.getElementById('row2');
                select.className = 'unclicked';
+               rowcount2=rowcount2-1;
                 }
                 if(rowcount3>1){
             var select = document.getElementById('row3');
                select.className = 'unclicked';
+               rowcount3=rowcount3-1;
                 }
 
             }
                 function showClicked2() {
                 var select = document.getElementById('row2');
                 select.className = 'clicked';
+                document.getElementById('size').value = 'Medium';
+                document.getElementById('width').value = '<?php echo $medwidth; ?>';
+                document.getElementById('height').value = '<?php echo $medheight; ?>';
+                document.getElementById('price').value = '<?php echo $medprice; ?>';
+                
                    rowcount2++;
                 if(rowcount2>2){
                     select.className = 'unclicked';
@@ -378,34 +402,101 @@ var rowcount3 = 1;
                  if(rowcount>1){
             var select = document.getElementById('row');
                select.className = 'unclicked';
+               rowcount = rowcount-1;
                 }
                 if(rowcount3>1){
             var select = document.getElementById('row3');
                select.className = 'unclicked';
+               rowcount3-1;
                 }
             }
-                function showClicked3() { 
-                var select = document.getElementById('row3');
+               
+  function showClicked3() { 
+               
+                    var select = document.getElementById('row3');
+                    select.className = 'clicked';
+                    var selectedphoto = 'large';
+                    document.getElementById('size').value = 'Large';
+                document.getElementById('width').value = '<?php echo $originalwidth; ?>';
+                document.getElementById('height').value = '<?php echo $originalheight; ?>';
+                document.getElementById('price').value = '<?php echo $price; ?>';
+                    
+                    rowcount3++;
+                
+                    if(rowcount3>2){
+                        select.className = 'unclicked';
+                        rowcount3=rowcount3-2;
+                    }
+                    
+                    if(rowcount>1){
+                        var select = document.getElementById('row');
+                        select.className = 'unclicked';
+                        rowcount=rowcount-1;
+                    }
+                    
+                    if(rowcount2>1){
+                        var select = document.getElementById('row2');
+                        select.className = 'unclicked';
+                        rowcount2=rowcount2-1;
+                    }
+                }
+                
+            
+             function showClicked4() { 
+                var select = document.getElementById('row4');
                 select.className = 'clicked';
-                rowcount3++;
-                if(rowcount3>2){
+                rowcount4++;
+                document.getElementById('multiseat').value = 'checked';
+                
+                if(rowcount4>2){
                     select.className = 'unclicked';
-                    rowcount3=rowcount3-2;
-                }
-                 if(rowcount>1){
-            var select = document.getElementById('row');
-               select.className = 'unclicked';
-                }
-                 if(rowcount2>1){
-            var select = document.getElementById('row2');
-               select.className = 'unclicked';
+                    rowcount4=rowcount4-2;
                 }
             }
 
 
+                  function showClicked5() { 
+                    var select = document.getElementById('row5');
+                    select.className = 'clicked';
+                    rowcount5++;
+                    document.getElementById('unlimited').value = 'checked';
+
+
+                if(rowcount5>2){
+                    select.className = 'unclicked';
+                    rowcount5=rowcount5-2;
+                }
+            }
+
+                  function showClicked6() { 
+                var select = document.getElementById('row6');
+                select.className = 'clicked';
+                rowcount6++;
+                document.getElementById('resale').value = 'checked';
+
+                if(rowcount6>2){
+                    select.className = 'unclicked';
+                    rowcount6=rowcount6-2;
+                }
+            }
+
+
+                  function showClicked7() { 
+                var select = document.getElementById('row7');
+                select.className = 'clicked';
+                rowcount7++;
+                document.getElementById('electronic').value = 'checked';
+
+                if(rowcount7>2){
+                    select.className = 'unclicked';
+                    rowcount7=rowcount7-2;
+                }
+            }
+            
 
         </script>
-
+        
+        
 <div class="grid_4 push_4" style="margin-top:20px;">
 <div class="span6">
 <table class="table">
@@ -418,27 +509,62 @@ var rowcount3 = 1;
 </thead>
 <tbody>
 
-<!--<tr id="row" onclick="showClicked();">
+<form action="myprofile.php?view=store&option=cart" method="POST" />
+
+<tr id="row" onclick="showClicked();" style="color:black;">
 <td>Small</td>
 <td><?php echo $smallwidth; ?> X <?php echo $smallheight; ?></td>
-<td>$<?php echo $smallprice; ?></td>
+<td>
+
+<?php
+if($smallprice > 0) {
+echo'$ ',$smallprice,'';
+}
+else {
+echo'Free';
+}
+?>
+
+</td>
 </tr>
 
-<tr id="row2" onclick="showClicked2();">  
+<tr id="row2" onclick="showClicked2();" style="color:black;">  
 <td>Medium</td>
 <td><?php echo $medwidth; ?> X <?php echo $medheight; ?></td>
-<td>$<?php echo $medprice; ?></td>
-</tr>-->
+<td>
 
-<tr id="row3" onclick="showClicked3();">
-<td>X Large</td>
+<?php
+if($medprice > 0) {
+echo'$ ',$medprice,'';
+}
+else {
+echo'Free';
+}
+?>
+
+</td>
+</tr>
+
+<tr id="row3" onclick="showClicked3();" style="color:black;">
+<td>Large</td>
 <td><?php echo $originalwidth; ?> X <?php echo $originalheight; ?></td>
-<td>$<?php echo $price; ?></td>
+<td>
+
+<?php
+if($price > 0) {
+echo'$ ',$price,'';
+}
+else {
+echo'Free';
+}
+?>
+
+</td>
 </tr>
 
 <tr>
 <td>License</td>
-<td colspan="2"><input style="margin-left:130px;"  type="radio" name="license" value="standard"  onclick="showSelectHide();" /><a style="color:black;text-decoration:none;" href="#" id="licensepopover" rel="popover" data-content="
+<td colspan="2"><input style="margin-left:130px;"  type="radio" name="license" value="standard"  onclick="showSelectHide();" /><a style="color:black;text-decoration:none;" href="#"  rel="popover" data-content="
 
 <span style='font-size:13px;'>A perpetual, non-exclusive, non-transferable, worldwide license to use the Content for the following permitted uses:
 </br><ul>
@@ -487,27 +613,28 @@ The Standard Content License Agreement governs this option.
             }
         </script>
 
+
+
 <div id="table" class="hide">
 <table class="table">
 <tbody>
-<tr>
-
-<td><a style="color:black;text-decoration:none;" href="#" id="multiseatpopover" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to extend usage of the Content to more than one person within your organization, provided that all users are either employees or agree to be bound by the Extended Content License Provisions.
+<tr id="row4" onclick="showClicked4();" style="color:black;">
+<td><a style="color:black;text-decoration:none;" href="#" id="multiseat" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to extend usage of the Content to more than one person within your organization, provided that all users are either employees or agree to be bound by the Extended Content License Provisions.
 </br></br></span>
 
 " data-original-title="Multi-Seat - Unlimited">Multi-Seat - Unlimited</a>
 
 <script>  
     $(function ()  
-    { $("#multiseatpopover").popover();  
-    });  
+    { $("#multiseat").popover();  
+});
 </script>
 
 </td>
 <td colspan="2">+ $20</td>
 </tr>
-<tr>
-<td><a style="color:black;text-decoration:none;" href="#" id="unlimitprintpopover" rel="popover" data-content="<span style='font-size:13px;'>This Extended License Provision removes the 500,000 limit on reproductions and allows for unlimited reproductions.</br></br>The Extended Content License Provisions govern this option.</br></br></span>
+<tr id="row5" onclick="showClicked5();" style="color:black;">
+<td><a style="color:black;text-decoration:none;" href="#" rel="popover" data-content="<span style='font-size:13px;'>This Extended License Provision removes the 500,000 limit on reproductions and allows for unlimited reproductions.</br></br>The Extended Content License Provisions govern this option.</br></br></span>
 
 " data-original-title="Unlimited Reproduction / Print Runs">Unlimited Reproduction / Print Runs</a>
 
@@ -520,8 +647,8 @@ The Standard Content License Agreement governs this option.
 </td>
 <td colspan="2">+ $35</td>
 </tr>
-<tr>
-<td><a style="color:black;text-decoration:none;" href="#" id="resalepopover" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to produce the following items for resale, license, or other distribution:</br>
+<tr id="row6" onclick="showClicked6();" style="color:black;">
+<td><a style="color:black;text-decoration:none;" href="#" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to produce the following items for resale, license, or other distribution:</br>
 <ul>
 <li>Up to 100,000 cards, stationery items, stickers, or paper products</li>
 <li>Up to 10,000 posters, calendars, mugs, or mousepads</li>
@@ -542,8 +669,8 @@ The Extended Content License Provisions govern this option.
 </td>
 <td colspan="2">+ $35</td>
 </tr>
-<tr>
-<td><a style="color:black;text-decoration:none;" href="#" id="electronicresalepopover" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to produce the following items for resale, license, or other distribution:</br>
+<tr id="row7" onclick="showClicked7();" style="color:black;">
+<td><a style="color:black;text-decoration:none;" href="#" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to produce the following items for resale, license, or other distribution:</br>
 <ul>
 <li>Electronic templates for e-greeting or similar cards</li>
 <li>Electronic templates for web or applications development</li>
@@ -575,9 +702,26 @@ The Extended Content License Provisions govern this option.
 <tr>
 </tbody>
 </table>
+
 </div>
 
 <div>
+
+<!--HIDDEN INPUT FIELDS-->
+<input type="hidden" id="size" name="size" value="" />
+<input type="hidden" id="width" name="width" value="" />
+<input type="hidden" id="height" name="height" value="" />
+<input type="hidden" id="price" name="price" value="" />
+<input type="hidden" id="imageid" name="imageid" value="<?php echo $imageid; ?>" />
+<input type="hidden" id="originalprice" name="originalprice" value="<?php echo $price; ?>" />
+<input type="hidden" id="originalwidth" name="originalwidth" value="<?php echo $originalwidth; ?>" />
+<input type="hidden" id="originalheight" name="originalheight" value="<?php echo $originalheight; ?>" />
+
+
+<input type="hidden" id="multiseat" name="multiseat" value="" />
+<input type="hidden" id="unlimited" name="unlimited" value="" />
+<input type="hidden" id="resale" name="resale" value="" />
+<input type="hidden" id="electronic" name="electronic" value="" />
 
 
 <?php
@@ -615,56 +759,68 @@ The Extended Content License Provisions govern this option.
 		$regex2="/$imageid/";
 		$cartmatch=preg_match($regex2,$search_string2);
         
-        if($rowcount==2) {
-            $selectedpricephoto = $smallprice;
-
-        }
-
-        if($rowcount==2) {
-            $selectedpricephoto = $medprice;
-
-        }
-
-        if($rowcount==2) {
-            $selectedpricephoto = $price;
-
-        }
-
-
-
+     
+        
 
         if($cartmatch > 0) {
-        echo'<a class="btn btn-danger" style="margin-left:10px;width:120px;float:left;" href="fullsizemarket.php?imageid=',$imageid,'&action=removed">Remove from Cart</a>';
+        echo'<a class="btn btn-danger" style="margin-left:10px;width:120px;float:left;" href="fullsize2.php?imageid=',$imageid,'&action=removed">Remove from Cart</a>';
         }
         else {
-        echo'<a class="btn btn-success" style="margin-left:10px;width:80px;float:left;" href="myprofile.php?view=store&option=cart&size=xl&imageid=',$imageid,'#added">Add to Cart</a>';
-                }
+            echo'<button type="submit" class="btn btn-success" style="margin-left:10px;width:100px;float:left;" href="download2.php?imageid=',$imageid,'&action=added">Add to Cart</button>
+            </form>';		
+}
 
 ?>
-
-
 </div>
+
 
 <div class="span6" style="margin-left:0px;margin-top:10px;">
-<b>Photo Details</b><br /><hr />
+
+<b>Photo Market Details</b><br /><hr />
 <div><span style="float:left;">Photographer:</span><a style="font-weight:bold;color:#3e608c;" href="viewprofile.php?u=<?php echo $userid; ?>"><img style="float:left;margin-top:-10px;margin-left:5px;border: 1px solid rgb(115,115,115);" src="<?php echo $profilepic; ?>" alt="<?php echo $fullname; ?>" height="30" width="30" /><span style="padding-left:5px;"><?php echo $fullname; ?></span></a></div>
-<div style="margin-top:20px;">Photo Rank: <?php echo $ranking; ?>
 <br />
+
 <?php 
-if($location) {echo'
-Location: ',$location,'<br />'; }
-if($about) {echo'
-About Photo: ',$about,'<br />'; }
-if($exhibit) {
-$exname = mysql_query("SELECT * FROM sets WHERE id = '$exhibit'");
-$exhibitname = mysql_result($exname,0,'title');
-echo'
-Exhibit: <a href="viewprofile.php?u=',$userid,'&view=exhibits&set=',$exhibit,'">',$exhibitname,'</a><br />'; }
+
+    if($location) {echo'
+        Location: ',$location,'<br />'; }
+
+    if($about) {echo'
+        About Photo: ',$about,'<br />'; }
+
+    if($exhibit) {
+        $exname = mysql_query("SELECT * FROM sets WHERE id = '$exhibit'");
+        $exhibitname = mysql_result($exname,0,'title');
+        echo'
+        Exhibit: <a href="viewprofile.php?u=',$userid,'&view=exhibits&set=',$exhibit,'">',$exhibitname,'</a><br />'; }
+
 if($keywords) {echo'
-Keywords: ',$keywords,'<br />'; }
- ?>
+        Keywords: ',$keywords,'<br />'; }
+ 
+?>
+
 </div>
-<br /><br />
+
+
+<div class="span6" style="margin-left:0px;margin-top:25px;">
+
+    <b>Photo Network Details</b><br /><hr />
+
+    <div style="margin-top:-10px;">Photo Rank: <?php echo $ranking; ?>
+    <br />
+
+    Views: <?php echo $views; ?>
+    <br />
+
+    Favorites: <?php echo $faves; ?>
+    <br />
+    
+    <a href="fullsize.php?image=<?php echo $image; ?>">View Photo in Network</a>
+
+</div>
+
+
+<br />
 </div>
 </div>
 

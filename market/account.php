@@ -427,7 +427,7 @@ Portfolio Average: ',$portfolioranking,' <br /><br /><br /><br />
 <div class="roundedall" style="float:left;overflow:hidden;margin-left:15px;margin-top:15px;">
 <img src="<?php echo $logo; ?>" height="120" width="120"/>
 </div>
-<a data-toggle="modal" href="#fwmodal" data-backdrop="static" class="btn btn-success" style="float:left;width:70px;margin-top:40px;margin-left:10px;font-size:14px;font-weight:150;">Support</a>
+
 </div>
 
 <div style="width:250px;margin-top:0px;">
@@ -456,22 +456,22 @@ Portfolio Average: ',$portfolioranking,' <br /><br /><br /><br />
 <div style="position:relative;top:-30px;">
 <hr style="font-size:50px;">
 <a style="text-decoration:none;color:black;font-weight:100;" href="account.php?view=saved"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
-<span class="green" style="text-align:center;font-size:24px;padding-left:15px;<?php if($view == 'saved') {echo'color:#6aae45;';} ?>">Saved Photos&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
+<span class="green" style="text-align:center;font-size:23px;padding-left:15px;<?php if($view == 'saved') {echo'color:#6aae45;';} ?>">Saved Photos&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
 </div></a>
 
 <hr>
 <a style="text-decoration:none;color:black;font-weight:100;" href="account.php?view=downloads"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
-<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'downloads') {echo'color:#6aae45;';} ?>">Downloads&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
+<span class="green" style="text-align:center;font-size:23px;padding:15px;<?php if($view == 'downloads') {echo'color:#6aae45;';} ?>">Downloads&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
 </div></a>
 
 <hr>
 <a style="text-decoration:none;color:black;font-weight:100;" href="account.php?view=photogs"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
-<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'photogs') {echo'color:#6aae45;';} ?>">Photographers&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
+<span class="green" style="text-align:center;font-size:23px;padding:15px;<?php if($view == 'photogs') {echo'color:#6aae45;';} ?>">My Photographers&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
 </div></a>
 
 <hr>
 <a style="text-decoration:none;color:black;font-weight:100;" href="account.php?view=account"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
-<span class="green" style="text-align:center;font-size:24px;padding:15px;<?php if($view == 'account') {echo'color:#6aae45;';} ?>">Edit Account&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
+<span class="green" style="text-align:center;font-size:23px;padding:15px;<?php if($view == 'account') {echo'color:#6aae45;';} ?>">Edit Account&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/info.png" height="30" width="30"></span>
 </div></a>
 
 </div>
@@ -480,13 +480,13 @@ Portfolio Average: ',$portfolioranking,' <br /><br /><br /><br />
 
 <div class="grid_18 roundedright" style="background-color:#eeeff3;height:60px;margin-top:80px;width:800px;margin-left:-45px;">
 
-<a style="text-decoration:none;color:black;" href="account.php"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;float:left;<?php if($view == '') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:25px;font-weight:100;margin-top:10px;text-align:center;">My Cart</div></div></a>
+<a style="text-decoration:none;color:black;" href="account.php"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;float:left;<?php if($view == '') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:23px;font-weight:100;margin-top:10px;text-align:center;">My Cart</div></div></a>
 
-<a style="text-decoration:none;color:black;" href="account.php?view=mycampaigns"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;<?php if($view == 'mycampaigns') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:25px;font-weight:100;margin-top:10px;text-align:center;">My Campaigns</div></div></a>
+<a style="text-decoration:none;color:black;" href="account.php?view=mycampaigns"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;<?php if($view == 'mycampaigns') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:23px;font-weight:100;margin-top:10px;text-align:center;">My Campaigns</div></div></a>
 
-<a style="text-decoration:none;color:black;" href="account.php?view=prefs"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;float:left;<?php if($view == 'prefs') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:25px;font-weight:100;margin-top:10px;text-align:center;">My Preferences</div></div></a>
+<a style="text-decoration:none;color:black;" href="account.php?view=prefs"><div class="clicked" style="width:180px;height:60px;border-right:1px solid #ccc;float:left;<?php if($view == 'prefs') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:23px;font-weight:100;margin-top:10px;text-align:center;">My Preferences</div></div></a>
 
-<div style="width:180px;height:60px;float:left;"><div style="font-size:25px;font-weight:100;margin-top:6px;text-align:center;">
+<div style="width:180px;height:60px;float:left;"><div style="font-size:23px;font-weight:100;margin-top:6px;text-align:center;">
 <form class="navbar-search" method="GET">
 <input class="search" style="position:relative;margin-left:15px;margin-top:2px;font-family:helvetica;font-size:14px;font-weight:100;color:black;" name="searchterm" placeholder="Search Saved Photos&nbsp;.&nbsp;.&nbsp;.&nbsp;" type="text">
 </form></div></div>
@@ -543,6 +543,12 @@ Portfolio Average: ',$portfolioranking,' <br /><br /><br /><br />
             $imagesource[$iii] = mysql_result($incart,$iii,'source');
             $imageprice[$iii] = mysql_result($incart,$iii,'price');
             $imagecartid = mysql_result($incart,$iii,'imageid');
+            $imagelicenses = mysql_result($incart,$iii,'license');
+            $standard = strpos($imagelicenses,'Standard');
+            if($standard === false) { 
+                $imagelicenses = substr($imagelicenses, 0, -1); 
+            }
+            $imagesize = mysql_result($incart,$iii,'size');
             $totalcartprice = $imagecartid+$totalcartprice;
             $cartidlist = $cartidlist.",".$imagecartid;
             list($width, $height)=getimagesize($imagesource[$iii]);
@@ -557,26 +563,19 @@ Portfolio Average: ',$portfolioranking,' <br /><br /><br /><br />
             <tr>
             <th>Photo</th>
             <th>Size</th>
-            <th>Image ID</th>
-            <th>License</th>
+            <th>License(s)</th>
             <th>Price</th>  
             </tr>
             </thead>
             <tbody>
+            
             <tr>
             <td><div style="min-width:400px;height:<?php echo $height; ?>px;width:<?php echo $width; ?>px;"><img onmousedown="return false" oncontextmenu="return false;" src="',$imagesource[$iii],'" height=',$height,' width=',$width,' /></div></td>
-            <td>Medium</td>
-            <td>',$imagecartid,'</td>
-            <td>Royalty Free</td>
-            <td>$',$imageprice[$iii],'</td>
+            <td style="width:140px;">',$imagesize,'</td>
+            <td style="width:140px;">',$imagelicenses,'</td>
+            <td style="width:140px;">$',$imageprice[$iii],'</td>
             </tr>
-            <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            </tr>
+            
             </tbody>
             </table>
             </a>
@@ -633,23 +632,24 @@ Portfolio Average: ',$portfolioranking,' <br /><br /><br /><br />
         
         <!--STRIPE PAYMENT FORM-->
     
-        <div class="grid_18" style="margin-top:35px;">
+<div class="grid_20" style="margin-top:35px;">
          <label class="creditcards" style="float:left;font-size:16px;">We accept:&nbsp;&nbsp;<img src="card.jpg" style="width:215px;height:25px;margin-top:0px;border-radius:2px;"/> </label> <br /><br /><br />
          <label style="float:left;font-size:16px;" class="creditcards">Card Number:&nbsp;&nbsp;</label>
-         <input style="float:left;font-size:15px;padding:6px;position:relative;top:-7px;width:170px;" type="text" size="20" autocomplete="off" class="card-number" style;"/><br /><br /><br />
+         <input style="float:left;font-size:15px;padding:6px;position:relative;top:-7px;width:170px;" type="text" size="20" autocomplete="off" class="card-number" style;"/>
             
-                <label style="float:left;font-size:16px;" class="creditcards">CVC <span style="font-size:15px;">(Verification #):</span>&nbsp;&nbsp;</label>
-                <input style="float:left;font-size:16px;padding:6px;position:relative;top:-7px;width:40px;" type="text" size="4" autocomplete="off" class="card-cvc"/><br /><br /><br />
+                <label style="float:left;padding-left:10px;font-size:16px;" class="creditcards">CVC <span style="font-size:15px;">(Verification #):</span>&nbsp;&nbsp;</label>
+                <input style="float:left;font-size:16px;padding:6px;position:relative;top:-7px;width:40px;" type="text" size="4" autocomplete="off" class="card-cvc"/>
                 
-                <label style="float:left;font-size:16px;" class="creditcards" >Expiration <span style="font-size:15px;">(MM/YYYY):</span>&nbsp;&nbsp;</label>
+                <label style="float:left;padding-left:10px;font-size:16px;" class="creditcards" >Expiration: <span style="font-size:15px;"></span>&nbsp;&nbsp;</label>
                 <input type="text" style="float:left;width:50px;padding:6px;position:relative;top:-7px;width:30px;font-size:16px;" class="card-expiry-month"/>
-                <span style="float:left;font-size:30px;font-weight:100;">&nbsp;/&nbsp;</span>
+                <span style="float:left;font-size:30px;font-weight:100;margin-top:-10px;">&nbsp;/&nbsp;</span>
                 <input style="float:left;padding:6px;position:relative;top:-7px;width:60px;font-size:16px;" type="text" class="card-expiry-year"/><br /><br /><br />
                
    <button type="submit" class="button submit btn btn-success" style="font-size:16px;float:left;margin-top:5px;padding-top:10px;padding-bottom:10px;padding-right:40px;padding-left:40px;font-weight:200;">Submit Payment</button>
+   </form>
    <br /><br /><br /><div></div>
-        </div>';
-        
+        </div>'; 
+
         }
         
         
@@ -810,6 +810,7 @@ elseif($view == 'saved') {
                         $photoid[$iii] = mysql_result($marketquery, $iii, "id");
                         $imageid[$iii] = mysql_result($marketquery, $iii, "imageid");
                         $caption = mysql_result($marketquery, $iii, "caption");
+                        $caption = strlen($caption) > 30 ? substr($caption,0,27). " &#8230;" : $caption;
                         $price = mysql_result($marketquery, $iii, "price");
 
                         list($height,$width) = getimagesize($photo2[$iii]);
@@ -877,7 +878,7 @@ elseif($view == 'downloads') {
 
     for($iii=0;$iii<$numdownloads;$iii++) {
     $downloadsource = mysql_result($downquery,$iii,'source');
-   $photoid = mysql_result($photosresult, $iii, "id");
+    $photoid = mysql_result($photosresult, $iii, "id");
     list($height,$width) = getimagesize($downloadsource);
         $imgratio = $height / $width;
     $widthnew = $width / 2.5;
@@ -885,56 +886,60 @@ elseif($view == 'downloads') {
     
     
             echo'
-             <div class="fPic" id="',$photoid,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="fullsize2.php?imageid=',$photoid,'">
-            <div class="statoverlay" style="z-index:1;left:0px;top:180px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br>
-            <form name="download_form" method="post" action="downloadphoto.php">
+             <div class="fPic" id="',$photoid,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;">
+             
+             <div class="statoverlay" style="z-index:1;left:0px;top:205px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br>
+         
+               <form name="download_form" method="post" action="downloadphoto.php">
                 <input type="hidden" name="image" value="',$downloadsource,'">
-                <button type="submit" name="submit" value="download" class="btn btn-warning" style="margin-top:-45px;opacity:1;margin-left:12px;width:220px;height:35px;font-size:18px;">Download Photo</button>
+                echo $downloadsource;
+                <button type="submit" name="submit" value="download" class="btn btn-primary" style="margin-top:-61px;opacity:1;float:right;margin-right:5px;">Download Photo</button>
             </form>
-            </div>
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$downloadsource,'" height="',$heightnew,'px" width="',$widthnew,'px" /></a></div>';
+           
+             </div>
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$downloadsource,'" height="',$heightnew,'px" width="',$widthnew,'px" /></div>';
                 
         }//end for loop
 
 
-    
-           
-
-
-    
 //Also Output the Users's Downloaded Files
 
-    $downbuyerquery = mysql_query("SELECT source FROM buyerdownloads WHERE emailaddress = '$repemail' ORDER BY id DESC");
+
+    $downbuyerquery = mysql_query("SELECT source,imageid,width,height FROM buyerdownloads WHERE emailaddress = '$repemail' ORDER BY id DESC");
     $numbuyerdownloads = mysql_num_rows($downbuyerquery);
     $photosresultbuyers = mysql_query($allcampaignsquery);
 
-            
-    for($iii=0;$iii<$numbuyerdownloads;$iii++) {
-    $downloadsource = mysql_result($downbuyerquery,$iii,'source');
-       $photoid = mysql_result($photosresultbuyers, $iii, "id");
-    list($height,$width) = getimagesize($downloadsource);
-    $widthnew = $width / 2.5;
-    $heightnew = $height / 2.5;
-
-
-
-
- echo'
-              <div class="fPic" id="',$photoid,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;">
-            <div class="statoverlay" style="z-index:1;left:0px;top:180px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><br>
-            <form name="download_form" method="post" action="downloadphoto.php">
-                <input type="hidden" name="image" value="',$downloadsource,'">
-                <button type="submit" name="submit" value="download" class="btn btn-warning" style="margin-top:-45px;opacity:1;margin-left:12px;width:220px;height:35px;font-size:18px;">Download Photo</button>
-            </form>
-            </div>
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$downloadsource,'" height="',$widthnew,'px" width="',$heigthnew,'px" /></a></div>';
-
-
-    }
-   
-
+    for($iii = 0;$iii < $numbuyerdownloads; $iii++) {
+        
+        $downloadsource = mysql_result($downbuyerquery,$iii,'source');
+        $newwidth = mysql_result($downbuyerquery,$iii,'width');
+        $newheight = mysql_result($downbuyerquery,$iii,'height');
+        $downloadsourcemed = str_replace("userphotos/bigphotos","userphotos/medthumbs/",$downloadsource);
+        $photoid = mysql_result($downbuyerquery, $iii, "imageid");
+        $findcaption = mysql_query("SELECT caption FROM photos WHERE id = '$photoid'");
+        $caption = mysql_result($findcaption, 0, "caption");
+        $caption = strlen($caption) > 20 ? substr($caption,0,17). " &#8230;" : $caption;
 
         
+
+        echo'
+        
+            <div class="fPic" id="',$photoid,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;">
+            
+            <div class="statoverlay" style="z-index:1;left:0px;top:205px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br>
+            
+            <form name="download_form" method="post" action="downloadphoto2.php">
+                <input type="hidden" name="image" value="',$downloadsource,'">
+                <input type="hidden" name="width" value="',$newwidth,'">
+                <input type="hidden" name="height" value="',$newheight,'">
+                <button type="submit" name="submit" value="download" class="btn btn-primary" style="margin-top:-48px;opacity:1;float:right;margin-right:5px;">Download</button>
+            </form>
+            
+            </div>
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$downloadsourcemed,'" /></a></div>';
+
+    }
+    
     echo'</div>';
 
 }
@@ -1717,7 +1722,6 @@ elseif($view == 'about') {
 </div><!--end 24 grid-->
 
 </div>
-
 
 <!--TUMBLR SCRIPTS-->
 <script type="text/javascript">

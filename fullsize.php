@@ -17,9 +17,10 @@ session_start();
 
     $email = $_SESSION['email'];
     
-    $findreputationme = mysql_query("SELECT reputation,profilepic,firstname,lastname FROM userinfo WHERE emailaddress = '$email'");
+    $findreputationme = mysql_query("SELECT user_id,reputation,profilepic,firstname,lastname FROM userinfo WHERE emailaddress = '$email'");
     $reputationme = mysql_result($findreputationme,0,'reputation');
     $sessionpic = mysql_result($findreputationme,0,'profilepic');
+    $sessionuserid =  mysql_result($findreputationme,0,'user_id');
     $sessionfirst =  mysql_result($findreputationme,0,'firstname');
     $sessionlast =  mysql_result($findreputationme,0,'lastname');
     $sessionname = mysql_result($findreputationme,0,'firstname') ." ". mysql_result($findreputationme,0,'lastname');
@@ -710,7 +711,7 @@ $foundsetting = strpos($setting_string,$find);
     
         		$to = '"' . $firstname . ' ' . $lastname . '"' . '<'.$emailaddress.'>';
         		$subject = $viewerfirst . " " . $viewerlast . ' is now following your photography on PhotoRankr!';
-        		$message = 'You have a new follower on PhotoRankr! Visit their photography here: http://photorankr.com/viewprofile.php?first=' . $viewerfirst . '&last=' . $viewerlast;
+        		$message = 'You have a new follower on PhotoRankr! Visit their photography here: http://photorankr.com/viewprofile.php?u='.$sessionuserid;
         		$headers = 'From:PhotoRankr <photorankr@photorankr.com>';
                 if($foundsetting > 0) {
         		mail($to, $subject, $message, $headers);   

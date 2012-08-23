@@ -1687,6 +1687,13 @@ var last = 0;
       
         
     elseif($option == 'maybe') {  
+    
+        if($_GET['action'] == 'remove') {
+        
+            $removedphoto = mysql_real_escape_string($_GET['pd']);
+            $removephoto = mysql_query("DELETE FROM usersmaybe WHERE id = '$removedphoto' AND emailaddress = '$email'");
+         
+        }
         
         echo'<div class="grid_18" style="margin:auto;margin-top:30px;margin-left:20px;width:800px;">';
 
@@ -1699,6 +1706,7 @@ var last = 0;
                         $photoid[$iii] = mysql_result($marketquery, $iii, "id");
                         $imageid[$iii] = mysql_result($marketquery, $iii, "imageid");
                         $caption = mysql_result($marketquery, $iii, "caption");
+                        $caption = strlen($caption) > 30 ? substr($caption,0,27). " &#8230;" : $caption;
                         $price = mysql_result($marketquery, $iii, "price");
 
                         list($height,$width) = getimagesize($photo2[$iii]);
@@ -1708,7 +1716,7 @@ var last = 0;
                 echo'
                   <div class="fPic" id="',$id,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;">
                 
-                <div class="statoverlay" style="z-index:1;left:0px;top:180px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br><span style="font-size:20px;font-weight:100;">$',$price,'</span></p><a name="removed" href="myprofile.php?view=saved&pd=',$photoid[$iii],'&action=remove#return"><button class="btn btn-primary" style="z-index:12;position:relative;top:-52px;float:right;margin-right:5px;">Remove Photo</button></a></div>
+                <div class="statoverlay" style="z-index:1;left:0px;top:180px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br><span style="font-size:20px;font-weight:100;">$',$price,'</span></p><a name="removed" href="myprofile.php?view=store&option=maybe&pd=',$photoid[$iii],'&action=remove#return"><button class="btn btn-primary" style="z-index:12;position:relative;top:-52px;float:right;margin-right:5px;">Remove Photo</button></a></div>
                 
                 <a href="fullsizemarket.php?imageid=',$imageid[$iii],'">
                 <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" alt="',$caption,'" src="',$photo[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
@@ -1735,7 +1743,8 @@ var last = 0;
                         $imageid[$iii] = mysql_result($downloadquery, $iii, "imageid");
                         $captionquery =  mysql_query("SELECT caption FROM photos WHERE id = '$imageid[$iii]'");
                         $caption = mysql_result($captionquery, 0, "caption");
-                        
+                        $caption = strlen($caption) > 20 ? substr($caption,0,17). " &#8230;" : $caption;
+
                         list($height,$width) = getimagesize($photo2[$iii]);
                         $widthnew = $width / 2.8;
                         $heightnew = $height / 2.8;
@@ -1746,15 +1755,14 @@ var last = 0;
                   <a href="fullsizemarket.php?imageid=',$imageid[$iii],'">
                   <img onmousedown="return false" oncontextmenu="return false;" style="min-height:265px;min-width:245px;" alt="',$caption,'" src="',$photo2[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a>
                   
-                   
-                    <div class="statoverlay" style="left:0px;top:-60px;position:relative;background-color:black;width:245px;height:45px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;font-weight:100;">',$caption,'</span></p></div>
                   
-                  <form action="downloadphoto.php" method="POST">
-                  <input type="hidden" name="image" value="',$photo[$iii],'">
-                  <button type="submit" name="submit" value="download" class="btn btn-success" style="margin-top:-605px;opacity:1;margin-left:2px;width:110px;height:30px;font-size:15px;font-family:helvetica;font-weight:200;">Download</button>
-                  </form>
+                   <div class="statoverlay" style="z-index:1;left:0px;top:-60px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br></p>
+                   <form action="downloadphoto.php" method="POST">
+                   <input type="hidden" name="image" value="',$photo[$iii],'">
+                   <button class="btn btn-primary" style="z-index:12;position:relative;top:-48px;float:right;margin-right:5px;">Download</button></a></div>
+                   </form>
                   
-                  </div>';
+                   </div>';
    
                 }
         
@@ -1764,6 +1772,59 @@ var last = 0;
         
         
         elseif($option == 'cart') {  
+        
+$size = mysql_real_escape_string($_POST['size']);
+
+if(!$size) {
+    $size = 'Large';
+} 
+
+$width = mysql_real_escape_string($_POST['width']);
+
+if(!$width) {
+    $width = mysql_real_escape_string($_POST['originalwidth']);
+}
+
+$height = mysql_real_escape_string($_POST['height']);
+
+if(!$height) {
+    $height = mysql_real_escape_string($_POST['originalheight']);
+}
+
+$price = mysql_real_escape_string($_POST['price']);
+
+if(!$price) {
+    $price = mysql_real_escape_string($_POST['originalprice']);
+}
+
+$imageid = mysql_real_escape_string($_POST['imageid']);
+
+$multiseat = mysql_real_escape_string($_POST['multiseat']);
+$unlimited = mysql_real_escape_string($_POST['unlimited']);
+$resale = mysql_real_escape_string($_POST['resale']);
+$electronic = mysql_real_escape_string($_POST['electronic']);
+
+if($multiseat == 'checked') {
+    $licenses = ' Multi-Seat,';
+    $price += 20;
+}
+if($unlimited == 'checked') {
+    $licenses = $licenses . ' Unlimited Reproduction / Print Runs,';
+    $price += 35;
+}
+if($resale  == 'checked') {
+    $licenses = $licenses . ' Items for Resale,';
+    $price += 35;
+}
+if($electronic == 'checked') {
+    $licenses = $licenses . ' Electronic Use,';
+    $price += 35;
+}
+
+if(!$licenses) {
+    $licenses = 'Standard Use';
+}
+            
         
             echo'<div id="container" class="grid_18" style="width:770px;margin-top:20px;padding-left:20px;">';
             
@@ -1800,9 +1861,6 @@ var last = 0;
          
          
     //PHOTO CART INFORMATION
-    $imageid = htmlentities($_GET['imageid']);
-    $size= htmlentities($_GET['size']);
-    if($size == 'xl') {$size = 'X Large';}
     $imagequery = mysql_query("SELECT source,price FROM photos WHERE id = '$imageid'");
     $imagenewsource = mysql_result($imagequery,0,'source');
     $imagenewsource2 = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/",$imagenewsource);
@@ -1832,7 +1890,7 @@ var last = 0;
         $cartcheck = mysql_query("SELECT * FROM userscart WHERE imageid = '$imageid'");
         $numincart = mysql_num_rows($cartcheck);
         if($numincart < 1) {
-            $stickincart = mysql_query("INSERT INTO userscart (source,size,emailaddress,imageid,price) VALUES ('$imagenewsource3','$size','$email','$imageid', '$imagenewprice')");
+            $stickincart = mysql_query("INSERT INTO userscart (source,size,width,height,license,price,emailaddress,imageid) VALUES ('$imagenewsource3','$size','$width','$height','$licenses','$price','$email','$imageid')");
             }
         }
         
@@ -1841,16 +1899,21 @@ var last = 0;
         
         for($iii=0; $iii < $incartresults; $iii++) {
             $imagesource[$iii] = mysql_result($incart,$iii,'source');
-            $sourcelist[] .= " " . $imagesource[$iii];
             $imageprice[$iii] = mysql_result($incart,$iii,'price');
-            $imagesize[$iii] = mysql_result($incart,$iii,'size');
             $imagecartid = mysql_result($incart,$iii,'imageid');
-            $idlist[] .= " " . $imagecartid;
-            $cartidlist = $cartidlist.",".$imagecartid[$iii];
+            $imagelicenses = mysql_result($incart,$iii,'license');
+            $standard = strpos($imagelicenses,'Standard');
+            if($standard === false) { 
+                $imagelicenses = substr($imagelicenses, 0, -1); 
+            }
+            $imagesize = mysql_result($incart,$iii,'size');
+            $emailquery = mysql_query("SELECT emailaddress FROM photos WHERE id = '$imagecartid'");
+            $photogemail = mysql_result($emailquery,0,'emailaddress');
             $totalcharge = $totalcharge + $imageprice[$iii];
+            $cartidlist = $cartidlist.",".$imagecartid;
             list($width, $height)=getimagesize($imagesource[$iii]);
-            $width = $width/5.5;
-            $height = $height/5.5;
+            $width = $width/4;
+            $height = $height/4;
             
             echo'
             <div class="span9">
@@ -1860,19 +1923,21 @@ var last = 0;
             <tr>
             <th>Photo</th>
             <th>Size</th>
-            <th>Image ID</th>
-            <th>License</th>
+            <th>License(s)</th>
             <th>Price</th>  
             </tr>
             </thead>
             <tbody>
+            
             <tr>
-            <td><div style="min-width:400px;height:<?php echo $height; ?>px;width:<?php echo $width; ?>px;"><img onmousedown="return false" oncontextmenu="return false;" src="',$imagesource[$iii],'" height=',$height,' width=',$width,' /></div></td>
-            <td>',$imagesize[$iii],'</td>
-            <td>',$imagecartid,'</td>
-            <td>Royalty Free</td>
-            <td>$',$imageprice[$iii],'</td>
+            <td><div style="min-width:400px;height:<?php echo $height; ?>px;width:<?php echo $width; ?>px;"><img onmousedown="return false" oncontextmenu="return false;" src="',$imagesource[$iii],'" height=',$height,' width=',$width,' /><br /><br />
+           <!-- <div style="text-align:left;"><a style="color:#aaa;font-size:12px;" href="download2.php?imageid=',$imagecartid,'&action=removed">Remove from cart</a></div>--></div>
+            </td>
+            <td style="width:140px;">',$imagesize,'</td>
+            <td style="width:140px;">',$imagelicenses,'</td>
+            <td style="width:140px;">$',$imageprice[$iii],'</td>
             </tr>
+
             
             </tbody>
             </table>
@@ -1938,7 +2003,7 @@ var last = 0;
             <tbody>
         
             <tr>
-            <td>',$incartresults,'</td>
+            <td style="width:760px;">',$incartresults,'</td>
             <td>$',$totalcharge,'</td>
             </tr>
         
@@ -2728,7 +2793,7 @@ var last = 0;
         <td class="name"><span>{%= file.name %}</span></td>
         <div>
         <div>    
-	<td colspan="1" class="desc">Name: <input type="text" style="width:120px;" name='{%= "names_" + String(file.name).replace(/([.]+)/gi, '_')%}' /></td>
+	<td colspan="1" class="desc">Name: <input type="text" style="width:120px;" name='{%= "names_" + String(file.name).replace(/([.]+)/gi, '_')%}' required="required"/></td>
         </div>
         <div>
     <td colspan="1" class="desc">Price: 
@@ -2752,7 +2817,7 @@ var last = 0;
 
         </div>
 	</div>
-<td colspan="1" class="desc">Keywords: <input type="text" style="width:120px;" name='{%= "keyword_" + String(file.name).replace(/([.]+)/gi, '_')%}'/></td>
+<td colspan="1" class="desc">Keywords: <input type="text" style="width:120px;" name='{%= "keyword_" + String(file.name).replace(/([.]+)/gi, '_')%}' required="required"/></td>
 
         <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
         {% if (file.error) { %}

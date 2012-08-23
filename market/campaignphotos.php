@@ -67,19 +67,6 @@ mysql_query($Scorequery) or die(mysql_error());
 }
 }
 
-
-if(isset($_GET['newsid'])){
-$newsid = htmlentities($_GET['newsid']);
-$idformatted = $newsid . " ";
-$unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$useremail'";
-$unhighlightqueryrun = mysql_query($unhighlightquery);
-
-//notifications query reset 
-if($currentnotsresult > 0) {
-$notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$useremail'";
-$notsqueryrun = mysql_query($notsquery); }
-} 
-
 ?>
 <!DOCTYPE html>
 <head>

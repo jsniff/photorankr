@@ -460,7 +460,7 @@ $newsfeedquery = "SELECT * FROM newsfeed WHERE (owner IN ($followlist) OR emaila
 $newsfeedresult = mysql_query($newsfeedquery);
 $maxwidth = 400;
                
-for($iii=1; $iii <= 70; $iii++) {
+for($iii=1; $iii <= 40; $iii++) {
     $newsrow = mysql_fetch_array($newsfeedresult);
     $newsemail = $newsrow['emailaddress'];    
     $owner = $newsrow['owner'];
@@ -1378,7 +1378,7 @@ echo '<script>
 var last = 0;
 
 	$(window).scroll(function(){
-		if($(window).scrollTop() > $(document).height() - $(window).height()-800) {
+		if($(window).scrollTop() > $(document).height() - $(window).height()-400) {
 			if(last != $(".fPic:last").attr("id")) {
 				$("div#loadMorePics").show();
 				$.ajax({

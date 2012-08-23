@@ -18,7 +18,7 @@ $maxwidth = 400;
 
 $view=htmlentities($_GET['view']);
 
-for($iii=1; $iii <= 80; $iii++) {
+for($iii=1; $iii <= 30; $iii++) {
     $newsrow = mysql_fetch_array($newsfeedresult);
     $newsemail = $newsrow['emailaddress'];    
     $owner = $newsrow['owner'];

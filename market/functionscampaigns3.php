@@ -427,9 +427,17 @@ echo'
                         echo'<li class="dropdown topcenter " id="accountmenu">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="font-family:helvetica;font-weight:100;"> Log In </b></a>
                                 <ul class="dropdown-menu" style="margin-top:0px;background-color:#fff;width:192px;">
-								<li><a style="color:#000;font-size:15px;" href="signin.php">Register for free today</a></li>
-                                <li class="divider"></li>
-                                <form name="login_form" method="post" action="',htmlentities($_SERVER['PHP_SELF']),'?action=login">
+								<li><a style="color:#000;font-size:15px;" href="signup2.php">Register for free today</a></li>
+                                <li class="divider"></li>';
+                                
+                                 if(strpos($_SERVER['REQUEST_URI'],'?') !== false) {
+                                        echo'<form name="login_form" method="post" action="',htmlentities($_SERVER['REQUEST_URI']),'&action=login">';
+                                    }   
+                                    else {
+                                         echo'<form name="login_form" method="post" action="',htmlentities($_SERVER['REQUEST_URI']),'?action=login">';
+                                    }  
+
+                                echo'
                                 <li style="margin-left:15px;color:#000;">Email: </li>
                                 <li><input type="text" style="width:150px;margin-top:3px;margin-left:15px;" name="emailaddress" /></li>
                                 <li><span style="float:left;margin-left:15px;color:#000;">Password: </li>
@@ -446,6 +454,41 @@ echo'
 			</div>	
 		</div>
 	</div>';
+}
+
+
+function footersweet() {
+
+echo'
+<link rel="stylesheet" href="../css/all.css" type="text/css"/> 
+<div class="fixed-bottom" style="width:100%;background:#ccc;box-shadow: inset 1px 1px 1px #999;">
+	<div class="container_24">
+	<div class="grid_24" style="margin-top:.1em;">	
+	<div class="grid_18 push_2">
+		<ul class="footer">
+			<li> <a href="about.php"><div class="footer_grid"> About </div> </a> </li>
+			<li> <a href="contact.php"><div class="footer_grid">Contact Us </div></a> </li>
+			<li> <a href="help.php"><div class="footer_grid">Help/FAQ </div></a> </li>
+			<li> <a href="terms.php"><div class="footer_grid">Terms </div></a> </li>
+			<li> <a href="privacy.php"><div class="footer_grid">Privacy Policy </div></a> </li>
+			<li> <a href="blog/post"><div class="footer_grid">Blog  </div></a></li>
+			<li> <a href="press.php"><div class="footer_grid">Press </div></a></li>
+		</ul>
+	</div>	
+		<div class="grid_4 pull_1" style="margin: 1em 3em 0 0 ">
+			<div class="grid_1" style="float:right;"><a class="twitter" href="https://twitter.com/photorankr"><img src="graphics/twitter.png"/> </a>
+			</div>
+			<div class="grid_1" style="float:right;"><a class="twitter" href="http://www.facebook.com/pages/PhotoRankr/140599622721692"><img src="graphics/facebook.png"/> </a>
+			</div>
+			<div class="grid_1" style="float:right;"><a class="twitter" href="https://plus.google.com/102253183291914861528/posts"><img src="graphics/g+.png"/> </a>
+			</div>
+	</div>
+<div class="grid_24">
+	<p class="copyright" style="margin-top:1em;">PhotoRankr is a trademark of PhotoRankr, Inc. The PhotoRankr Logo is a trademark of PhotoRankr, Inc. </p>
+<p class="copyright" style="margin-bottom:1em;">Copyright &copy 2012 PhotoRankr, Inc.</p>
+</div>
+</div>';
+
 }
 
 

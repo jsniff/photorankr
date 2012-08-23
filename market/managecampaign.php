@@ -75,15 +75,17 @@ $messagequeryrun = mysql_query($messagequery);
 'Visit the campaign here: http://photorankr.com/campaignphotos.php?id=' . $campaignID;
           $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
           mail($to, $subject, $feedbackmessage, $headers); 
+          
+           //notifications query     
+           $notsquery = mysql_query("UPDATE userinfo SET campaign_notifications = (notifications + 1) WHERE emailaddress= '$useremail'");
         
         $prevlist = $prevlist . " " . $useremail;
         }
         
-        //Send notification
+        //insert into newsfeed
         $type = 'feedback';
         $feedbacknews = mysql_query("INSERT INTO newsfeed (type,source,caption,campaignentree) VALUES ('$type','$campaignID','$caption','$prevlist')");
-    
-
+        
 }
 
 //if they tried to create a new campaign
@@ -137,8 +139,7 @@ if($_GET['create']) {
         $newsfeedfavequery=mysql_query("INSERT INTO newsfeed (type,caption,source) VALUES ('$type','$title','$campaignID')");
         
         //notifications query     
-        $notsquery = "UPDATE userinfo SET notifications = (notifications + 1)";
-        $notsqueryrun = mysql_query($notsquery);   
+        $notsquery = mysql_query("UPDATE userinfo SET campaign_notifications = (notifications + 1)");
         
         //Send out Congrats for ne campaign email
                 
