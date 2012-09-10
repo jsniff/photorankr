@@ -1,7 +1,8 @@
 <?php 
 
 require("db_connection.php");
-    
+require("timefunction.php");
+
 //GET FOLLOWERS 
 $email = $_GET['email'];
 $emailquery=("SELECT following FROM userinfo WHERE emailaddress ='$email'");
@@ -11,17 +12,18 @@ $followrow=mysql_fetch_array($followresult);
 $following=$followrow['following'];
 
 if($_GET['lastPicture']) {
-	$newsfeedquery = "SELECT * FROM newsfeed WHERE id < ".$_GET['lastPicture']." AND (owner IN ($followlist) OR emailaddress IN ($followlist)) AND emailaddress NOT IN ('$email') ORDER BY id DESC";
+	$newsfeedquery = "SELECT * FROM newsfeed WHERE id < ".$_GET['lastPicture']." AND (owner IN ($followlist) OR emailaddress IN ($followlist)) AND emailaddress NOT IN ('$email') AND type NOT IN ('message','reply','follow') ORDER BY id DESC LIMIT 0,13";
     $newsfeedresult = mysql_query($newsfeedquery);
 
 $maxwidth = 400;
 
 $view=htmlentities($_GET['view']);
 
-for($iii=1; $iii <= 30; $iii++) {
+for($iii=0; $iii <= 12; $iii++) {
     $newsrow = mysql_fetch_array($newsfeedresult);
     $newsemail = $newsrow['emailaddress'];    
     $owner = $newsrow['owner'];
+    $time = $newsrow['time'];
     $emailfollowing = $newsrow['following'];
     $id = $newsrow['id'];
     $type = $newsrow['type'];
@@ -86,8 +88,8 @@ if($view == '') {
 	list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
 	$height = $imgratio * $maxwidth;
-    $phrase = '<a href="viewprofile.php?u=",$ownerid,"">' . $ownerfull . "</a> uploaded " . '"' . $caption . '"';
-    $phrase2 = (strlen($phrase) > 90) ? substr($phrase,0,87). " &#8230;" : $phrase;
+    $phrase = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfull . "</a> uploaded " . '"' . $caption . '"';
+    //$phrase2 = (strlen($phrase) > 90) ? substr($phrase,0,87). " &#8230;" : $phrase;
     
     $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
     $views = mysql_result($imageinfo,0,'views');
@@ -101,7 +103,15 @@ if($view == '') {
     $height = ($height / 2.5);
 
     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase2,'</span>
+    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
+    
+    if($time > 0) {
+        echo'
+        <br /><div style="float:left;font-size:12px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</div>';
+    }
+    
+    echo'
+    </div>
     <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
     <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
     echo '</div>';  
@@ -153,19 +163,28 @@ if($view == '') {
     } 
     elseif($jjj > 0) {
     $fvlist = $fvlist . ", " .$fvname; }
-    }
 
+    }
+    
     list($width, $height) = getimagesize($image);
     $width = ($width / 2.5);
     $height = ($height / 2.5);
     
     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
+    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
+    
+    if($time > 0) {
+        echo'
+        <br /><div style="float:left;font-size:12px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</div>';
+    }
+    
+    echo'
+    </div>
     <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
     <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'&nbsp;|&nbsp;Favorited By: ',$fvlist,'</div>';
-    echo '</div>'; 
+    echo '</div>';   
     
-      $fvlist = '';  
+    $fvlist = '';
     }
     
     elseif ($type == "trending") {
@@ -199,7 +218,15 @@ if($view == '') {
     $height = ($height / 2.5);
     
      echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
+    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
+    
+    if($time > 0) {
+        echo'
+        <br /><span style="font-size:12px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</span>';
+    }
+    
+    echo'
+    </div>
     <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
     <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
     echo '</div>';  
@@ -234,7 +261,15 @@ if($view == '') {
     $profileshot = mysql_result($profileshotquery,0,'profilepic');
     
      echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
+    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
+    
+    if($time > 0) {
+        echo'
+        <br /><div style="float:left;font-size:12px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</div>';
+    }
+    
+    echo'
+    </div>
     <br /><div style="margin-left:85px;margin-bottom:15px;clear:both;">
 
             <a href="viewprofile.php?u=',$ownerid,'&view=blog#',$blogid,'">';
@@ -275,13 +310,13 @@ if($view == '') {
                                 echo'<div><a href="viewprofile.php?u=',$commenterid,'"><img src="',$commenterpic,'" height="30" width="30" /><span style="font-weight:bold;color:#3e608c;font-size:12px;padding-left:10px;">',$commentername,'</a></span>&nbsp;&nbsp;',$comment,'</div><hr>';
                             }
                     echo'
-                    <form action="newsfeed3.php?action=comment&blogid=',$blogid,'" method="POST">
+                    <form action="newsfeed.php?action=comment&blogid=',$blogid,'" method="POST">
                     <div style="width:450px;"><img style="float:left;padding:10px;" src="',$profileshot,'" height="30" width="30" />
                     <input style="float:left;height:20px;position:relative;top:10px;width:380px;" type="text" name="comment" placeholder="Leave a comment&#8230;" /></div>
                     </form>
                     <br /><br />
                     </div>
-                    
+                   
                     
                     <a name="',$blogid,'" href="#"><p class="flipblog',$blogid,'" style="font-size:15px;"></a>',$numcomments,' Comments</p>
                     </div>
@@ -328,17 +363,15 @@ if($view == '') {
     echo'
     </div></a>';  
     }
-
     
     elseif ($type == "follow") {
-    $email4 = $newsrow['following'];
-    $newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$email4'";
+    $newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$emailfollowing'";
     $accountresult = mysql_query($newaccount); 
     $accountrow = mysql_fetch_array($accountresult);
     $profilepic5 = $accountrow['profilepic'];
     $ownerid = $accountrow['user_id'];
     
-    $numownerphotosquery = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email4' ORDER by (points/votes) DESC");
+    $numownerphotosquery = mysql_query("SELECT source FROM photos WHERE emailaddress = '$emailfollowing' ORDER by (points/votes) DESC LIMIT 4");
     $numownerphotos = mysql_num_rows($numownerphotosquery);
     $flowimage1 = mysql_result($numownerphotosquery,0,'source');
     $flowimage1=str_replace("userphotos/","userphotos/medthumbs/", $flowimage1);
@@ -347,7 +380,7 @@ if($view == '') {
     $flowimage3 = mysql_result($numownerphotosquery,2,'source');
     $flowimage3=str_replace("userphotos/","userphotos/medthumbs/", $flowimage3);
     
-    $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$email4%'";
+    $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$emailfollowing%'";
 	$followersresult=mysql_query($followersquery);
 	$numberfollowers = mysql_num_rows($followersresult);
     
@@ -394,8 +427,16 @@ if($view == '') {
     $height = ($height / 3.5);
 
     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
-    <br /><a href="viewprofile.php?u=',$ownerid,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;" src="',$profilepic5,'" width="',$width,'px" height="',$height,'px" /></a>&nbsp;&nbsp;
+    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
+    
+    if($time > 0) {
+        echo'
+        <br /><div style="float:left;font-size:11px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</div>';
+    }
+    
+    echo'
+    </div>
+    <br /><a href="viewprofile.php?u=',$ownerid,'"><img class="phototitle" style="margin-left:20px;margin-top:15px;margin-bottom:15px;" src="',$profilepic5,'" width="',$width,'px" height="',$height,'px" /></a>&nbsp;&nbsp;
     <div class="phototitle" style="height:110px;width:320px;">';
     
     if($numownerphotos > 2) {
@@ -415,7 +456,7 @@ if($view == '') {
     echo '</div>'; 
     }
     
-elseif ($type == "comment") {
+    elseif ($type == "comment") {
     $owner = $newsrow['owner'];
     $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
     $ownerresult = mysql_query($ownersquery); 
@@ -456,7 +497,15 @@ elseif ($type == "comment") {
     $height = ($height / 2.5);
     
     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
+    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
+    
+    if($time > 0) {
+        echo'
+        <br /><div style="float:left;font-size:11px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</div>';
+    }
+    
+    echo'
+    </div>
     <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
     
 	echo '<br /><br /><div style="margin-left: 85px;padding:15px;width:480px;clear:both;">

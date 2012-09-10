@@ -346,7 +346,17 @@ chmod ($path_to_medthumbs_directory . $filename, 0644);
 
 
 function login() {
+    
+    //Set session to 24 hours and then start
+    
+    $sessionCookieExpireTime=24*60*60;
+    session_set_cookie_params($sessionCookieExpireTime);
     @session_start();
+    
+    // Reset the expiration time upon page load //session_name() is default name of session PHPSESSID
+
+    if (isset($_COOKIE[session_name()]))
+    setcookie(session_name(), $_COOKIE[session_name()], time() + $sessionCookieExpireTime, “/”);
 
         // makes sure they filled it in
         if(!htmlentities($_POST['emailaddress'])) {
@@ -408,8 +418,11 @@ echo'
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#"> Photos </b></a>
 							<ul class="dropdown-menu" style="margin-top:0px;background-color:#fff;">
                                 <li> <a href="trending.php"> Trending </a></li>
+                                <li class="divider"></li>
 								<li> <a href="newest.php"> Newest </a></li>
-								<li class="divider"></li> 	<li> <a href="topranked.php"> Top Ranked </a></li>';
+								<li class="divider"></li>
+                                <li> <a href="topranked.php"> Top Ranked </a></li>
+                                <li class="divider"></li>';
                                 
                                 
   //get the users information from the database
@@ -475,6 +488,7 @@ echo'
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#"> Market</b> </a>
 							<ul class="dropdown-menu" style="margin-top:0px;background-color:#fff;">
 								<li> <a href="marketplace.php"> Marketplace </a></li>
+                                <li class="divider"></li>
 								<li> <a href="viewcampaigns.php"> Campaigns </a></li>
 							</ul>
 						</li>
@@ -485,7 +499,7 @@ echo'
                         echo'<li class="dropdown topcenter " id="accountmenu">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="font-family:helvetica;"> Log In </b></a>
                                 <ul class="dropdown-menu" style="margin-top:0px;background-color:#fff;width:192px;">
-								<li><a style="color:#000;font-size:15px;" href="signin.php">Register for free today</a></li>
+								<li><a style="color:#000;font-size:15px;" href="signup3.php">Register for free today</a></li>
                                 <li class="divider"></li>';
                             
                                     if(strpos($_SERVER['REQUEST_URI'],'?') !== false) {
@@ -646,6 +660,15 @@ echo'
                                     $caption = mysql_result($notsquery,$iii,'caption');
                                     $source = mysql_result($notsquery,$iii,'source');
                                     $newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
+                                    
+                                    $exhibitsource = mysql_query("SELECT cover FROM sets WHERE id = '$source'");
+                                    $setcover = mysql_result($exhibitsource,$iii,'cover');
+                                    if(!$setcover) {
+                                        $pulltopphoto = mysql_query("SELECT source FROM photos WHERE set_id = '$source' ORDER BY votes DESC LIMIT 1");
+                                        $setcover = mysql_result($pulltopphoto, 0, "source");
+                                    }
+                                    $setcover = str_replace("userphotos/","userphotos/thumbs/", $setcover);
+                                    
                                     $blogcommenteremail = mysql_result($notsquery,$iii,'emailaddress');
                                     $followeremail = mysql_result($notsquery,$iii,'emailaddress');
                                     $ownermessage = mysql_result($notsquery,$iii,'owner');
@@ -707,6 +730,12 @@ echo'
                                             echo'<a style="text-decoration:none" href="fullsize.php?image=',$source,'&id=',$id,'"><div id="',$highlightid,'"><img  class="roundednot" style="float:left;padding:5px;" src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<div style="float:left;margin-top:20px;margin-left:10px;"><img src="graphics/fave.png" height="18" />&nbsp;&nbsp;&nbsp;<b>',$fullname,'</b> favorited your photo</div></div></a>';
 
                                         }
+                                        
+                                        elseif($type == "exhibitfave") {
+
+                                            echo'<a style="text-decoration:none" href="myprofile.php?view=exhibits&set=',$source,'&id=',$id,'"><div id="',$highlightid,'"><img  class="roundednot" style="float:left;padding:5px;" src="http://www.photorankr.com/',$setcover,'" height="50" width="50" />&nbsp;<div style="float:left;margin-top:20px;margin-left:10px;"><img src="graphics/fave.png" height="18" />&nbsp;&nbsp;&nbsp;<b>',$fullname,'</b> favorited your exhibit</div></div></a>';
+
+                                        }
 
                                         elseif($type == "trending") {
 
@@ -750,16 +779,16 @@ echo'
 						<li class="dropdown topcenter marginT" id="accountmenu" style="position:relative;">
 							<a style="text-decoration:none;" class="dropdown-toggle" data-toggle="dropdown" href="myprofile.php"><div class="profile" style="text-decoration:none;margin-top:-15px;padding:4px;padding-right:8px;"><a style="text-decoration:none;" href="myprofile.php"><img src="',$sessionprofilepic,'" style="width:30px;height:30px;"/><span style="font-size:13px;color:white;font-weight:200;">&nbsp;&nbsp;&nbsp;',$sessionname,'</span></a></div></a>
 								<ul class="dropdown-menu" style="margin-top:0px;background-color:#fff;width:150px;">
+                                    <li> <a href="myprofile.php"> Profile </a> </li>
+                                    <li class="divider"></li>
+                                    <li> <a href="myprofile.php?view=portfolio"> Portfolio </a> </li>
+                                    <li class="divider"></li>
+                                    <li> <a href="myprofile.php?view=favorites"> Favorites </a> </li>
+                                    <li class="divider"></li>
+                                    <li> <a href="myprofile.php?view=cart"> My Cart </a> </li>
+                                    <li class="divider"></li>
                                     <li> <a href="myprofile.php?view=upload"> Upload </a> </li>
-                                    <li class="divider"></li>
-                                    <li> <a href="myprofile.php"> My Portfolio </a> </li>
-                                    <li class="divider"></li>
-                                    <li> <a href="myprofile.php?view=store"> My Store </a> </li>
-                                    <li class="divider"></li>
-                                    <li> <a href="myprofile.php?view=blog"> My Blog</a> </li>
-                                    <li class="divider"></li>
-									<li> <a href="myprofile.php?view=settings"> Settings </a> </li>
-									<li class="divider"></li>';
+                                    <li class="divider"></li>';
                                     if(strpos($_SERVER['REQUEST_URI'],'myprofile.php') !== false) {
                                         echo'<li> <a href="newest.php?action=logout"> Log Out </a> </li>';
                                     }

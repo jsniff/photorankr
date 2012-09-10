@@ -121,8 +121,7 @@ location.href="newest.php?x="+x;
   	<link rel="stylesheet" type="text/css" href="market/css/all.css"/>
 	<script type="text/javascript" href="js/bootstrap-dropdown.js"></script>
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-<script type="text/javascript" src="http://masonry.desandro.com/jquery.masonry.min.js"></script>
-<script type="text/javascript" src="https://raw.github.com/desandro/imagesloaded/master/jquery.imagesloaded.min.js"></script>
+    <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
 
 <title>Top Ranked</title>
@@ -199,7 +198,17 @@ if(isset($_GET['t'])){
 		$timesetting = $_GET['t'];
 	}
 
-        echo'<br /><br /><br /><br /><div style="text-align:center;font-size:14px;font-weight:200;width:1100px;"><div style="margin-left:-230px;"><a class="green" style="text-decoration:none;color:#000;';if($view == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="topranked.php">Top Photos</a> | <a class="green" style="text-decoration:none;color:#000;';if($view == 'prs') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="topranked.php?v=prs">Top Photographers</a> | <a class="green" style="text-decoration:none;color:#000;';if($view == 'ex') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="topranked.php?v=ex">Top Exhibits</a>
+
+               echo'<br /><br /><br /><br />
+        <div style="margin-left:-70px;font-size:15px;font-weight:200;font-family:"Helvetica Neue",Helvetica,Arial;">
+        
+        <a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == '') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="topranked.php">Top Photos</a> 
+        
+        <a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == 'prs') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="topranked.php?v=prs">Top Photographers</a>
+        
+         <a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == 'ex') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="topranked.php?v=ex">Top Exhibits</a>
+        
+        </div>
         
                 <script>
                     function submitTime(sel) {
@@ -216,7 +225,7 @@ if(isset($_GET['t'])){
                     
                     if($timesetting == '') {
                         echo'
-                        <select name="t"  onchange="submitTime(this)" class="input-large" style="width:110px;margin-left:420px;margin-top:-35px;">
+                        <select name="t"  onchange="submitTime(this)" class="input-large" style="width:110px;margin-left:340px;margin-top:-25px;">
                         <option value="" selected value="">All Time</option>
                         <option value="m">This Month</option>
                         <option value="w">This Week</option>
@@ -243,30 +252,42 @@ if(isset($_GET['t'])){
                     </form>
                     </div>';
                 }    
-
-echo'
-</div></div>';
         
 
 if ($view=='') {
 
-
-echo'<div style="position:relative;top:0px;font-size:15px;">';
-
 //Time setting is set to all time
-if ($timesetting == '') {
 
-$query="SELECT * FROM photos ORDER BY points DESC LIMIT 0, 21";
-$result=mysql_query($query);
+if ($timesetting == '') {
+    $query="SELECT * FROM photos ORDER BY points DESC LIMIT 0, 21";
+    $result=mysql_query($query);
+}
+
+elseif ($timesetting == 'm') {
+    $lowertimebound = time() - 2419900;
+    $query="SELECT * FROM photos WHERE time > '$lowertimebound' ORDER BY points DESC LIMIT 0, 21";
+    $result=mysql_query($query);
+}
+
+elseif ($timesetting == 'w') {
+    $lowertimebound = time() - 604800;
+    $query="SELECT * FROM photos WHERE time > '$lowertimebound' ORDER BY points DESC LIMIT 0, 21";
+    $result=mysql_query($query);
+}
+
 $numberofpics=mysql_num_rows($result);
 
-echo'<div id="thepics">';
-echo'<div id="container" style="width:1210px;margin-left:-112px;top:0px;">';
+    echo'
+    <div id="thepics" style="position:relative;margin-left:-130px;top:-15px;width:1240px;">
+    <div id="main" role="main">
+    <ul id="tiles">';
 
 for($iii=1; $iii <= 20; $iii++) {
 $image = mysql_result($result, $iii-1, "source");
 $imageThumb = str_replace("userphotos/","userphotos/medthumbs/", $image);
 $caption = mysql_result($result, $iii-1, "caption");
+$id = mysql_result($result, $iii-1, "id");
+$price = mysql_result($result, $iii-1, "price");
 $points = mysql_result($result, $iii-1, "points");
 $emailaddress = mysql_result($result, $iii-1, "emailaddress");
 $namequery="SELECT * FROM userinfo WHERE emailaddress='$emailaddress'";
@@ -276,24 +297,51 @@ $firstname=$row['firstname'];
 $lastname=$row['lastname'];
 $fullname = $firstname . " " . $lastname;
 $fullname = ucwords($fullname);
-
-list($width, $height) = getimagesize($image);
+	
+    list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
-    $heightls = $height / 2.5;
-    $widthls = $width / 2.5;
+    $heightls = $height / 4.3;
+    $widthls = $width / 4.3;
+    if($widthls < 225) {
+    $heightls = $heightls * ($heightls/$widthls);
+    $widthls = 270;
+    }
+		echo '
+        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=r"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:270px;
+"><img src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">$',$price,'</div></div></li></a>';
+       
 
-        echo'
-        
-        <div class="fPic" id="',$points,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a href="http://photorankr.com/fullsize.php?image=',$image,'&v=r">
-        
-        <div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:280px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-weight:100;font-size:18px;">',$caption,'</span><br/><span style="font-weight:100;font-size:12px;">By: ',$fullname,'</p></div>
-        
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="http://photorankr.com/',$imageThumb,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
         
     } //end of for loop
 
-echo'</div></div>';
+echo'</ul>';
+
+?>
+
+<!-- Once the page is loaded, initalize the plug-in. -->
+  <script type="text/javascript">
+    $(document).ready(new function() {
+      // Prepare layout options.
+      var options = {
+        autoResize: true, // This will auto-update the layout when the browser window is resized.
+        container: $('#main'), // Optional, used for some extra CSS styling
+        offset: 4, // Optional, the distance between grid items
+        itemWidth: 290 // Optional, the width of a grid item
+      };
+      
+      // Get a reference to your grid items.
+      var handler = $('#tiles li');
+      
+      // Call the layout function.
+      handler.wookmark(options);
+      
+    });
+  </script>
+  
+<?php  
     
+if ($timesetting == '') {
+
 echo'
 <!--AJAX CODE HERE-->
    <div class="grid_6 push_9" style="padding-top:50px;">
@@ -323,94 +371,10 @@ var last = 0;
 		}
 	});
 </script>';
+
+} //end of if
     
-} //end of all time if clause   
- 
-    
-//Time setting is set to month    
-elseif ($timesetting == 'm') {
-
-$lowertimebound = time() - 2419900;
-$query="SELECT * FROM photos WHERE time > '$lowertimebound' ORDER BY points DESC LIMIT 0, 21";
-$result=mysql_query($query);
-$numberofpics=mysql_num_rows($result);
-
-echo'<div id="container" style="width:1210px;margin-left:-112px;top:0px;">';
-    for($iii=1; $iii <= 20; $iii++) {
-$image = mysql_result($result, $iii-1, "source");
-$imageThumb = str_replace("userphotos/","userphotos/medthumbs/", $image);
-$caption = mysql_result($result, $iii-1, "caption");
-$emailaddress = mysql_result($result, $iii-1, "emailaddress");
-$namequery="SELECT * FROM userinfo WHERE emailaddress='$emailaddress'";
-$nameresult=mysql_query($namequery);
-$row=mysql_fetch_array($nameresult);
-$firstname=$row['firstname'];
-$lastname=$row['lastname'];
-$fullname = $firstname . " " . $lastname;
-$fullname = ucwords($fullname);
-
-list($width, $height) = getimagesize($image);
-	$imgratio = $height / $width;
-    $heightls = $height / 2.5;
-    $widthls = $width / 2.5;
-
-        echo'
-        
-       <div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a href="http://photorankr.com/fullsize.php?image=',$image,'&v=r">
-        
-        <div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:280px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-weight:100;font-size:18px;">',$caption,'</span><br/><span style="font-weight:100;font-size:12px;">By: ',$fullname,'</p></div>
-        
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="http://photorankr.com/',$imageThumb,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
-        
-    } //end of for loop
-echo'</div>';
-
-} //end of month if clause
-
-//Time setting is set to week
-elseif ($timesetting == 'w') {
-
-$lowertimebound = time() - 604800;
-$query="SELECT * FROM photos WHERE time > '$lowertimebound' ORDER BY points DESC LIMIT 0, 21";
-$result=mysql_query($query);
-$numberofpics=mysql_num_rows($result);
-
-echo'<div id="container" style="width:1210px;margin-left:-112px;top:0px;">';
-    for($iii=1; $iii <= 20; $iii++) {
-$image = mysql_result($result, $iii-1, "source");
-$imageThumb = str_replace("userphotos/","userphotos/medthumbs/", $image);
-$caption = mysql_result($result, $iii-1, "caption");
-$emailaddress = mysql_result($result, $iii-1, "emailaddress");
-$namequery="SELECT * FROM userinfo WHERE emailaddress='$emailaddress'";
-$nameresult=mysql_query($namequery);
-$row=mysql_fetch_array($nameresult);
-$firstname=$row['firstname'];
-$lastname=$row['lastname'];
-$fullname = $firstname . " " . $lastname;
-$fullname = ucwords($fullname);
-
-list($width, $height) = getimagesize($image);
-	$imgratio = $height / $width;
-    $heightls = $height / 2.5;
-    $widthls = $width / 2.5;
-
-        echo'
-        
-       <div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a href="http://photorankr.com/fullsize.php?image=',$image,'&v=r">
-        
-        <div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:280px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-weight:100;font-size:18px;">',$caption,'</span><br/><span style="font-weight:100;font-size:12px;">By: ',$fullname,'</p></div>
-        
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="http://photorankr.com/',$imageThumb,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
-        
-    } //end of for loop
-echo'</div>';
-
-} //end of week if clause
-    
-      echo'</div>';
-        
-} //end of if clause
-
+} //end of all time if clause  
 
 
 elseif ($view=='prs') {
@@ -454,7 +418,7 @@ array_multisort($averagearray,$emailaddressarray);
 }
 
 
-echo'<div id="container" style="width:1140px;position:relative;left:-75px;top:20px;">';
+echo'<div id="container" style="width:1140px;position:relative;left:-70px;top:20px;">';
     for($iii=1; $iii <= 20; $iii++) {
     $newquery = "SELECT * FROM userinfo WHERE emailaddress = '$emailaddressarray[$iii]'";
 $firstname = mysql_result($queryresult, $iii-1, "firstname");
@@ -467,9 +431,9 @@ if($profilepic == 'http://www.photorankr.com/profilepics/default_profile.jpg'){
 $profilepic = 'profilepics/default_profile.jpg';
 }
 
-echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:260px;height:260px;overflow:hidden;"><a href="viewprofile.php?u=',$user_id,'">
+echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:260px;height:260px;overflow:hidden;"><a style="text-decoration:none;" href="viewprofile.php?u=',$user_id,'">
         
-        <div class="statoverlay" style="z-index:1;left:0px;top:215px;position:relative;background-color:black;width:260px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-weight:100;font-size:22px;">#',$iii,'&nbsp;&nbsp;',$fullname,'</span></div>
+        <div class="statoverlay" style="z-index:1;left:0px;top:215px;position:relative;background-color:black;width:260px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-family:helvetica neue,arial;font-weight:100;font-size:22px;">#',$iii,'&nbsp;&nbsp;',$fullname,'</span></div>
         
         <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:280px;min-width:260px;" src="',$profilepic,'" alt="',$fullname,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
         
@@ -481,7 +445,7 @@ echo'</div>';
 
 elseif ($view=='ex') {
 
-echo'<div id="container" style="width:1140px;position:relative;left:-75px;top:20px;">';
+echo'<div id="container" style="width:1140px;position:relative;left:-70px;top:20px;">';
     for($iii=1; $count < 20; $iii++) {
     $exquery = "SELECT * FROM sets ORDER BY avgscore DESC";
     $exqueryrun = mysql_query($exquery);
@@ -506,7 +470,7 @@ if($coverpic == '') {
     echo'
     <div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:260px;height:260px;overflow:hidden;"><a style="text-decoration:none;" href="viewprofile.php?u=',$user_id,'&view=exhibits&set=',$exhibit_id,'">
         
-        <div class="statoverlay" style="z-index:1;left:0px;top:205px;position:relative;background-color:black;width:260px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-weight:100;font-size:18px;">#',$count,'&nbsp;&nbsp;',$caption,'</span><br/><span style="font-weight:100;font-size:12px;">By: ',$fullname,'</p></div>
+        <div class="statoverlay" style="z-index:1;left:0px;top:205px;position:relative;background-color:black;width:260px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-family:helvetica neue,arial;font-weight:100;font-size:18px;">#',$count,'&nbsp;&nbsp;',$caption,'</span><br/><span style="font-family:helvetica,arial;font-weight:100;font-size:12px;">By: ',$fullname,'</p></div>
         
         <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:280px;min-width:260px;" src="http://photorankr.com/',$coverpic,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
     
@@ -519,10 +483,6 @@ echo'</div>';
 
 
 ?>
-</div>
-<br /><br />
-
-<?php footer(); ?>
 
 
 </body>

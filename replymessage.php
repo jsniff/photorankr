@@ -10,6 +10,12 @@ session_start();
 $sender = $_SESSION['email'];
 $receiver = mysql_real_escape_string($_REQUEST['emailaddressofviewed']);
 
+//newsfeed entry
+$idquery = mysql_query("SELECT user_id,firstname,lastname FROM userinfo WHERE emailaddress = '$receiver'");
+$userid = mysql_result($idquery,0,'user_id');
+$recfirst = mysql_result($idquery,0,'firstname');
+$reclast = mysql_result($idquery,0,'lastname');
+
 //run a query to retreive a message which would belong to the same thread
 $threadquery = "SELECT * FROM messages WHERE (sender='$sender' AND receiver='$receiver') OR (sender='$receiver' AND receiver='$sender') LIMIT 0, 1";
 $threadresult = mysql_query($threadquery) or die(mysql_error());
@@ -37,6 +43,17 @@ $firstname=$row['firstname'];
 $lastname=$row['lastname'];
 $type = "reply";
 $newsfeedsignupquery=mysql_query("INSERT INTO newsfeed (firstname, lastname, owner,type,thread) VALUES ('$firstname', '$lastname', '$receiver','$type','$thread')");
+
+//Mail email to reciever
+    $to = '"' . $recfirst . ' ' . $reclast . '"' . '<'.$receiver.'>';
+    $subject = $firstname . " " . $lastname . " replied to your message on PhotoRankr";
+    $favemessage = $contents. "
+        
+To view the message, login and click here: http://photorankr.com/myprofile.php?view=viewthread&thread=".$thread;
+    $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
+          
+    mail($to, $subject, $favemessage, $headers); 
+
 
 //now update the newsfeed table with the message so that it can be pulled for the notifications
 

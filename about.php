@@ -244,7 +244,7 @@ you use, and why you do it. Inspire others who want to be like you
 					<img src="img/tyler.jpg" style="border-radius:5px;"/>
 				</div>
 				<div class="grid_4 name">
-					<h1> Tyler Sniff VP</h1>
+					<h1> Tyler Sniff - VP</h1>
 				</div>
 				<div class="grid_4 info">
 				<p class="text_block">Tyler works hard to develop PhotoRankr's business strategy while contributing to product development.</p>

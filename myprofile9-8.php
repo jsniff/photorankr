@@ -1100,12 +1100,7 @@ if($mode == 'delete') {
 
 $image = htmlentities($_GET['image']);
 $set = htmlentities($_GET['set']);
-
-$getsetid = mysql_query("SELECT set_id FROM photos WHERE source = '$image'");
-$set_id = mysql_result($getsetid,0,'set_id');
-$newset_id = str_replace($set,"",$set_id);
-
-$deletephotofromset = mysql_query("UPDATE photos SET set_id = '$newset_id' WHERE source = '$image'");
+$deletephotofromset = mysql_query("UPDATE photos SET set_id = '' WHERE source = '$image'");
 
 echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=exhibits&set=',$set,'">';
 exit();
@@ -1117,13 +1112,13 @@ elseif($mode == 'added') {
 
 if(!empty($_POST['addthese'])) {
     foreach($_POST['addthese'] as $checked) {
-        $setnew = $set ." ";
         //insert each checked photo into corresponding set
-        $checkedset = "UPDATE photos SET set_id = CONCAT(set_id,'$setnew') WHERE source = '$checked'";
+        $checkedset = "UPDATE photos SET set_id = '$set' WHERE source = '$checked'";
         $checkedsetrun = mysql_query($checkedset);
         }
         }
 	
+echo'<div style="position:relative;margin-top:30px;font-size: 16px;text-align:center;"><span style="font-size:16px;font-weight:200;color:green;" >Your exhibits have been updated successfully!</span><br /><br /><a href="myprofile.php?view=exhibits">Click here to view them</a><br /><br /></div>';
 }
 
 elseif($mode == 'coverchanged') {
@@ -1132,17 +1127,11 @@ elseif($mode == 'coverchanged') {
     $newcaption = mysql_real_escape_string($_POST['caption']);
     $newaboutset = mysql_real_escape_string($_POST['aboutset']);
     $newcover = mysql_real_escape_string($_POST['addthis']);
-        
-    $exhibitchange = "UPDATE sets SET about = '$newaboutset', title = '$newcaption', cover = '$newcover' WHERE id = '$set'  AND owner = '$email'";
+    
+    $exhibitchange = "UPDATE [sets] SET (title = '$newcaption', about = '$newaboutset', cover = '$newcover') WHERE id = '$set' AND owner = '$email'";
     $exhibitrun = mysql_query($exhibitchange);
         	
-}
-
-elseif($mode == 'deleteexhibit') {
-
-    $deleteexhibit = mysql_query("DELETE FROM sets WHERE id = '$set' AND owner = '$email'");
-    echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=exhibits">';
-
+echo'<span style="position:relative;margin-top:-130px;font-size: 16px;"><span class="label label-success" style="font-size:16px;" >Your exhibit has been updated successfully!</span><br /><br /><a href="myprofile.php?ex=y">Click here to view exhibits</a><br /><br /></span>';
 }
 
 //select all exhibits of user
@@ -1157,122 +1146,48 @@ echo'<div style="font-size:18px;font-weight:200;padding:40px;text-align:center;m
 
 if($set == '' & $numbersets > 0) {
 
-echo'<div class="grid_18" style="width:770px;margin-top:22px;margin-left:-10px;padding:35px;"><a href="myprofile.php?view=upload&option=newexhibit"><button class="btn btn-success">Create New Exhibit</button></a><br /><br /></div>
-
-    <div id="thepics" style="position:relative;width:780px;margin-left:15px;top:110px;">
-    <div id="main" role="main">
-    <ul id="tiles">';
+echo'<div class="grid_18" style="width:770px;margin-top:22px;margin-left:-10px;padding:35px;"><a href="myprofile.php?view=upload&option=newexhibit"><button class="btn btn-success">Create New Exhibit</button></a><br /><br />
+'; 
 
 for($iii=0; $iii < $numbersets; $iii++) {
 $setname[$iii] = mysql_result($allsetsrun, $iii, "title");
 $setcover = mysql_result($allsetsrun, $iii, "cover");
 $set_id[$iii] = mysql_result($allsetsrun, $iii, "id");
 $setname2[$iii] = (strlen($setname[$iii]) > 30) ? substr($setname[$iii],0,27). " &#8230;" : $setname[$iii];
-$pulltopphoto = mysql_query("SELECT source FROM photos WHERE set_id = '$set_id[$iii]' ORDER BY votes DESC LIMIT 5");
 if($setcover == '') {
-$setcover = mysql_result($pulltopphoto, 0, "source");
+$setcover = "profilepics/nocoverphoto.png";
 }
-
-$thumb1 = mysql_result($pulltopphoto, 1, "source");
-$thumb1 = str_replace("userphotos/","userphotos/medthumbs/",$thumb1);
-$thumb2 = mysql_result($pulltopphoto, 2, "source");
-$thumb2 = str_replace("userphotos/","userphotos/medthumbs/",$thumb2);
-$thumb3 = mysql_result($pulltopphoto, 3, "source");
-$thumb3 = str_replace("userphotos/","userphotos/medthumbs/",$thumb3);
-$thumb4 =mysql_result($pulltopphoto, 4, "source");
-$thumb4 = str_replace("userphotos/","userphotos/medthumbs/",$thumb4);
-
         list($width, $height) = getimagesize($setcover);
         $imgratio = $height / $width;
-        $heightls = $height / 3.2;
-        $widthls = $width / 3.2;
-if($widthls < 240) {
-    $heightls = $heightls * ($heightls/$widthls);
-    $widthls = 250;
-}
+        $heightls = $height / 3.5;
+        $widthls = $width / 3.5;
         
 //grab all photos in the exhibit
-$grabphotos = "SELECT * FROM photos WHERE emailaddress = '$email' AND set_id LIKE '%$set_id[$iii]%'";
+$grabphotos = "SELECT * FROM photos WHERE emailaddress = '$email' AND set_id = '$set_id[$iii]'";
 $grabphotosrun = mysql_query($grabphotos);
 $numphotosgrabbed = mysql_num_rows($grabphotosrun);
 
 
-    echo'<li style="width:240px;list-style-type:none;"><a style="text-decoration:none;" href="myprofile.php?view=exhibits&set=',$set_id[$iii],'">
-    
-    <div style="width:100%;">
-    
-    <div style="padding-top:5px;padding-left:3px;font-size:13px;text-decoration:none;color:#000;font-weight:200;"><span style="font-size:15px;font-weight:400;">',$setname2[$iii],'</span><br />',$numphotosgrabbed,' Photos</div>
-<hr />
+    echo'<div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="myprofile.php?view=exhibits&set=',$set_id[$iii],'">
 
-    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="http://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
-    
-    if($thumb4) {
-        echo'
-            <div>
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb1,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb2,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb3,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb4,'" width="110" height="110" />
-            </div>';
-    }
-    
-    echo'
-    </a>
-    
-    </li><br />';
-    
-} //end of for loop
+    <div class="statoverlay" style="z-index:1;left:0px;top:190px;position:relative;background-color:black;width:245px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">',$setname2[$iii],'</span><br><span style="font-size:14px;font-family:helvetica,arial;font-weight:100;">Number Photos: ',$numphotosgrabbed,'<br></span></p></div>
 
-echo'</ul>';
-        
-    ?>
+    <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="http://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
     
-    <!-- Once the page is loaded, initalize the plug-in. -->
-  <script type="text/javascript">
-    $(document).ready(new function() {
-      // Prepare layout options.
-      var options = {
-        autoResize: true, // This will auto-update the layout when the browser window is resized.
-        container: $('#main'), // Optional, used for some extra CSS styling
-        offset: 4, // Optional, the distance between grid items
-        itemWidth: 250 // Optional, the width of a grid item
-      };
-      
-      // Get a reference to your grid items.
-      var handler = $('#tiles li');
-      
-      // Call the layout function.
-      handler.wookmark(options);
-      
-    });
-  </script>
-
-    
- <?php      
-
-echo'</div>
-</div>';
+} //end of set == '' view
+echo'</div>';
 
 } //end of set == '' view
 
 
 elseif($set != '') {
-
-//DE-HIGHLIGHT NOTIFICATIONS IF CLICKED ON
-if(isset($_GET['id'])){
-$id = htmlentities($_GET['id']);
-$idformatted = $id . " ";
-$unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$email'";
-$unhighlightqueryrun = mysql_query($unhighlightquery);
-
-//notifications query reset 
-if($currentnotsresult > 0) {
-$notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email'";
-$notsqueryrun = mysql_query($notsquery); }
-}
-
+//get exhibit mode
+if(isset($_GET['mode'])){
+		$mode = ($_GET['mode']);
+	}
+if($mode == '') {
 //grab all photos in the exhibit
-$grabphotos = "SELECT * FROM photos WHERE emailaddress = '$email' AND set_id LIKE '%$set%'";
+$grabphotos = "SELECT * FROM photos WHERE emailaddress = '$email' AND set_id = '$set'";
 $grabphotosrun = mysql_query($grabphotos);
 $numphotosgrabbed = mysql_num_rows($grabphotosrun);
 
@@ -1289,22 +1204,16 @@ $setcover = 'profilepics/nocoverphoto.png';
 
 echo'<div class="grid_18" style="width:770px;margin-top:22px;margin-left:-10px;padding:35px;">
 
-<div class="grid_14 well" style="position:relative;clear:both;width:735px;line-height:25px;margin-top:15px;"><span style="font-size:25px;font-family:helvetica,arial;font-weight:200;">',$settitle,'</span><br />';
+<div class="grid_14 well" style="width:735px;line-height:25px;margin-top:15px;"><span style="font-size:25px;font-family:helvetica,arial;font-weight:200;">',$settitle,'</span><br /><br />';
 if($aboutset) {echo'
-    <br />
     <span style="font-size:16px;font-family:helvetica,arial;font-weight:200;">',        $aboutset,'</span>';
 }
 echo'
-<div style="float:bottom;margin-top:10px;clear:both;">
+<div style="float:bottom;margin-top:10px;">
 <a data-toggle="modal" data-backdrop="static" href="#add"><button class="btn btn-success">Add Photos to Exhibit</button></a>&nbsp;&nbsp;
 <a data-toggle="modal" data-backdrop="static" href="#editexhibit"><button class="btn btn-success">Edit Exhibit</button></a></div>
 </div>';
 
-echo'
-
-    <div id="thepics" style="position:relative;width:780px;clear:both;">
-    <div id="main" role="main">
-    <ul id="tiles">';
 
 for($iii=0; $iii < $numphotosgrabbed; $iii++) {
     $insetname[$iii] = mysql_result($grabphotosrun, $iii, "caption");
@@ -1312,68 +1221,29 @@ for($iii=0; $iii < $numphotosgrabbed; $iii++) {
     $newsource = str_replace("userphotos/","userphotos/medthumbs/", $insetsource[$iii]);
     $caption = mysql_result($grabphotosrun, $iii, "caption");
     $faves = mysql_result($grabphotosrun, $iii, "faves");
-    $price = mysql_result($grabphotosrun, $iii, "price");
-    if($price != 'Not For Sale') {
-                    $price = '$' . $price;
-                }
-                elseif($price == 'Not For Sale') {
-                    $price = 'NFS';
-                }
     $points = mysql_result($grabphotosrun, $iii, "points");
     $votes = mysql_result($grabphotosrun, $iii, "votes");
     $score = number_format(($points/$votes),2);
     
-        list($width, $height) = getimagesize($insetsource[$iii]);
-        $imgratio = $height / $width;
-        $heightls = $height / 3.2;
-        $widthls = $width / 3.2;
-        
-        if($widthls < 240) {
-            $heightls = $heightls * ($heightls/$widthls);
-            $widthls = 250;
-        }
+            list($width, $height) = getimagesize($insetsource[$iii]);
+            $imgratio = $height / $width;
+            $heightls = $height / 3.5;
+            $widthls = $width / 3.5;
                 
-    echo'<li style="list-style-type:none;width:240px;">
-
-    <a style="text-decoration:none;" href="fullsizeme.php?image=',$insetsource[$iii],'"><img onmousedown="return false" oncontextmenu="return false;"  src="',$newsource,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a>
+    echo'<div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;">
     
-    <div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'&nbsp;&nbsp; <a style="color:#333;text-decoration:none;" href="myprofile.php?view=exhibits&set=',$set,'&image=',$insetsource[$iii],'&mode=delete"><span style="float:right;">X</span></a></div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div>
+    <div class="statoverlay" style="z-index:1;left:0px;top:170px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-family:helvetica,arial;font-weight:100;color:white;">',$caption,'</span><a style="color:#eee;text-decoration:none;" href="myprofile.php?view=exhibits&set=',$set,'&image=',$insetsource[$iii],'&mode=delete"><span style="float:right;">X</span></a><br><span style="font-size:14px;font-family:helvetica,arial;font-weight:100;">Score: ',$score,'<br>Favorites: ',$faves,'</span></p></div>
+
+    <a style="text-decoration:none;" href="fullsizeme.php?image=',$insetsource[$iii],'"><img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:265px;min-width:245px;" src="',$newsource,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a>
         
-    </li>';
+    </div>';
  
     } //end for loop
 
-    echo'</ul>';
-        
-    ?>
-    
-    <!-- Once the page is loaded, initalize the plug-in. -->
-  <script type="text/javascript">
-    $(document).ready(new function() {
-      // Prepare layout options.
-      var options = {
-        autoResize: true, // This will auto-update the layout when the browser window is resized.
-        container: $('#main'), // Optional, used for some extra CSS styling
-        offset: 4, // Optional, the distance between grid items
-        itemWidth: 250 // Optional, the width of a grid item
-      };
-      
-      // Get a reference to your grid items.
-      var handler = $('#tiles li');
-      
-      // Call the layout function.
-      handler.wookmark(options);
-      
-    });
-  </script>
+    echo'</div>';
+    echo'</div>';
 
-    
- <?php
- 
- echo'
-    </div>
-    </div>';
-
+   } //end of no exhibit mode
    
    }
    
@@ -2760,13 +2630,7 @@ var last = 0;
     
     elseif($view == 'favorites') {
     
-        $option = htmlentities($_GET['option']);    
-    
-        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=favorites">Photos</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'exts') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=favorites&option=exts">Exhibits</a></div></div>';
-    
-    if($option == '') {
-
-        $favesquery = "SELECT faves FROM userinfo WHERE emailaddress='$email' LIMIT 0, 1";
+        $favesquery = "SELECT * FROM userinfo WHERE emailaddress='$email' LIMIT 0, 1";
         $favesresult = mysql_query($favesquery) or die(mysql_error());
         $faves = mysql_result($favesresult, 0, "faves");
         
@@ -2774,11 +2638,11 @@ var last = 0;
         $numresults = mysql_num_rows($query);
         
         echo'
-        <div id="thepics" style="position:relative;width:780px;margin-left:15px;top:0px;">
+        <div id="thepics" style="position:relative;width:780px;margin-left:15px;top:40px;">
         <div id="main" role="main">
         <ul id="tiles">';
 
-        for($iii=0; $iii < $numresults; $iii++) {
+        for($iii=1; $iii < $numresults; $iii++) {
               
                 $image[$iii] = mysql_result($query, $iii, "source");
                 $imageThumb[$iii] = str_replace("userphotos/","../userphotos/medthumbs/", $image[$iii]);
@@ -2880,125 +2744,8 @@ var last = 0;
 	});
 </script>';
 
-} //end option == ''
-
-
-    elseif($option == 'exts') {
-            
-        $favesquery = "SELECT exhibitfaves FROM userinfo WHERE emailaddress='$email' LIMIT 0, 1";
-        $favesresult = mysql_query($favesquery) or die(mysql_error());
-        $faves = mysql_result($favesresult, 0, 'exhibitfaves');
-        $faves = substr($faves, 0, -1);
-                        
-        $allsetsrun = mysql_query("SELECT * FROM sets WHERE id IN ($faves) ORDER BY FIELD (id, $faves) DESC");
-        $numresults = mysql_num_rows($allsetsrun);
-
-        echo'
-        
-            <div id="thepics" style="position:relative;width:780px;margin-left:15px;top:30px;">
-            <div id="main" role="main">
-            <ul id="tiles">';
-
-        for($iii=0; $iii < $numresults; $iii++) {
-              
-            $setname[$iii] = mysql_result($allsetsrun, $iii, "title");
-            $setcover = mysql_result($allsetsrun, $iii, "cover");
-            $setemail = mysql_result($allsetsrun, $iii, "owner");
-            $set_id[$iii] = mysql_result($allsetsrun, $iii, "id");
-            $setname2[$iii] = (strlen($setname[$iii]) > 30) ? substr($setname[$iii],0,27). " &#8230;" : $setname[$iii];
-            $pulltopphoto = mysql_query("SELECT source FROM photos WHERE set_id = '$set_id[$iii]' ORDER BY votes DESC LIMIT 5");
-            if($setcover == '') {
-                $setcover = mysql_result($pulltopphoto, 0, "source");
-            }
-
-            $thumb1 = mysql_result($pulltopphoto, 1, "source");
-            $thumb1 = str_replace("userphotos/","userphotos/medthumbs/",$thumb1);
-            $thumb2 = mysql_result($pulltopphoto, 2, "source");
-            $thumb2 = str_replace("userphotos/","userphotos/medthumbs/",$thumb2);
-            $thumb3 = mysql_result($pulltopphoto, 3, "source");
-            $thumb3 = str_replace("userphotos/","userphotos/medthumbs/",$thumb3);
-            $thumb4 =mysql_result($pulltopphoto, 4, "source");
-            $thumb4 = str_replace("userphotos/","userphotos/medthumbs/",$thumb4);
-
-            list($width, $height) = getimagesize($setcover);
-            $imgratio = $height / $width;
-            $heightls = $height / 3.2;
-            $widthls = $width / 3.2;
-
-            if($widthls < 240) {
-                $heightls = $heightls * ($heightls/$widthls);
-                $widthls = 250;
-            }
-        
-            //grab all photos in the exhibit
-            $grabphotos = "SELECT * FROM photos WHERE emailaddress = '$setemail' AND set_id = '$set_id[$iii]'";
-            $grabphotosrun = mysql_query($grabphotos);
-            $numphotosgrabbed = mysql_num_rows($grabphotosrun);
-            
-            $findsetowner = mysql_query("SELECT user_id FROM userinfo WHERE emailaddress = '$setemail'");
-            $setownerid = mysql_result($findsetowner,0,'user_id');
-
-
-    echo'<li style="width:240px;list-style-type:none;"><a style="text-decoration:none;" href="viewprofile.php?u=',$setownerid,'&view=exhibits&set=',$set_id[$iii],'">
+}
     
-    <div style="width:100%;">
-    
-    <div style="padding-top:5px;padding-left:3px;font-size:13px;text-decoration:none;color:#000;font-weight:200;"><span style="font-size:15px;font-weight:400;">',$setname2[$iii],'</span><br />',$numphotosgrabbed,' Photos</div>
-<hr />
-
-    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="http://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
-    
-    if($thumb4) {
-        echo'
-            <div>
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb1,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb2,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb3,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb4,'" width="110" height="110" />
-            </div>';
-    }
-    
-    echo'
-    </a>
-    
-    </li><br />';
-    
-} //end of for loop
-
-echo'</ul>';
-
-        
-    ?>
-    
-    <!-- Once the page is loaded, initalize the plug-in. -->
-  <script type="text/javascript">
-    $(document).ready(new function() {
-      // Prepare layout options.
-      var options = {
-        autoResize: true, // This will auto-update the layout when the browser window is resized.
-        container: $('#main'), // Optional, used for some extra CSS styling
-        offset: 4, // Optional, the distance between grid items
-        itemWidth: 250 // Optional, the width of a grid item
-      };
-      
-      // Get a reference to your grid items.
-      var handler = $('#tiles li');
-      
-      // Call the layout function.
-      handler.wookmark(options);
-      
-    });
-  </script>
-  
-  <?php
-  
-  echo'
-  </div>
-  </div>';
-
-    }
-
-} //end of faves view
     
     
     elseif($view == 'search') {
@@ -3055,7 +2802,6 @@ echo'</ul>';
     elseif($view == 'upload') {
     
                 $option = htmlentities($_GET['option']);    
-                $set = htmlentities($_GET['cs']); 
 
                 echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;';if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=upload">Single Upload</a> | <a class="green" style="text-decoration:none;';if($option == 'batch') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=upload&option=batch">Batch Upload</a> | <a class="green" style="text-decoration:none;';if($option == 'newexhibit') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=upload&option=newexhibit">Create an Exhibit</a></div></div>';
                         
@@ -3069,24 +2815,8 @@ echo'</ul>';
 
                         //upload a photo
                         if (htmlentities($_GET['action']) == "uploadsuccess") { 
-                                echo '<div style="margin-top:20px;margin-left:60px;color:#6aae45;float:left;font-size:18px;font-weight:200;">Upload Successful</div><br />';
+                                echo '<div style="margin-top:20px;margin-left:60px;color:#6aae45;float:left;font-size:20px;font-weight:200;">Upload Successful</div><br />';
 
-                        }
-                        
-                        if($set == 'n') {
-                        
-                            if (htmlentities($_GET['ns']) == "success") { 
-                                echo'<br /><br /><span style="margin-top:20px;margin-left:60px;font-size:18px;color:#6aae45"><a href="myprofile.php?view=upload">Add photos to your new exhibit below</a></span><br />';
-                            }
-    
-                            elseif (htmlentities($_GET['ns']) == "failure") { 
-                                echo'<br /><br /><span style="margin-top:20px;margin-left:60px;font-size: 18px;color:red;">Please fill out all fields</span><br />';
-                            }
-    
-                            elseif (htmlentities($_GET['ns']) == "name") { 
-                                echo'<br /><br /><span style="margin-top:20px;margin-left:60px;font-size: 18px;color:red;">You already have an exhibit titled this</span><br />';
-                            }
-                        
                         }
     
                         else if (htmlentities($_GET['action']) == "uploadfailure") {
@@ -3291,7 +3021,7 @@ echo'</ul>';
             <option value="50.00">$50.00</option>
             <option value="100.00">$100.00</option>
             <option value="200.00">$200.00</option>
-            <option>Other Price</option>
+            <option value="Not For Sale">Other Price</option>
             </select>
             <div id="otherprice" class="hide" style="float:left;padding-left:20px;"><div class="input-prepend input-append">
                 <span class="add-on">$</span><input class="span2" id="appendedPrependedInput" size="16" type="text"><span class="add-on">.00</span>
@@ -3569,11 +3299,19 @@ echo'</ul>';
                         
                         elseif($option == 'newexhibit') {
                         
-	    
-    echo'
+	if (htmlentities($_GET['ns']) == "success") { 
+    echo'<br /><br /><span style="font-size: 20px;"><a href="myprofile.php?view=upload">Add photos to your new exhibit!</a></span><br />';
+    }
     
-    <div style="font-size:12px;padding-left:50px;padding-top:20px;font-family:Helvetica Neue,helvetica,arial;font-weight:200;"><span style="font-size:16px;">* </span>Required fields. Please select more than 2 tags.</div>
-
+    elseif (htmlentities($_GET['ns']) == "failure") { 
+    echo'<br /><br /><span style="font-size: 20px;color:red;">Please fill out all fields!</span><br />';
+    }
+    
+    elseif (htmlentities($_GET['ns']) == "name") { 
+    echo'<br /><br /><span style="font-size: 20px;color:red;">You already have an exhibit titled this!</span><br />';
+    }
+    
+    echo'
 	<form action="create_set.php" method="post" enctype="multipart/form-data">
     
     <div class="span9" style="margin-top:30px;padding-left:30px;">
@@ -3581,12 +3319,12 @@ echo'</ul>';
     <tbody>
     
     <tr>
-    <td>*Title of exhibit:</td>
+    <td>Title of exhibit:</td>
     <td><input type="text" name="title" /></td>
     </tr>
     
     <tr>
-    <td>*Pick Keywords:</td>
+    <td>Pick Keywords:</td>
     <td>
     <select multiple="multiple" name="maintags[]">
     <option value="Advertising">Advertising</option>
@@ -3630,7 +3368,7 @@ echo'</ul>';
     </tr>
     
     <tr>
-    <td>*Choose some of your own tags:</td>
+    <td>Choose some of your own tags:</td>
     <td>
     <input style="width:80px;height:20px;" type="text" name="settag1" />
     <input style="width:80px;height:20px;" type="text" name="settag2" />
@@ -4485,7 +4223,7 @@ height="100px" width="100px" />
 
 <div style="width:540px;margin-left:130px;margin-top:-100px;overflow-y:scroll;overflow-x:hidden;">
 
-<form action="', htmlentities($_SERVER['PHP_SELF']), '?view=exhibits&set=',$set,'&mode=coverchanged" method="post" enctype="multipart/form-data">
+<form action="', htmlentities($_SERVER['PHP_SELF']), '?ex=y&set=',$set,'&mode=coverchanged" method="post" enctype="multipart/form-data">
     <span style="font-size:14px;">
     Exhibit Name:&nbsp;&nbsp; <input name="caption" value="',$settitle,'">
     <br />
@@ -4515,13 +4253,8 @@ height="100px" width="100px" />
     
     echo'
     </span>
-    <div>
-    <button style="float:left;" class="btn btn-success" type="submit">Save Info</button>
+    <button class="btn btn-success" type="submit">Save Info</button>
     </form>
-    <div style="float:left;margin-left:180px;"><a class="btn btn-danger" href="myprofile.php?view=exhibits&set=',$set,'&mode=deleteexhibit">Delete Exhibit</a><div>
-    </div>
-    
-    <br /><br />
     
     </div>
     </div>

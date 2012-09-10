@@ -508,6 +508,8 @@ $higherdown = htmlentities($_GET['dc2']);
     if($resolution || $orientation || $license || $keyword || $cat || $higherprice || $lowerrep || $higherrep || $lowerdown || $higherdown && !$category) {
                 
                   $searchterm = htmlentities($_GET['searchterm']);
+                  echo $searchterm;
+                  echo "searchterm";
                 if(!empty($searchterm)) {
 $query ="SELECT * FROM photos WHERE concat(caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) LIKE '%$searchterm%' AND price != ('Not For Sale') ORDER BY (views) DESC LIMIT 0,60 JOIN userinfo ON photos.emailaddress = userinfo.emailaddress AND";
                 }

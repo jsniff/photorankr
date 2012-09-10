@@ -1,9 +1,13 @@
 <?php
  
-/** GetExpressCheckoutDetails NVP example; last modified 08MAY23.
+/** DoExpressCheckoutPayment NVP example; last modified 08MAY23.
  *
- *  Get information about an Express Checkout transaction. 
+ *  Complete an Express Checkout transaction. 
 */
+
+$tokengetexpress = addslashes($_REQUEST['token']);
+$identity = addslashes($_REQUEST['identities']);
+
  
 $environment = 'live';	// or 'beta-sandbox' or 'live'
  
@@ -27,19 +31,18 @@ function PPHttpPost($methodName_, $nvpStr_) {
 	}
 	$version = urlencode('51.0');
  
-	// Set the curl parameters.
+	// setting the curl parameters.
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $API_Endpoint);
 	curl_setopt($ch, CURLOPT_VERBOSE, 1);
  
-	// Turn off the server and peer verification (TrustManager Concept).
+	// Set the curl parameters.
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
  
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_POST, 1);
  
- 	$methodName_="GetExpressCheckoutDetails";
 	// Set the API operation, version, and API signature in the request.
 	$nvpreq = "METHOD=$methodName_&VERSION=$version&PWD=$API_Password&USER=$API_UserName&SIGNATURE=$API_Signature$nvpStr_";
  
@@ -72,52 +75,28 @@ function PPHttpPost($methodName_, $nvpStr_) {
 }
  
 /**
- * This example assumes that this is the return URL in the SetExpressCheckout API call.
- * The PayPal website redirects the user to this page with a token.
+ * This example assumes that a token was obtained from the SetExpressCheckout API call.
+ * This example also assumes that a payerID was obtained from the SetExpressCheckout API call
+ * or from the GetExpressCheckoutDetails API call.
  */
- 
-// Obtain the token from PayPal.
-if(!array_key_exists('token', $_REQUEST)) {
-	exit('Token is not received.');
-}
- 
 // Set request-specific fields.
-$token = urlencode(htmlspecialchars($_REQUEST['token']));
+$payerID = urlencode($identity);
+$token = urlencode($tokengetexpress);
+ 
+$paymentType = urlencode("Authorization");			// or 'Sale' or 'Order'
+$paymentAmount = urlencode("0");
+$currencyID = urlencode("USD");						// or other currency code ('GBP', 'EUR', 'JPY', 'CAD', 'AUD')
  
 // Add request-specific fields to the request string.
-$nvpStr = "&TOKEN=$token";
+$nvpStr = "&TOKEN=$token&PAYERID=$payerID&PAYMENTACTION=$paymentType&AMT=$paymentAmount&CURRENCYCODE=$currencyID";
  
 // Execute the API operation; see the PPHttpPost function above.
-$httpParsedResponseAr = PPHttpPost('GetExpressCheckoutDetails', $nvpStr);
+$httpParsedResponseAr = PPHttpPost('DoExpressCheckoutPayment', $nvpStr);
  
 if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"])) {
-	// Extract the response details.
-	$payerID = $httpParsedResponseAr['PAYERID'];
-	$street1 = $httpParsedResponseAr["SHIPTOSTREET"];
-	if(array_key_exists("SHIPTOSTREET2", $httpParsedResponseAr)) {
-		$street2 = $httpParsedResponseAr["SHIPTOSTREET2"];
-	}
-	$city_name = $httpParsedResponseAr["SHIPTOCITY"];
-	$state_province = $httpParsedResponseAr["SHIPTOSTATE"];
-	$postal_code = $httpParsedResponseAr["SHIPTOZIP"];
-	$country_code = $httpParsedResponseAr["SHIPTOCOUNTRYCODE"];
- 
-	//exit('Get Express Checkout Details Completed Successfully: '.print_r($httpParsedResponseAr, true));
-		
-echo'
-        <span class="payment-errors" style="font-weight:bold;font-size:15px;"></span>
-      <form action= "confirmpaymentpaypal.php" method="POST">
-    <div class="form-row" style="margin-left:25px;">           
-<input type="hidden" name="token" value="',$token,'">
-<input type="hidden" name="identities" value="',$payerID,'">
-   <button type="submit" class="button submit btn btn-success" style="font-size:16px;float:left;margin-top:5px;padding-top:10px;padding-bottom:10px;padding-right:40px;padding-left:40px;font-weight:200;">Submit Payment</button>
-   </form>
-        </div>';
-
-
+	exit('Express Checkout Payment Completed Successfully: '.print_r($httpParsedResponseAr, true));
 } else  {
-	exit('GetExpressCheckoutDetails failed: ' . print_r($httpParsedResponseAr, true));
+	exit('DoExpressCheckoutPayment failed: ' . print_r($httpParsedResponseAr, true));
 }
-
+ 
 ?>
-

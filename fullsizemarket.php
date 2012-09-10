@@ -509,7 +509,7 @@ $medprice = number_format(($price / 1.5),2);
 </thead>
 <tbody>
 
-<form action="myprofile.php?view=store&option=cart" method="POST" />
+<form action="myprofile.php?view=cart#<?php echo $imageid; ?>" method="POST" />
 
 <tr id="row" onclick="showClicked();" style="color:black;">
 <td>Small</td>
@@ -763,7 +763,7 @@ The Extended Content License Provisions govern this option.
         
 
         if($cartmatch > 0) {
-        echo'<a class="btn btn-danger" style="margin-left:10px;width:120px;float:left;" href="fullsize2.php?imageid=',$imageid,'&action=removed">Remove from Cart</a>';
+        echo'<a class="btn btn-danger" style="margin-left:10px;width:120px;float:left;" href="fullsizemarket.php?imageid=',$imageid,'&action=removed">Remove from Cart</a>';
         }
         else {
             echo'<button type="submit" class="btn btn-success" style="margin-left:10px;width:100px;float:left;" href="download2.php?imageid=',$imageid,'&action=added">Add to Cart</button>

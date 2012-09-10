@@ -5,6 +5,40 @@ require "db_connection.php";
 require "functionscampaigns3.php"; 
 
 
+//Login from front page
+session_start();
+
+if ($_GET['action'] == "log_in") { // if login form has been submitted
+
+	/// makes sure they filled it in
+        if(!htmlentities($_POST['emailaddress']) | !htmlentities($_POST['password'])) {
+            die('You did not fill in a required field.');
+        }
+
+        $check = mysql_query("SELECT * FROM campaignusers WHERE repemail = '".mysql_real_escape_string($_POST['emailaddress'])."'")or die(mysql_error());
+        //Gives error if user dosen't exist
+
+        $check2 = mysql_num_rows($check);
+    
+        if ($check2 == 0) {
+            die('That user does not exist in our database. <a href="campaignnewuser.php">Click Here to Register</a> or <a href="lostpassword.php">here to recover a forgotten password</a>.');
+        }
+
+        $info = mysql_fetch_array($check);
+
+        if(mysql_real_escape_string($_POST['password']) == mysql_real_escape_string($info['password'])){
+            //then redirect them to the same page as signed in and set loggedin to 1
+            $_SESSION['loggedin'] = 2;
+            $_SESSION['repemail'] = mysql_real_escape_string($_POST['emailaddress']);
+        }
+        //gives error if the password is wrong
+        else if (mysql_real_escape_string($_POST['password']) != mysql_real_escape_string($info['password'])) {
+            die('Incorrect password, please try again. <a href="lostpassword.php"> Lost your password?</a>');   
+        }
+
+    }
+
+
 //start the session
 session_start();
 
@@ -504,13 +538,11 @@ $lowerdown = htmlentities($_GET['dc']);
         $lowerdown = 0;
     }
 $higherdown = htmlentities($_GET['dc2']);
-
-    if($resolution || $orientation || $license || $keyword || $cat || $higherprice || $lowerrep || $higherrep || $lowerdown || $higherdown && !$category) {
+$searchterm = htmlentities($_GET['searchterm']);
+    if($resolution || $orientation || $license || $keyword || $cat || $higherprice || $lowerrep || $higherrep || $lowerdown || $higherdown && !$category || $searchterm) {
                 
-                  $searchterm = htmlentities($_GET['searchterm']);
-                  echo $searchterm;
                 if($searchterm) {
-$query ="SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE concat(caption, tag, camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, location, country, about, sets, maintags, settags) LIKE '%$searchterm%' AND price != ('Not For Sale') ORDER BY (views) DESC LIMIT 0,60 AND";
+$query ="SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.emailaddress WHERE concat(caption, tag, photos.camera, tag1, tag2, tag3, tag4, singlecategorytags, singlestyletags, photos.location, country, about, photos.sets, maintags, settags) LIKE '%$searchterm%' AND price != ('Not For Sale')";
 
                 }
 
@@ -521,7 +553,7 @@ $query ="SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.em
 
 
                 if(!empty($cat)) {
-                $query .= " singlecategorytags LIKE '%$cat%'";
+                $query .= " AND singlecategorytags LIKE '%$cat%'";
                 }
                 
                 if(!empty($style)) {
@@ -595,9 +627,9 @@ $query ="SELECT * FROM photos JOIN userinfo ON photos.emailaddress = userinfo.em
                         $query .= " ORDER BY (points/votes) ASC";
                     }
                 }
+                 $query .= " LIMIT 0,60";
+
                             
-                            echo $query;
-                            echo $searchterm;
                 $query = mysql_query($query);
                                         
                 $numresults = mysql_num_rows($query);

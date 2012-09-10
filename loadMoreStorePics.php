@@ -41,10 +41,10 @@ if($_GET['lastPicture']) {
                 
                 echo '   
 
-                <div class="fPic" id="',$id,'" style="width:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="http://photorankr.com/fullsizemarket.php?imageid=',$id,'">
+                <div class="fPic" id="',$id,'" style="width:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="http://photorankr.com/fullsizemarket.php?imageid=',$id,'">
                 
                 <div style="width:245px;height:245px;overflow:hidden;">
-                <div class="statoverlay" style="z-index:1;left:0px;top:155px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br><span style="font-size:14px;font-weight:100;">Sold: ',$sold,'<br>Base Price: $',$price,'</span></p></div>
+                <div class="statoverlay" style="z-index:1;left:0px;top:155px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">',$caption,'</span><br><span style="font-size:14px;font-family:helvetica,arial;font-weight:100;">Sold: ',$sold,'<br>Base Price: $',$price,'</span></p></div>
 
                 <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="http://www.photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a>
                 <br />      

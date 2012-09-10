@@ -125,6 +125,41 @@ if ((($_FILES["file"]["type"] == "image/gif")
       			createMedThumbnail($newfilename); 
       			watermarkpic($newfilename);  
       		}
+     $exif = exif_read_data($target, 0, true);
+//echo $exif===false ? "No header data found.<br />\n" : "Image contains headers<br />\n";
+        foreach ($exif as $key => $section) {
+
+            foreach ($section as $name2 => $val) {
+                if($key.$name2==EXIF.ShutterSpeed) {
+                    $shutterspeed = $val;
+                }
+                          if($key.$name2==EXIF.ApertureValue) {
+                            $aperture = $val;
+
+                          }
+
+                        if($key.$name2==EXIF.FocalLength) {
+                        $focallength = $val;
+                        
+                        }
+                        
+                        if($key.$name2==IFD0.Software) {
+                        $software = $val;
+                        
+                        }
+                        
+                        if($key.$name2==IFD0.Model) {
+                        $camera = $val;
+                        
+                        }
+                        
+                              if($key.$name2==EXIF.ISOSpeedRatings) {
+                                $iso = $val;
+                                }
+               }
+           }
+
+    
 
         	//Get set_id
         	$set_idquery = "SELECT * FROM sets WHERE owner = '$email' AND title = '$addtoset'";
@@ -176,7 +211,7 @@ if ((($_FILES["file"]["type"] == "image/gif")
 
         	//newsfeed query
         	$type = "photo";
-        	$newsfeedquery=mysql_query("INSERT INTO newsfeed (firstname, lastname,emailaddress,type,source,caption) VALUES ('$firstname','$lastname','$email','$type','$target','$name')");
+        	$newsfeedquery=mysql_query("INSERT INTO newsfeed (firstname, lastname,emailaddress,type,source,caption,time) VALUES ('$firstname','$lastname','$email','$type','$target','$name','$currenttime')");
 
 		echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=upload&action=uploadsuccess">';
 		exit();

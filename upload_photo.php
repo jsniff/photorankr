@@ -11,7 +11,7 @@ require 'functions.php';
 //start the session and grab the users information
 @session_start();
 $email = $_SESSION['email'];
-
+ 
 //if they have one of the required file types
 if ((($_FILES["file"]["type"] == "image/gif")
 || ($_FILES["file"]["type"] == "image/jpg")
@@ -163,7 +163,8 @@ if ((($_FILES["file"]["type"] == "image/gif")
 
         	//newsfeed query
         	$type = "photo";
-        	$newsfeedquery=mysql_query("INSERT INTO newsfeed (firstname, lastname,emailaddress,type,source,caption) VALUES ('$firstname','$lastname','$email','$type','$target','$name')");
+            $currenttime = time();
+        	$newsfeedquery = mysql_query("INSERT INTO newsfeed (firstname,lastname,emailaddress,type,source,caption,time) VALUES ('$firstname','$lastname','$email','$type','$target','$name','$currenttime')");
 
 		echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=upload&action=uploadsuccess">';
 		exit();

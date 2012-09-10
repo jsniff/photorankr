@@ -1,6 +1,8 @@
 <?php 
 
 require("db_connection.php");
+
+echo'<script type="text/javascript" src="js/jquery.wookmark.js"></script>';
 	
 if($_GET['lastPicture']) {
 	$lastpicID = mysql_real_escape_string($_GET['lastPicture']);
@@ -13,32 +15,74 @@ if($_GET['lastPicture']) {
 
 	//DISPLAY 20 NEWEST OF ALL PHOTOS
 
-	echo'<div id="container" style="width:780px;margin-top:0px;margin-left:25px;">';
-
+    echo'
+    <div id="main" role="main">
+    <ul id="tiles">';
+    
 	for($iii=0; $iii < 9 && $iii < $numphotos; $iii++) {
 		$image[$iii] = mysql_result($mysqlquery, $iii, "source");
     $imageThumb[$iii] = str_replace("userphotos/","userphotos/medthumbs/", $image[$iii]);
     $imageThumb[$iii] = str_replace(".JPG",".jpg", $imageThumb[$iii]);
 	$id = mysql_result($mysqlquery, $iii, "id");
+    $price = mysql_result($mysqlquery, $iii, "price");
+                if($price != 'Not For Sale') {
+                    $price = '$' . $price;
+                }
+                elseif($price == 'Not For Sale') {
+                    $price = 'NFS';
+                }
+                elseif($price == '.00' || $price == '') {
+                    $price = 'Free';
+                }
     $caption = mysql_result($mysqlquery, $iii, "caption");
     $points = mysql_result($mysqlquery, $iii, "points");
     $votes = mysql_result($mysqlquery, $iii, "votes");
     $faves = mysql_result($mysqlquery, $iii, "faves");
     $score = number_format(($points/$votes),2);
-	list($width, $height) = getimagesize($image);
+	list($width, $height) = getimagesize($image[$iii]);
 	$imgratio = $height / $width;
     $heightls = $height / 3.5;
     $widthls = $width / 3.5;
+    
+    if($widthls < 240) {
+        $heightls = $heightls * ($heightls/$widthls);
+        $widthls = 250;
+    }
 
-echo '
+echo'
 
-<div class="fPic" id="',$id,'" style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a href="http://photorankr.com/fullsize.php?image=', $image[$iii], '">
-
-                <div class="statoverlay" style="z-index:1;left:0px;top:155px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-weight:100;">',$caption,'</span><br><span style="font-size:14px;font-weight:100;">Score: ',$score,'<br>Favorites: ',$faves,'</span></p></div>
-
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="http://www.photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+<a style="text-decoration:none;color:#000;" href="fullsize.php?imageid=',$id,'"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
+"><img onmousedown="return false" oncontextmenu="return false;" src="http://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
 	    
       } //end for loop
+      
+      echo'</ul>';
+      
+?>
+      
+    <!-- Once the page is loaded, initalize the plug-in. -->
+  <script type="text/javascript">
+    $(document).ready(new function() {
+      // Prepare layout options.
+      var options = {
+        autoResize: true, // This will auto-update the layout when the browser window is resized.
+        container: $('#main'), // Optional, used for some extra CSS styling
+        offset: 4, // Optional, the distance between grid items
+        itemWidth: 250 // Optional, the width of a grid item
+      };
+      
+      // Get a reference to your grid items.
+      var handler = $('#tiles li');
+      
+      // Call the layout function.
+      handler.wookmark(options);
+      
+    });
+  </script>
+
+  
+      
+<?php
       	
 	echo '</div>';
 

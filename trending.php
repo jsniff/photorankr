@@ -31,7 +31,7 @@ $timeIncrementsInHrs=10;
 
 $Scorequery = "UPDATE photos SET score = CASE ";
 
-for($iii = $numberofpics-500; $iii < $numberofpics; $iii++) {
+for($iii = $numberofpics-200; $iii < $numberofpics; $iii++) {
 	$currenttime=time();
 	$phototime=mysql_result($firstresult, $iii, "time");
 	$Time=$currenttime-$phototime;
@@ -143,6 +143,8 @@ $notsqueryrun = mysql_query($notsquery); }
   <script type="text/javascript" src="jquery.js"></script>   
   <script src="bootstrap-dropdown.js" type="text/javascript"></script>
   <script src="bootstrap-collapse.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
+
   <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
       
 <style type="text/css">
@@ -231,16 +233,26 @@ if(isset($_GET['view'])){
 $view = htmlentities($_GET['view']);
 }
 
-       echo'<br /><br /><br /><br /><div style="text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#000;';if($view == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="trending.php">Trending Photos</a> | <a class="green" style="text-decoration:none;color:#000;';if($view == 'prs') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="trending.php?view=prs">Trending Photographers</a></div></div>';
+               echo'<br /><br /><br /><br />
+        <div style="margin-left:-70px;font-size:15px;font-weight:200;font-family:"Helvetica Neue",Helvetica,Arial;">
+        
+        <a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == '') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="trending.php">Trending Photos</a> 
+        
+        <a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == 'prs') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="trending.php?view=prs">Trending Photographers</a>
+        
+        </div>';
        
 
 if($view == '') {
 
       
     //DISPLAY TRENDING PHOTOS
-         echo'<div id="thepics">';
-
-    echo'<div id="container" style="width:1210px;margin-left:-112px;top:15px;">';
+    
+    echo'
+    <div id="thepics" style="position:relative;margin-left:-130px;top:0px;width:1240px;">
+    <div id="main" role="main">
+    <ul id="tiles">';
+    
 for($iii=1; $iii <= 16; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
     $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
@@ -258,29 +270,55 @@ for($iii=1; $iii <= 16; $iii++) {
     
 	list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
-    $heightls = $height / 2.5;
-    $widthls = $width / 2.5;
-    
-    echo'
-    <div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a style="text-decoration:none;" href="http://photorankr.com/fullsize.php?image=',$image,'&v=t">
-        
-         <div class="statoverlay" style="z-index:1;left:0px;top:240px;position:relative;background-color:black;width:280px;height:40px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:22px;font-weight:100;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:100;font-size:18px;">',$caption,'</span><br/></div>
-        
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="http://photorankr.com/',$imageThumb,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+    $heightls = $height / 4.3;
+    $widthls = $width / 4.3;
+    if($widthls < 225) {
+    $heightls = $heightls * ($heightls/$widthls);
+    $widthls = 270;
+    }
+
+		echo '
+        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=t"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:270px;
+"><img src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /><p><span style="font-size:16px;">',$score,'</span>/10&nbsp;&nbsp;',$caption,'</p></li></a>';
 	    
       } //end for loop
-      echo'</div>';
-            echo'</div>';
-
+      
+      echo'
+        </ul>';
+        
 ?>
+
+<!-- Once the page is loaded, initalize the plug-in. -->
+  <script type="text/javascript">
+    $(document).ready(new function() {
+      // Prepare layout options.
+      var options = {
+        autoResize: true, // This will auto-update the layout when the browser window is resized.
+        container: $('#main'), // Optional, used for some extra CSS styling
+        offset: 4, // Optional, the distance between grid items
+        itemWidth: 290 // Optional, the width of a grid item
+      };
+      
+      // Get a reference to your grid items.
+      var handler = $('#tiles li');
+      
+      // Call the layout function.
+      handler.wookmark(options);
+      
+    });
+  </script>
+
+</div>
+</div>
 
 <!--AJAX CODE HERE-->
    <div class="grid_6 push_9" style="padding-top:50px;">
    <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Photos&hellip;</div>
    </div>
+   
 <?php
 
-echo '<script>
+echo'<script>
 
 var last = 0;
 
@@ -323,9 +361,9 @@ for($iii=1; $iii <= 30; $iii++) {
     $prevlist = $prevlist . $profilepic;
     
         
-        echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a href="viewprofile.php?u=',$userid,'">
+        echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a style="text-decoration:none;" href="viewprofile.php?u=',$userid,'">
         
-        <div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:280px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-weight:100;font-size:22px;">',$fullname,'</span></div>
+        <div class="statoverlay" style="z-index:1;left:0px;top:240px;position:relative;background-color:black;width:280px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-family:helvetica neue,arial;font-weight:100;font-size:22px;">',$fullname,'</span></div>
         
         <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="',$profilepic,'" alt="',$fullname,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
       
@@ -337,9 +375,6 @@ for($iii=1; $iii <= 30; $iii++) {
 ?>
 
 </div>
-<br /><br />
-
-<?php footer(); ?>
 
  </body>
 </html>

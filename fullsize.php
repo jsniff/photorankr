@@ -3,6 +3,7 @@
 //connect to the database
 require "db_connection.php";
 require "functionsnav.php";
+require "timefunction.php";
 
 //start the session
 session_start();
@@ -23,12 +24,23 @@ session_start();
     $sessionuserid =  mysql_result($findreputationme,0,'user_id');
     $sessionfirst =  mysql_result($findreputationme,0,'firstname');
     $sessionlast =  mysql_result($findreputationme,0,'lastname');
+    $sessionid =  mysql_result($findreputationme,0,'user_id');
     $sessionname = mysql_result($findreputationme,0,'firstname') ." ". mysql_result($findreputationme,0,'lastname');
+    $currenttime = time();
     
     //GET THE IMAGE
-$image=addslashes($_GET['image']);
+$image = addslashes($_GET['image']);
+
+if(!$image) {
+
+    $imageid = addslashes($_GET['imageid']);
+    $imagequery = mysql_query("SELECT source FROM photos WHERE id = '$imageid'");
+    $image = mysql_result($imagequery,0,'source');
+    
+}
+
 //if the url does not contain an image send them back to trending
-if(!isset($_GET['image'])) {
+if(!$image) {
 	header("Location: trending.php");
 	exit();
 }
@@ -47,12 +59,13 @@ $emailaddress=$row['emailaddress'];
 $caption=$row['caption'];
 $location=$row['location'];
 $country=$row['country'];
+$time=$row['time'];
 $prevpoints=$row['points'];
 $prevvotes=$row['votes'];
 $ranking=number_format(($prevpoints/$prevvotes),1);
 $imageID=$row['id'];
 $price=mysql_result($result, 0, "price");
-$camera = $row['camera'];
+$camera = mysql_result($result,0,"camera");
 if($camera) {
 $camera = '<a style="color:black;" href="search.php?searchterm='.$camera.'">' . $camera . '</a>';
 }
@@ -114,11 +127,11 @@ $singlestyletagsarray = explode("  ", $singlestyletags);
 $singlecategorytagsarray   = explode("  ", $singlecategorytags);
 for($iii=0; $iii < count($singlestyletagsarray); $iii++) {
 if($singlestyletagsarray[$iii] != '') {
-    $singlestyletagsfinal = $singlestyletagsfinal . '<a style="color:black;" href="search.php?searchterm='.$singlestyletagsarray[$iii].'">' . $singlestyletagsarray[$iii] . '</a>' . ", "; }
+    $singlestyletagsfinal .= '<a style="color:black;" href="search.php?searchterm='.$singlestyletagsarray[$iii].'">' . $singlestyletagsarray[$iii] . '</a>' . ", "; }
     }
     for($iii=0; $iii < count($singlecategorytagsarray); $iii++) {
         if($singlecategorytagsarray[$iii] != '') {
-        $singlecategorytagsfinal = $singlecategorytagsfinal . '<a style="color:black;" href="search.php?searchterm='.$singlecategorytagsarray[$iii].'">' . $singlecategorytagsarray[$iii] . '</a>' . ", "; }
+        $singlecategorytagsfinal .= '<a style="color:black;" href="search.php?searchterm='.$singlecategorytagsarray[$iii].'">' . $singlecategorytagsarray[$iii] . '</a>' . ", "; }
     }
     
 $keywords = $tag1 . $tag2 . $tag3 . $tag4 . $singlestyletagsfinal . $singlecategorytagsfinal;
@@ -223,7 +236,7 @@ $result = mysql_num_rows($feedtestquery);
 
 if ($score > 2 && $result < 1) {
 $type4 = "trending";
-$newsfeedtrending="INSERT INTO newsfeed (firstname,lastname,caption,owner,type,source) VALUES ('$firstname2','$lastname2','$caption2','$emailaddress3','$type4','$source')";
+$newsfeedtrending="INSERT INTO newsfeed (firstname,lastname,caption,owner,type,source,time) VALUES ('$firstname2','$lastname2','$caption2','$emailaddress3','$type4','$source','$currenttime')";
 $trendingnewsquery = mysql_query($newsfeedtrending); 
   
 } 
@@ -526,7 +539,7 @@ if ($f==1) {
             
              //newsfeed query
         $type = "fave";
-        $newsfeedfavequery=mysql_query("INSERT INTO newsfeed (firstname,lastname,emailaddress,type,source,caption,owner) VALUES ('$viewerfirst', '$viewerlast', '$email','$type','$image','$caption','$emailaddress')");
+        $newsfeedfavequery=mysql_query("INSERT INTO newsfeed (firstname,lastname,emailaddress,type,source,caption,owner,time) VALUES ('$viewerfirst', '$viewerlast', '$email','$type','$image','$caption','$emailaddress','$currenttime')");
      
 //notifications query     
 $notsquery = "UPDATE userinfo SET notifications = (notifications + 1) WHERE emailaddress = '$emailaddress'";
@@ -535,7 +548,7 @@ $notsqueryrun = mysql_query($notsquery);
             
 //GRAB SETTINGS LIST
 $settingemail = $_SESSION['email'];
-$settingquery = "SELECT * FROM userinfo WHERE emailaddress = '$settingemail'";
+$settingquery = "SELECT settings FROM userinfo WHERE emailaddress = '$settingemail'";
 $settingqueryrun = mysql_query($settingquery);
 $settinglist = mysql_result($settingqueryrun, 0, "settings");
                                   
@@ -544,7 +557,7 @@ $find = "emailfave";
 $foundsetting = strpos($setting_string,$find);
             
             //MAIL PHOTOGRAPHER NOTICE THAT THEIR PHOTO HAS BEEN FAVORITED
-            $to = '"' . $firstname . ' ' . $lastname . '"' . '<'.$emailaddress.'>';
+          $to = '"' . $firstname . ' ' . $lastname . '"' . '<'.$emailaddress.'>';
           $subject = $viewerfirst . " " . $viewerlast . " favorited one of your photos on PhotoRankr";
           $favemessage = $viewerfirst . " " . $viewerlast . " favorited one of your photos on PhotoRankr
         
@@ -552,7 +565,7 @@ To view the photo, click here: http://photorankr.com/fullsize.php?image=".$image
           $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
           
           if($foundsetting > 0) {
-          mail($to, $subject, $favemessage, $headers); 
+             mail($to, $subject, $favemessage, $headers); 
           }
           
 		}
@@ -687,7 +700,7 @@ if ($follow==1) {
             
              $type2 = "follow";
              $ownername = $firstname . " " . $lastname;
-        $newsfeedfollowquery="INSERT INTO newsfeed (firstname, lastname, emailaddress,following,type,owner) VALUES ('$viewerfirst', '$viewerlast', '$email','$emailaddress','$type2','$ownername')";
+        $newsfeedfollowquery="INSERT INTO newsfeed (firstname, lastname, emailaddress,following,type,owner,time) VALUES ('$viewerfirst', '$viewerlast', '$email','$emailaddress','$type2','$ownername','$currenttime')";
         $follownewsquery = mysql_query($newsfeedfollowquery);
         
         //notifications query     
@@ -790,13 +803,18 @@ To view the photo, click here: http://photorankr.com/fullsize.php?image=".$image
     }
     
         $type = "comment";
-        $newsfeedcomment = mysql_query("INSERT INTO newsfeed (firstname, lastname, emailaddress,owner,type,source) VALUES ('$sessionfirst', '$sessionlast', '$email','$emailaddress','$type','$image')") or die();
+        
+        $commentidquery = mysql_query("SELECT id FROM comments WHERE commenter = '$email' ORDER BY id DESC LIMIT 0,1");
+        $commentid = mysql_result($commentidquery,0,'id');
+        
+        $newsfeedcomment = mysql_query("INSERT INTO newsfeed (firstname, lastname, emailaddress,owner,type,source,imageid,time) VALUES ('$sessionfirst', '$sessionlast', '$email','$emailaddress','$type','$image','$commentid','$currenttime')") or die();
             
-    echo '<META HTTP-EQUIV="Refresh" Content="0; URL=fullsize.php?image=', $image, '&v=', $view, '">';
-	exit();
+    //echo '<META HTTP-EQUIV="Refresh" Content="0; URL=fullsize.php?image=', $image, '&v=', $view, '">';
+	//exit();
 
 }
 
+//DELETE COMMENT
 if(htmlentities($_GET['action']) == 'deletecomment' && $_SESSION['loggedin'] == 1) {
     
     $commentid = htmlentities($_GET['cid']);
@@ -804,6 +822,14 @@ if(htmlentities($_GET['action']) == 'deletecomment' && $_SESSION['loggedin'] == 
 
 }
 
+//EDIT COMMENT
+if($_POST['commentedit']) {
+
+    $commentedit = mysql_real_escape_string($_POST['commentedit']);
+    $commentid = mysql_real_escape_string($_POST['commentid']);
+    $commenteditquery = mysql_query("UPDATE comments SET comment = '$commentedit' WHERE id = '$commentid' AND commenter = '$email'");
+    
+}
 
 ?>   
 
@@ -1294,7 +1320,7 @@ By:
             echo'
                 <form action="" method="POST" />
                     <div style="width:610px;"><img style="float:left;padding:10px;" src="',$sessionpic,'" height="30" width="30" />
-                    <input style="float:left;width:495px;height:20px;position:relative;top:10px;" type="text" name="comment" placeholder="Leave feedback for ',$firstname,'&#8230;" />
+                    <input style="float:left;width:495px;position:relative;top:10px;" type="text" name="comment" placeholder="Leave feedback for ',$firstname,'&#8230;" />
                     <input style="float:left;margin-top:11px;margin-left:4px;"  type="submit" class="btn btn-success" value="Post"/>
                     </div>
                 </form>';
@@ -1308,6 +1334,7 @@ By:
         
             $comment = mysql_result($grabcomments,$iii,'comment');
             $commentid = mysql_result($grabcomments,$iii,'id');
+            $commenttime = mysql_result($grabcomments,$iii,'time');
             $commenteremail = mysql_result($grabcomments,$iii,'commenter');
             $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
             $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
@@ -1320,23 +1347,50 @@ By:
             <div class="grid_16" style="width:610px;margin-top:20px;">
             <a href="viewprofile.php?u=',$commenterid,'"><div style="float:left;"><img class="roundedall" src="',$commenterpic,'" alt="',$commentername,'" height="40" width="35"/></a></div>
             <div style="float:left;padding-left:6px;width:560px;">
-                <div style="float:left;color:#3e608c;font-size:14px;font-family:helvetica;font-weight:500;border-bottom: 1px solid #ccc;width:560px;"><div style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> &nbsp;<span style="font-size:16px;font-weight:100;color:black;margin-top:2">|</span>&nbsp;<span style="color:#333;font-size:12px;">Rep: ',$commenterrep,'</span></div>&nbsp;&nbsp;&nbsp;
+                <div style="float:left;color:#3e608c;font-size:14px;font-family:helvetica;font-weight:500;border-bottom: 1px solid #ccc;width:560px;"><div style="float:left;"><a name="',$commentid,'" href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> &nbsp;<span style="font-size:16px;font-weight:100;color:black;margin-top:2">|</span>&nbsp;<span style="color:#333;font-size:12px;">Rep: ',$commenterrep,'</span>
+                </div>&nbsp;&nbsp;&nbsp;
                     <div class="progress progress-success" style="float:left;width:110px;height:7px;opacity:.8;margin:7px;">
                     <div class="bar" style="width:',$commenterrep,'%;">
-                    </div></div>';
+                    </div>
+                    
+                    </div>';
+                    
                  if($email == $emailaddress) {
                     echo'
                         <div style="float:right;font-size:12px;font-weight:500;"><a style="color#ccc;text-decoration:none;" href="fullsize.php?image=',$image,'&action=deletecomment&cid=',$commentid,'">X</a></div>';
                 }
+                
+                if($commenterid == $sessionid) {
+                    echo'
+                        <div style="float:right;padding-right:10px;font-size:12px;font-weight:500;"><a style="color#ccc;text-decoration:none;" href="fullsize.php?image=',$image,'&action=editcomment&cid=',$commentid,'#',$commentid,'"> Edit Comment</a></div>';
+                }
+
                 echo'
                 </div>
+                
+                <br />
+                <div style="float:left;font-size:11px;color:#777;font-weight:400;padding:2px;">',converttime($commenttime),'</div>
+                
                 <div style="float:left;width:520px;padding:10px;font-size:13px;font-family:helvetica;font-weight:300;color:#555;">',$comment,'</div>
-            </div>
+            </div>';
+            
+             if($_GET['action'] == 'editcomment' && $commentid == $_GET['cid']) {
+                
+                    echo'
+                    <form action="fullsize.php?image=',$image,'#',$commentid,'" method="POST" />
+                    <textarea style="height:55px;width:560px;margin-left:40px;" name="commentedit">',$comment,'</textarea>
+                    <input type="hidden" name="commentid" value="',$commentid,'" />
+                    <br />
+                    <input type="submit" class="btn btn-primary" style="float:right;font-size:12px;" value="Save Edit" />
+                    </form>';
+                    
+                }
+            
+            echo'
             </div>';
             
         }
         
-        $image=mysql_real_escape_string($_GET['image']);
         $imagenew=str_replace("userphotos/","", $image);
         $imagelink=str_replace(" ","", $image);
         $searchchars=array('.jpg','.png','.tiff','.JPG','.jpeg','.JPEG','.gif');
@@ -1608,7 +1662,7 @@ By:
 			<div class="grid_7 box underbox"><!--Share stuff here-->
 					<h1 id="sharelinks"> Share: </h1>
                     
-                    <a href="https://www.facebook.com/sharer.php?u=http%3A%2F%2Fphotorankr.com%2Ffullsize.php?image=<?php echo $image; ?>" type="button" share_url="photorankr.com/fullsize.php?image=<?php echo $image; ?>"><img src="graphics/facebook.png" style="width:30px;height:30px;margin: 7px 9px 0px 10px;"/></a>
+                    <a href="https://www.facebook.com/sharer.php?u=http%3A%2F%2Fphotorankr.com%2Ffullsize.php?imageid=<?php echo $imageid; ?>" type="button" share_url="photorankr.com/fullsize.php?imageid=<?php echo $imageid; ?>"><img src="graphics/facebook.png" style="width:30px;height:30px;margin: 7px 9px 0px 10px;"/></a>
                     <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" 
                     type="text/javascript">
                     </script>
@@ -1628,7 +1682,8 @@ By:
     ?>
 		
 			<div class="grid_7 box underbox"><!--About photo-->
-				<h1> About </h1>
+				<h1> About </h1> 
+                    
 					<div class="grid_7">
                     
                     <?php
@@ -1683,6 +1738,12 @@ By:
 				</div>';	
                     }
                     echo'</div>';
+                    
+                    if($time > 0) {
+                    
+                        echo'<div style="clear:both;"><h1 class="about"> &nbsp;Uploaded: </h1> <p class="aboutinfo" style="line-height:20px;margin-left:10px;text-align:justified;">',converttodate($time),'</p></div>';
+                    
+                    }
                     
                     if($keywords) {
                     echo'
