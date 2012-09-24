@@ -39,6 +39,13 @@ if(!$image) {
     
 }
 
+if(!$imageid) {
+
+    $imagequery = mysql_query("SELECT id FROM photos WHERE source = '$image'");
+    $imageid = mysql_result($imagequery,0,'id');
+
+} 
+
 //if the url does not contain an image send them back to trending
 if(!$image) {
 	header("Location: trending.php");
@@ -181,10 +188,8 @@ else {
 	$newwidth=$maxheight*$imgratio;
 }
 
-$email6 = $_SESSION['email'];
-
 //QUERY FOR NOTIFICATIONS
-$currentnots = "SELECT * FROM userinfo WHERE emailaddress = '$email6'";
+$currentnots = "SELECT * FROM userinfo WHERE emailaddress = '$email'";
 $currentnotsquery = mysql_query($currentnots);
 $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
 
@@ -193,15 +198,14 @@ $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
 if(isset($_GET['id'])){
 $id = htmlentities($_GET['id']);
 $idformatted = $id . " ";
-$unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$email6'";
+$unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$email'";
 $unhighlightqueryrun = mysql_query($unhighlightquery);
 
 //notifications query reset 
 if($currentnotsresult > 0) {
-$notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email6'";
+$notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email'";
 $notsqueryrun = mysql_query($notsquery); }
 }
-
 
 if(isset($_GET['v'])){
 	$view = htmlentities($_GET['v']);
@@ -209,7 +213,6 @@ if(isset($_GET['v'])){
 else {
 	$view = 't';
 }
-
 
 
 //TRENDING PHOTOS FOR 
@@ -242,8 +245,6 @@ $trendingnewsquery = mysql_query($newsfeedtrending);
 } 
 
 }
-
-
 
 
 //if they came from trending
@@ -510,7 +511,6 @@ $f=htmlentities($_GET['f']);
 else {$f=0;}
 if ($f==1) {
 	if($_SESSION['loggedin'] == 1) {
-        $email = $_SESSION['email'];
 		//run a query to be used to check if the image is already there
 		$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress='$email'") or die(mysql_error());
         $viewerfirst = mysql_result($check, 0, "firstname");
@@ -547,8 +547,7 @@ $notsqueryrun = mysql_query($notsquery);
  
             
 //GRAB SETTINGS LIST
-$settingemail = $_SESSION['email'];
-$settingquery = "SELECT settings FROM userinfo WHERE emailaddress = '$settingemail'";
+$settingquery = "SELECT settings FROM userinfo WHERE emailaddress = '$email'";
 $settingqueryrun = mysql_query($settingquery);
 $settinglist = mysql_result($settingqueryrun, 0, "settings");
                                   
@@ -561,7 +560,7 @@ $foundsetting = strpos($setting_string,$find);
           $subject = $viewerfirst . " " . $viewerlast . " favorited one of your photos on PhotoRankr";
           $favemessage = $viewerfirst . " " . $viewerlast . " favorited one of your photos on PhotoRankr
         
-To view the photo, click here: http://photorankr.com/fullsize.php?image=".$imagelink2;
+To view the photo, click here: https://photorankr.com/fullsize.php?image=".$imagelink2;
           $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
           
           if($foundsetting > 0) {
@@ -713,8 +712,7 @@ $notsqueryrun = mysql_query($notsquery);
              		//PERSON NOW BEING FOLLOWED
     
 //GRAB SETTINGS LIST
-$settingemail = $_SESSION['email'];
-$settingquery = "SELECT * FROM userinfo WHERE emailaddress = '$settingemail'";
+$settingquery = "SELECT * FROM userinfo WHERE emailaddress = '$setting'";
 $settingqueryrun = mysql_query($settingquery);
 $settinglist = mysql_result($settingqueryrun, 0, "settings");
 
@@ -724,7 +722,7 @@ $foundsetting = strpos($setting_string,$find);
     
         		$to = '"' . $firstname . ' ' . $lastname . '"' . '<'.$emailaddress.'>';
         		$subject = $viewerfirst . " " . $viewerlast . ' is now following your photography on PhotoRankr!';
-        		$message = 'You have a new follower on PhotoRankr! Visit their photography here: http://photorankr.com/viewprofile.php?u='.$sessionuserid;
+        		$message = 'You have a new follower on PhotoRankr! Visit their photography here: https://photorankr.com/viewprofile.php?u='.$sessionuserid;
         		$headers = 'From:PhotoRankr <photorankr@photorankr.com>';
                 if($foundsetting > 0) {
         		mail($to, $subject, $message, $headers);   
@@ -752,7 +750,7 @@ if(htmlentities($_POST['comment']) && $_SESSION['loggedin'] == 1) {
     $subject = $sessionname ." commented on your photo on PhotoRankr";
     $message = stripslashes($comment) . "
     
-To view the photo, click here: http://photorankr.com/fullsize.php?image=".$image;
+To view the photo, click here: https://photorankr.com/fullsize.php?image=".$image;
     $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
     
         if($foundsetting > 0) {
@@ -784,7 +782,7 @@ To view the photo, click here: http://photorankr.com/fullsize.php?image=".$image
             $subject = $sessionfirst . " " . $sessionlast . " also commented on " . $firstname . " " . $lastname ."'s photo on PhotoRankr";
             $returnmessage = stripslashes($message) . "
         
-To view the photo, click here: http://photorankr.com/fullsize.php?image=".$image;
+To view the photo, click here: https://photorankr.com/fullsize.php?image=".$image;
             
             $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
                         
@@ -852,7 +850,7 @@ if($_POST['commentedit']) {
 <link rel="stylesheet" type="text/css" href="css/reset.css"/>
 <link rel="stylesheet" type="text/css" href="css/style.css"/>
 <link rel="stylesheet" type="text/css" href="css/960_24_col.css"/>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   <script src="bootstrap.js" type="text/javascript"></script>
   <script src="bootstrap-dropdown.js" type="text/javascript"></script>
   <script src="bootstrap-collapse.js" type="text/javascript"></script>
@@ -883,7 +881,7 @@ if($_POST['commentedit']) {
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
@@ -1110,7 +1108,7 @@ else {
             
 			echo'
 <div class="modal-header" style="background-color:#111;color:#fff;">
-<a style="float:right" class="btn btn-success"  href="fullsize.php?image=', $image,'&v=',$view,'&fw=1">Close</a>
+<a style="float:right" class="btn btn-success"  href="fullsize.php?imageid=', $imageid,'&v=',$view,'&fw=1">Close</a>
 <img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">You are now following ',$firstname,' ',$lastname,'</span>
   </div>
   
@@ -1255,7 +1253,7 @@ By:
         
         echo'
 <div class="modal-header" style="background-color:#111;color:#fff;">
-<a style="float:right" class="btn btn-success" href="fullsize.php?image=', $image,'&v=',$view,'&f=1">Close</a>
+<a style="float:right" class="btn btn-success" href="fullsize.php?imageid=', $imageid,'&v=',$view,'&f=1">Close</a>
 <img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">This photo has been added to your favorites.</span>
   </div>
 
@@ -1548,7 +1546,7 @@ By:
                 echo '<div style="position: relative; left: -10px; top: 0px; text-align: center; font-size: 15px; font-family: arial;';
                 if($ranking) {echo 'margin-top: 10px;';}
                 echo '">
-                <form id="Form1" action="', htmlentities($_SERVER['PHP_SELF']), '?image=', $image, '&v=', $view, '" method="post">
+                <form id="Form1" action="', htmlentities($_SERVER['PHP_SELF']), '?imageid=',$imageid, '&v=', $view, '" method="post">
                 <select name="ranking" style="width:90px; height:30px;margin-left:15px;margin-top:2px;" onchange="submitMyForm(this)">
                 <option value="" style="display:none;">&#8212;</option>
                 <option value="1">1</option>
@@ -1663,15 +1661,15 @@ By:
 					<h1 id="sharelinks"> Share: </h1>
                     
                     <a href="https://www.facebook.com/sharer.php?u=http%3A%2F%2Fphotorankr.com%2Ffullsize.php?imageid=<?php echo $imageid; ?>" type="button" share_url="photorankr.com/fullsize.php?imageid=<?php echo $imageid; ?>"><img src="graphics/facebook.png" style="width:30px;height:30px;margin: 7px 9px 0px 10px;"/></a>
-                    <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" 
+                    <script src="https://static.ak.fbcdn.net/connect.php/js/FB.Share" 
                     type="text/javascript">
                     </script>
 
 					<a href="https://twitter.com/share" data-text="Check out this photo!" data-via="PhotoRankr" data-size="large" data-count="none"><img src="graphics/twitter.png" style="width:30px;height:30px;margin: 7px 9px 0px 5px;"/></a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 
-					<a href="http://pinterest.com/pin/create/button/" class="pin-it-button" count-layout="none"><img src="graphics/pinterest.png" style="width:30px;height:30px;margin: 7px 9px 0px 5px;"/></a>
-<script type="text/javascript" src="http://assets.pinterest.com/js/pinit.js"></script>
+					<a href="https://pinterest.com/pin/create/button/" class="pin-it-button" count-layout="none"><img src="graphics/pinterest.png" style="width:30px;height:30px;margin: 7px 9px 0px 5px;"/></a>
+<script type="text/javascript" src="https://assets.pinterest.com/js/pinit.js"></script>
                     
 <a href="https://plus.google.com/102253183291914861528"><img src="graphics/g+.png" style="width:30px;height:30px;margin:7px 9px 0px 8px;"/></a>
                     

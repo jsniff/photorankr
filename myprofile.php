@@ -92,7 +92,7 @@ if($_GET['action'] == "signup") { //if they tried to sign up from signin.php
         
          //newsfeed query
         $type = "signup";
-        $newsfeedsignupquery=mysql_query("INSERT INTO newsfeed (firstname, lastname, emailaddress,type) VALUES ('$firstname', '$lastname', '$newemail','$type')");
+        $newsfeedsignupquery=mysql_query("INSERT INTO newsfeed (firstname, lastname, emailaddress,type,time) VALUES ('$firstname', '$lastname', '$newemail','$type','$currenttime')");
         
         //SEND REGISTRATION GREETING
         
@@ -100,7 +100,7 @@ if($_GET['action'] == "signup") { //if they tried to sign up from signin.php
         $subject = 'Welcome to PhotoRankr!';
         $message = 'Thank you for signing up with PhotoRankr! You can now upload your own photos and sell them at your own price, follow the best photographers, and become part of a growing community. If you have any questions about PhotoRankr or would like to suggest an improvement, you can email us at photorankr@photorankr.com. We greatly value your feedback and hope you will spread the word about PhotoRankr to your friends and family by referring them to the site with the link below:
         
-		http://photorankr.com/referral.php        
+		https://photorankr.com/referral.php        
 
 		Again, welcome to the site!
 
@@ -381,7 +381,7 @@ if(isset($_GET['view'])) {
     
 
     
-   if($ranking2 > 145) {
+   if($ranking2 > 140) {
         $rankingweighted2 = $rankingweight2;
     }
     
@@ -432,12 +432,12 @@ if(isset($_GET['view'])) {
 ?>
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="https://www.w3.org/1999/xhtml">
 
 <head>
-   <meta property="og:image" content="http://photorankr.com/<?php echo $profilepic; ?>">
+   <meta property="og:image" content="https://photorankr.com/<?php echo $profilepic; ?>">
    <title><?php echo $firstname . " " . $lastname; ?> | PhotoRankr</title>
    <meta name="Generator" content="EditPlus">
   <meta name="Author" content="PhotoRankr, PhotoRankr.com">
@@ -446,10 +446,12 @@ if(isset($_GET['view'])) {
 
   <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
   <link rel="stylesheet" href="text2.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="css/style.css" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
   <link rel="stylesheet" href="960_24.css" type="text/css" />
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
+  <script type="text/javascript">
+    document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' type='text/javascript'>\<\/script>");
+  </script>
+  <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
   <script src="bootstrap.js" type="text/javascript"></script>
   <script src="bootstrap-dropdown.js" type="text/javascript"></script>
   <script src="bootstrap-collapse.js" type="text/javascript"></script>
@@ -537,7 +539,7 @@ opacity:.6;
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
   
@@ -605,8 +607,8 @@ background-color:#fff;overflow-x:hidden;min-width:1220px;">
 <div style="float:left;overflow:hidden;margin-left:15px;margin-top:15px;">
 <a href="viewprofile.php?u=<?php echo $userid; ?>"><img class="roundedall" src="<?php echo $profilepic; ?>" alt="<?php echo $fullname; ?>" height="120" width="120"/></a>
 </div>
-<a class="btn btn-success" style="float:left;width:70px;margin-top:40px;margin-left:10px;font-size:14px;font-weight:150;" href="myprofile.php?view=upload">Upload</a>
-<a class="btn btn-primary" style="float:left;width:70px;margin-top:7px;margin-left:10px;font-size:14px;font-weight:150;" href="myprofile.php?view=promote">Promote</a>
+<a style="float:left;width:70px;margin-top:7px;margin-left:10px;font-size:14px;font-weight:150;margin-top:40px;" class="btn btn-success" href="myprofile.php?view=upload"><p class="button_text">Upload </p><div class="grid_1" id="upload" style="margin: 0px 0 0 0;"><img style="margin-top:-2px;" src="graphics/upload_1.png" height="17"/></div></a>
+<a class="btn btn-primary" style="float:left;width:70px;margin-top:7px;margin-left:10px;font-size:14px;font-weight:150;" href="myprofile.php?view=promote">Share</a>
 </div>
 
 <?php
@@ -942,7 +944,7 @@ var last = 0;
     
         $option = htmlentities($_GET['option']);    
     
-        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=portfolio">Newest</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'top') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=portfolio&option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'fave') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=portfolio&option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile.php?view=exhibits">Exhibits</a></div></div>';
+        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:35px;"><a class="green" style="text-decoration:none;color:#333;" href="editphotos.php">Edit Portfolio</a> | <a class="green" style="text-decoration:none;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=portfolio">Newest</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'top') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=portfolio&option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'fave') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=portfolio&option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile.php?view=exhibits">Exhibits</a></div></div>';
         
         if($_GET['action'] == 'signup') {
         echo'<div class="grid_18" style="width:770px;margin-top:-34px;margin-left:-10px;padding:35px;text-align:center;font-size:16px;font-family:helvetica;font-weight:200;">
@@ -1015,7 +1017,7 @@ var last = 0;
                 }
 
                  echo'<a style="text-decoration:none;color:#000;" href="fullsizeme.php?imageid=',$id,'"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
-"><img onmousedown="return false" oncontextmenu="return false;" src="http://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
+"><img onmousedown="return false" oncontextmenu="return false;" src="https://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><span style="font-size:14px;">',$score,'/</span><span style="font-size:12px;color:#444;">10.0</span><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
 	    
                 } //end for loop 
                 
@@ -1204,15 +1206,15 @@ $numphotosgrabbed = mysql_num_rows($grabphotosrun);
     <div style="padding-top:5px;padding-left:3px;font-size:13px;text-decoration:none;color:#000;font-weight:200;"><span style="font-size:15px;font-weight:400;">',$setname2[$iii],'</span><br />',$numphotosgrabbed,' Photos</div>
 <hr />
 
-    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="http://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
+    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="https://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
     
     if($thumb4) {
         echo'
             <div>
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb1,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb2,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb3,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb4,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb1,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb2,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb3,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb4,'" width="110" height="110" />
             </div>';
     }
     
@@ -1844,7 +1846,7 @@ echo'
           
                 for($iii=0; $iii<$numsavedinmarket; $iii++) {
                         $photo[$iii] = mysql_result($marketquery, $iii, "source");
-                        $photo2[$iii] = str_replace("http://photorankr.com/userphotos/","../userphotos/medthumbs/", $photo[$iii]);
+                        $photo2[$iii] = str_replace("https://photorankr.com/userphotos/","../userphotos/medthumbs/", $photo[$iii]);
                         $photoid[$iii] = mysql_result($marketquery, $iii, "id");
                         $imageid[$iii] = mysql_result($marketquery, $iii, "imageid");
                         $caption = mysql_result($marketquery, $iii, "caption");
@@ -1880,7 +1882,7 @@ echo'
                 for($iii=0; $iii<$numpurchased; $iii++) {
                 
                         $photo[$iii] = mysql_result($downloadquery, $iii, "source");
-                        $photo2[$iii] = str_replace("http://photorankr.com/userphotos/","userphotos/medthumbs/", $photo[$iii]);
+                        $photo2[$iii] = str_replace("https://photorankr.com/userphotos/","userphotos/medthumbs/", $photo[$iii]);
                         $photoid[$iii] = mysql_result($downloadquery, $iii, "id");
                         $imageid[$iii] = mysql_result($downloadquery, $iii, "imageid");
                         $captionquery =  mysql_query("SELECT caption FROM photos WHERE id = '$imageid[$iii]'");
@@ -2006,7 +2008,7 @@ if(!$licenses) {
     $imagequery = mysql_query("SELECT source,price FROM photos WHERE id = '$imageid'");
     $imagenewsource = mysql_result($imagequery,0,'source');
     $imagenewsource2 = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/",$imagenewsource);
-    $imagenewsource3 = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "http://photorankr.com/userphotos/",$imagenewsource2); 
+    $imagenewsource3 = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "https://photorankr.com/userphotos/",$imagenewsource2); 
     $imagenewprice = mysql_result($imagequery,0,'price'); 
     
     //ADD TO CART IN DB
@@ -2295,12 +2297,12 @@ echo'</div>';
                 
                 echo '   
 
-                <div class="fPic" id="',$id,'" style="width:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;"  href="http://photorankr.com/fullsizemarket.php?imageid=',$id,'">
+                <div class="fPic" id="',$id,'" style="width:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;"  href="https://photorankr.com/fullsizemarket.php?imageid=',$id,'">
                 
                 <div style="width:245px;height:230px;overflow:hidden;">
                 <div class="statoverlay" style="z-index:1;left:0px;top:155px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">',$caption,'</span><br><span style="font-size:14px;font-family:helvetica,arial;font-weight:100;">Sold: ',$sold,'<br>Base Price: $',$price,'</span></p></div>
 
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="http://www.photorankr.com/',$imageThumb[$iii],'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a>
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="https://www.photorankr.com/',$imageThumb[$iii],'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a>
                 <br />      
                 </div>    
                     
@@ -2680,7 +2682,7 @@ var last = 0;
     
             for($iii = 0; $iii < $usernumphotos; $iii++) {
             $userphotosource = mysql_result($allusersphotosquery, $iii, "source");
-            $userphotosource = str_replace("userphotos/","http://photorankr.com/userphotos/", $userphotosource);
+            $userphotosource = str_replace("userphotos/","https://photorankr.com/userphotos/", $userphotosource);
             $userphotosset[$iii] = mysql_result($allusersphotosquery, $iii, "sets");
             $userphotoscaption[$iii] = mysql_result($allusersphotosquery, $iii, "caption");
             $newsource = str_replace("userphotos/","userphotos/thumbs/", $userphotosource);
@@ -2747,11 +2749,11 @@ var last = 0;
 		
                 echo '   
 
-                <div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="http://photorankr.com/viewprofile.php?u=',$followingid,'">
+                <div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="https://photorankr.com/viewprofile.php?u=',$followingid,'">
 
                 <div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:245px;height:35px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;font-family:helvetica,arial;font-weight:100;">',$fullname,'</span></p></div>
 
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-35px;min-height:245px;min-width:245px;" src="http://www.photorankr.com/',$followingpic,'" height="245" width="245" /></a></div>';
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-35px;min-height:245px;min-width:245px;" src="https://www.photorankr.com/',$followingpic,'" height="245" width="245" /></a></div>';
         
         }
         echo'</div>';
@@ -2815,7 +2817,7 @@ var last = 0;
                 }
 
                   echo'<a style="text-decoration:none;color:#000;" href="fullsize.php?imageid=',$id,'"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
-"><img onmousedown="return false" oncontextmenu="return false;" src="http://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
+"><img onmousedown="return false" oncontextmenu="return false;" src="https://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
 	    
                 } //end for loop      
         
@@ -2946,15 +2948,15 @@ var last = 0;
     <div style="padding-top:5px;padding-left:3px;font-size:13px;text-decoration:none;color:#000;font-weight:200;"><span style="font-size:15px;font-weight:400;">',$setname2[$iii],'</span><br />',$numphotosgrabbed,' Photos</div>
 <hr />
 
-    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="http://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
+    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="https://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
     
     if($thumb4) {
         echo'
             <div>
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb1,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb2,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb3,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb4,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb1,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb2,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb3,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb4,'" width="110" height="110" />
             </div>';
     }
     
@@ -3041,7 +3043,7 @@ echo'</ul>';
 
                 <div class="statoverlay" style="z-index:1;left:0px;top:155px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">',$caption,'</span><br><span style="font-size:14px;font-family:helvetica,arial;font-weight:100;">Score: ',$score,'<br>Favorites: ',$faves,'</span></p></div>
 
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="http://www.photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="https://www.photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
 	    
                 } //end for loop      
         
@@ -3069,8 +3071,36 @@ echo'</ul>';
 
                         //upload a photo
                         if (htmlentities($_GET['action']) == "uploadsuccess") { 
-                                echo '<div style="margin-top:20px;margin-left:60px;color:#6aae45;float:left;font-size:18px;font-weight:200;">Upload Successful</div><br />';
+                        
+                                $lastupload = mysql_query("SELECT id,source FROM photos WHERE emailaddress = '$email' ORDER BY id DESC LIMIT 1");
+                                $lastphotoid = mysql_result($lastupload,0,'id');
+                                $lastphotosource = mysql_result($lastupload,0,'source');
+                                $lastphotocaption = mysql_result($lastupload,0,'caption');
+                                $lastphotosource = str_replace("userphotos/","userphotos/medthumbs/",$lastphotosource);
+                                
+                                echo '<img style="float:left;padding:10px;margin-left:50px;" src="',$lastphotosource,'" width="100" /><div style="margin-top:20px;margin-left:10px;color:#6aae45;float:left;font-size:16px;font-weight:200;"><strong>Upload Successful</strong>
+                                <br />
+                                <div style="color:#333;margin-top:5px;">Share this photo?&nbsp;&nbsp;
+                                  
+                                    <div>
+                                              
+                                    <div style="float:left;margin-top:5px;">                                                                                                                                                                                                                   
+                                    <a name="fb_share" type="button" share_url="https://photorankr.com/fullsizeview.php?imageid=',$lastphotoid,'" href="https://www.facebook.com/sharer.php">Share</a>
+<script src="https://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script></div>
+                                
+                                    &nbsp;&nbsp;
 
+                                    <div style="float:left;padding:2px;margin-left:6px;margin-top:5px;"><a href="https://twitter.com/share" class="twitter-share-button" data-url="https://photorankr.com/fullsizeview.php?imageid=',$lastphotoid,'" data-text="Check out my latest PhotoRankr upload!" data-via="PhotoRankr" data-count="none"></a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+                                    </div>
+
+                                    </div>
+                                
+                                </div>
+                                
+                                </div><br />';
+                                
+                                                            
                         }
                         
                         if($set == 'n') {
@@ -3362,15 +3392,15 @@ echo'</ul>';
 <!-- Generic page styles -->
 <link rel="stylesheet" href="css/style.css">
 <!-- Bootstrap styles for responsive website layout, supporting different screen sizes -->
-<link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap-responsive.min.css">
+<link rel="stylesheet" href="https://blueimp.github.com/cdn/css/bootstrap-responsive.min.css">
 <!-- Bootstrap CSS fixes for IE6 -->
-<!--[if lt IE 7]><link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap-ie6.min.css"><![endif]-->
+<!--[if lt IE 7]><link rel="stylesheet" href="https://blueimp.github.com/cdn/css/bootstrap-ie6.min.css"><![endif]-->
 <!-- Bootstrap Image Gallery styles -->
-<link rel="stylesheet" href="http://blueimp.github.com/Bootstrap-Image-Gallery/css/bootstrap-image-gallery.min.css">
+<link rel="stylesheet" href="https://blueimp.github.com/Bootstrap-Image-Gallery/css/bootstrap-image-gallery.min.css">
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
 <link rel="stylesheet" href="batch/css/jquery.fileupload-ui.css">
 <!-- Shim to make HTML5 elements usable in older Internet Explorer versions -->
-<!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<!--[if lt IE 9]><script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 
 <div style="text-align:center;font-size:14px;font-family:helvetica;font-weight:100;margin-left:-35px;margin-top:15px;">Drap and Drop Supported</div>
 
@@ -3539,14 +3569,14 @@ echo'</ul>';
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
 <script src="js/vendor/jquery.ui.widget.js"></script>
 <!-- The Templates plugin is included to render the upload/download listings -->
-<script src="http://blueimp.github.com/JavaScript-Templates/tmpl.min.js"></script>
+<script src="https://blueimp.github.com/JavaScript-Templates/tmpl.min.js"></script>
 <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
-<script src="http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js"></script>
+<script src="https://blueimp.github.com/JavaScript-Load-Image/load-image.min.js"></script>
 <!-- The Canvas to Blob plugin is included for image resizing functionality -->
-<script src="http://blueimp.github.com/JavaScript-Canvas-to-Blob/canvas-to-blob.min.js"></script>
+<script src="https://blueimp.github.com/JavaScript-Canvas-to-Blob/canvas-to-blob.min.js"></script>
 <!-- Bootstrap JS and Bootstrap Image Gallery are not required, but included for the demo -->
-<script src="http://blueimp.github.com/cdn/js/bootstrap.min.js"></script>
-<script src="http://blueimp.github.com/Bootstrap-Image-Gallery/js/bootstrap-image-gallery.min.js"></script>
+<script src="https://blueimp.github.com/cdn/js/bootstrap.min.js"></script>
+<script src="https://blueimp.github.com/Bootstrap-Image-Gallery/js/bootstrap-image-gallery.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
 <script src="batch/js/jquery.iframe-transport.js"></script>
 <!-- The basic File Upload plugin -->
@@ -3572,7 +3602,7 @@ echo'</ul>';
 	    
     echo'
     
-    <div style="font-size:12px;padding-left:50px;padding-top:20px;font-family:Helvetica Neue,helvetica,arial;font-weight:200;"><span style="font-size:16px;">* </span>Required fields. Please select more than 2 tags.</div>
+    <div style="font-size:12px;padding-left:50px;padding-top:20px;font-family:Helvetica Neue,helvetica,arial;font-weight:200;"><span style="font-size:16px;">* </span>Required fields. Please select more than 2 tags. (Selecting multiple values: Hold down command button if on mac, control button if on PC)</div>
 
 	<form action="create_set.php" method="post" enctype="multipart/form-data">
     
@@ -3737,7 +3767,7 @@ echo'</ul>';
     
             for($iii = 0; $iii < $usernumphotos; $iii++) {
             $userphotosource = mysql_result($allusersphotosquery, $iii, "source");
-            $userphotosource = str_replace("userphotos/","http://photorankr.com/userphotos/", $userphotosource);
+            $userphotosource = str_replace("userphotos/","https://photorankr.com/userphotos/", $userphotosource);
             $userphotosset[$iii] = mysql_result($allusersphotosquery, $iii, "sets");
             $userphotoscaption[$iii] = mysql_result($allusersphotosquery, $iii, "caption");
             $newsource = str_replace("userphotos/","userphotos/thumbs/", $userphotosource);
@@ -4126,7 +4156,7 @@ $message = "Hi! You've been invited by $sendname to join PhotoRankr, a site for 
 
 To accept your invitation and begin following photography today, just click the link below:
 
-http://photorankr.com/signin.php
+https://photorankr.com/signin.php
 
 We hope you'll enjoy PhotoRankr as much as we have building it,
 
@@ -4147,20 +4177,20 @@ Help promote your portfolio and your PhotoRankr page by sharing it with your fri
 
 <!--FB-->
 <div class="fb_share">
-    <a name="fb_share" type="box_count" share_url="http://photorankr.com/viewprofile.php?u=',$userid,'"
-      href="http://www.facebook.com/sharer.php"></a>
-    <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
+    <a name="fb_share" type="box_count" share_url="https://photorankr.com/viewprofile.php?u=',$userid,'"
+      href="https://www.facebook.com/sharer.php"></a>
+    <script src="https://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
 </div>
 
 <!--TWITTER-->
 <div style="position:relative;margin-top:15px;">
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://photorankr.com/viewprofile.php?u=',$user,'" data-text="Visit my photography site on PhotoRankr!" data-via="PhotoRankr" data-related="PhotoRankr">Tweet</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="https://photorankr.com/viewprofile.php?u=',$user,'" data-text="Visit my photography site on PhotoRankr!" data-via="PhotoRankr" data-related="PhotoRankr">Tweet</a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
 </script></div>
 
 <!--GOOGLE PLUS-->
 <div style="position:relative;margin-top:15px;">
-<div class="g-plus" data-action="share" data-href="http://photorankr.com/viewprofile.php?u=',$user,'"></div>';
+<div class="g-plus" data-action="share" data-href="https://photorankr.com/viewprofile.php?u=',$user,'"></div>';
 ?>
 
 <script type="text/javascript">
@@ -4432,7 +4462,7 @@ height="100px" width="100px" />
     
     for($iii = 0; $iii < $usernumphotos; $iii++) {
         $userphotosource = mysql_result($allusersphotosquery, $iii, "source");
-        $userphotosource = str_replace("userphotos/","http://photorankr.com/userphotos/", $userphotosource);
+        $userphotosource = str_replace("userphotos/","https://photorankr.com/userphotos/", $userphotosource);
         $userphotosset[$iii] = mysql_result($allusersphotosquery, $iii, "sets");
         $userphotoscaption[$iii] = mysql_result($allusersphotosquery, $iii, "caption");
         $newsource = str_replace("userphotos/","userphotos/thumbs/", $userphotosource);
@@ -4539,21 +4569,21 @@ height="100px" width="100px" />
 
 <!--TUMBLR SCRIPTS-->
 <script type="text/javascript">
-    var tumblr_link_url = "http://photorankr.com/viewprofile.php?u=',$user,'";
+    var tumblr_link_url = "https://photorankr.com/viewprofile.php?u=',$user,'";
     var tumblr_link_name = "My PhotoRankr Portfolio";
     var tumblr_link_description = "Visit and rank my photography on PhotoRankr!";
 </script>
 
 <script type="text/javascript">
     var tumblr_button = document.createElement("a");
-    tumblr_button.setAttribute("href", "http://www.tumblr.com/share/link?url=" + encodeURIComponent(tumblr_link_url) + "&name=" + encodeURIComponent(tumblr_link_name) + "&description=" + encodeURIComponent(tumblr_link_description));
+    tumblr_button.setAttribute("href", "https://www.tumblr.com/share/link?url=" + encodeURIComponent(tumblr_link_url) + "&name=" + encodeURIComponent(tumblr_link_name) + "&description=" + encodeURIComponent(tumblr_link_description));
     tumblr_button.setAttribute("title", "Share on Tumblr");
-    tumblr_button.setAttribute("style", "display:inline-block; text-indent:-9999px; overflow:hidden; width:129px; height:20px; background:url('http://platform.tumblr.com/v1/share_3.png') top left no-repeat transparent;");
+    tumblr_button.setAttribute("style", "display:inline-block; text-indent:-9999px; overflow:hidden; width:129px; height:20px; background:url('https://platform.tumblr.com/v1/share_3.png') top left no-repeat transparent;");
     tumblr_button.innerHTML = "Share on Tumblr";
     document.getElementById("tumblr_button_abc123").appendChild(tumblr_button);
 </script>
 
-<script type="text/javascript" src="http://platform.tumblr.com/v1/share.js"></script>
+<script type="text/javascript" src="https://platform.tumblr.com/v1/share.js"></script>
 
 
 </body>

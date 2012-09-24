@@ -122,7 +122,7 @@ $notsqueryrun = mysql_query($notsquery); }
 ?>
 
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "https://www.w3.org/TR/html4/loose.dtd">
 <html>
  <head>
   <title>PhotoRankr - Trending Photography</title>
@@ -140,8 +140,10 @@ $notsqueryrun = mysql_query($notsquery); }
   <link rel="stylesheet" href="960_24.css" type="text/css" />
   	<link rel="stylesheet" type="text/css" href="market/css/all.css"/>
 
-  <script type="text/javascript" src="jquery.js"></script>   
-  <script src="bootstrap-dropdown.js" type="text/javascript"></script>
+ <script type="text/javascript">
+    document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' type='text/javascript'>\<\/script>");
+  </script>
+    <script src="bootstrap-dropdown.js" type="text/javascript"></script>
   <script src="bootstrap-collapse.js" type="text/javascript"></script>
     <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
 
@@ -211,7 +213,7 @@ location.href="trending.php?x="+x;
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
@@ -279,7 +281,7 @@ for($iii=1; $iii <= 16; $iii++) {
 
 		echo '
         <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=t"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:270px;
-"><img src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /><p><span style="font-size:16px;">',$score,'</span>/10&nbsp;&nbsp;',$caption,'</p></li></a>';
+"><img src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /><p><span style="font-size:16px;">',$score,'</span>/10&nbsp;&nbsp;',$caption,'</p></li></a>';
 	    
       } //end for loop
       

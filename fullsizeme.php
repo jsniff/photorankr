@@ -315,7 +315,7 @@ $foundsetting = strpos($setting_string,$find);
           $subject = $viewerfirst . " " . $viewerlast . " favorited one of your photos on PhotoRankr";
           $favemessage = $viewerfirst . " " . $viewerlast . " favorited one of your photos on PhotoRankr
         
-To view the photo, click here: http://www.photorankr.com/fullsizeme.php?image=".$imagelink2;
+To view the photo, click here: https://www.photorankr.com/fullsizeme.php?image=".$imagelink2;
           $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
                                         if($foundsetting > 0) {
           mail($to, $subject, $favemessage, $headers); 
@@ -519,7 +519,7 @@ if($_POST['commentedit']) {
 <meta charset="UTF-8">
 <title>Edit Photo "<?php echo $caption; ?>" | PhotoRankr</title>
 
-<meta property="og:image" content="http://photorankr.com/<?php echo $image; ?>">
+<meta property="og:image" content="https://photorankr.com/<?php echo $image; ?>">
    <meta name="Generator" content="EditPlus">
   <meta name="Author" content="PhotoRankr, PhotoRankr.com">
   <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
@@ -531,7 +531,7 @@ if($_POST['commentedit']) {
 <link rel="stylesheet" type="text/css" href="css/all.css"/>
 <link rel="stylesheet" type="text/css" href="css/reset.css"/>
 <link rel="stylesheet" type="text/css" href="css/960_24_col.css"/>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   <script src="bootstrap.js" type="text/javascript"></script>
   <script src="bootstrap-dropdown.js" type="text/javascript"></script>
   <script src="bootstrap-collapse.js" type="text/javascript"></script>
@@ -562,7 +562,7 @@ if($_POST['commentedit']) {
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
@@ -770,7 +770,7 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
     </span>
     <button class="btn btn-success" type="submit">Save Info</button>
     </form>
-     <a style="position: relative; top: -28px; left: 280px;" href="http://photorankr.com/fullsizeme.php?image=', $image, '&action=delete"><button class="btn btn-danger">Delete Photo</button></a>
+     <a style="position: relative; top: -28px; left: 280px;" href="https://photorankr.com/fullsizeme.php?image=', $image, '&action=delete"><button class="btn btn-danger">Delete Photo</button></a>
 
 </div>
 </div>
@@ -936,7 +936,17 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 			<div class="grid_7" style="text-align:center;"><!--Rank and stats-->
 				<div class="grid_7" style="padding-top:7px;">
 				
-                        <a class="btn btn-warning" style="width:260px;padding:10px;font-size:16px;" data-toggle="modal" data-backdrop="static" href="#editphoto">Edit Photo</a>
+                <a class="btn btn-warning" style="width:185px;padding:10px;font-size:16px;float:left;" data-toggle="modal" data-backdrop="static" href="#editphoto">Edit Photo</a>
+                        
+                <?php
+                
+                if($price != 'NFS') {
+                echo'
+				<a class="btn btn-primary" style="float:left;margin-left:5px;padding: .70em 1.4em .70em 1.4em;" href="fullsizemarket.php?imageid=',$imageID,'"><img src="graphics/cart_white.png" style="width:20px;height:20px;float:right;"/></a>';
+                }
+                
+                ?>
+                
         </div>
 	</div>
     
@@ -1010,15 +1020,15 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 					<h1 id="sharelinks"> Share: </h1>
                     
                     <a href="https://www.facebook.com/sharer.php?u=http%3A%2F%2Fphotorankr.com%2Ffullsize.php?image=<?php echo $image; ?>" type="button" share_url="photorankr.com/fullsize.php?image=<?php echo $image; ?>"><img src="graphics/facebook.png" style="width:30px;height:30px;margin: 7px 9px 0px 10px;"/></a>
-                    <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" 
+                    <script src="https://static.ak.fbcdn.net/connect.php/js/FB.Share" 
                     type="text/javascript">
                     </script>
 
 					<a href="https://twitter.com/share" data-text="Check out this photo!" data-via="PhotoRankr" data-size="large" data-count="none"><img src="graphics/twitter.png" style="width:30px;height:30px;margin: 7px 9px 0px 5px;"/></a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 
-					<a href="http://pinterest.com/pin/create/button/" class="pin-it-button" count-layout="none"><img src="graphics/pinterest.png" style="width:30px;height:30px;margin: 7px 9px 0px 5px;"/></a>
-<script type="text/javascript" src="http://assets.pinterest.com/js/pinit.js"></script>
+					<a href="https://pinterest.com/pin/create/button/" class="pin-it-button" count-layout="none"><img src="graphics/pinterest.png" style="width:30px;height:30px;margin: 7px 9px 0px 5px;"/></a>
+<script type="text/javascript" src="https://assets.pinterest.com/js/pinit.js"></script>
                     
 <a href="https://plus.google.com/102253183291914861528"><img src="graphics/g+.png" style="width:30px;height:30px;margin:7px 9px 0px 8px;"/></a>
                     

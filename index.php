@@ -1,5 +1,11 @@
 <?php
 
+if($_SERVER['HTTPS']!="on")
+  {
+     $redirect= "https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+     header("Location:$redirect");
+  }
+  
 //connect to the database
 require "db_connection.php";
 require "functionsnav.php";
@@ -102,8 +108,11 @@ $notsqueryrun = mysql_query($notsquery); }
 	<link href="css/960_24_col.css" rel="stylesheet" type="text/css"/>
 
      <meta name="viewport" content="width=1200" /> 
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-	<script src="js/bootstrap-dropdown.js"></script>
+     	<script src="js/bootstrap-dropdown.js"></script>
+
+	<script type="text/javascript">
+    document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' type='text/javascript'>\<\/script>");
+  </script> 
 	  <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
 	<script src="js/javascript.js" type="text/javascript"></script>
 	<style type="text/css">
@@ -247,7 +256,7 @@ $notsqueryrun = mysql_query($notsquery); }
                     
                     echo '
         <a style="text-decoration:none;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:0px;margin-top:10px;list-style-type: none;
-"><img src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
+"><img src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
 
  <div class="statoverlay" style="z-index:1;background-color:black;position:relative;top:0px;width:240px;height:30px;"><div style="line-spacing:1.48;padding:5px;color:white;"><div style="float:left;"<span style="font-size:18px;font-weight:100;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:100;font-size:16px;">',$caption,'</span></div><div style="float:right;"><span style="font-size:13px;">',$price,'</span></div></div><br/></div>
 
@@ -320,7 +329,7 @@ var last = 0;
 		</div>
 		
 			<div class="grid_10 pull_4" id="bar_container"><!--contains searchbar-->
-				<h1 class="search_sign"> Search the marketplace</h1>
+				<h1 class="search_sign"> Buying Photos? Search the marketplace</h1>
 				<div class="grid_10">
 				<form action="/market" method="GET"><!--put the search function here-->
 					<input id="search_bar" name="searchterm" type="text"/>
@@ -358,7 +367,7 @@ var last = 0;
 	</div>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
 	
-	<script type="text/javascript" src="http://masonry.desandro.com/jquery.masonry.min.js"></script>
+	<script type="text/javascript" src="https://masonry.desandro.com/jquery.masonry.min.js"></script>
 	<script src="js/bootstrap-dropdown.js"></script>
 
 

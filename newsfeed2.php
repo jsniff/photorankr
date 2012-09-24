@@ -18,7 +18,7 @@ session_start();
 
     $email = $_SESSION['email'];
     
-    if ($_SESSION['loggedin'] != 1) {
+    if (!$_SESSION['email']) {
         header("Location: signup.php");
         exit();
     } 
@@ -110,9 +110,9 @@ $notsqueryrun = mysql_query($notsquery); }
 ?>
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="https://www.w3.org/1999/xhtml">
 
 <head>
 
@@ -126,7 +126,7 @@ $notsqueryrun = mysql_query($notsquery); }
  <link rel="stylesheet" href="reset.css" type="text/css" />
   <link rel="stylesheet" href="text2.css" type="text/css" />
   <link rel="stylesheet" href="960_24.css" type="text/css" />
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   <script src="bootstrap.js" type="text/javascript"></script>
   <script src="bootstrap-dropdown.js" type="text/javascript"></script>
   <script src="bootstrap-collapse.js" type="text/javascript"></script>
@@ -205,7 +205,7 @@ opacity:.7;
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
   
@@ -442,7 +442,7 @@ echo'<div class="grid_4 push_2" style="margin-top:75px;">
     
 
 <!--NEWSFEED-->
-<div class="grid_16 push_4" id="thepics" style="margin-top:75px;border: 1 px solid black;">
+<div class="grid_16 push_4" id="thepics" style="margin-top:75px;">
 <div id="container">
 
 <?php
@@ -537,14 +537,15 @@ if($view == '') {
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
     $votes = mysql_result($imageinfo,0,'votes');
+    $about = mysql_result($imageinfo,0,'about');
     $rank = ($points / $votes);
     $rank = number_format($rank,2);
     
     list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
+    $width = ($width / 3.5);
+    $height = ($height / 3.5);
 
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
+    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:520px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
     <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
     
     if($time > 0) {
@@ -554,7 +555,14 @@ if($view == '') {
     
     echo'
     </div>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
+    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
+    
+    if($about) {
+        echo'
+        <br /><div style="float:left;margin-left:85px;font-size:12px;color:#777;font-weight:400;padding:2px;width:460px;padding-bottom:10px;">',$about,'</div>';
+    }
+    
+    echo'
     <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
     echo '</div>';  
 	}
@@ -590,6 +598,7 @@ if($view == '') {
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
     $votes = mysql_result($imageinfo,0,'votes');
+    $about = mysql_result($imageinfo,0,'about');
     $rank = ($points / $votes);
     $rank = number_format($rank,2);
     
@@ -609,11 +618,11 @@ if($view == '') {
     }
     
     list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
+    $width = ($width / 3.5);
+    $height = ($height / 3.5);
     
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
+    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:520px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
+    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;width:420px;">',$phrase,'';
     
     if($time > 0) {
         echo'
@@ -622,7 +631,14 @@ if($view == '') {
     
     echo'
     </div>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
+    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
+    
+    if($about) {
+        echo'
+        <br /><div style="float:left;margin-left:85px;font-size:12px;color:#777;font-weight:400;padding:2px;width:460px;padding-bottom:10px;">',$about,'</div>';
+    }
+    
+    echo'
     <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'&nbsp;|&nbsp;Favorited By: ',$fvlist,'</div>';
     echo '</div>';   
     
@@ -652,14 +668,15 @@ if($view == '') {
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
     $votes = mysql_result($imageinfo,0,'votes');
+    $about = mysql_result($imageinfo,0,'about');
     $rank = ($points / $votes);
     $rank = number_format($rank,2);
     
     list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
+    $width = ($width / 3.5);
+    $height = ($height / 3.5);
     
-     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
+     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:520px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
     <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
     
     if($time > 0) {
@@ -669,7 +686,14 @@ if($view == '') {
     
     echo'
     </div>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
+    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
+    
+    if($about) {
+        echo'
+        <br /><div style="float:left;margin-left:85px;font-size:12px;color:#777;font-weight:400;padding:2px;width:460px;padding-bottom:10px;">',$about,'</div>';
+    }
+    
+    echo'
     <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
     echo '</div>';  
     }
@@ -868,8 +892,8 @@ if($view == '') {
     $width = ($width / 3.5);
     $height = ($height / 3.5);
 
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
+    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:520px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
+    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;width:430px;">',$phrase,'';
     
     if($time > 0) {
         echo'
@@ -899,11 +923,13 @@ if($view == '') {
     }
     
     
-    elseif ($type == "exhibitfave") {
+     elseif ($type == "exhibitfave") {
+    
     $set = $newsrow['source'];
-    $setinfo = mysql_query("SELECT title,cover,faves FROM sets WHERE id = '$set'");
+    $setinfo = mysql_query("SELECT title,cover,faves,about FROM sets WHERE id = '$set'");
     $settitle = mysql_result($setinfo,0,'title');
     $setfaves = mysql_result($setinfo,0,'faves');
+    $aboutset = mysql_result($setinfo,0,'about');
     $setcover = mysql_result($setinfo,0,'cover');
     $pulltopphoto = mysql_query("SELECT source FROM photos WHERE set_id = '$set' ORDER BY votes DESC");
     
@@ -921,26 +947,7 @@ if($view == '') {
     $thumb3 = str_replace("userphotos/","userphotos/medthumbs/",$thumb3);
     $thumb4 =mysql_result($pulltopphoto, 4, "source");
     $thumb4 = str_replace("userphotos/","userphotos/medthumbs/",$thumb4);
-    
-    for($iii = 0; $iii < $numownerphotos; $iii++) {
-		$points = mysql_result($numownerphotosquery, $iii, "points");
-        $votes = mysql_result($numownerphotosquery, $iii, "votes");
-        $totalfaves = mysql_result($numownerphotosquery, $iii, "faves");
-        $portfoliopoints+=$points;
-        $portfoliovotes+=$votes;
-        $portfoliofaves+=$totalfaves;
-        }
-    
-    if ($portfoliovotes > 0) {
-    $portfolioranking=($portfoliopoints/$portfoliovotes);
-    $portfolioranking=number_format($portfolioranking, 2, '.', '');    
-        }
-    
-    else if ($portfoliovotes < 1) {
-    $portfolioranking="N/A";
-        }	
 
-    $commenteremail = $accountrow['emailaddress'];
     $commenteremail = $newsrow['emailaddress'];
     $commentersquery = mysql_query("SELECT user_id,profilepic FROM userinfo WHERE emailaddress = '$commenteremail'");
     $commenterpic = mysql_result($commentersquery,0,'profilepic');
@@ -954,14 +961,14 @@ if($view == '') {
     $ownerid = mysql_result($findowner,0,'user_id');
     $ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownername . "'s</a>";
     $owner = ucwords($ownerfull);
-    $phrase = $fullname . ' favorited ' . $owner ." exhibit: ".$settitle."";
+    $phrase = $fullname . ' favorited ' . $owner ." exhibit: <a href='viewprofile.php?u=" . $ownerid . "&view=exhibits&set=" . $set . "'>".$settitle."</a>";
     
     list($width, $height) = getimagesize($setcover);
-    $width = ($width / 3.5);
-    $height = ($height / 3.5);
+    $width = ($width / 4.5);
+    $height = ($height / 4.5);
 
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
+    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:520px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
+    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;width:430px;">',$phrase,'';
     
     if($time > 0) {
         echo'
@@ -970,28 +977,34 @@ if($view == '') {
     
     echo'
     </div>
-    <br /><a href="viewprofile.php?u=',$ownerid,'&view=exhibits&set=',$set,'"><img class="phototitle" style="margin-left:20px;margin-top:15px;margin-bottom:15px;" src="',$setcover,'" width="',$width,'px" height="',$height,'px" /></a>&nbsp;&nbsp;
+    <br /><a href="viewprofile.php?u=',$ownerid,'&view=exhibits&set=',$set,'"><img class="phototitle" style="margin-left:20px;margin-top:15px;margin-bottom:15px;" src="',$setcover,'" width="140px" /></a>&nbsp;&nbsp;
     <div class="phototitle" style="height:110px;width:320px;">';
     
-    if($numownerphotos > 2) {
+    if($numsetphotos > 2) {
     echo'
-    <a href="viewprofile.php?u=',$ownerid,'&view=exhibits&set=',$set,'">
+    <a style="clear:both;" href="viewprofile.php?u=',$ownerid,'&view=exhibits&set=',$set,'">
     <img style="border:1px solid white;" src="',$thumb1,'" height="108" width="102" />
     <img style="border:1px solid white;" src="',$thumb2,'" height="108" width="102" />
     <img style="border:1px solid white;" src="',$thumb3,'" height="108" width="102" />
     </a>';
     }
-    else {
-    echo'<div style="text-align:center;font-size:14px;margin-top:40px;">',$ownerfirst,' just joined!</div>';
+    
+    echo'
+    </div>';
+    
+    if($aboutset) {
+    echo'
+    <div style="width:520px;clear:both;padding:20px;margin-left:65px;">
+    <span style="font-weight:400;font-size:15px;">About Exhibit:</span> <span style="font-weight:200;font-size:14px;">',$aboutset,'</span>
+    </div>';
     }
     
     echo'
-    </div>
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;"># Photos: ',$numsetphotos,'&nbsp;|&nbsp;Exhibit Favorites: ',$setfaves,'&nbsp;</div>';
+    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;margin-bottom:30px;clear:both;"># Photos: ',$numsetphotos,'&nbsp;|&nbsp;Exhibit Favorites: ',$setfaves,'&nbsp;</div>';
 
     echo '</div>'; 
     }
-    
+
     
     elseif ($type == "comment") {
     $owner = $newsrow['owner'];
@@ -1017,6 +1030,7 @@ if($view == '') {
     $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
+    $about = mysql_result($imageinfo,0,'about');
     $imageID = mysql_result($imageinfo,0,'id');
     $votes = mysql_result($imageinfo,0,'votes');
     $rank = ($points / $votes);
@@ -1030,10 +1044,10 @@ if($view == '') {
     $phrase = $fullname . " commented on " . $ownerfull . "'s photo";
     
     list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
+    $width = ($width / 3.5);
+    $height = ($height / 3.5);
     
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
+    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:520px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
     <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
     
     if($time > 0) {
@@ -1045,7 +1059,12 @@ if($view == '') {
     </div>
     <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
     
-	echo '<br /><br /><div style="margin-left: 85px;padding:15px;width:480px;clear:both;">
+    if($about) {
+        echo'
+        <br /><div style="float:left;margin-left:85px;font-size:12px;color:#777;font-weight:400;padding:2px;width:460px;padding-bottom:10px;">',$about,'</div>';
+    }
+    
+	echo '<br /><br /><div style="margin-left: 85px;padding:15px;width:420px;clear:both;">
     
     <div class="panel',$id,'">';
     
@@ -1065,7 +1084,7 @@ if($view == '') {
         
         //SHOW PREVIOUS COMMENTS
         echo'
-            <div style="width:460px;clear:both;margin-top:10px;">
+            <div style="width:420px;clear:both;margin-top:10px;">
             <a href="viewprofile.php?u=',$commenterid,'"><div style="float:left;"><img class="roundedall" src="',$commenterpic,'" height="40" width="35"/></a></div>
            
              <div style="float:left;padding-left:6px;width:410px;">

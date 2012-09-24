@@ -187,7 +187,7 @@ function watermarkpic($filename) {
           	}  
          } 
 	
-	 imagejpeg($finalimage, $path_to_medimage_directory . $filename); 	
+	 imagejpeg($finalimage, $path_to_medimage_directory . $filename, 100); 	
 	
 	chmod ($path_to_medimage_directory . $filename, 0644);
 }

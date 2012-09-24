@@ -35,7 +35,7 @@ session_start();
 <?php navbarnew(); ?>
 
 <!--Container Begins Here-->
-<div class="container_24" style="background:none;">
+<div class="container_24" style="background:none;margin-top:100px;">
 	<div class="grid_24 push_2 topbar">
 		<div class="grid_6">
 		<div id="our" class="grid_6">
@@ -283,8 +283,16 @@ you use, and why you do it. Inspire others who want to be like you
 </div>
 
 </div>
+</div>
+</div>
 
-<?php footer(); ?>
+
+
+<div style="clear:both;width:100%;">
+<?php //footer(); ?>
+</div>
+
+
 </body>
 </html>
 

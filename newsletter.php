@@ -102,7 +102,7 @@
     
      //Top new photographers of the week
      
-    $numphotogsquery = mysql_query("SELECT emailaddress FROM userinfo ORDER BY user_id DESC");
+    $numphotogsquery = mysql_query("SELECT emailaddress FROM userinfo WHERE unsubscriber NOT IN (1) ORDER BY user_id DESC");
     $numphotogs = mysql_num_rows($numphotogsquery);
      
     $topphotogs = mysql_query("SELECT user_id,firstname,lastname,profilepic FROM userinfo WHERE user_id > ($numphotogs - 50) ORDER BY reputation DESC LIMIT 3");
@@ -668,20 +668,19 @@ $args = array(
                                                         <td valign=\"top\">
                                                             <div mc:edit=\"std_content00\">
                                                                
-                                                                <span style=\"font-size:16px;\"><h4 class=\"h4\">PR Newsletter | Week 1 September</span></h4>
+                                                                <span style=\"font-size:16px;\"><h4 class=\"h4\">PR Newsletter | Week 3 September</span></h4>
                                                                 <br />
-                                                                Dear PhotoRankr Community,
+                                                                It's Friday!
                                                                 <br /><br />
-                                                                After a few weeks of development, redesign, and optimization, PhotoRankr is now a little bigger and better than before.  You may have noticed the new photo layout, an activity feed to see what your fellow photographers are up to on the site, and enhanced speed on the site.  Along with our newsletter and various bug fixes, these are some of the smaller changes that we have wanted to see for awhile as much as you.  However, bigger and better things are on the horizon.  We will be redesigning your newsfeed and making some side-wide aesthetic changes.  In addition, be on the lookout in the not too distant future for new layouts for Campaigns and the Blog (for which we will be asking many of you to write guest posts).  We are excited to see a rapidly-expanding community here on PhotoRankr and would like to thank you all for your support in our earliest days!
-                                                                <br /><br />
-                                                                This week, we have a new guest blog post by <a href=\"http://photorankr.com/viewprofile.php?u=891\">Tony Ambrosio</a> titled <a href=\"http://photorankr.com/blog/post\">\"Ten Important Questions to Ask Before Taking A Digital Photo.\"</a> You should all check out Tony's blog this week as he is a very passionate photographer and a great member of the PhotoRankr community. If you would like to write a guest blog post on a photography subject of your choice, please e-mail us at photorankr@photorankr.com or message us on the site.
-                                                                <br /><br />
-                                                                We hope you all enjoy this first edition of the new, weekly PhotoRankr newsletter!  Below are the top-ranked and most-popular photos on the site for this week, as gauged by the community.  Also, we have three featured photographers who have just recently joined PhotoRankr whom you may want to check out! 
-                                                                <br /><br />
-                                                                Have a great week PhotoRankrs!
-                                                                <br /><br />
-                                                                -The PhotoRankr Team
+                                                                Happy Friday PhotoRankr's. This week's newsletter is again, short but sweet. As for site news, you can now directly share each and every upload from PhotoRankr to Facebook and Twitter. Very simple and painless, try it out! In addition, this coming week, look out for your own personal store page (akin to FineArtAmerica) where you will be able to provide to potential buyers and viewers a link with all of your licensed images in one spot. We hope this will satisfy those of you who are more serious about having one place to license your highest-quality photography. We are very exicted!
                                                                 
+<br /><br />                                                                
+This week's top photos and photographers are featured below. If you haven't checked out the amazing work of <a href=\"https://photorankr.com/viewprofile.php?u=1188\">John Jewett</a>, <a href=\"https://photorankr.com/viewprofile.php?u=1297\">Alejandro Ferrer Ruiz</a>, or <a href=\"https://photorankr.com/viewprofile.php?u=1311\">Mark Johnson</a> yet, be sure to do so! They have some magnificent long exposures and macros you don't want to miss. Also, be sure to like us on Facebook and follow us on Twitter by clicking on the links at the bottom of the newsletter.
+                                                                <br /><br />
+                                                                Best Regards,
+                                                                <br /><br />
+                                                                –The PhotoRankr Team
+                                                                                                                        
                                                            </div>
 														</td>
                                                     </tr>

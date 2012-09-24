@@ -181,10 +181,9 @@ else {
 	$newwidth=$maxheight*$imgratio;
 }
 
-$email6 = $_SESSION['email'];
 
 //QUERY FOR NOTIFICATIONS
-$currentnots = "SELECT * FROM userinfo WHERE emailaddress = '$email6'";
+$currentnots = "SELECT * FROM userinfo WHERE emailaddress = '$email'";
 $currentnotsquery = mysql_query($currentnots);
 $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
 
@@ -193,12 +192,12 @@ $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
 if(isset($_GET['id'])){
 $id = htmlentities($_GET['id']);
 $idformatted = $id . " ";
-$unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$email6'";
+$unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$email'";
 $unhighlightqueryrun = mysql_query($unhighlightquery);
 
 //notifications query reset 
 if($currentnotsresult > 0) {
-$notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email6'";
+$notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email'";
 $notsqueryrun = mysql_query($notsquery); }
 }
 
@@ -831,6 +830,21 @@ if($_POST['commentedit']) {
     
 }
 
+//ADD TO COLLECTION(S)
+if(htmlentities($_GET['action']) == 'savecol' && $_SESSION['loggedin'] == 1) {
+        
+    if(!empty($_POST['collection'])) {
+    
+        foreach($_POST['collection'] as $checked) {
+            
+            $addphoto = $imageid ." ";
+            //insert each checked photo into corresponding set
+            $checkedcol = mysql_query("UPDATE collections SET photos = CONCAT(photos,'$addphoto') WHERE id = '$checked'");
+            
+        }
+    }
+}
+
 ?>   
 
 <!DOCTYPE html>
@@ -1285,6 +1299,139 @@ By:
 </div>
 </div>
 
+
+<!--Collection Modal-->
+<div class="modal hide fade" id="collectionmodal" style="overflow:hidden;border:5px solid rgba(102,102,102,.8);">
+  
+<?php
+ 
+if($_SESSION['loggedin'] !== 1) {
+
+echo'
+<div class="modal-header" style="background-color:#111;color:#fff;">
+<a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Please login to add this photo to a collection</span>
+  </div>
+ 
+<div modal-body" style="width:450px;height:145px;">
+
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(245,245,245);height:150px;">
+		
+<img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
+height="100px" width="100px" />
+
+<div style="width:350px;margin-left:140px;margin-top:-75px;line-height:1.48;">              
+
+',$caption,'<br />
+
+By: 
+<a style="color:black;" href="viewprofile.php?u=',$user,'">',$firstname,' ',$lastname,'</a><br />   
+
+</div>
+</div>';
+    
+}
+
+    if($_SESSION['loggedin'] == 1) {
+		
+        echo'
+        <div class="modal-header" style="background-color:#111;color:#fff;">
+        <a style="float:right" class="btn btn-success" data-dismiss="modal"href="fullsize.php?image=', $image,'&v=',$view,'&f=1">Close</a>
+        <img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Choose a collection to add this photo to:</span>
+        </div>
+
+        <div modal-body" style="width:450px;">
+
+        <div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(245,245,245);max-height:400px;overflow-y:scroll;">
+		
+        <img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
+height="100px" width="100px" />
+
+        <div style="width:350px;margin-left:140px;margin-top:-95px;line-height:1.48;">';           
+           
+        $vieweremail = $_SESSION['email'];
+		$collectioncheck = mysql_query("SELECT id,photos,title FROM collections WHERE owner = '$vieweremail'") or die(mysql_error());
+        $numcollections = mysql_num_rows($collectioncheck);
+        
+        echo'<form action="fullsize2.php?imageid=',$imageid,'&v=',$view,'&action=savecol" method="POST" />';
+                
+        if($numcollections > 0) {
+        
+        echo'Your collections to add to:<br />
+        
+        <div style="padding-top:15px;">';
+        
+        for($iii=0; $iii < $numcollections; $iii++) {
+        
+            $collectionphotos = mysql_result($collectioncheck,$iii,photos);
+            $collectionid = mysql_result($collectioncheck,$iii,id);
+            $collectiontitle = mysql_result($collectioncheck,$iii,title);
+            $collectioncover = mysql_result($collectioncheck,$iii,cover);
+            
+            //search if image already in this set
+            $match=strpos($collectionphotos, $imageid);
+            
+            if(!$match) {
+            
+                if($collectioncover) {
+                
+                    echo'<img src="',$cover,'" width="80" />';
+                }
+                
+                elseif(!$collectioncover && !$collectionphotos) {
+                
+                     echo'<img src="graphics/collectiondefault.png" width="80" />';
+                
+                }
+                
+                elseif(!$collectioncover && $collectionphotos) {
+                
+                     $collphotosarray = explode(" ",$collectionphotos);
+                     $firstphoto = mysql_query("SELECT source FROM photos WHERE id = '$collphotosarray[0]'");
+                     $source = mysql_result($firstphoto,0,'source'); 
+                     $source = str_replace("userphotos/","userphotos/medthumbs/",$source);  
+                         
+                     echo'<img src="',$source,'" width="80" />';
+                
+                }
+                
+                echo'&nbsp;&nbsp;&nbsp;<input type="checkbox" name="collection[]" value="',$collectionid,'">&nbsp;&nbsp;&nbsp;',$collectiontitle,'<br /><br />';
+                        
+            }
+            
+            elseif($match) {
+            
+            echo'Already in this set';
+            
+            }
+            
+        }   
+           
+        echo'</div><button class="btn btn-success" type="submit" value="Save">Add to collection(s)</button>';
+        
+        }
+        
+        else {
+        
+        echo'<div style="padding-top:35px;">You have no collections. <a href="myprofile.php?view=collections">Create one?</a><br /><br /></div>';
+        
+        }
+        
+        echo'
+        <br /><br />
+        </div>
+        </div>';
+        
+    }
+    
+        
+?>
+
+</div>
+</div>
+
+
+
 <body style="overflow-x:hidden;min-width:1220px;background-color:rgb(245,245,245);">
 
 <?php navbarnew(); ?>
@@ -1516,259 +1663,4 @@ By:
             $voter = addslashes($voter);
             $votersquery = mysql_query("UPDATE photos SET voters=CONCAT(voters,'$voter') WHERE source='$image'");
     
-            echo '<div style="position: relative; top: 7px; margin-left:-5px; font-size: 14px; font-weight:100; font-family:helvetica;">Thanks for voting!</div>';
-
-            } 
-    
-            elseif(votematch && ($voteremail != $emailaddress)){
-                echo '<div style="position: relative; top: 7px; margin-left:-5px; font-size: 14px; font-weight:100; font-family:helvetica;">You already voted!</div>';
-
-            }
-    
-            elseif($voteremail == $emailaddress) {
-                echo '<div style="position: relative; top: 7px; margin-left:-5px; font-size: 14px; font-weight:100; font-family:helvetica;">Oops, your photo!</div>';
-
-            }
-            }
-    
-        else{
-                echo '<div style="position: relative; top: 7px; margin-left:-5px; font-size: 14px; font-weight:100; font-family:helvetica;">Please login to vote</div>';
-
-            }
-        }
-
-    ?>
-
-            <script>
-                function submitMyForm(sel) {
-                sel.form.submit();
-                }
-            </script>
- 
-            <?php
- 
-            if(!$ranking) {
-                echo '<div style="position: relative; left: -10px; top: 0px; text-align: center; font-size: 15px; font-family: arial;';
-                if($ranking) {echo 'margin-top: 10px;';}
-                echo '">
-                <form id="Form1" action="', htmlentities($_SERVER['PHP_SELF']), '?image=', $image, '&v=', $view, '" method="post">
-                <select name="ranking" style="width:90px; height:30px;margin-left:15px;margin-top:2px;" onchange="submitMyForm(this)">
-                <option value="" style="display:none;">&#8212;</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                </select>
-                </form></div>';
-            }
-
-        ?>
-
-            </div>​
-
-				<a class="btn btn-danger" data-toggle="modal" data-backdrop="static" href="#fvmodal" style="padding: .45em 2em .45em 2em;margin-left:-5px;margin-right:5px;"><img src="graphics/heart.png" style="width:20px;height:20px;float:right;"/></a>	
-               
-                 <?php
-                
-                if($price != 'NFS') {
-                echo'
-				<a class="btn btn-primary" style="padding: .45em 1em .45em 1em;" href="fullsizemarket.php?imageid=',$imageID,'"><img src="graphics/cart_white.png" style="width:20px;height:20px;float:right;"/></a>';
-                }
-                
-                ?>
-                
-			</div>
-		</div>
-	</div>	
-			<div class="grid_8" id="statsbox">
-			<div class="grid_4 box underbox">	
-				<ul id="stats">
-                
-                <?php
-                    
-                    if($prevvotes >=1.0) {
-                        $ranking = number_format(($prevpoints/$prevvotes),1);	
-                    echo'
-					<li> <img src="graphics/rank_icon.png"/> <span id="rank"> Rank: </span> <span class="numbers">',$ranking,'</span><span id="littlenumbers"> /10 </span></li>';
-                    }
-                    
-                    else {
-                    echo'
-					<li> <img src="graphics/rank_icon.png"/> <span id="rank"> Rank: </span> <span class="numbers">0.0</span><span id="littlenumbers"> /10 </span></li>';
-                    }
-                    
-                ?>
-                    
-					<br />
-					<li> <img src="graphics/heart_dark.png"/> <span id="stat"> Faves: </span> <span class="numbers"><?php echo $faves; ?></span> </li>
-					<br />
-					<li> <img src="graphics/eye.png"/> <span id="stat"> Views: </span> <span class="numbers"><?php echo $views; ?></span></li>
-				</ul>
-				</div>
-				<div class="grid_2 box underbox float-right" style="width:90px;height:40px;">
-					<h1 id="share">Sold:</h1>
-						<p id="sharenumber"> <?php echo $sold; ?> </p>
-			</div>
-			<div class="grid_2 box underbox float-right" style="width:90px;height:40px;"> <!--ML = margin-left -->
-					<h1 id="share">Price</h1>
-						<p id="sharenumber"> <?php echo $price; ?> </p>
-			</div>	
-		</div>
-        
-        
-			<div class="grid_7 box underbox"><!--Next photos-->
-            
-                <?php 
-                    
-                    if($view == 't') {
-                    echo'<span style="font-family:helvetica;font-weight:100;font-size:14px;">Browse More Trending Photos:</span>';
-                    }
-                    
-                    elseif($view == 'n') {
-                    echo'<span style="font-family:helvetica;font-weight:100;font-size:14px;">Browse More Newest Photos:</span>';
-                    }
-                    
-                    elseif($view == 'r') {
-                    echo'<span style="font-family:helvetica;font-weight:100;font-size:14px;">Browse More Top Ranked Photos:</span>';
-                    }
-            
-                ?>
-				
-				<div id="images" style="margin-top:5px;">
-					<a href="fullsize.php?image=<?php echo $imageOne; ?>&v=<?php echo $view; ?>"><img src="<?php echo $imageOneThumb; ?>" id="nextimg1"/></a>
-				</div>
-				<div class="nextimg">
-					<a href="fullsize.php?image=<?php echo $imageTwo; ?>&v=<?php echo $view; ?>"><img src="<?php echo $imageTwoThumb; ?>" id="nextimg2"/></a>
-				</div>
-				<div class="nextimg">	
-					<a href="fullsize.php?image=<?php echo $imageThree; ?>&v=<?php echo $view; ?>"><img src="<?php echo $imageThreeThumb; ?>"id="nextimg3"/></a>
-				</div>
-				<a style="text-decoration:none;" href="fullsize.php?image=<?php echo $imageBefore; ?>&v=<?php echo $view; ?>"><div class="grid_1" id="hover_arrow_left">
-				</div></a>
-					<a style="text-decoration:none;" href="fullsize.php?image=<?php echo $imageOne; ?>&v=<?php echo $view; ?>"><div class="grid_1" id="hover_arrow_right">
-				</div></a>
-				</div>
-             
-    <?php
-             
-                //CHECK FOR OPT-IN
-                
-             if($promos == 'optin') {
-                
-			echo'
-			<div class="grid_7 box underbox"><!--Share stuff here-->
-					<h1 id="sharelinks"> Share: </h1>
-                    
-                    <a href="https://www.facebook.com/sharer.php?u=http%3A%2F%2Fphotorankr.com%2Ffullsize.php?imageid=<?php echo $imageid; ?>" type="button" share_url="photorankr.com/fullsize.php?imageid=<?php echo $imageid; ?>"><img src="graphics/facebook.png" style="width:30px;height:30px;margin: 7px 9px 0px 10px;"/></a>
-                    <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" 
-                    type="text/javascript">
-                    </script>
-
-					<a href="https://twitter.com/share" data-text="Check out this photo!" data-via="PhotoRankr" data-size="large" data-count="none"><img src="graphics/twitter.png" style="width:30px;height:30px;margin: 7px 9px 0px 5px;"/></a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-
-					<a href="http://pinterest.com/pin/create/button/" class="pin-it-button" count-layout="none"><img src="graphics/pinterest.png" style="width:30px;height:30px;margin: 7px 9px 0px 5px;"/></a>
-<script type="text/javascript" src="http://assets.pinterest.com/js/pinit.js"></script>
-                    
-<a href="https://plus.google.com/102253183291914861528"><img src="graphics/g+.png" style="width:30px;height:30px;margin:7px 9px 0px 8px;"/></a>
-                    
-			</div>';
-            
-            }
-            
-    ?>
-		
-			<div class="grid_7 box underbox"><!--About photo-->
-				<h1> About </h1>
-					<div class="grid_7">
-                    
-                    <?php
-                    
-                    if($exhibit) {
-                        echo'
-						<div style="clear:both;"><h1 class="about">Exhibit: </h1> <p class="aboutinfo"><a class="click" href="viewprofile.php?u=',$user,'&view=exhibits&set=',$exhibit,'"><u>',$exhibitname,'</u></a></p></div>'; 
-                    }
-                    
-                    if($exhibit && $expic1 && $expic2 && $expic3) {
-                        echo'
-						<div style="clear:both;margin-left:5px;">
-                        <a href="fullsize.php?image=',$expic1,'&view=',$view,'"><img style="float:left;padding:2px;" src="',$exthumb1,'" height="80" width="80" /></a> 
-                        <a href="fullsize.php?image=',$expic2,'&view=',$view,'"><img style="float:left;padding:2px;" src="',$exthumb2,'" height="80" width="80" /></a> 
-                        <a href="fullsize.php?image=',$expic3,'&view=',$view,'"><img style="float:left;padding:2px;" src="',$exthumb3,'" height="80" width="80" /></a>                         
-                        </div>';
-                    }
-                    
-                    if($location) {
-                        echo'
-						<div style="clear:both;"><h1 class="about"> Location: </h1> <p class="aboutinfo">',$location,'</p></div>'; 
-                    }
-                    
-                    if($camera) {
-                        echo'
-						<div style="clear:both;"><h1 class="about"> Camera: </h1> <p class="aboutinfo">',$camera,'</p></div>'; 
-                    }
-                    
-                    if($lens) {
-                        echo'
-						<div style="clear:both;"><h1 class="about"> Lens: </h1> <p class="aboutinfo">',$lens,'</p></div>'; 
-                    }
-                    
-                    if($focallength) {
-                        echo'
-						<div style="clear:both;"><h1 class="about"> Focal Length: </h1> <p class="aboutinfo">',$focallength,'</p></div>'; 
-                    }
-                    
-                    if($aperture) {
-                        echo'
-						<div style="clear:both;"><h1 class="about"> Aperture: </h1> <p class="aboutinfo">',$aperture,'</p></div>'; 
-                    }
-                    
-                    if($lens) {
-                        echo'
-						<div style="clear:both;"><h1 class="about"> Lens: </h1> <p class="aboutinfo">',$lens,'</p></div>'; 
-                    }
-                    
-                    if($about) {
-                        echo'
-						<div style="clear:both;"><h1 class="about"> Behind the Camera </h1> <p class="aboutinfo" style="line-height:20px;margin-left:10px;text-align:justified;">',$about,'</p>
-				</div>';	
-                    }
-                    echo'</div>';
-                    
-                    if($time > 0) {
-                    
-                        echo'<div style="clear:both;"><h1 class="about"> &nbsp;Uploaded: </h1> <p class="aboutinfo" style="line-height:20px;margin-left:10px;text-align:justified;">',converttodate($time),'</p></div>';
-                    
-                    }
-                    
-                    if($keywords) {
-                    echo'
-                    <div class="grid_7">
-					<h1 class="about"> Keywords: </h1> <p class="aboutinfo">',$keywords,'
-                    </p> 
-                    </div>';
-                    }
-                    
-                    ?>
-                    
-		</div>	
-	</div>	
-</div>	
-<br />
-<br />
-
-<?php footer(); ?>
-
-<?php 
-//add to the views column
-$updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image'") or die(mysql_error());
-?>
-
- </body>
- </html>  
+            echo '<div style="position: relative; top: 7px; margin-left:-5px; font-size: 14px; font-weight:

@@ -85,9 +85,9 @@ $notsqueryrun = mysql_query($notsquery); }
 ?>
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="https://www.w3.org/1999/xhtml">
 
 <head>
 
@@ -105,10 +105,12 @@ $notsqueryrun = mysql_query($notsquery); }
   <link rel="stylesheet" href="960_24.css" type="text/css" />
   <link rel="stylesheet" type="text/css" href="market/css/all.css"/>              
   <script type="text/javascript" href="js/bootstrap-dropdown.js"></script>
-  <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+  <script type="text/javascript">
+    document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' type='text/javascript'>\<\/script>");
+  </script>  
   <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
   <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
-
+  
   <title>PhotoRankr - Newest Photography</title>
 
   
@@ -178,7 +180,7 @@ transition: opacity .5s;
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
   
@@ -465,7 +467,7 @@ for($iii=1; $iii <= 16; $iii++) {
 
 		echo '
         <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:270px;
-"><img src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div></div></li></a>';
+"><img src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div></div></li></a>';
        
 	    
       } //end for loop
@@ -536,13 +538,13 @@ var last = 0;
 
 
 elseif($view == 'prs') {
-$prsquery="SELECT * FROM userinfo WHERE (profilepic != 'http://www.photorankr.com/profilepics/default_profile.jpg' AND profilepic != 'profilepics/default_profile.jpg') ORDER BY user_id DESC";
+$prsquery="SELECT * FROM userinfo WHERE (profilepic != 'https://www.photorankr.com/profilepics/default_profile.jpg' AND profilepic != 'profilepics/default_profile.jpg') ORDER BY user_id DESC";
 $prsresult=mysql_query($prsquery);
 
 echo'<div id="container" style="width:1210px;margin-left:-112px;top:15px;">';
 for($iii=1; $iii <= 16; $iii++) {
 	$profpic = mysql_result($prsresult, $iii-1, "profilepic");
-    if($profpic == 'http://www.photorankr.com/profilepics/default_profile.jpg') {
+    if($profpic == 'https://www.photorankr.com/profilepics/default_profile.jpg') {
     $profpic = 'profilepics/default_profile.jpg';
     }
     $firstname = mysql_result($prsresult, $iii-1, "firstname");
@@ -642,17 +644,17 @@ echo'
         <div style="padding-top:5px;padding-left:3px;font-size:13px;text-decoration:none;color:#000;font-weight:200;"><span style="font-size:15px;font-weight:400;">',$caption,'</span><br />',$numberphotos,' Photos</div>
 <hr />
 
-    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="http://www.photorankr.com/',$coverpic2,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
+    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="https://www.photorankr.com/',$coverpic2,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
     
     
     
     if($thumb4) {
         echo'
             <div style="margin-top:5px;">
-            <img style="float:left;padding:4px;" src="http://www.photorankr.com/',$thumb1,'" width="112" height="110" />
-            <img style="float:left;padding:4px;" src="http://www.photorankr.com/',$thumb2,'" width="112" height="110" />
-            <img style="float:left;padding:4px;" src="http://www.photorankr.com/',$thumb3,'" width="112" height="110" />
-            <img style="float:left;padding:4px;" src="http://www.photorankr.com/',$thumb4,'" width="112" height="110" />
+            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb1,'" width="112" height="110" />
+            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb2,'" width="112" height="110" />
+            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb3,'" width="112" height="110" />
+            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb4,'" width="112" height="110" />
             </div>';
     }
     
@@ -764,11 +766,11 @@ for($iii=1; $iii <= 16; $iii++) {
     $heightls = $height / 2.5;
     $widthls = $width / 2.5;
 
-		echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a style="text-decoration:none;" href="http://photorankr.com/fullsize.php?image=',$image,'&v=n">
+		echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a style="text-decoration:none;" href="https://photorankr.com/fullsize.php?image=',$image,'&v=n">
         
           <div class="statoverlay" style="z-index:1;left:0px;top:235px;position:relative;background-color:black;width:280px;height:50px;"><p style="line-spacing:1.48;padding:5px;color:white;"><img src="',$profilepic,'" width="30" />&nbsp;&nbsp;<span style="font-family:helvetica neue,arial;font-weight:100;font-size:20px;">',$caption,'</span><br/></div>
         
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:300px;min-width:280px;" src="http://photorankr.com/',$imageThumb,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:300px;min-width:280px;" src="https://photorankr.com/',$imageThumb,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
        
 	    
       } //end for loop

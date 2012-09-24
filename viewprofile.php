@@ -226,7 +226,7 @@ $foundsetting = strpos($setting_string,$find);
     
         		$to = '"' . $firstname . ' ' . $lastname . '"' . '<'.$useremail.'>';
         		$subject = $viewerfirst . " " . $viewerlast . ' is now following your photography on PhotoRankr!';
-        		$message = 'You have a new follower on PhotoRankr! Visit their photography here: http://photorankr.com/viewprofile.php?u='.$sessionuserid;
+        		$message = 'You have a new follower on PhotoRankr! Visit their photography here: https://photorankr.com/viewprofile.php?u='.$sessionuserid;
         		$headers = 'From:PhotoRankr <photorankr@photorankr.com>';
                 if($foundsetting > 0) {
         		mail($to, $subject, $message, $headers);   
@@ -311,7 +311,7 @@ $foundsetting = strpos($setting_string,$find);
     
 
     
-   if($ranking2 > 145) {
+   if($ranking2 > 140) {
         $rankingweighted2 = $rankingweight2;
     }
     
@@ -390,7 +390,7 @@ $foundsetting = strpos($setting_string,$find);
                 $subject = $sessionfirst . " " . $sessionlast . " favorited one of your exhibits on PhotoRankr";
                 $favemessage = $firstname . " " . $lastname . " favorited one of your exhibits on PhotoRankr
         
-To view the exhibit, click here: http://photorankr.com/viewprofile.php?u=".$userid."&view=exhibits&set=".$set;
+To view the exhibit, click here: https://photorankr.com/viewprofile.php?u=".$userid."&view=exhibits&set=".$set;
                 $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
           
                 if($foundsetting > 0) {
@@ -406,13 +406,13 @@ To view the exhibit, click here: http://photorankr.com/viewprofile.php?u=".$user
 ?>
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="https://www.w3.org/1999/xhtml">
 
 <head>
 
- <meta property="og:image" content="http://photorankr.com/<?php echo $profilepic; ?>">
+ <meta property="og:image" content="https://photorankr.com/<?php echo $profilepic; ?>">
    <title><?php echo $fullname; ?> | PhotoRankr</title>
    <meta name="Generator" content="EditPlus">
   <meta name="Author" content="PhotoRankr, PhotoRankr.com">
@@ -420,12 +420,12 @@ To view the exhibit, click here: http://photorankr.com/viewprofile.php?u=".$user
   <meta name="Description" content="PhotoRankr allows photographers of all skill levels to sell and share their work. Create your photostream cutomized to what you want to see. Add photos to your favorites, rank them, and watch them trend. Build your portfolio with Photorankr.">
 
   <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
-    <link rel="stylesheet" href="960_24.css" type="text/css" />
-        <link rel="stylesheet" href="css/style.css" type="text/css" />
+  <link rel="stylesheet" href="960_24.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
   <link rel="stylesheet" href="text2.css" type="text/css" />
-
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
+  <script type="text/javascript">
+    document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' type='text/javascript'>\<\/script>");
+  </script>  <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
   <script src="bootstrap.js" type="text/javascript"></script>
   <script src="bootstrap-dropdown.js" type="text/javascript"></script>
   <script src="bootstrap-collapse.js" type="text/javascript"></script>
@@ -504,7 +504,7 @@ opacity:.6;
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
   
@@ -813,6 +813,71 @@ By:
 </div>
 
 
+<!--Message Modal-->
+<div class="modal hide fade" id="messagemodal" style="overflow:hidden;border:5px solid rgba(102,102,102,.8);">
+  
+<?php
+ 
+if($_SESSION['loggedin'] !== 1) {
+
+echo'
+<div class="modal-header" style="background-color:#111;color:#fff;">
+<a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Please login to message ',$firstname,'</span>
+  </div>
+ 
+<div modal-body" style="width:450px;height:145px;">
+
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(245,245,245);height:150px;">
+		
+<img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$profilepic,'" 
+height="100px" width="100px" />
+
+<div style="width:350px;margin-left:140px;margin-top:-75px;line-height:1.48;">              
+
+',$firstname,' ',$lastname,'<br />
+
+</div>
+</div>';
+    
+}
+
+elseif($_SESSION['loggedin'] == 1) {
+    echo'
+
+    <div class="modal-header" style="background-color:#111;color:#fff;">
+    <a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+    <img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight: 100;">Message ',$firstname,' below</span>
+    </div>
+
+    <div modal-body" style="width:450px;height:190px;">
+
+    <div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:300;background-color:rgb(245,245,245);height:190px;">
+		
+    <img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$profilepic,'" 
+height="100px" width="100px" />
+
+    <div style="width:350px;margin-left:140px;margin-top:-100px;line-height:1.48;font-size:14px;">              
+
+    Message:<br />
+    
+    <form method="post" action="sendmessage2.php" />
+        <textarea style="width:360px;height:70px;" name="message"></textarea>
+        <br />   
+        <button style="float:right;margin-right:-15px;" type="submit" class="btn btn-success">Send</button>
+        <input type="hidden" name="emailaddressofviewed" value="',$useremail,'" />
+    </form>
+
+    </div>
+    </div>';
+    
+        } 
+ ?>
+
+</div>
+</div>
+
+
 <!--LEFT SIDEBAR-->
 <div class="grid_24" style="width:1120px;">
 <div class="grid_4 pull_2 rounded" style="background-color:#eeeff3;position:relative;top:80px;width:250px;margin-left:10px;">
@@ -822,7 +887,7 @@ By:
 <img src="<?php echo $profilepic; ?>" alt="<?php echo $fullname; ?>" height="120" width="120"/>
 </div>
 <a data-toggle="modal" href="#fwmodal" data-backdrop="static" class="btn btn-success" style="float:left;width:70px;margin-top:40px;margin-left:10px;font-size:14px;font-weight:150;">Follow</a>
-<a class="btn btn-primary" style="float:left;width:70px;margin-top:7px;margin-left:10px;font-size:14px;font-weight:150;" href="viewprofile.php?u=<?php echo$userid; ?>&view=promote">Promote</a>
+<a class="btn btn-primary" style="float:left;width:70px;margin-top:7px;margin-left:10px;font-size:14px;font-weight:150;" data-toggle="modal" data-backdrop="static" href="#messagemodal">Message</a>
 </div>
 
 <?php
@@ -861,7 +926,6 @@ By:
 	</div>
 
 </div>
-
 <div style="position:relative;top:-30px;">
 <hr style="font-size:50px;">
 <a style="text-decoration:none;color:black;font-weight:100;" href="viewprofile.php?u=<?php echo $userid; ?>&view=about"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
@@ -879,8 +943,8 @@ By:
 </div></a>
 
 <hr>
-<a style="text-decoration:none;color:black;font-weight:100;" href="viewprofile.php?u=<?php echo $userid; ?>&view=contact"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
-<span class="green" style="text-align:center;font-size:20px;padding:15px;<?php if($view == 'contact') {echo'color:#6aae45;';} ?>">Contact&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;"src="graphics/contact.png" width="25"></span>
+<a style="text-decoration:none;color:black;font-weight:100;" href="viewprofile.php?u=<?php echo $userid; ?>&view=promote"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<span class="green" style="text-align:center;font-size:20px;padding:15px;<?php if($view == 'promote') {echo'color:#6aae45;';} ?>">Promote&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;"src="graphics/contact.png" width="25"></span>
 </div></a>
 </div>
 
@@ -1197,8 +1261,8 @@ var last = 0;
                     $widthls = 250;
                 }
 
-                echo'<a style="text-decoration:none;color:#000;" href="fullsize.php?imageid=',$id,'"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
-"><img onmousedown="return false" oncontextmenu="return false;" src="http://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
+                echo'<a style="text-decoration:none;color:#000;" href="fullsizeview.php?imageid=',$id,'"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
+"><img onmousedown="return false" oncontextmenu="return false;" src="https://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><span style="font-size:14px;">',$score,'/</span><span style="font-size:12px;color:#444;">10.0</span><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
 	    
                 } //end for loop      
         
@@ -1335,7 +1399,7 @@ $numphotosgrabbed = mysql_num_rows($grabphotosrun);
                     
                     <hr /></div>
 
-    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="http://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />
+    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="https://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />
     
     <div style="padding-top:5px;padding-left:3px;font-size:14px;text-decoration:none;color:#000;">',$numphotosgrabbed,' Photos</div>';
     
@@ -1343,10 +1407,10 @@ $numphotosgrabbed = mysql_num_rows($grabphotosrun);
     if($thumb4) {
         echo'
             <div>
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb1,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb2,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb3,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb4,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb1,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb2,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb3,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb4,'" width="110" height="110" />
             </div>';
     }
     
@@ -1528,21 +1592,21 @@ elseif($view == 'promote'){
 
     <!--FB-->
     <div class="fb_share">
-    <a name="fb_share" type="box_count" share_url="http://photorankr.com/viewprofile.php?u=',$userid,'"
-      href="http://www.facebook.com/sharer.php"></a>
-    <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
+    <a name="fb_share" type="box_count" share_url="https://photorankr.com/viewprofile.php?u=',$userid,'"
+      href="https://www.facebook.com/sharer.php"></a>
+    <script src="https://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
 </div>
 
 
     <!--TWITTER-->
     <div style="position:relative;margin-top:15px;">
-    <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://photorankr.com/viewprofile.php?u=',$user,'" data-text="Visit my photography site on PhotoRankr!" data-via="PhotoRankr" data-related="PhotoRankr">Tweet</a>
+    <a href="https://twitter.com/share" class="twitter-share-button" data-url="https://photorankr.com/viewprofile.php?u=',$user,'" data-text="Visit my photography site on PhotoRankr!" data-via="PhotoRankr" data-related="PhotoRankr">Tweet</a>
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
     </script></div>
 
     <!--GOOGLE PLUS-->
     <div style="position:relative;margin-top:15px;">
-    <div class="g-plus" data-action="share" data-href="http://photorankr.com/viewprofile.php?u=',$user,'"></div>';
+    <div class="g-plus" data-action="share" data-href="https://photorankr.com/viewprofile.php?u=',$user,'"></div>';
     ?>
 
     <script type="text/javascript">
@@ -1957,11 +2021,11 @@ elseif($view == 'about') {
 
                 echo '   
 
-                <div class="fPic" id="',$id,'" style="width:245px;height:230px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="http://photorankr.com/fullsizemarket.php?imageid=',$id,'">
+                <div class="fPic" id="',$id,'" style="width:245px;height:230px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="https://photorankr.com/fullsizemarket.php?imageid=',$id,'">
 
                 <div class="statoverlay" style="z-index:1;left:0px;top:155px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">',$caption,'</span><br><span style="font-size:20px;font-family:helvetica,arial;font-weight:100;">$',$price,'</span></p></div>
 
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="http://www.photorankr.com/',$imageThumb[$iii],'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="https://www.photorankr.com/',$imageThumb[$iii],'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
 	    
                 } //end for loop      
         
@@ -2003,11 +2067,11 @@ elseif($view == 'about') {
 		
                 echo '   
 
-                <div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="http://photorankr.com/viewprofile.php?u=',$followingid,'">
+                <div style="width:245px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="https://photorankr.com/viewprofile.php?u=',$followingid,'">
 
                 <div class="statoverlay" style="z-index:1;left:0px;top:210px;position:relative;background-color:black;width:245px;height:35px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:18px;font-family:helvetica,arial;font-weight:100;">',$fullname,'</span></p></div>
 
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-35px;min-height:245px;min-width:245px;" src="http://www.photorankr.com/',$followingpic,'" alt="',$fullname,'" height="245" width="245" /></a></div>';
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-35px;min-height:245px;min-width:245px;" src="https://www.photorankr.com/',$followingpic,'" alt="',$fullname,'" height="245" width="245" /></a></div>';
         
         }
         echo'</div>';
@@ -2071,7 +2135,7 @@ elseif($view == 'about') {
                 }
 
                    echo'<a style="text-decoration:none;color:#000;" href="fullsize.php?imageid=',$id,'"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
-"><img onmousedown="return false" oncontextmenu="return false;" src="http://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
+"><img onmousedown="return false" oncontextmenu="return false;" src="https://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
 	    
                 } //end for loop      
         
@@ -2201,15 +2265,15 @@ var last = 0;
     <div style="padding-top:5px;padding-left:3px;font-size:13px;text-decoration:none;color:#000;font-weight:200;"><span style="font-size:15px;font-weight:400;">',$setname2[$iii],'</span><br />',$numphotosgrabbed,' Photos</div>
 <hr />
 
-    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="http://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
+    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="https://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
     
     if($thumb4) {
         echo'
             <div>
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb1,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb2,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb3,'" width="110" height="110" />
-            <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$thumb4,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb1,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb2,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb3,'" width="110" height="110" />
+            <img style="float:left;padding:5px;" src="https://www.photorankr.com/',$thumb4,'" width="110" height="110" />
             </div>';
     }
     
@@ -2293,50 +2357,16 @@ echo'</ul>';
 
                 echo '   
 
-                <div class="fPic" id="',$id,'" style="width:245px;height:230px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="http://photorankr.com/fullsize.php?image=', $image[$iii], '">
+                <div class="fPic" id="',$id,'" style="width:245px;height:230px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="https://photorankr.com/fullsize.php?image=', $image[$iii], '">
 
                 <div class="statoverlay" style="z-index:1;left:0px;top:155px;position:relative;background-color:black;width:245px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">',$caption,'</span><br><span style="font-size:14px;font-family:helvetica,arial;font-weight:100;">Score: ',$score,'<br>Favorites: ',$faves,'</span></p></div>
 
-                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="http://www.photorankr.com/',$imageThumb[$iii],'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+                <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-90px;min-height:245px;min-width:245px;" src="https://www.photorankr.com/',$imageThumb[$iii],'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
 	    
                 } //end for loop      
         
         echo'</div>';
         echo'</div>';
-    
-    }
-    
-    
-    elseif($view == 'contact') {
-    
-        echo'<div class="grid_16" style="margin-left:20px;font-family: arial; font-size: 18px;font-weight:200;margin-top:20px;">';
-	if($_SESSION['loggedin'] == 1) {
-	    
-		echo' <div style="position:absolute; font-size: 25px; font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-		line-height: 28px; color: #333333;">
-    
-		<span style="font-size:20px;">Send ',$fullname,' a message:</span>
-        <br /><br />
-		<form method="post" action="sendmessage2.php" />
-		<textarea cols="95" rows="10" style="width:650px" name="message"></textarea>
-    		<br />
-    		<br />
-		<input type="submit" class="btn btn-success" value="Send Message"/>
-		<input type="hidden" name="emailaddressofviewed" value="',$useremail,'" />
-		</form>';
-	}
-	else {
-    		echo' <div style="font-size: 20px;margin-left:100px;text-align:center;margin-top:150px;font-weight:200;font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-		line-height: 18px;
-		color: #333333;">';
-		echo 'You must be signed in to contact this person.</div>';
-	}
-
-	if($_GET['action'] == "messagesent") {
-		echo '<div style="font-size: 20px;">Message Sent!</div>';
-	}
-    echo '</div>';
-    
     
     }
     
@@ -2351,21 +2381,21 @@ echo'</ul>';
 
 <!--TUMBLR SCRIPTS-->
 <script type="text/javascript">
-    var tumblr_link_url = "http://photorankr.com/viewprofile.php?u=',$user,'";
+    var tumblr_link_url = "https://photorankr.com/viewprofile.php?u=',$user,'";
     var tumblr_link_name = "My PhotoRankr Portfolio";
     var tumblr_link_description = "Visit and rank my photography on PhotoRankr!";
 </script>
 
 <script type="text/javascript">
     var tumblr_button = document.createElement("a");
-    tumblr_button.setAttribute("href", "http://www.tumblr.com/share/link?url=" + encodeURIComponent(tumblr_link_url) + "&name=" + encodeURIComponent(tumblr_link_name) + "&description=" + encodeURIComponent(tumblr_link_description));
+    tumblr_button.setAttribute("href", "https://www.tumblr.com/share/link?url=" + encodeURIComponent(tumblr_link_url) + "&name=" + encodeURIComponent(tumblr_link_name) + "&description=" + encodeURIComponent(tumblr_link_description));
     tumblr_button.setAttribute("title", "Share on Tumblr");
-    tumblr_button.setAttribute("style", "display:inline-block; text-indent:-9999px; overflow:hidden; width:129px; height:20px; background:url('http://platform.tumblr.com/v1/share_3.png') top left no-repeat transparent;");
+    tumblr_button.setAttribute("style", "display:inline-block; text-indent:-9999px; overflow:hidden; width:129px; height:20px; background:url('https://platform.tumblr.com/v1/share_3.png') top left no-repeat transparent;");
     tumblr_button.innerHTML = "Share on Tumblr";
     document.getElementById("tumblr_button_abc123").appendChild(tumblr_button);
 </script>
 
-<script type="text/javascript" src="http://platform.tumblr.com/v1/share.js"></script>
+<script type="text/javascript" src="https://platform.tumblr.com/v1/share.js"></script>
 
 </body>
 </html>

@@ -99,30 +99,19 @@ $notsqueryrun = mysql_query($notsquery); }
   <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
   <meta name="Description" content="PhotoRankr allows photographers of all skill levels to sell and share their work. Create your photostream cutomized to what you want to see. Add photos to your favorites, rank them, and watch them trend. Build your portfolio with Photorankr.">
 
-<script language="JavaScript">
-var x=<?php echo $x; ?>;
-
-function slideshowForward() {
-x=x+20;
-location.href="newest.php?x="+x;
-}
-
-function slideshowBackward() {
-x=x-20;
-location.href="newest.php?x="+x;
-}
-
 </script>
   <link rel="stylesheet" type="text/css" href="market/css/bootstrapNew.css" />
- <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
+  <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
   <link rel="stylesheet" href="market/css/text.css" type="text/css" />
-   <link rel="stylesheet" href="css/style.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
   <link rel="stylesheet" href="960_24.css" type="text/css" />
-  	<link rel="stylesheet" type="text/css" href="market/css/all.css"/>
-	<script type="text/javascript" href="js/bootstrap-dropdown.js"></script>
-<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-    <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
-    <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+  <link rel="stylesheet" type="text/css" href="market/css/all.css"/>
+  <script type="text/javascript" href="js/bootstrap-dropdown.js"></script>
+  <script type="text/javascript">
+    document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' type='text/javascript'>\<\/script>");
+  </script>
+  <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
+  <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
 
 <title>Top Ranked</title>
 
@@ -163,7 +152,7 @@ transition: opacity .5s;
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
@@ -308,7 +297,7 @@ $fullname = ucwords($fullname);
     }
 		echo '
         <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=r"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:270px;
-"><img src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">$',$price,'</div></div></li></a>';
+"><img src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">$',$price,'</div></div></li></a>';
        
 
         
@@ -427,7 +416,7 @@ $lastname = mysql_result($queryresult, $iii-1, "lastname");
 $fullname = $firstname . " " . $lastname;
 $fullname = ucwords($fullname);
 $profilepic = mysql_result($queryresult, $iii-1, "profilepic");
-if($profilepic == 'http://www.photorankr.com/profilepics/default_profile.jpg'){
+if($profilepic == 'https://www.photorankr.com/profilepics/default_profile.jpg'){
 $profilepic = 'profilepics/default_profile.jpg';
 }
 
@@ -472,7 +461,7 @@ if($coverpic == '') {
         
         <div class="statoverlay" style="z-index:1;left:0px;top:205px;position:relative;background-color:black;width:260px;height:70px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-family:helvetica neue,arial;font-weight:100;font-size:18px;">#',$count,'&nbsp;&nbsp;',$caption,'</span><br/><span style="font-family:helvetica,arial;font-weight:100;font-size:12px;">By: ',$fullname,'</p></div>
         
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:280px;min-width:260px;" src="http://photorankr.com/',$coverpic,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:280px;min-width:260px;" src="https://photorankr.com/',$coverpic,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
     
         
     } //end of for loop

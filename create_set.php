@@ -51,7 +51,7 @@ if($match > 0)
     }
 
 //Make sure they filled out all required information
-if (($numbertags < 2) | !$title ) 
+if (($numbertags < 1) | !$title ) 
 		{
          		header("location:myprofile.php?view=upload&cs=n&ns=failure");
         		exit();

@@ -346,18 +346,10 @@ chmod ($path_to_medthumbs_directory . $filename, 0644);
 
 
 function login() {
-    
-    //Set session to 24 hours and then start
-    
-    $sessionCookieExpireTime=24*60*60;
-    session_set_cookie_params($sessionCookieExpireTime);
-    @session_start();
-    
-    // Reset the expiration time upon page load //session_name() is default name of session PHPSESSID
-
-    if (isset($_COOKIE[session_name()]))
-    setcookie(session_name(), $_COOKIE[session_name()], time() + $sessionCookieExpireTime, “/”);
-
+        
+        session_start();
+        $seshemail = mysql_real_escape_string($_POST['emailaddress']);
+        
         // makes sure they filled it in
         if(!htmlentities($_POST['emailaddress'])) {
             header('Location: signup.php?action=fie');
@@ -384,9 +376,12 @@ function login() {
         
         if(mysql_real_escape_string($_POST['password']) == mysql_real_escape_string($info['password'])){
             //then redirect them to the same page as signed in and set loggedin to 1
+            session_start();
+            $_SESSION[$seshemail] = 1;
             $_SESSION['loggedin'] = 1;
             $_SESSION['email'] = mysql_real_escape_string($_POST['emailaddress']);
         }
+        
         //gives error if the password is wrong
         else if (mysql_real_escape_string($_POST['password']) != mysql_real_escape_string($info['password'])) {
             header('Location: signup.php?action=lp');
@@ -395,9 +390,12 @@ function login() {
 }
 
 function logout() {
+    
+    $emailaddress = $_SESSION['email'];
     session_start();
     $_SESSION['loggedin'] = 0;
     $_SESSION['email'] = "";
+    $_SESSION[$emailaddress] = "";
 
     session_destroy();
 }
@@ -510,9 +508,9 @@ echo'
                                     }                                
                                 echo'
                                 <li style="margin-left:15px;color:#000;float:left;">Email: </li>
-                                <li><input type="text" style="width:150px;margin-top:3px;margin-left:15px;float:left;" name="emailaddress" /></li>
+                                <li><input type="text" style="width:150px;margin-top:3px;margin-left:15px;float:left;" name="emailaddress" autocomplete="on" /></li>
                                 <li><span style="float:left;margin-left:15px;color:#000;float:left;">Password: </li>
-                                <input type="password" style="width:150px;margin-top:3px;margin-left:15px;float:left;" name="password"/></li>
+                                <input type="password" style="width:150px;margin-top:3px;margin-left:15px;float:left;" name="password" autocomplete="on" /></li>
                                 <li style="margin-left: 110px;float:left;"><input type="submit" class="btn btn-success" value="Sign In" id="loginButton"/></li>
                                 </form>
 								</ul>

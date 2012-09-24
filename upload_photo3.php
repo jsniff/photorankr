@@ -128,9 +128,8 @@ if ((($_FILES["file"]["type"] == "image/gif")
      $exif = exif_read_data($target, 0, true);
 //echo $exif===false ? "No header data found.<br />\n" : "Image contains headers<br />\n";
         foreach ($exif as $key => $section) {
-
             foreach ($section as $name2 => $val) {
-                if($key.$name2==EXIF.ShutterSpeed) {
+                if($key.$name2==EXIF.ShutterSpeedValue) {
                     $shutterspeed = $val;
                 }
                           if($key.$name2==EXIF.ApertureValue) {
@@ -150,6 +149,11 @@ if ((($_FILES["file"]["type"] == "image/gif")
                         
                         if($key.$name2==IFD0.Model) {
                         $camera = $val;
+                        
+                        }
+
+if($key.$name2==ISO.SpeedRatings) {
+                        $iso = $val;
                         
                         }
                         
@@ -192,8 +196,8 @@ if ((($_FILES["file"]["type"] == "image/gif")
 
 		$target = $path_to_medimage_directory . $newfilename;
 		//insert the file information into the database
-		$insertquery="INSERT INTO photos (source, caption, emailaddress, tag, time, price, location, country, tag1, tag2, tag3, tag4, camera, focallength, shutterspeed, aperture, lens, filter, about, copyright, sets, maintags, settags, set_id, singlestyletags, singlecategorytags,width,height,license,extendedoptions,ccmods,cccom)
-		VALUES ('$target', '$name', '$email', '$tag', '$currenttime', '$price', '$location', '$country', '$tag1', '$tag2', '$tag3', '$tag4', '$camera', '$focallength', '$shutterspeed', '$aperture', '$lens', '$filter', '$about', '$copyright', '$addtoset', '$maintags2','$settags2','$set_id','$singlestyletags2','$singlecategorytags2','$width','$height','$license','$extendedlicenses','$ccmods','$cccom')";
+		$insertquery="INSERT INTO photos (source, caption, emailaddress, tag, time, price, location, country, tag1, tag2, tag3, tag4, camera, focallength, shutterspeed, aperture, lens, filter, about, copyright, sets, maintags, settags, set_id, singlestyletags, singlecategorytags,width,height,license,extendedoptions,ccmods,cccom, iso)
+		VALUES ('$target', '$name', '$email', '$tag', '$currenttime', '$price', '$location', '$country', '$tag1', '$tag2', '$tag3', '$tag4', '$camera', '$focallength', '$shutterspeed', '$aperture', '$lens', '$filter', '$about', '$copyright', '$addtoset', '$maintags2','$settags2','$set_id','$singlestyletags2','$singlecategorytags2','$width','$height','$license','$extendedlicenses','$ccmods','$cccom', '$iso')";
 		mysql_query($insertquery);
 
         	//userinfo query

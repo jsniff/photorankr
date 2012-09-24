@@ -9,6 +9,7 @@ session_start();
 //find out who the message is going to be sent to and who the message is being sent from
 $sender = $_SESSION['email'];
 $receiver = mysql_real_escape_string($_REQUEST['emailaddressofviewed']);
+$view = $_GET['view'];
 
 //newsfeed entry
 $idquery = mysql_query("SELECT user_id,firstname,lastname FROM userinfo WHERE emailaddress = '$receiver'");
@@ -73,6 +74,6 @@ To view the message, login and click here: http://photorankr.com/myprofile.php?v
 
 //now send them back to whence they came
 //redirect them to whence they came
-header("Location: viewprofile.php?u=$userid&view=contact&action=messagesent");
+header("Location: viewprofile.php?u=$userid&message=sent");
 
 ?>
