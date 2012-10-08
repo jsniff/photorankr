@@ -3,169 +3,137 @@
 //connect to the database
 require "db_connection.php";
 require "functionsnav.php";
+require "timefunction.php";
 
+//start the session
+session_start();
 
+    // if login form has been submitted
+    if (htmlentities($_GET['action']) == "login") { 
+        login();
+    }
+    else if(htmlentities($_GET['action']) == "logout") { 
+        logout();
+    }
+
+    $email = $_SESSION['email'];
+    
+    $findreputationme = mysql_query("SELECT user_id,reputation,profilepic,firstname,lastname FROM userinfo WHERE emailaddress = '$email'");
+    $reputationme = mysql_result($findreputationme,0,'reputation');
+    $sessionpic = mysql_result($findreputationme,0,'profilepic');
+    $sessionuserid =  mysql_result($findreputationme,0,'user_id');
+    $sessionfirst =  mysql_result($findreputationme,0,'firstname');
+    $sessionlast =  mysql_result($findreputationme,0,'lastname');
+    $sessionid =  mysql_result($findreputationme,0,'user_id');
+    $sessionname = mysql_result($findreputationme,0,'firstname') ." ". mysql_result($findreputationme,0,'lastname');
+    $currenttime = time();
+
+echo $sessionfirst;
 ?>
 
 <!DOCTYPE html>
-
 <html>
 <head>
+<meta charset="UTF-8">
+<title>"<?php echo $caption; ?>" | PhotoRankr</title>
 
-	<link rel="stylesheet" href="css/bootstrapNew.css" type="text/css" />
-    <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
-    <link rel="stylesheet" href="css/text2.css" type="text/css" />
-    <link rel="stylesheet" href="market/css/960_24.css" type="text/css" />
-    <link rel="stylesheet" href="market/css/index.css" type="text/css"/> 
-	<link rel="stylesheet" type="text/css" href="market/css/all.css"/>
-    <link rel="stylesheet" href="market/css/style.css" type="text/css"/> 
+<meta property="og:image" content="http://photorankr.com/<?php echo $image; ?>">
+   <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="PhotoRankr, PhotoRankr.com">
+  <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
+  <meta name="Description" content="PhotoRankr allows photographers of all skill levels to sell and share their work. Create your photostream cutomized to what you want to see. Add photos to your favorites, rank them, and watch them trend. Build your portfolio with Photorankr.">
 
-	<script type="text/javascript" href="js/bootstrap-dropdown.js"></script>
-<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-<script type="text/javascript" src="http://masonry.desandro.com/jquery.masonry.min.js"></script>
-<script type="text/javascript" src="https://raw.github.com/desandro/imagesloaded/master/jquery.imagesloaded.min.js"></script>
-    <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+<link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+<link rel="stylesheet" type="text/css" href="css/bootstrapNew.css"/>
+<link rel="stylesheet" type="text/css" href="css/reset.css"/>
+<link rel="stylesheet" type="text/css" href="css/all.css"/>
+<link rel="stylesheet" type="text/css" href="css/reset.css"/>
+<link rel="stylesheet" type="text/css" href="css/style.css"/>
+<link rel="stylesheet" type="text/css" href="css/960_24_col.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script src="bootstrap.js" type="text/javascript"></script>
+  <script src="bootstrap-dropdown.js" type="text/javascript"></script>
+  <script src="bootstrap-collapse.js" type="text/javascript"></script>
+  <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
 
-    
-   <style type="text/css">
+     <script src="bootstrap-dropdown.js" type="text/javascript"></script>
+     <script src="bootstrap-collapse.js" type="text/javascript"></script>
+     
+     <script type="text/javascript">
+  $(function() {
+  // Setup drop down menu
+  $('.dropdown-toggle').dropdown();
+ 
+  // Fix input element click problem
+  $('.dropdown input, .dropdown label').click(function(e) {
+    e.stopPropagation();
+  });
+});
+     </script>
 
+<script type="text/javascript" >
 
- .statoverlay
-
+$(function() {
+$(".submit").click(function() 
 {
-opacity:.8;
-filter:alpha(opacity=40);
-z-index:1;
-transition: opacity .5s;
--moz-transition: opacity .5s;
--webkit-transition: opacity .5s;
--o-transition: opacity .5s;
-}
-
-
-
- .statoverlay2
-
+var name = '<?php echo $sessionfirst ." ". $sessionlast; ?>';
+var email = '<?php echo $email; ?>';
+var comment = $("#comment").val();
+var dataString = 'name='+ name + '&email=' + email + '&comment=' + comment;
+if(email=='' || comment=='')
 {
-opacity:.6;
-filter:alpha(opacity=40);
-z-index:1;
-transition: opacity .5s;
--moz-transition: opacity .5s;
--webkit-transition: opacity .5s;
--o-transition: opacity .5s;
+alert('Please Give Valid Details');
 }
-                         
-
-.item {
-  margin: 10px;
-  float: left;
-  border: 2px solid transparent;
+else
+{
+$("#flash").show();
+$("#flash").fadeIn(400).html('<img src="ajax-loader.gif" />Loading Comment...');
+$.ajax({
+type: "POST",
+url: "commentajax.php",
+data: dataString,
+cache: false,
+success: function(html){
+$("ol#update").append(html);
+$("ol#update li:last").fadeIn("slow");
+$("#flash").hide();
 }
+});
+}return false;
+}); });
 
-.item:hover {
-  margin: 10px;
-  float: left;
-  border: 2px solid black;
-}
+</script>
 
-</style>
 
-<body style="background-color: #fff; min-width:1220px;">
+<!--GOOGLE ANALYTICS CODE-->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-28031297-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<body style="overflow-x:hidden;min-width:1220px;background-color:rgb(245,245,245);">
 
 <?php navbarnew(); ?>
 
-                <div id="thepics">
+<div class="grid_24">
+    <ol id="update" class="timeline">
+    </ol>
+</div>
+<div id="flash"></div>
+<div >
+<form action="#" method="post" style="margin-top:100px;">
+<textarea id="comment"></textarea><br />
+<input type="submit" class="submit" value=" Submit Comment " />
+</form>
+</div>
 
-                
-         
-				<?php 
-
-                
-                $newestphotos = mysql_query("SELECT * FROM photos ORDER BY id DESC LIMIT 0,51");
-                $numphotos = mysql_num_rows($newestphotos);
-                
-                for($iii = 0; $iii < $numphotos; $iii++) {
-                $photo[$iii] = mysql_result($newestphotos,$iii,'source');
-                $photobig[$iii] = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/", $photo[$iii]);
-                $photo[$iii] = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "http://photorankr.com/userphotos/medthumbs/", $photobig[$iii]);
-                $id = mysql_result($newestphotos,$iii,'id');
-                $owneremail[$iii] = mysql_result($newestphotos,$iii,'emailaddress');
-                $caption[$iii] = mysql_result($newestphotos,$iii,'caption');
-
-                $query1234 = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$owneremail[$iii]'");
-                $profilepic[$iii] = mysql_result($query1234,0,'profilepic');
-
-                list($width,$height) = getimagesize($photobig[$iii]);
-                $widthnew = $width / 4.5;
-                $heightnew = $height / 4.5;
-                if($widthnew < 215) {
-                $heightnew = $heightnew * ($heightnew/$widthnew);
-                $widthnew = 270;
-                }
-                
-                echo'
-				<div class="masonryImage">
-                <div class="phototitle5 fPic" id="',$id,'">
-					<a href="fullsize2.php?imageid=',$id,'"><img style="text-align:center;padding-bottom:20px;min-width:265px;" src="',$photo[$iii],'" height="',$heightnew,'px" width="',$widthnew,'px" /></a>
-                        
-                    </div>
-				</div>';
-                }
-                
-                
-                echo'
-                     </div>
-
-            
-<!--AJAX CODE HERE-->
-   <div class="grid_6 push_9" style="padding-top:50px;">
-   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Photos&hellip;</div>
-   </div>';
-
-
-echo '<script>
-
-var last = 0;
-
-	$(window).scroll(function(){
-		if($(window).scrollTop() > $(document).height() - $(window).height()-100) {
-			if(last != $(".fPic:last").attr("id")) {
-				$("div#loadMorePics").show();
-				$.ajax({
-					url: "loadMoreNewPics2.php?lastPicture=" + $(".fPic:last").attr("id"),
-					success: function(html) {
-						if(html) {
-							$("#thepics").append(html);
-							$("div#loadMorePics").hide();
-                            $container.masonry( "appended", $(".masonryImage"), true);
-
-						}
-					}
-				});
-				last = $(".fPic:last").attr("id");
-			}
-		}
-	});
-</script>';
-
-                            
-?>
-
-		
-  <script type="text/javascript">
-
-        var $container = $('#thepics');
-          $container.imagesLoaded(function(){
-            $container.masonry({
-              itemSelector : '.masonryImage',
-              columnWidth : 280     //Added gutter to simulate margin
-          });
-        });
-
-  </script>
-    
-    
 </body>
-</html>	
-
+</html>  

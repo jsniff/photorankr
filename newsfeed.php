@@ -579,7 +579,7 @@ if($view == '') {
     echo '</div>';  
 	}
     
-    elseif ($type == "fave") {
+    elseif ($type == "fave" || $type == "discoverfave") {
     $owner = $newsrow['owner'];
     $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
     $ownerresult = mysql_query($ownersquery); 
@@ -604,8 +604,12 @@ if($view == '') {
 	$imgratio = $height / $width;
 	$height = $imgratio * $maxwidth;
     $fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname . "</a>";
-    $phrase = $fullname . " favorited " . '"' . $caption . '"' . " by " . $ownerfull;
-    
+    if($type == "fave") {
+        $phrase = $fullname . " favorited " . '"' . $caption . '"' . " by " . $ownerfull;
+    }
+    elseif($type == "discoverfave") {
+            $phrase = $fullname . " discovered " . '"' . $caption . '"' . " by " . $ownerfull;
+    }
     $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
@@ -1016,7 +1020,47 @@ if($view == '') {
 
     echo '</div>'; 
     }
+    
+    elseif($type == "articlecomment") {
+    $articleowner = $newsrow['emailaddress'];
+    $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$articleowner'";
+    $ownerresult = mysql_query($ownersquery); 
+    $ownerrow = mysql_fetch_array($ownerresult);
+    $ownerfirst = $ownerrow['firstname'];
+    $ownerlast = $ownerrow['lastname'];
+    $ownerprofilepic = $ownerrow['profilepic'];
+    $ownerid = $ownerrow['user_id'];
+    $ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "</a>";
+    $ownerfull = ucwords($ownerfull);
+    $blogid = $newsrow['source'];
+    $articleinfo = mysql_query("SELECT title,contents FROM entries WHERE id = $blogid");
+    $articletitle = mysql_result($articleinfo,0,'title');
+    $articletitle = "<a href='post.php?a=" . $blogid . "'>" . $articletitle . "</a>";
+    $content = mysql_result($articleinfo,0,'contents');
+    $content = (strlen($content) > 1250) ? substr($content,0,1247). " &#8230;" : $content;
+    $phrase = $ownerfull . " commented on '$articletitle'";
+    
+    $profileshotquery = mysql_query("SELECT profilepic FROM userinfo WHERE emailaddress = '$email'");
+    $profileshot = mysql_result($profileshotquery,0,'profilepic');
+    
+     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
+   
+     <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />
+     
+     &nbsp;&nbsp;
+    
+    <div style="float:left;font-size:15px;padding:10px;width:490px;">',$phrase,'</div>
+    
+        <br /><div style="float:left;font-size:12px;color:#777;font-weight:400;padding-left:10px;">',converttime($time),'</div>
+    
+    <br />
+                           
+        <div style="float:left;margin-top:20px;margin-left:85px;width:450px;font-size:15px;font-weight:200;line-height:1.48;">',$content,'<br /><br /></div>
 
+            
+    </div>'; 
+    
+    }
     
     elseif ($type == "comment") {
     $owner = $newsrow['owner'];
@@ -1038,24 +1082,27 @@ if($view == '') {
     $lastname = ucwords($lastname);
     $image = $newsrow['source'];
     $id = $newsrow['id'];
+    $getimageid = mysql_query("SELECT id FROM photos WHERE source = '$image'");
+    $oldimageid = mysql_result($getimageid,0,'id');
    
-    $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
+    $imageinfo = mysql_query("SELECT * FROM photos WHERE (id = '$image' OR id = '$oldimageid')");
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
     $about = mysql_result($imageinfo,0,'about');
     $imageID = mysql_result($imageinfo,0,'id');
+    $source = mysql_result($imageinfo,0,'source');
     $votes = mysql_result($imageinfo,0,'votes');
     $rank = ($points / $votes);
     $rank = number_format($rank,2);
     
-    $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $image);
+    $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $source);
     $fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname ."</a>";
     list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
 	$height = $imgratio * $maxwidth;
     $phrase = $fullname . " commented on " . $ownerfull . "'s photo";
     
-    list($width, $height) = getimagesize($image);
+    list($width, $height) = getimagesize($source);
     $width = ($width / 2.5);
     $height = ($height / 2.5);
     
@@ -1069,7 +1116,7 @@ if($view == '') {
     
     echo'
     </div>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
+    <br /><a href="fullsize.php?imageid=',$imageID,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
     
     if($about) {
         echo'

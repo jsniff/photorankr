@@ -202,6 +202,7 @@ $filter = htmlentities($_GET['filter']);
         echo'<div id="container">';
         for($iii=0; $iii<$numresults; $iii++) {
             $image = mysql_result($query,$iii,'source');
+            $imageid = mysql_result($query,$iii,'id');
             $imagemed = str_replace('userphotos/','userphotos/medthumbs/',$image);
             $caption = mysql_result($query,$iii,'caption');
             $caption = (strlen($caption) > 30) ? substr($caption,0,27). " &#8230;" : $caption;
@@ -234,7 +235,7 @@ $filter = htmlentities($_GET['filter']);
             }
 
         echo'
-            </div><div style="margin-left:30px;float:left;margin-top:',$height/2,';"><span style="font-size:24px;color:black;">"<a style="color:black;" href="fullsize.php?image=',$image,'">',$caption,'</a>"</span><br /><br /><img src="',$profilepic,'" alt="',$photographer,'" width="40" height="40" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$userid,'" style="color:#3e608c;font-weight:bold;font-size:14px;">',$photographer,'</a><br />Photo Rank:&nbsp;<span style="font-size:22px;">',$ranking,'</span><span style="opacity:.7;">/10</span><br />Favorites: <span style="font-size:22px;">',$faves,'</span><br />Views: <span style="font-size:22px;">',$views,'</span><br /><br /></div><hr>';
+            </div><div style="margin-left:30px;float:left;margin-top:',$height/2,';"><span style="font-size:24px;color:black;">"<a style="color:black;" href="fullsize.php?imageid=',$imageid,'">',$caption,'</a>"</span><br /><br /><img src="',$profilepic,'" alt="',$photographer,'" width="40" height="40" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$userid,'" style="color:#3e608c;font-weight:bold;font-size:14px;">',$photographer,'</a><br />Photo Rank:&nbsp;<span style="font-size:22px;">',$ranking,'</span><span style="opacity:.7;">/10</span><br />Favorites: <span style="font-size:22px;">',$faves,'</span><br />Views: <span style="font-size:22px;">',$views,'</span><br /><br /></div><hr>';
             
         }
         

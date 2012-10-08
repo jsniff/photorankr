@@ -839,7 +839,7 @@ var id = url.substring(url.lastIndexOf('/') + 1);
                     
                     <div style="padding:5px;margin-top:0px;">
                                             
-                        <form action="?imageid=',$id,'';if($cat) {echo'&cat=',$cat,'';} echo'&view=saveinfo" method="post" />
+                        <?php echo'<form action="?imageid=',$id,'';if($cat) {echo'&cat=',$cat,'';} echo'&view=saveinfo" method="post" />'; ?>
                         
                                             
                         <div style="clear:both;">

@@ -158,6 +158,8 @@
         $username = mysql_result($query2,$iii,'firstname') ." ". mysql_result($query2,$iii,'lastname');
         $userpic = mysql_result($query2,$iii,'profilepic');
         $userid = mysql_result($query2,$iii,'id');
+        
+        echo $_SESSION[$useremail];
     
         if($_SESSION[$useremail] == 1) {
             echo '<a href="viewprofile.php?u=',$userid,'"><img style="padding:10px;" src="',$userpic,'" width="45" /></a> <a href="viewprofile.php?u=',$userid,'">',$username,'</a><br />';

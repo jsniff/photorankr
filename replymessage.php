@@ -3,6 +3,7 @@
 
 //CONNECT TO DB
 require "db_connection.php";
+require "functionsnav.php";
 
 session_start();
 
@@ -26,7 +27,12 @@ $thread = mysql_result($threadresult, 0, "thread");
 $unread = 1;
 
 //find out what the message said
+$contents = trim($contents);
 $contents = htmlentities(mysql_real_escape_string($_REQUEST['message']));
+$emailcontents = $_REQUEST['message'];
+
+//Convert all instances of 'http' to a link
+$contents = make_url($contents);
 
 //now insert this message into the messages table
 $messagequery = "INSERT INTO messages (thread, sender, receiver, contents, unread) VALUES ('$thread', '$sender', '$receiver', '$contents', '$unread')";
@@ -47,7 +53,7 @@ $newsfeedsignupquery=mysql_query("INSERT INTO newsfeed (firstname, lastname, own
 //Mail email to reciever
     $to = '"' . $recfirst . ' ' . $reclast . '"' . '<'.$receiver.'>';
     $subject = $firstname . " " . $lastname . " replied to your message on PhotoRankr";
-    $favemessage = $contents. "
+    $favemessage = $emailcontents. "
         
 To view the message, login and click here: http://photorankr.com/myprofile.php?view=viewthread&thread=".$thread;
     $headers = 'From:PhotoRankr <photorankr@photorankr.com>';

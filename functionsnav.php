@@ -377,9 +377,9 @@ function login() {
         if(mysql_real_escape_string($_POST['password']) == mysql_real_escape_string($info['password'])){
             //then redirect them to the same page as signed in and set loggedin to 1
             session_start();
-            $_SESSION[$seshemail] = 1;
             $_SESSION['loggedin'] = 1;
             $_SESSION['email'] = mysql_real_escape_string($_POST['emailaddress']);
+            $_SESSION[$seshemail] = 1;
         }
         
         //gives error if the password is wrong
@@ -490,7 +490,7 @@ echo'
 								<li> <a href="viewcampaigns.php"> Campaigns </a></li>
 							</ul>
 						</li>
-                        <li> <a href="/blog/post"> Blog </a> </li>';
+                        <li> <a href="blog.php"> Blog </a> </li>';
                         
                         if($_SESSION['loggedin'] != 1) {
                         
@@ -641,7 +641,7 @@ echo'
                                 $unhighlightquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$email'");
                                 $whitenlist=mysql_result($unhighlightquery, 0, "unhighlight");
 
-                                if($numnots > 1) {
+                                if($numnots > 0) {
                                 
                                     echo'<div style="width:450px;max-height:350px;overflow-y:scroll;font-size:12px;font-family:helvetica neue,helvetica,arial;font-weight:200;">';
 
@@ -657,7 +657,12 @@ echo'
                                     $id = mysql_result($notsquery,$iii,'id');
                                     $caption = mysql_result($notsquery,$iii,'caption');
                                     $source = mysql_result($notsquery,$iii,'source');
+                                    
+                                    $commentphotoquery = mysql_query("SELECT source FROM photos WHERE (id = '$source' or source = '$source')");
+                                    $commentphoto = mysql_result($commentphotoquery,0,'source');
+                                    
                                     $newsource = str_replace("userphotos/","userphotos/thumbs/", $source);
+                                    $commentphotosource = str_replace("userphotos/","userphotos/thumbs/", $commentphoto);
                                     
                                     $exhibitsource = mysql_query("SELECT cover FROM sets WHERE id = '$source'");
                                     $setcover = mysql_result($exhibitsource,$iii,'cover');
@@ -685,7 +690,7 @@ echo'
 
                                         if($type == "comment") {
 
-                                            echo'<a style="text-decoration:none" href="fullsize.php?image=',$source,'&id=',$id,'"><div id="',$highlightid,'"><img class="roundednot" style="float:left;padding:5px;" src="http://www.photorankr.com/',$newsource,'" height="50" width="50" />&nbsp;<div style="float:left;margin-top:20px;margin-left:10px;"><img src="graphics/comment.png" height="15" />&nbsp;&nbsp;&nbsp;<b>',$fullname,'</b> commented on your photo</div></div></a>';
+                                            echo'<a style="text-decoration:none" href="fullsize.php?imageid=',$source,'&id=',$id,'"><div id="',$highlightid,'"><img class="roundednot" style="float:left;padding:5px;" src="http://www.photorankr.com/',$commentphotosource,'" height="50" width="50" />&nbsp;<div style="float:left;margin-top:20px;margin-left:10px;"><img src="graphics/comment.png" height="15" />&nbsp;&nbsp;&nbsp;<b>',$fullname,'</b> commented on your photo</div></div></a>';
                                             
                                         }
 
@@ -1010,6 +1015,17 @@ function footermarket() {
     
 }
 
+function make_url($comment){
+    
+    $text = $comment;
+    
+    $pattern = "@\b(https?://)?(([0-9a-zA-Z_!~*'().&=+$%-]+:)?[0-9a-zA-Z_!~*'().&=+$%-]+\@)?(([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-zA-Z_!~*'()-]+\.)*([0-9a-zA-Z][0-9a-zA-Z-]{0,61})?[0-9a-zA-Z]\.[a-zA-Z]{2,6})(:[0-9]{1,4})?((/[0-9a-zA-Z_!~*'().;?:\@&=+$,%#-]+)*/?)@";
 
+$text = preg_replace($pattern, '<a target="_blank" rel="nofollow" href="\0">\0</a>', $text);
+
+return $text;
+    
+}
 
 ?>
+ 

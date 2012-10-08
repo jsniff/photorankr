@@ -161,9 +161,10 @@ for($iii=1; $iii <= $numpics; $iii++) {
 
 		echo '
         <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:270px;
-"><img src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div></div></li></a>';
+"><img style="-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
 
-  
+<div class="statoverlay" style="z-index:1;background-color:white;position:relative;top:0px;width:270px;height:30px;"><div style="line-spacing:1.48;padding:5px;color:#4A4A4A;"><div style="float:left;"<span style="font-size:16px;font-weight:bold;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:bold;font-size:12px;">',$caption,'</span></div><div style="float:right;"><span style="font-size:12px;">',$price,'</span></div></div><br/></div>
+';  
 	    
       } //end for loop
       

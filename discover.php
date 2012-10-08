@@ -185,8 +185,8 @@ $profilescore=$row['totalscore'];
 $reputation=$row['reputation'];
 
 //calculate the size of the picture
-$maxwidth=770;
-$maxheight=770;
+$maxwidth=800;
+$maxheight=800;
 
 list($width, $height)=getimagesize($image);
 $imgratio=$width/$height;
@@ -291,7 +291,7 @@ if ($f==1) {
 			mysql_query("UPDATE photos SET faves=faves+1 WHERE source='$image'");
             
              //newsfeed query
-        $type = "fave";
+        $type = "discoverfave";
         $newsfeedfavequery=mysql_query("INSERT INTO newsfeed (firstname, lastname, emailaddress,type,source,caption,owner) VALUES ('$viewerfirst', '$viewerlast', '$useremail','$type','$image','$caption','$emailaddress')");
      
 //notifications query     
@@ -798,6 +798,44 @@ $foundsetting = strpos($setting_string,$find);
 
 ?>
 
+<script language="javascript" type="text/javascript">
+
+
+$(function() {
+$(".submit").click(function() 
+{
+var firstname = '<?php echo $sessionfirst; ?>';
+var lastname = '<?php echo $sessionlast; ?>';
+var email = '<?php echo $email; ?>';
+var photo = '<?php echo $imageid; ?>';
+var userpic = '<?php echo $sessionpic; ?>';
+var viewerid = '<?php echo $sessionid; ?>';
+var viewerrep = '<?php echo $reputationme; ?>';
+var comment = $("#comment").val();
+var dataString = 'firstname='+ firstname + '&lastname=' + lastname + '&email=' + email + '&comment=' + comment + '&userpic=' + userpic + '&photo=' + photo + '&viewerid=' + viewerid + '&viewerrep=' + viewerrep;
+if(email=='' || comment=='')
+{
+alert('Please Give Valid Details');
+}
+else
+{
+$("#flash").show();
+$("#flash").fadeIn(400).html();
+$.ajax({
+type: "POST",
+url: "commentajax.php",
+data: dataString,
+cache: false,
+success: function(html){
+$("ol#update").append(html);
+$("ol#update li:last").fadeIn("slow");
+$("#flash").hide();
+}
+});
+}return false;
+}); });
+
+</script>
      
 </head>
 
@@ -1123,12 +1161,19 @@ By:
 
 
 
-<div class="grid_15">	
+<div class="grid_15 pull_2">	
 	<div class="grid_14 pull_1" style="float:left;">
 		<h1 style="font-size:22px;padding-bottom:15px;font-weight:200;"> <?php echo $caption; ?> </h1>
 	</div>	
-	<div class="grid_17 pull_1" style="float:left;" >
-	<img onmousedown="return false" oncontextmenu="return false;" src="<?php echo $image; ?>" class="image" height="<?php echo $newheight; ?>px" width="<?php echo $newwidth; ?>px" />	
+	<div class="grid_21 pull_1" style="float:left;" >
+	<img onmousedown="return false" oncontextmenu="return false;" src="<?php echo $image; ?>" alt="<?php echo $caption; ?>" class="image" height="<?php echo $newheight; ?>px" width="<?php echo $newwidth; ?>px" />	
+    
+                <?php
+                    if($faves > 5 || $points > 120 || $views > 100) {
+                        echo'<img style="margin-top:-40px;margin-left:',$newwidth-55,'px;" src="graphics/toplens2.png" height="85" />';
+                }
+                ?>
+                
 	</div>
 
 
@@ -1136,21 +1181,28 @@ By:
 
 <div class="grid_16 pull_1 comments-box">
     
-    <?php
+       <?php
         
-        //ADD COMMENT
+        //AJAX COMMENT
         if($_SESSION['loggedin'] == 1) {
-        
             echo'
-                <form action="" method="POST" />
-                    <div style="width:610px;"><img style="float:left;padding:10px;" src="',$sessionpic,'" height="30" width="30" />
-                    <input style="float:left;width:495px;height:20px;position:relative;top:10px;" type="text" name="comment" placeholder="Leave feedback for ',$firstname,'&#8230;" />
-                    <input style="float:left;margin-top:11px;margin-left:4px;" type="submit" class="btn btn-success" value="Post"/>
-                    </div>
-                </form>';
-         
+            <div style="width:630px;"> 
+            <form action="#" method="post" style="margin-top:5px;padding-bottom:25px;">        
+            <img style="float:left;padding:10px;" src="',$sessionpic,'" height="30" width="30" />
+            <textarea id="comment" style="float:left;width:495px;position:relative;top:10px;height:20px;" type="text" placeholder="Leave feedback for ',$firstname,'&#8230;"></textarea>
+            <br /><br />
+            <input style="float:left;margin-left:8px;margin-top:-24px;" type="submit" type="submit" class="submit btn btn-success" value="Post"/>
+            </form>
+            </div>
+        
+            <!--AJAX COMMENTS-->
+            <div class="float:left;"> 
+                <ol id="update" class="timeline">
+                </ol>
+            </div>';
         }
             
+        //SHOW PREVIOUS COMMENTS
         $grabcomments = mysql_query("SELECT * FROM comments WHERE imageid = '$imageID' ORDER BY id DESC");
         $numcomments = mysql_num_rows($grabcomments);
         
@@ -1204,25 +1256,61 @@ By:
 </div>
 
 
-		<div class="grid_7 push_2" style="margin-top:50px;">
+<!--PHOTOGRAPHER ID-->
+
+		<div class="grid_7 push_4" style="margin-top:55px;">
 			<div class="grid_7 box"> <!--ID Tag-->
-				<div>
-					<div id="imgborder">
-					<img src="<?php echo $profilepic; ?>" class="profilepic"/>
+				<div style="height:130px;">
+					<div class="roundedall" style="float:left;overflow:hidden;margin-left:5px;margin-top:5px;">
+					<img src="<?php echo $profilepic; ?>" alt="<?php echo $fullname; ?>" height="95" width="95" />
 				</div>
 
 			<div id="namewrap">
-				<h1 id="name"><a class="click" href="viewprofile.php?u=<?php echo $user; ?>"><?php echo $fullname; ?></a></h1>
-				<a data-toggle="modal" data-backdrop="static" href="#fwmodal"><button style="width:80px;margin-left:15px;" class="btn btn-primary"> Follow </button></a>
+				<h1 id="name"><a class="click" href="viewprofile.php?u=<?php echo $user; ?>"><?php echo $fullname; ?></a></h1>  
+        
+             <?php
+            
+                $emailquery=("SELECT * FROM userinfo WHERE emailaddress ='$email'");
+                $emailresult=mysql_query($emailquery);
+                $prevemails=mysql_result($emailresult, 0, "following");
+                $viewerfirst = mysql_result($emailresult, 0, "firstname");
+                $viewerlast = mysql_result($emailresult, 0, "lastname");
+
+                $search_string=$prevemails;
+                $regex="/$emailaddress/";
+                $match=preg_match($regex,$search_string);
+            
+                if ($match > 0) {
+                echo'
+                <a href="fullsize.php?imageid=',$imageid,'&view=',$view,'&uf=1"><button style="width:80px;margin-left:15px;" class="btn unfollow"> Following </button></a>';
+                
+                }
+                
+                else {
+        echo'
+				<a data-toggle="modal" data-backdrop="static" href="#fwmodal"><button style="width:80px;margin-left:15px;" class="btn btn-primary"> Follow </button></a>';
+                
+                }
+                
+            ?>
+                
+                
 				<div class="progress progress-success" style="width:110px;height: 10px;margin-top:10px;">
                 <div class="bar" style="width:<?php echo $reputation; ?>%;"> 
                 </div></div>
 
 				<h1 id="rep"> Rep: &nbsp <?php echo $reputation; ?> </h1>
 			</div>	
+            
+            <?php
+                
+                if($reputation > 60) {
+                    echo'<img style="margin-top:-90px;margin-left:70px;" src="graphics/toplens.png" height="75" />';
+                }
+            
+            ?>
+                
 		</div>
-	
-
 
 
 			</div>

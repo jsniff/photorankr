@@ -235,6 +235,17 @@ $foundsetting = strpos($setting_string,$find);
 	}
 }
 
+ //Unfollow Query
+
+    if(htmlentities($_GET['uf']) == 1) {
+
+        $followingquery = mysql_query("SELECT following FROM userinfo WHERE emailaddress = '$email'");
+        $following = mysql_result($followingquery,0,'following');
+        $updatefollowing = "UPDATE userinfo SET following = replace(following,'$useremail','') WHERE emailaddress = '$email'";	
+        $updaterun = mysql_query($updatefollowing);
+
+    }
+
         if($_GET['action'] == 'comment') {
     
             $blogid = htmlentities($_GET['blogid']);
@@ -886,7 +897,33 @@ height="100px" width="100px" />
 <div class="roundedall" style="float:left;overflow:hidden;margin-left:15px;margin-top:15px;">
 <img src="<?php echo $profilepic; ?>" alt="<?php echo $fullname; ?>" height="120" width="120"/>
 </div>
-<a data-toggle="modal" href="#fwmodal" data-backdrop="static" class="btn btn-success" style="float:left;width:70px;margin-top:40px;margin-left:10px;font-size:14px;font-weight:150;">Follow</a>
+
+            <?php
+            
+                $emailquery=("SELECT * FROM userinfo WHERE emailaddress ='$email'");
+                $emailresult=mysql_query($emailquery);
+                $prevemails=mysql_result($emailresult, 0, "following");
+                $viewerfirst = mysql_result($emailresult, 0, "firstname");
+                $viewerlast = mysql_result($emailresult, 0, "lastname");
+
+                $search_string=$prevemails;
+                $regex="/$useremail/";
+                $match=preg_match($regex,$search_string);
+            
+                if ($match > 0) {
+                echo'
+                <a href="viewprofile.php?u=',$userid,'&uf=1" style="float:left;width:70px;margin-top:40px;margin-left:10px;font-size:14px;font-weight:150;text-decoration:none;"class="btn unfollow"> Following </a>';
+                
+                }
+                
+                else {
+        echo'
+				<a data-toggle="modal" data-backdrop="static" href="#fwmodal"  style="float:left;width:70px;margin-top:40px;margin-left:10px;font-size:14px;font-weight:150;" class="btn btn-success"> Follow </a>';
+                
+                }
+                
+            ?>
+
 <a class="btn btn-primary" style="float:left;width:70px;margin-top:7px;margin-left:10px;font-size:14px;font-weight:150;" data-toggle="modal" data-backdrop="static" href="#messagemodal">Message</a>
 </div>
 
@@ -933,13 +970,18 @@ height="100px" width="100px" />
 </div></a>
 
 <hr>
-<a style="text-decoration:none;color:black;font-weight:100;" href="viewprofile.php?u=<?php echo $userid; ?>&view=network"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
-<span class="green" style="text-align:center;font-size:20px;padding:15px;<?php if($view == 'network') {echo'color:#6aae45;';} ?>">Network&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/follower.png" width="35"></span>
+<a style="text-decoration:none;color:black;font-weight:100;" href="viewprofile.php?u=<?php echo $userid; ?>&view=collections"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<span class="green" style="text-align:center;font-size:20px;padding:15px;<?php if($view == 'collections') {echo'color:#6aae45;';} ?>">Collections&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/collections.png" width="25"></span>
 </div></a>
 
 <hr>
 <a style="text-decoration:none;color:black;font-weight:100;" href="viewprofile.php?u=<?php echo $userid; ?>&view=favorites"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
 <span class="green" style="text-align:center;font-size:20px;padding:15px;<?php if($view == 'favorites') {echo'color:#6aae45;';} ?>">Favorites&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/fave.png" width="25"></span>
+</div></a>
+
+<hr>
+<a style="text-decoration:none;color:black;font-weight:100;" href="viewprofile.php?u=<?php echo $userid; ?>&view=network"><div style="width:250px;margin-top:-10px;padding-bottom:4px;">
+<span class="green" style="text-align:center;font-size:20px;padding:15px;<?php if($view == 'network') {echo'color:#6aae45;';} ?>">Network&nbsp;&nbsp;<img style="float:right;padding-top:5px;padding-right:20px;" src="graphics/follower.png" width="35"></span>
 </div></a>
 
 <hr>
@@ -952,9 +994,9 @@ height="100px" width="100px" />
 
 <div class="grid_18 roundedright pull_1" style="background-color:#eeeff3;height:50px;margin-top:80px;width:800px;margin-left:-43px;">
 
-<a style="text-decoration:none;color:black;" href="viewprofile.php?u=<?php echo $userid; ?>"><div class="clicked" style="width:150px;height:50px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;<?php if($view == '') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:18px;font-weight:100;margin-top:10px;text-align:center;">Activity</div></div></a>
+<a style="text-decoration:none;color:black;" href="viewprofile.php?u=<?php echo $userid; ?>&view=activity"><div class="clicked" style="width:150px;height:50px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;<?php if($view == 'activity') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:18px;font-weight:100;margin-top:10px;text-align:center;">Activity</div></div></a>
 
-<a style="text-decoration:none;color:black;" href="viewprofile.php?u=<?php echo $userid; ?>&view=portfolio"><div class="clicked" style="width:150px;height:50px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;<?php if($view == 'portfolio' || $view == 'exhibits') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:18px;font-weight:100;margin-top:10px;text-align:center;">Portfolio</div></div></a>
+<a style="text-decoration:none;color:black;" href="viewprofile.php?u=<?php echo $userid; ?>"><div class="clicked" style="width:150px;height:50px;border-right:1px solid #ccc;border-left:1px solid #ccc;float:left;<?php if($view == '' || $view == 'exhibits') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:18px;font-weight:100;margin-top:10px;text-align:center;">Portfolio</div></div></a>
 
 <a style="text-decoration:none;color:black;" href="viewprofile.php?u=<?php echo $userid; ?>&view=store"><div class="clicked" style="width:150px;height:50px;border-right:1px solid #ccc;float:left;<?php if($view == 'store') {echo'background-color:#bbb;color:white;';} ?>"><div style="font-size:18px;font-weight:100;margin-top:10px;text-align:center;">Store</div></div></a>
 
@@ -967,7 +1009,7 @@ height="100px" width="100px" />
 
 <?php
 
-     if($view == '') {
+     if($view == 'activity') {
     
         $activityquery = mysql_query("SELECT * FROM newsfeed WHERE hide <> 1 AND (emailaddress = '$useremail' OR owner = '$useremail') AND type IN ('follow','comment','fave','photo') ORDER BY id DESC LIMIT 13");
         
@@ -992,9 +1034,14 @@ height="100px" width="100px" />
             
             $source = mysql_result($activityquery,$iii,'source');
             
+            $commentphotoquery = mysql_query("SELECT source FROM photos WHERE (id = '$source' or source = '$source')");
+            $commentphoto = mysql_result($commentphotoquery,0,'source');
+                                
+            $commentphotosource = str_replace("userphotos/","userphotos/medthumbs/", $commentphoto);
+            
             $getimageid = mysql_query("SELECT id FROM photos WHERE source = '$source'");
             $sourceid = mysql_result($getimageid,0,'id');
-            list($width,$height) = getimagesize($source);
+            list($width,$height) = getimagesize($commentphoto);
             $newwidth = $width/3.2;
             $newheight = $height/3.2;
             
@@ -1041,7 +1088,7 @@ height="100px" width="100px" />
                         
                 if($type == 'photo') {
                     
-                   echo'<li class="fPic" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
+                   echo'<li class="fPic photobox" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
 ">
 
                     <div style="width:100%;"><div style="float:left;height:60px;"><img style="max-height:40px;" src="',$commenterpic,'" /></div>&nbsp;&nbsp;<div style="float:left;padding-left:8px;width:180px;"><img src="graphics/upload.png" width="25" />&nbsp;&nbsp;',$commentername,' uploaded "',$caption,'"
@@ -1060,7 +1107,7 @@ height="100px" width="100px" />
                 
                         
                 
-                      echo'<li class="fPic" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
+                      echo'<li class="fPic photobox" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
 ">
 
                      <div style="width:100%;"><div style="float:left;height:60px;"><img style="max-height:40px;" src="',$profilepic,'" /></div>&nbsp;&nbsp;<div style="float:left;padding-left:8px;width:180px;"><img src="graphics/follower.png" width="35" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$cnid,'">',$firstname,' ',$lastname,'</a> followed <a href="viewprofile.php?u=',$ownerid,'">',$followername,'</a>
@@ -1086,7 +1133,7 @@ height="100px" width="100px" />
                 
                 elseif($type == 'comment') {
                     
-                     echo'<li class="fPic" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
+                     echo'<li class="fPic photobox" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
 ">
 
                     <div style="width:100%;"><div style="float:left;height:60px;"><img style="max-height:40px;" src="',$commenterpic,'" /></div>&nbsp;&nbsp;<div style="float:left;padding-left:8px;width:180px;"><img src="graphics/comment.png" width="25" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> commented on <a href="viewprofile.php?u=',$cnid,'">',$cn,'\'s</a> photo
@@ -1098,7 +1145,7 @@ height="100px" width="100px" />
                     
                     <a href="fullsize.php?imageid=',$sourceid,'">
                     
-                    <img src="',$source,'" width="',$newwidth,'px" height="',$newheight,'px" />                    
+                    <img src="',$commentphotosource,'" width="',$newwidth,'px" height="',$newheight,'px" />                    
                     </a>';
                     
                     if($comment) {
@@ -1121,7 +1168,7 @@ height="100px" width="100px" />
                 
                 elseif($type == "fave") {
                 
-                    echo'<li class="fPic" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
+                    echo'<li class="fPic photobox" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
 ">
                         <div style="width:100%;"><div style="float:left;height:60px;"><img style="max-height:40px;" src="',$commenterpic,'" /></div>&nbsp;&nbsp;
                         <div style="float:left;padding-left:8px;width:180px;"><img src="graphics/fave.png" width="25" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> favorited <a href="viewprofile.php?u=',$cnid,'">',$cn,'\'s </a> photo
@@ -1202,11 +1249,11 @@ var last = 0;
         
 }
 
-    elseif($view == 'portfolio') {
+    elseif($view == '') {
     
         $option = htmlentities($_GET['option']);    
     
-        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#000;';if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="viewprofile.php?u=',$userid,'&view=portfolio">Newest</a> | <a class="green" style="text-decoration:none;color:#000;';if($option == 'top') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="viewprofile.php?u=',$userid,'&view=portfolio&option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#000;';if($option == 'fave') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="viewprofile.php?u=',$userid,'&view=portfolio&option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#000;" href="viewprofile.php?u=',$userid,'&view=exhibits">Exhibits</a></div></div>';
+        echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#000;';if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="viewprofile.php?u=',$userid,'">Newest</a> | <a class="green" style="text-decoration:none;color:#000;';if($option == 'top') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="viewprofile.php?u=',$userid,'&option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#000;';if($option == 'fave') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="viewprofile.php?u=',$userid,'&option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#000;" href="viewprofile.php?u=',$userid,'&view=exhibits">Exhibits</a></div></div>';
         
         if($option == '') {        
         $query = mysql_query("SELECT * FROM photos WHERE emailaddress = '$useremail' ORDER BY id DESC LIMIT 0,21");
@@ -1261,7 +1308,7 @@ var last = 0;
                     $widthls = 250;
                 }
 
-                echo'<a style="text-decoration:none;color:#000;" href="fullsizeview.php?imageid=',$id,'"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
+                echo'<a style="text-decoration:none;color:#000;" href="fullsizeview.php?imageid=',$id,'"><li class="fPic photobox" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
 "><img onmousedown="return false" oncontextmenu="return false;" src="https://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><span style="font-size:14px;">',$score,'/</span><span style="font-size:12px;color:#444;">10.0</span><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
 	    
                 } //end for loop      
@@ -1335,9 +1382,271 @@ echo'
 }
 
 
+elseif($view == 'collections') {
+
+    $set = $_GET['set'];
+
+
+    if($set == '') {
+        
+        $getcollections = mysql_query("SELECT * FROM collections WHERE owner = '$useremail'");
+        $numcollections = mysql_num_rows($getcollections);
+        
+            if($numcollections < 1) {
+            
+                echo'<div style="text-align:center;margin-top:220px;margin-left:-35px;font-size:20px;font-weight:200;font-family:"helvetica neue",helvetica,arial;">',$firstname,' has no collections yet<div>';
+            
+            }
+            
+                
+        echo'
+        <div id="thepics" style="position:relative;width:780px;margin-left:15px;margin-top:80px;">
+        <div id="main" role="main">
+        <ul id="tiles">';
+
+        for($iii=0; $iii < $numcollections; $iii++) {
+            $setname[$iii] = mysql_result($getcollections, $iii, "title");
+            $setcover = mysql_result($getcollections, $iii, "cover");
+            $set_id[$iii] = mysql_result($getcollections, $iii, "id");
+            $setname2[$iii] = (strlen($setname[$iii]) > 30) ? substr($setname[$iii],0,27). " &#8230;" : $setname[$iii];
+            $photos = mysql_result($getcollections, $iii, "photos");
+            $photos = explode(" ",$photos);
+            $numphotos = count($photos) - 1;
+            
+            $pulltopphoto = mysql_query("SELECT source FROM photos WHERE id = '$photos[0]' ORDER BY votes DESC LIMIT 5");
+            if($setcover == '') {
+                $setcover = mysql_result($pulltopphoto, 0, "source");
+                if($setcover == '') {
+                     $setcover = 'graphics/no_photos.png';
+                }
+            }
+
+            $thumb4 =mysql_result($pulltopphoto, 4, "source");
+            $thumb4 = str_replace("userphotos/","userphotos/medthumbs/",$thumb4);
+                
+            list($width, $height) = getimagesize($setcover);
+            $imgratio = $height / $width;
+            $heightls = $height / 3.2;
+            $widthls = $width / 3.2;
+            if($widthls < 240) {
+                $heightls = $heightls * ($heightls/$widthls);
+                $widthls = 250;
+            }
+            if($setcover == 'graphics/no_photos.png') {
+                $heightls = 220;
+                $widthls = 240;
+            }
+
+            echo'<li class="photobox" style="width:240px;list-style-type:none;"><a style="text-decoration:none;" href="viewprofile.php?u=',$userid,'&view=collections&set=',$set_id[$iii],'">
+    
+            <div style="width:100%;">
+    
+            <div style="padding-top:5px;padding-left:3px;font-size:13px;text-decoration:none;color:#000;font-weight:200;"><span style="font-size:15px;font-weight:400;">',$setname2[$iii],'</span><br />',$numphotos,' Photos</div>
+<hr />
+
+    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="http://www.photorankr.com/',$setcover,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
+    
+        if($numphotos > 4) {
+        
+            for($jjj=1; $jjj < 5; $jjj++) {
+                $grabphotosrun = mysql_query("SELECT source FROM photos WHERE id = '$photos[$jjj]'");
+                $insetname = mysql_result($grabphotosrun, 0, "caption");
+                $insetsource = mysql_result($grabphotosrun, 0, "source");
+                $newsource = str_replace("userphotos/","userphotos/medthumbs/", $insetsource);
+    
+                echo'
+                    <div>
+                        <img style="float:left;padding:5px;" src="http://www.photorankr.com/',$newsource,'" width="110" height="110" />
+                    </div>';
+            }
+            
+        }
+    
+    echo'
+    </a>
+    
+    </li><br />';
+    
+} //end of for loop
+
+echo'</ul>';
+        
+    ?>
+    
+    <!-- Once the page is loaded, initalize the plug-in. -->
+  <script type="text/javascript">
+    $(document).ready(new function() {
+      // Prepare layout options.
+      var options = {
+        autoResize: true, // This will auto-update the layout when the browser window is resized.
+        container: $('#main'), // Optional, used for some extra CSS styling
+        offset: 4, // Optional, the distance between grid items
+        itemWidth: 250 // Optional, the width of a grid item
+      };
+      
+      // Get a reference to your grid items.
+      var handler = $('#tiles li');
+      
+      // Call the layout function.
+      handler.wookmark(options);
+      
+    });
+  </script>
+
+    
+ <?php      
+
+echo'</div>
+</div>';
+
+    } //end set == ''
+    
+    
+    elseif($set != '') {
+    
+//grab all photos in the exhibit
+$grabphotos = mysql_query("SELECT * FROM collections WHERE owner = '$useremail' AND id = '$set'");
+
+//grab about this set
+$aboutset = "SELECT * FROM collections WHERE owner = '$useremail' AND id = '$set' LIMIT 0,1";
+$aboutsetrun = mysql_query($aboutset);
+$aboutarray = mysql_fetch_array($aboutsetrun);
+$aboutset = $aboutarray['about'];
+$settitle = $aboutarray['title'];
+$setcover = $aboutarray['cover'];
+if($setcover == '') {
+$setcover = 'profilepics/nocoverphoto.png';
+}
+
+echo'<div class="grid_18" style="width:770px;margin-left:-10px;padding:35px;">
+
+<div class="grid_14 well" style="position:relative;clear:both;width:735px;line-height:25px;margin-top:15px;"><span style="font-size:25px;font-family:helvetica,arial;font-weight:200;">',$settitle,'</span><br />';
+if($aboutset) {echo'
+    <br />
+    <span style="font-size:16px;font-family:helvetica,arial;font-weight:200;">',$aboutset,'</span>';
+}
+
+$photos = mysql_result($grabphotos, 0, "photos");
+    $photos = explode(" ",$photos);
+    $numphotos = count($photos);
+    
+    for($ii=0; $ii<$numphotos-1; $ii++) {
+        $facepile = mysql_query("SELECT * FROM photos WHERE id = '$photos[$ii]'");
+        $faceemail = mysql_result($facepile, 0, "emailaddress");
+        $pos = strpos($emailarray, $faceemail);
+        if($pos === false) {
+            $emailarray .= $faceemail . " ";
+        }
+           
+    }
+    
+    $faces = explode(" ",$emailarray);
+    $numfaces = count($faces);
+    
+    echo'<br /><div style="">';
+    
+    for($i=0; $i<$numfaces-1; $i++) {
+        $facepile2 = mysql_query("SELECT user_id,profilepic FROM userinfo WHERE emailaddress = '$faces[$i]'");
+        $facepic = mysql_result($facepile2, 0, "profilepic");
+        $faceid = mysql_result($facepile2, 0, "user_id");
+        
+        echo'<a href="viewprofile.php?u=',$faceid,'"><img style="padding:3px;" src="',$facepic,'" height="50" /></a>';
+    
+    }
+    
+    echo'</div>';
+
+echo'
+    </div>
+
+    <div id="thepics" style="position:relative;width:780px;clear:both;">
+    <div id="main" role="main">
+    <ul id="tiles">';
+
+    $photos = mysql_result($grabphotos, 0, "photos");
+    $photos = explode(" ",$photos);
+    $numphotos = count($photos);
+    
+    for($jjj=0; $jjj<$numphotos-1; $jjj++) {
+    $grabphotosrun = mysql_query("SELECT * FROM photos WHERE id = '$photos[$jjj]'");
+    $insetname = mysql_result($grabphotosrun, 0, "caption");
+    $insetsource = mysql_result($grabphotosrun, 0, "source");
+    $insetid = mysql_result($grabphotosrun, 0, "id");
+    $newsource = str_replace("userphotos/","userphotos/medthumbs/", $insetsource);
+    $caption = mysql_result($grabphotosrun, 0, "caption");
+    $faves = mysql_result($grabphotosrun, 0, "faves");
+    $price = mysql_result($grabphotosrun, 0, "price");
+    if($price != 'Not For Sale') {
+                    $price = '$' . $price;
+                }
+                elseif($price == 'Not For Sale') {
+                    $price = 'NFS';
+                }
+    $points = mysql_result($grabphotosrun, 0, "points");
+    $votes = mysql_result($grabphotosrun, 0, "votes");
+    $score = number_format(($points/$votes),2);
+    
+        list($width, $height) = getimagesize($insetsource);
+        $imgratio = $height / $width;
+        $heightls = $height / 3.2;
+        $widthls = $width / 3.2;
+        
+        if($widthls < 240) {
+            $heightls = $heightls * ($heightls/$widthls);
+            $widthls = 250;
+        }
+                
+    echo'<li class="photobox" style="list-style-type:none;width:240px;">
+
+    <a style="text-decoration:none;" href="fullsize.php?imageid=',$insetid,'"><img onmousedown="return false" oncontextmenu="return false;"  src="',$newsource,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a>
+    
+    <div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'&nbsp;&nbsp;</div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div>
+        
+    </li>';
+ 
+    } //end for loop
+
+    echo'</ul>';
+        
+    ?>
+    
+    <!-- Once the page is loaded, initalize the plug-in. -->
+  <script type="text/javascript">
+    $(document).ready(new function() {
+      // Prepare layout options.
+      var options = {
+        autoResize: true, // This will auto-update the layout when the browser window is resized.
+        container: $('#main'), // Optional, used for some extra CSS styling
+        offset: 4, // Optional, the distance between grid items
+        itemWidth: 250 // Optional, the width of a grid item
+      };
+      
+      // Get a reference to your grid items.
+      var handler = $('#tiles li');
+      
+      // Call the layout function.
+      handler.wookmark(options);
+      
+    });
+  </script>
+
+    
+ <?php
+ 
+ echo'
+    </div>
+    </div>';
+
+   
+   } //set != ''
+
+    
+} //end of collections view
+
+
 elseif($view == 'exhibits') {
     
- echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#000;" href="viewprofile.php?u=',$userid,'&view=portfolio">Newest</a> | <a class="green" style="text-decoration:none;color:#000;" href="viewprofile.php?u=',$userid,'&view=portfolio&option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#000;" href="viewprofile.php?u=',$userid,'&view=portfolio&option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#000;';if($view == 'exhibits') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="viewprofile.php?u=',$userid,'&view=exhibits">Exhibits</a></div></div>';
+ echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:20px;"><a class="green" style="text-decoration:none;color:#000;" href="viewprofile.php?u=',$userid,'">Newest</a> | <a class="green" style="text-decoration:none;color:#000;" href="viewprofile.php?u=',$userid,'&option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#000;" href="viewprofile.php?u=',$userid,'&option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#000;';if($view == 'exhibits') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="viewprofile.php?u=',$userid,'&view=exhibits">Exhibits</a></div></div>';
 
 
         if(isset($_GET['set'])){
@@ -1393,7 +1702,7 @@ $grabphotosrun = mysql_query($grabphotos);
 $numphotosgrabbed = mysql_num_rows($grabphotosrun);
 
 
-    echo'<li style="width:240px;list-style-type:none;"><a style="text-decoration:none;" href="viewprofile.php?u=',$userid,'&view=exhibits&set=',$set_id[$iii],'">
+    echo'<li class="photobox" style="width:240px;list-style-type:none;"><a style="text-decoration:none;" href="viewprofile.php?u=',$userid,'&view=exhibits&set=',$set_id[$iii],'">
     
     <div style="width:100%;"><div style="float:left;padding-left:8px;width:180px;text-decoration:none;color:#000;font-size:15px;">&nbsp;',$setname2[$iii],'</div>
                     
@@ -1534,7 +1843,7 @@ for($iii=0; $iii < $numphotosgrabbed; $iii++) {
             $widthls = 250;
         }
                 
-    echo'<li style="list-style-type:none;width:240px;">
+    echo'<li class="photobox" style="list-style-type:none;width:240px;">
 
     <a style="text-decoration:none;" href="fullsizeview.php?image=',$insetsource[$iii],'"><img onmousedown="return false" oncontextmenu="return false;"  src="',$newsource,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a>
     
@@ -2134,7 +2443,7 @@ elseif($view == 'about') {
                     $widthls = 250;
                 }
 
-                   echo'<a style="text-decoration:none;color:#000;" href="fullsize.php?imageid=',$id,'"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
+                   echo'<a style="text-decoration:none;color:#000;" href="fullsize.php?imageid=',$id,'"><li class="fPic photobox" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
 "><img onmousedown="return false" oncontextmenu="return false;" src="https://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
 	    
                 } //end for loop      

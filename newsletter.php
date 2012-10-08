@@ -56,7 +56,7 @@
     //Get top 3 most popular of the week
      
     $lowertimebound = time() - 604800;
-    $popquery = mysql_query("SELECT * FROM photos WHERE time > '$lowertimebound' ORDER BY views DESC LIMIT 3");
+    $popquery = mysql_query("SELECT * FROM photos WHERE time > '$lowertimebound' ORDER BY faves DESC LIMIT 3");
     
      //Top photo number 1 information
     
@@ -105,7 +105,7 @@
     $numphotogsquery = mysql_query("SELECT emailaddress FROM userinfo WHERE unsubscriber NOT IN (1) ORDER BY user_id DESC");
     $numphotogs = mysql_num_rows($numphotogsquery);
      
-    $topphotogs = mysql_query("SELECT user_id,firstname,lastname,profilepic FROM userinfo WHERE user_id > ($numphotogs - 50) ORDER BY reputation DESC LIMIT 3");
+    $topphotogs = mysql_query("SELECT user_id,firstname,lastname,profilepic FROM userinfo WHERE user_id > ($numphotogs - 30) ORDER BY reputation DESC LIMIT 3");
     $topphotog1id = mysql_result($topphotogs,0,'user_id');
     $topphotog1full = mysql_result($topphotogs,0,'firstname') ." ". mysql_result($topphotogs,0,'lastname');
     $topphotog1pic = mysql_result($topphotogs,0,'profilepic');
@@ -620,7 +620,7 @@ $args = array(
                                     	<tr>
                                         	<td valign=\"top\">
                                             	<div mc:edit=\"std_preheader_content\">
-                                                	 The PhotoRankr Weekly Newsletter. Top photography of the week, site news & updates, and recommended content.
+                                                	 Featured Blog Post by Noel Greene & Featured Galleries. The PhotoRankr Weekly Newsletter. Top photography of the week, site news & updates, and recommended content.
                                                 </div>
                                             </td>
                                             <!-- *|IFNOT:ARCHIVE_PAGE|* 
@@ -668,18 +668,42 @@ $args = array(
                                                         <td valign=\"top\">
                                                             <div mc:edit=\"std_content00\">
                                                                
-                                                                <span style=\"font-size:16px;\"><h4 class=\"h4\">PR Newsletter | Week 3 September</span></h4>
+                                                                <span style=\"font-size:16px;\"><h4 class=\"h4\">PR Newsletter | Week 1 October</span></h4>
                                                                 <br />
-                                                                It's Friday!
-                                                                <br /><br />
-                                                                Happy Friday PhotoRankr's. This week's newsletter is again, short but sweet. As for site news, you can now directly share each and every upload from PhotoRankr to Facebook and Twitter. Very simple and painless, try it out! In addition, this coming week, look out for your own personal store page (akin to FineArtAmerica) where you will be able to provide to potential buyers and viewers a link with all of your licensed images in one spot. We hope this will satisfy those of you who are more serious about having one place to license your highest-quality photography. We are very exicted!
+                                                                PhotoRankr Community:
                                                                 
-<br /><br />                                                                
-This week's top photos and photographers are featured below. If you haven't checked out the amazing work of <a href=\"https://photorankr.com/viewprofile.php?u=1188\">John Jewett</a>, <a href=\"https://photorankr.com/viewprofile.php?u=1297\">Alejandro Ferrer Ruiz</a>, or <a href=\"https://photorankr.com/viewprofile.php?u=1311\">Mark Johnson</a> yet, be sure to do so! They have some magnificent long exposures and macros you don't want to miss. Also, be sure to like us on Facebook and follow us on Twitter by clicking on the links at the bottom of the newsletter.
                                                                 <br /><br />
-                                                                Best Regards,
-                                                                <br /><br />
-                                                                –The PhotoRankr Team
+
+We are very excited to announce the new PhotoRankr blog. By visiting the link below, you will be able to browse all of the published articles by members of our community as well as featured photography galleries (be sure to check if your photos made it into these galleries!). This week, we are very lucky to have had long-time PhotoRankr member Noel Greene write about his Photographic Journey. You'll get the chance to travel across the entire globe, spanning several decades, as you read about Noel's journey. We encourage you to read this great mini-memoir from Noel and to leave comments at the bottom. You can read Noel's article on the PhotoRankr blog.  
+
+<br /><br />
+
+https://photorankr.com/blog.php
+
+<br /><br />
+
+In addition to Noel's article, we have 2 featured galleries of content this week - Fall Photography and Long Exposures. Each gallery contains 10-15 hand-picked photos from the past 6 months of submitted work. You can view or purchase these photos by clicking on their respective links below the photo. Also, be sure to congratulate those who made the cut!
+
+<br /><br />
+
+Lastly, we've continued improving and fixing functionality this week. Favoriting and ranking photos is now instantaneous - no more lag. Also, you can now follow/unfollow photographers at your will. If you have experienced any errors or bugs on the site, please remember to notify us (or send us a postcard below!).
+
+<br /><br />
+
+http://photorankr.com/contact.php
+
+<br /><br />
+
+Next week, we hope to release a newly designed contests/campaigns page. We have had more than a few requests for this, so we hope you are as excited as we are!
+
+<br /><br />
+
+That's all for this week, 
+
+<br /><br />
+
+-The PhotoRankr Team
+
                                                                                                                         
                                                            </div>
 														</td>
@@ -1068,7 +1092,7 @@ This week's top photos and photographers are featured below. If you haven't chec
                                                     <tr>
                                                         <td colspan=\"2\" valign=\"middle\" id=\"utility\">
                                                             <div mc:edit=\"std_utility\">
-                                                               <!-- &nbsp;<a href=\"*|UNSUB|*\">unsubscribe from this list</a> -->
+                                                                &nbsp;<a href=\"mailto:support@photorankr.com?subject=unsubscribe\">unsubscribe from this list</a>
                                                             </div>
                                                         </td>
                                                     </tr>

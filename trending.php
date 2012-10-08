@@ -153,14 +153,16 @@ $notsqueryrun = mysql_query($notsquery); }
 
 .statoverlay
             {
-                text-decoration:none;
-                opacity:.7;
-                filter:alpha(opacity=40);
-                z-index:1;
-                transition: opacity .5s;
-         -moz-transition: opacity .5s;
-         -webkit-transition: opacity .5s;
-                -o-transition: opacity .5s;
+               -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+filter:alpha(opacity=40);
+z-index:1;
+transition: opacity .5s;
+-moz-transition: opacity .5s;
+-webkit-transition: opacity .5s;
+-o-transition: opacity .5s;
+
             }
         
 
@@ -281,7 +283,11 @@ for($iii=1; $iii <= 16; $iii++) {
 
 		echo '
         <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=t"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:270px;
-"><img src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /><p><span style="font-size:16px;">',$score,'</span>/10&nbsp;&nbsp;',$caption,'</p></li></a>';
+"><img style="-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
+
+<div class="statoverlay" style="z-index:1;background-color:white;position:relative;top:0px;width:270px;height:30px;"><div style="line-spacing:1.48;padding:5px;color:#4A4A4A;"><div style="float:left;"<span style="font-size:16px;font-weight:bold;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:bold;font-size:12px;">',$caption,'</span></div><div style="float:right;"><span style="font-size:12px;">',$price,'</span></div></div><br/></div>
+';
+
 	    
       } //end for loop
       

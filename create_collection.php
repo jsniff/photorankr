@@ -72,7 +72,7 @@ $type = 'collection';
 $newsfeedquery = "INSERT INTO newsfeed (firstname, lastname, emailaddress, type, caption) VALUES ('$first','$last','$owner','$type','$title')";
 $newsfeedqueryrun = mysql_query($newsfeedquery);
 
-header("location: myprofile.php?view=upload&cc=n&ns=success");
+header("location: myprofile.php?view=collections&ncol=success");
 exit();
 
 }

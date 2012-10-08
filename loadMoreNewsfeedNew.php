@@ -564,7 +564,7 @@ if($view == '') {
     }
 
     
-    elseif ($type == "comment") {
+   elseif ($type == "comment") {
     $owner = $newsrow['owner'];
     $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
     $ownerresult = mysql_query($ownersquery); 
@@ -584,24 +584,27 @@ if($view == '') {
     $lastname = ucwords($lastname);
     $image = $newsrow['source'];
     $id = $newsrow['id'];
+    $getimageid = mysql_query("SELECT id FROM photos WHERE source = '$image'");
+    $oldimageid = mysql_result($getimageid,0,'id');
    
-    $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
+    $imageinfo = mysql_query("SELECT * FROM photos WHERE (id = '$image' OR id = '$oldimageid')");
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
     $about = mysql_result($imageinfo,0,'about');
     $imageID = mysql_result($imageinfo,0,'id');
+    $source = mysql_result($imageinfo,0,'source');
     $votes = mysql_result($imageinfo,0,'votes');
     $rank = ($points / $votes);
     $rank = number_format($rank,2);
     
-    $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $image);
+    $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $source);
     $fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname ."</a>";
     list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
 	$height = $imgratio * $maxwidth;
     $phrase = $fullname . " commented on " . $ownerfull . "'s photo";
     
-    list($width, $height) = getimagesize($image);
+    list($width, $height) = getimagesize($source);
     $width = ($width / 2.5);
     $height = ($height / 2.5);
     
@@ -615,7 +618,7 @@ if($view == '') {
     
     echo'
     </div>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
+    <br /><a href="fullsize.php?imageid=',$imageID,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
     
     if($about) {
         echo'

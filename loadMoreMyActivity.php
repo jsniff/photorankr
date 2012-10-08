@@ -32,9 +32,14 @@ echo'
             
             $source = mysql_result($activityquery,$iii,'source');
             
+            $commentphotoquery = mysql_query("SELECT source FROM photos WHERE (id = '$source' or source = '$source')");
+            $commentphoto = mysql_result($commentphotoquery,0,'source');
+                                
+            $commentphotosource = str_replace("userphotos/","userphotos/medthumbs/", $commentphoto);
+            
             $getimageid = mysql_query("SELECT id FROM photos WHERE source = '$source'");
             $sourceid = mysql_result($getimageid,0,'id');
-            list($width,$height) = getimagesize($source);
+            list($width,$height) = getimagesize($commentphoto);
             $newwidth = $width/3.2;
             $newheight = $height/3.2;
             
@@ -81,7 +86,7 @@ echo'
                         
                if($type == 'photo') {
                     
-                   echo'<li class="fPic" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
+                   echo'<li class="fPic photobox" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
 ">
 
                     <div style="width:100%;"><div style="float:left;height:60px;"><img style="max-height:40px;" src="',$commenterpic,'" /></div>&nbsp;&nbsp;<div style="float:left;padding-left:8px;width:180px;"><img src="graphics/upload.png" width="25" />&nbsp;&nbsp;',$commentername,' uploaded "',$caption,'"
@@ -100,7 +105,7 @@ echo'
                 
                         
                 
-                      echo'<li class="fPic" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
+                      echo'<li class="fPic photobox" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
 ">
 
                      <div style="width:100%;"><div style="float:left;height:60px;"><img style="max-height:40px;" src="',$commenterpic,'" /></div>&nbsp;&nbsp;<div style="float:left;padding-left:8px;width:180px;"><img src="graphics/follower.png" width="35" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$cnid,'">',$commentername,'</a> followed <a href="viewprofile.php?u=',$ownerid,'">',$followername,'</a>
@@ -126,7 +131,7 @@ echo'
                 
                 elseif($type == 'comment') {
                     
-                     echo'<li class="fPic" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
+                     echo'<li class="fPic photobox" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
 ">
 
                     <div style="width:100%;"><div style="float:left;height:60px;"><img style="max-height:40px;" src="',$commenterpic,'" /></div>&nbsp;&nbsp;<div style="float:left;padding-left:8px;width:180px;"><img src="graphics/comment.png" width="25" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> commented on <a href="viewprofile.php?u=',$cnid,'">',$cn,'\'s</a> photo
@@ -138,7 +143,7 @@ echo'
                     
                     <a href="fullsize.php?imageid=',$sourceid,'">
                     
-                    <img src="',$source,'" width="',$newwidth,'px" height="',$newheight,'px" />                    
+                    <img src="',$commentphotosource,'" width="',$newwidth,'px" height="',$newheight,'px" />                    
                     </a>';
                     
                     if($comment) {
@@ -161,7 +166,7 @@ echo'
                 
                 elseif($type == "fave") {
                 
-                    echo'<li class="fPic" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
+                    echo'<li class="fPic photobox" id="',$id,'" style="padding:5px;margin-top:10px;list-style-type: none;width:240px;
 ">
                         <div style="width:100%;"><div style="float:left;height:60px;"><img style="max-height:40px;" src="',$commenterpic,'" /></div>&nbsp;&nbsp;
                         <div style="float:left;padding-left:8px;width:180px;"><img src="graphics/fave.png" width="25" />&nbsp;&nbsp;<a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> favorited <a href="viewprofile.php?u=',$cnid,'">',$cn,'\'s </a> photo

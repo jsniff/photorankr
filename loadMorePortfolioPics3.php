@@ -48,8 +48,8 @@ if($_GET['lastPicture']) {
         $widthls = 250;
     }
 
- echo'<a style="text-decoration:none;color:#000;" href="fullsizeme.php?imageid=',$id,'"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
-"><img onmousedown="return false" oncontextmenu="return false;" src="http://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
+ echo'<a style="text-decoration:none;color:#000;" href="fullsizeme.php?imageid=',$id,'"><li class="fPic photobox" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
+"><img onmousedown="return false" oncontextmenu="return false;" src="http://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><span style="font-size:14px;">',$score,'/</span><span style="font-size:12px;color:#444;">10.0</span><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
 	    
       } //end for loop
       

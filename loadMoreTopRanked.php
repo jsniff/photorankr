@@ -42,7 +42,7 @@ for($iii=1; $iii <= 8; $iii++) {
     }
 
 echo '
-        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=r"><li class="fPic" id="',$points,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:270px;
+        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=r"><li class="fPic photobox" id="',$points,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:270px;
 "><img src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style="float:right;font-size:13px;font-weight:500;">$',$price,'</div></div></li></a>';   
   
 	    

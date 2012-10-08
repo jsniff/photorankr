@@ -1,0 +1,183 @@
+#body
+{
+	background-color:rgb(245,245,245);
+}
+#aperature_logo
+{
+	background-image: url('../graphics/white_aperature.png');
+	width: 5%;
+	height:5%;
+}
+#subnav
+{
+	width:80em;
+	margin:4.25em 0 0 -1.1em;
+	height:38px;
+	position:fixed;
+	z-index:1000;
+
+}
+.square
+{
+	background-color: #ab0000;
+	width:35px;
+	height:35px;
+	border-radius:5px;
+	margin-top:.15em;
+	border: 2px solid rgba(0,0,0,.5);
+
+}
+.subnav_button
+{
+	width:240px;
+	opacity:.70;
+}
+.subnav_button:hover
+{
+	opacity:.90;
+}
+.subnav_button:active
+{
+	opacity:1;
+}
+.subnav_button:after
+{
+	opacity:1;
+}
+.subnav_head
+{
+	margin: -2.25em 0 0 0;
+	text-align:center;
+	color:#fff;
+		font-family:"helvetica neue", helvetica, arial, sans-serif;
+	font-size:1em;
+	font-weight: 200;
+}
+.navbar_text
+{
+	font-family:"helvetica neue", helvetica, arial, sans-serif;
+	font-size:1em;
+	font-weight: 200;
+	color:#ddd;
+	text-shadow: 0px -2px 2px #666;
+}
+.margin_none
+{
+	margin: 0 0 0 -2em;
+}
+#container_margin
+{
+	margin-top:0em;
+}
+.wrapper
+{
+	margin:auto;
+	padding: 0;
+	background-image: -moz-linear-gradient(top,#90e565, #508038 );
+	background-image: -webkit-linear-gradient(top, #90e565, #508038);
+	background-image: -ms-linear-gradient(top, #90e565, #508038);
+	background-image: -o-linear-gradient(top, #90e565, #508038);
+	background-image: linear-gradient(top, #90e565, #508038 );
+	background-repeat:repeat-x;
+	filter: progid:dximagetransform.microsoft.gradient(startColorstr='#90e565', endColorstr='#508038', GradientType=0);
+	
+	border-radius: 3px 3px 0 0;
+}
+#nav_search
+{
+	margin: .2em 0 0 .5em;
+
+}
+#nav_pad
+{
+	padding: .35em 2em .35em .25em;
+	z-index:-20;
+	margin: -.15em 0 0 .75em;
+	font-size:1em;
+	border: 2px solid rgba(0,0,0,.8);
+	box-shadow: inset 0 0 1px #111;
+
+}
+.campaign_bloc
+{
+	background-color: #eee;
+	border-radius:2px;
+	box-shadow: 0 1px 1px #ccc;
+	margin: -.4em 0 1em 0 ;
+	margin: .75em;
+
+}
+.campaign_bloc:first-child
+{
+	margin-top:1.25em;
+}
+.campaign_bloc > div > h1
+{
+	font-family: "helvetica neue", helvetica, arial. sans-serif;
+	font-size:14px;
+	font-weight:500;
+	color:#333;
+	padding: 0 0 0 .5em;
+	border-bottom: solid 1px #bbb;
+	/*text-shadow: 0 1px 1px #88d95f;*/}
+.arrows
+{
+	margin:40px 0 0 0;
+}
+#top_ranked_entries
+{
+	text-align: center;
+	font-size:14px;
+	font-weight:200;
+}
+#banner
+{
+	margin:-1px -50px 0 30px;
+	padding-left:3px;
+	opacity:.70;
+}
+#banner:hover
+{
+	opacity:.90;
+}
+#banner:active
+{
+	opacity:1;
+}
+.stat
+{
+-moz-box-sizing:border-box;
+-webkit-box-sizing:border-box;
+ border-top: 1px solid rgb(238,238,238);
+  	padding:.3em;
+}
+.stat > h1 
+{
+	font-weight:200;
+	font-size:16px;
+	text-align:center;
+	margin-left:-.625em;
+}
+.stat > p
+{
+ letter-spacing:px;	
+ 	font-size:10px;
+ 	margin: -1em 0 0 -1.20em;
+ 	text-align:center;
+}
+.small_text
+{
+	font-size: 12px;
+}
+#campaign_col_left
+{
+	margin: 6.35em -1em 0 2.25em;
+}
+#campaign_col_right
+{
+	margin: 6.35em -10em 0 2.95em;
+}
+#campaign_col_right:first-child
+{
+	margin-top:0;
+}

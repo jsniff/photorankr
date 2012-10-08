@@ -108,13 +108,14 @@ $notsqueryrun = mysql_query($notsquery); }
 	<link href="css/960_24_col.css" rel="stylesheet" type="text/css"/>
 
      <meta name="viewport" content="width=1200" /> 
-     	<script src="js/bootstrap-dropdown.js"></script>
 
 	<script type="text/javascript">
     document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' type='text/javascript'>\<\/script>");
   </script> 
 	  <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
 	<script src="js/javascript.js" type="text/javascript"></script>
+     <script src="js/bootstrap.js" type="text/javascript"></script>
+    
 	<style type="text/css">
 
         .statoverlay
@@ -136,11 +137,10 @@ $notsqueryrun = mysql_query($notsquery); }
 		ul.nav li.dropdown:active ul.dropdown-menu
 		{
     	display: block;    
-        z-index:5000;
 		}
 		ul.nav li.dropdown:focus ul.dropdown-menu
 		{
-    	display: block;    
+    	display: block;  
 		}
    .nav > li > a:hover
    {
@@ -168,8 +168,10 @@ $notsqueryrun = mysql_query($notsquery); }
 			<div class="container"  style="height:50px;">
 				<ul class="nav">
 					<li style="float:left;margin-top:.40em;"> <img src="graphics/coollogo.png" style="width:180px;"/></li>
+                    
 					<li class="dropdown"  id="accountmenu" style="font-size:16px;font-family:helvetica neue,helvetica,arial, sans-serif;float:right;margin-top:.75em;">
-						<a style="color:#fff;"class="dropdown-toggle" data-toggle="dropdown" href="#"> Sign In <b class="caret"></b></a>
+						<a style="color:#fff;" class="dropdown-toggle" data-toggle="dropdown" href="#"> Sign In <b class="caret"></b></a>
+                        
 							<ul class="dropdown-menu" style="margin-left:-420px;margin-top:19px;">
 								<li>
 									<div style="width:520px;">
@@ -198,6 +200,7 @@ $notsqueryrun = mysql_query($notsquery); }
 								</div>
 								</li>
 							</ul>
+                        </li>
                         <a style="text-decoration:none;color:#fff;" href="/market"><li style="color:#fff;font-size:16px;font-family:helvetica neue,helvetica,arial, sans-serif;float:right;margin-top:.75em;margin-right:40px;">Market</li></a>
                         <a style="text-decoration:none;color:#fff;" href="newest.php"><li style="color:#fff;font-size:16px;font-family:helvetica neue,helvetica,arial, sans-serif;float:right;margin-top:.75em;margin-right:40px;">Photos</li></a>
 				</ul>
@@ -365,11 +368,6 @@ var last = 0;
 		</div>
 
 	</div>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-	
-	<script type="text/javascript" src="https://masonry.desandro.com/jquery.masonry.min.js"></script>
-	<script src="js/bootstrap-dropdown.js"></script>
-
 
   <script type="text/javascript">
 

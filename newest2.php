@@ -1,7 +1,8 @@
 <?php
 
+//connect to the database
 require "db_connection.php";
-require "functions.php";
+require "functionsnav.php";
 
 //start the session
 session_start();
@@ -13,11 +14,8 @@ session_start();
     else if(htmlentities($_GET['action']) == "logout") { 
         logout();
     }
-    
-    
-$query="SELECT * FROM photos ORDER BY id DESC LIMIT 0, 16";
-$result=mysql_query($query);
-$numberofpics=mysql_num_rows($result);
+
+    $email = $_SESSION['email'];
 
 //QUERY FOR NOTIFICATIONS
 $currentnots = "SELECT * FROM userinfo WHERE emailaddress = '$email'";
@@ -30,11 +28,9 @@ $notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email
 $notsqueryrun = mysql_query($notsquery); }
 
 //DISCOVER SCRIPT
-
-    $useremail = $_SESSION['email'];
     
   //get the users information from the database
-  $likesquery = "SELECT * FROM userinfo WHERE emailaddress='$useremail'";
+  $likesquery = "SELECT * FROM userinfo WHERE emailaddress='$email'";
   $likesresult = mysql_query($likesquery) or die(mysql_error());
   $discoverseen = mysql_result($likesresult, 0, "discoverseen");
 
@@ -89,9 +85,9 @@ $notsqueryrun = mysql_query($notsquery); }
 ?>
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="https://www.w3.org/1999/xhtml">
 
 <head>
 
@@ -101,19 +97,19 @@ $notsqueryrun = mysql_query($notsquery); }
   <meta name="Description" content="A gallery of the newest photography, photographers, and exhibits on PhotoRankr.">
      <meta name="viewport" content="width=1200" /> 
 
-  <link rel="stylesheet" type="text/css" href="market/css/bootstrapnew2.css" />
- <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
-  <link rel="stylesheet" href="market/css/text.css" type="text/css" />
-   <link rel="stylesheet" href="market/css/style.css" type="text/css" />
-  <link rel="stylesheet" href="960_24.css" type="text/css" />
-  	<link rel="stylesheet" type="text/css" href="market/css/all.css"/>
-	<script type="text/javascript" href="js/bootstrap-dropdown.js"></script>
-<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-<script type="text/javascript" src="http://masonry.desandro.com/jquery.masonry.min.js"></script>
-<script type="text/javascript" src="https://raw.github.com/desandro/imagesloaded/master/jquery.imagesloaded.min.js"></script>
-    <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
 
-<title>PhotoRankr - Newest Photography</title>
+  <link rel="stylesheet" type="text/css" href="market/css/bootstrapNew.css" />
+  <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
+  <link rel="stylesheet" href="market/css/text.css" type="text/css" />
+  <link rel="stylesheet" href="960_24.css" type="text/css" />
+  <script type="text/javascript" href="js/bootstrap-dropdown.js"></script>
+  <script type="text/javascript">
+    document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' type='text/javascript'>\<\/script>");
+  </script>  
+  <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
+  <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+  
+  <title>PhotoRankr - Newest Photography</title>
 
   
 <script type="text/javascript">
@@ -135,7 +131,7 @@ $notsqueryrun = mysql_query($notsquery); }
  .statoverlay
 
 {
-opacity:.0;
+opacity:.7;
 filter:alpha(opacity=40);
 z-index:1;
 transition: opacity .5s;
@@ -157,11 +153,7 @@ transition: opacity .5s;
 -webkit-transition: opacity .5s;
 -o-transition: opacity .5s;
 }
-            
-.statoverlay:hover
-{
-opacity:.7;
-}                
+                         
 
 .item {
   margin: 10px;
@@ -186,7 +178,7 @@ opacity:.7;
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
   
@@ -194,85 +186,266 @@ opacity:.7;
 
 
 </head>
-<body style="overflow-x:hidden; background-color: #fff; min-width:1220px;">
-
+<body style="overflow-x:hidden; background-color: #eeeff3;min-width:1220px;">
 
 <?php navbarnew(); ?>
 
    <!--big container-->
     <div id="container" class="container_24" >
     
-<div class="grid_3" style="position:fixed;margin-left:955px;">
-
-<?php
-
-if($_SESSION['loggedin'] == 1) {
-
-$profilequery = mysql_query("SELECT profilepic,firstname,lastname FROM userinfo WHERE emailaddress = '$email'");
-$profilepic=mysql_result($profilequery, 0, "profilepic");
-$firstname=mysql_result($profilequery, 0, "firstname");
-$lastname=mysql_result($profilequery, 0, "lastname");
-$fullname = $firstname . " " . $lastname;
-$shortname = (strlen($fullname) > 19) ? substr($fullname,0,19) : $fullname;
-
-$followingquery = mysql_query("SELECT following FROM userinfo WHERE emailaddress = '$email'");
-$followinglist=mysql_result($followingquery, 0, "following");
-$followingquery=mysql_query("SELECT * FROM userinfo WHERE emailaddress IN ($followinglist)");
-$numfollowing = mysql_num_rows($followingquery);    
-$followersquery=mysql_query("SELECT * FROM userinfo WHERE following LIKE '%$email%'");
-$numfollowers = mysql_num_rows($followersquery);
-
-echo'
-<div id="accordion2" class="accordion" style="margin-top:35px;width:150px;"><a href="myprofile.php">
-<img class="dropshadow" style="border: 2px solid white;margin-top:5px;" src="',$profilepic,'" height="140" width="145" /></a><div style="font-size:14px;text-align:center;margin-top:5px;">',$shortname,'<br /><span style="font-size:13px;">',$numfollowers,' <i class="icon-user"> </i> <a style="color:black;" href="myprofile.php?view=followers">Followers</a><br />',$numfollowing,' <i class="icon-user"> </i> <a style="color:black;" href="myprofile.php?view=following">Following</a></span></div>';
-
-}
-
-else {
-echo'
-<div id="accordion2" class="accordion" style="margin-top:60px;width:150px;">
-';
-}
-
-?>
-
-<div class="accordion-group">
-<div class="accordion-heading">
-<a style="background-color:#1a618a;color:white;" class="accordion-toggle" href="newest.php">Photography </a>
-</div>
-<div id="collapseOne" class="accordion-body collapse">
-</div>
-</div>
-
-<div class="accordion-group">
-<div class="accordion-heading">
-<a style="background-color:#1a618a;color:white;" class="accordion-toggle" href="newest.php?view=prs">Photographers</a>
-</div>
-<div id="collapseTwo" class="accordion-body collapse">
-</div>
-</div>
-
-<div class="accordion-group">
-<div class="accordion-heading">
-<a style="background-color:#1a618a;color:white;" class="accordion-toggle" href="newest.php?view=exts">Exhibits</a>
-</div>
-<div id="collapseThree" class="accordion-body collapse">
-</div>
-</div>
-
-</div>
-</div>
 
 <!--DIFFERENT GALLERY VIEWS-->
-<?php
 
-    echo'<div id="container2" style="margin-top:60px;margin-left:0px;">';
+<?php  
+
+if(isset($_GET['view'])){
+$view = htmlentities($_GET['view']);
+}
+
+        echo'<br /><br /><br /><br />
+        <div style="margin-left:-70px;font-size:15px;font-weight:200;font-family:"Helvetica Neue",Helvetica,Arial;">
+        
+        <a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == '') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="newest.php">Newest Photos</a> 
+        
+        <a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == 'prs') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="newest.php?view=prs">Newest Photographers</a>
+        
+        <a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == 'exts') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="newest.php?view=exts">Newest Exhibits</a>'; 
+        
+	if($_SESSION['loggedin'] == 1) {
+	       
+		 echo'<a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == 'following') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="newest.php?view=following">Following</a>';
+	}
+        
+	echo'
+        </div>
+                
+         <script>
+                    function submitTime(sel) {
+                        sel.form.submit();
+                    }
+                </script>';
+                
+                if($view == '') {
+                
+                    $cat = htmlentities($_GET['c']);
+
+                echo'            
+                    <!-- Select Basic -->
+                    <form action="newest.php" method="get">';
+                    
+                        echo'
+                        <select name="c"  onchange="submitTime(this)" class="input-large" style="width:140px;margin-top:-33px;margin-left:525px;">
+                        
+                        <option value=""'; if($cat == '') {echo'selected value=""';} echo'>All Photos</option>
+                        
+                        <option value="aerial"'; if($cat == 'aerial') {echo'selected value=""';} echo'>Aerial</option>
+                        
+                        <option value="animal"'; if($cat == 'animal') {echo'selected value=""';} echo'>Animal</option>
+                        
+                        <option value="architecture"'; if($cat == 'architecture') {echo'selected value=""';} echo'>Architecture</option>
+                        
+                        <option value="astro"'; if($cat == 'astro') {echo'selected value=""';} echo'>Astro</option>
+                        
+                        <option value="automotive"'; if($cat == 'automotive') {echo'selected value=""';} echo'>Automotive</option>
+                        
+                        <option value="bw"'; if($cat == 'bw') {echo'selected value=""';} echo'>Black & White</option>
+                        
+                        <option value="cityscape"'; if($cat == 'cityscape') {echo'selected value=""';} echo'>Cityscape</option>
+                        
+                        <option value="fashion"'; if($cat == 'fashion') {echo'selected value=""';} echo'>Fashion</option>
+                        
+                        <option value="fineart"'; if($cat == 'fineart') {echo'selected value=""';} echo'>Fine Art</option>
+                        
+                        <option value="fisheye"'; if($cat == 'fisheye') {echo'selected value=""';} echo'>Fish Eye</option>
+                        
+                        <option value="food"'; if($cat == 'food') {echo'selected value=""';} echo'>Food</option>
+                        
+                        <option value="HDR"'; if($cat == 'HDR') {echo'selected value=""';} echo'>HDR</option>
+                        
+                        <option value="historical"'; if($cat == 'historical') {echo'selected value=""';} echo'>Historical</option>
+                        
+                        <option value="industrial"'; if($cat == 'industrial') {echo'selected value=""';} echo'>Industrial</option>
+                        
+                        <option value="landscape"'; if($cat == 'landscape') {echo'selected value=""';} echo'>Landscape</option>
+                        
+                        <option value="longexposure"'; if($cat == 'longexposure') {echo'selected value=""';} echo'>Long Exposure</option>
+                        
+                        <option value="macro"'; if($cat == 'macro') {echo'selected value=""';} echo'>Macro</option>
+                        
+                        <option value="monochrome"'; if($cat == 'monochrome') {echo'selected value=""';} echo'>Monochrome</option>
+                        
+                        <option value="nature"'; if($cat == 'nature') {echo'selected value=""';} echo'>Nature</option>
+                        
+                        <option value="news"'; if($cat == 'news') {echo'selected value=""';} echo'>News</option>
+                        
+                        <option value="night"'; if($cat == 'night') {echo'selected value=""';} echo'>Night</option>
+                        
+                        <option value="panorama"'; if($cat == 'panorama') {echo'selected value=""';} echo'>Panorama</option>
+                        
+                        <option value="people"'; if($cat == 'people') {echo'selected value=""';} echo'>People</option>
+                        
+                        <option value="scenic"'; if($cat == 'scenic') {echo'selected value=""';} echo'>Scenic</option>
+                        
+                        <option value="sports"'; if($cat == 'sports') {echo'selected value=""';} echo'>Sports</option>
+                        
+                        <option value="stilllife"'; if($cat == 'stilllife') {echo'selected value=""';} echo'>Still Life</option>
+                        
+                        <option value="transportation"'; if($cat == 'transportation') {echo'selected value=""';} echo'>Transportation</option>
+                        
+                        <option value="war"'; if($cat == 'war') {echo'selected value=""';} echo'>War</option>
+                        
+                        </select>';
+
+                    echo'    
+                    </form>';
+                } 
+        
+        
+if($view == '') {
+        
+    //DISPLAY 20 NEWEST OF ALL PHOTOS
+        
+    if($cat == '') {
+        $result = mysql_query("SELECT * FROM photos ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'aerial') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Aerial%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'animal') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Animal%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'architecture') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Architecture%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'astro') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Astro%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'automotive') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Automotive%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'bw') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%B&W%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'cityscape') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%cityscape%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+     elseif($cat == 'fashion') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Fashion%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    
+     elseif($cat == 'fineart') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Fine Art%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'fisheye') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Fisheye%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+     elseif($cat == 'food') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Food%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'HDR') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%HDR%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+     elseif($cat == 'historical') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Historical%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+     elseif($cat == 'industrial') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Industrial%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'landscape') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Landscape%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'longexposure') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Long Exposure%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'macro') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Macro%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'monochrome') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Monochrome%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+     elseif($cat == 'nature') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Nature%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'news') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%News%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'night') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Night%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'panorama') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Panorama%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'people') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%People%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'scenic') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Scenic%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'sports') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Sports%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'stilllife') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Still Life%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'transportation') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Transportation%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    elseif($cat == 'war') {
+        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%War%' ORDER BY id DESC LIMIT 0, 16");
+    }
+    
+    $numberofpics=mysql_num_rows($result);
+    
+    echo'
+    <div id="thepics" style="position:relative;margin-left:-130px;top:-20px;width:1240px;">
+    <div id="main" role="main">
+    <ul id="tiles">';
+    
 for($iii=1; $iii <= 16; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
     $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
 	$id = mysql_result($result, $iii-1, "id");
     $caption = mysql_result($result, $iii-1, "caption");
+     $caption = (strlen($caption) > 28) ? substr($caption,0,25). " &#8230;" : $caption;
     $points = mysql_result($result, $iii-1, "points");
+    $price = mysql_result($result, $iii-1, "price");
+    if($price != 'Not For Sale') {
+        $price = '$' . $price;
+    }
+    elseif(!$price || $price == 'Not For Sale') {
+        $price = 'NFS';
+    }
+    elseif($price == '.00') {
+        $price = 'Free';
+    }
     $votes = mysql_result($result, $iii-1, "votes");
     $score = number_format(($points/$votes),2);
     $owner = mysql_result($result, $iii-1, "emailaddress");
@@ -283,41 +456,326 @@ for($iii=1; $iii <= 16; $iii++) {
 
 	list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
-    $heightls = $height / 5;
-    $widthls = $width / 5;
-    if($widthls < 165) {
+    $heightls = $height / 4.3;
+    $widthls = $width / 4.3;
+    if($widthls < 255) {
     $heightls = $heightls * ($heightls/$widthls);
-    $widthls = 240;
+    $widthls = 270;
     }
-                
-		echo '<div class="masonryImage">
-        
-        <img class="phototitle2" src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+
+		echo '
+        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="padding:0px;margin-right:10px;margin-top:10px;list-style-type: none;width:270px;
+"><img src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
+
+<div class="statoverlay" style="z-index:1;background-color:black;position:relative;top:0px;width:270px;height:30px;"><div style="line-spacing:1.48;padding:5px;color:white;"><div style="float:left;"<span style="font-size:18px;font-weight:100;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:100;font-size:16px;">',$caption,'</span></div><div style="float:right;"><span style="font-size:13px;">',$price,'</span></div></div><br/></div>
+';
+       
 	    
       } //end for loop
-      
-      ?>
-      
-      </div>
-      
-        <script type="text/javascript">
+        
+    echo'
+        </ul>';
+        
+?>
 
-    $(document).ready(function() {
-
-        var $container = $('#container2');
-          $container.imagesLoaded(function(){
-            $container.masonry({
-              itemSelector : '.masonryImage',
-              columnWidth : 350     //Added gutter to simulate margin
-          });
-        });
-
+<!-- Once the page is loaded, initalize the plug-in. -->
+  <script type="text/javascript">
+    $(document).ready(new function() {
+      // Prepare layout options.
+      var options = {
+        autoResize: true, // This will auto-update the layout when the browser window is resized.
+        container: $('#main'), // Optional, used for some extra CSS styling
+        offset: 4, // Optional, the distance between grid items
+        itemWidth: 290 // Optional, the width of a grid item
+      };
+      
+      // Get a reference to your grid items.
+      var handler = $('#tiles li');
+      
+      // Call the layout function.
+      handler.wookmark(options);
+      
     });
   </script>
 
+
 <?php
+
+echo'
+</div>
+</div>
+
+<!--AJAX CODE HERE-->
+   <div class="grid_6 push_9" style="padding-top:50px;">
+   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Photos&hellip;</div>
+   </div>';
+
+
+echo '<script>
+
+var last = 0;
+
+	$(window).scroll(function(){
+		if($(window).scrollTop() > $(document).height() - $(window).height()-100) {
+			if(last != $(".fPic:last").attr("id")) {
+				$("div#loadMorePics").show();
+				$.ajax({
+					url: "loadMoreNewPicsTest.php?lastPicture=" + $(".fPic:last").attr("id")+"&c=',$cat,'",
+					success: function(html) {
+						if(html) {
+							$("#thepics").append(html);
+							$("div#loadMorePics").hide();
+						}
+					}
+				});
+				last = $(".fPic:last").attr("id");
+			}
+		}
+	});
+</script>';
+
+} //end of view == ''
+
+
+
+elseif($view == 'prs') {
+$prsquery="SELECT * FROM userinfo WHERE (profilepic != 'https://www.photorankr.com/profilepics/default_profile.jpg' AND profilepic != 'profilepics/default_profile.jpg') ORDER BY user_id DESC";
+$prsresult=mysql_query($prsquery);
+
+echo'<div id="container" style="width:1210px;margin-left:-112px;top:15px;">';
+for($iii=1; $iii <= 16; $iii++) {
+	$profpic = mysql_result($prsresult, $iii-1, "profilepic");
+    if($profpic == 'https://www.photorankr.com/profilepics/default_profile.jpg') {
+    $profpic = 'profilepics/default_profile.jpg';
+    }
+    $firstname = mysql_result($prsresult, $iii-1, "firstname");
+	$lastname = mysql_result($prsresult, $iii-1, "lastname");
+    $fullname = $firstname . " " . $lastname;
+    $fullname = ucwords($fullname);
+	$userid = mysql_result($prsresult, $iii-1, "user_id");
+
+		echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a style="text-decoration:none;" href="viewprofile.php?u=',$userid,'">
+        
+        <div class="statoverlay" style="z-index:1;left:0px;top:215px;position:relative;background-color:black;width:280px;height:40px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-family:helvetica neue,arial;font-weight:100;font-size:22px;">',$fullname,'</span></div>
+        
+        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="',$profpic,'" alt="',$fullname,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+
+    } //end for loop
+    echo'</div>';
+    
+} //end of view == 'prs'
+
+
+
+elseif($view == 'exts') {
+$query="SELECT * FROM sets ORDER BY id DESC LIMIT 0,16";
+$result=mysql_query($query);
+$numberexhibits=mysql_num_rows($result);
+
+echo'
+    <div id="thepics" style="position:relative;margin-left:-125px;top:20px;width:1240px;">
+    <div id="main" role="main">
+    <ul id="tiles">';
+    
+    for($iii=1; $iii <= $numberexhibits; $iii++) {
+	$coverpic = mysql_result($result, $iii-1, "cover");
+    $coverpic2 = str_replace("userphotos/","userphotos/medthumbs/",$coverpic);
+
+    $caption = mysql_result($result, $iii-1, "title");
+    $set_id = mysql_result($result, $iii-1, "id");
+    $pulltopphoto = mysql_query("SELECT source FROM photos WHERE set_id = '$set_id' ORDER BY votes DESC LIMIT 5");
+
+    if($coverpic == '') {
+        $coverpic = mysql_result($pulltopphoto, 0, "source");
+        $coverpic2 = str_replace("userphotos/","userphotos/medthumbs/",$coverpic);
+    }
+
+    $thumb1 = mysql_result($pulltopphoto, 1, "source");
+    $thumb1 = str_replace("userphotos/","userphotos/medthumbs/",$thumb1);
+    $thumb2 = mysql_result($pulltopphoto, 2, "source");
+    $thumb2 = str_replace("userphotos/","userphotos/medthumbs/",$thumb2);
+    $thumb3 = mysql_result($pulltopphoto, 3, "source");
+    $thumb3 = str_replace("userphotos/","userphotos/medthumbs/",$thumb3);
+    $thumb4 =mysql_result($pulltopphoto, 4, "source");
+    $thumb4 = str_replace("userphotos/","userphotos/medthumbs/",$thumb4);
+
+    list($width, $height) = getimagesize($coverpic);
+    $imgratio = $height / $width;
+    $heightls = $height / 3.2;
+    $widthls = $width / 3.2;
+        
+    if($widthls < 240) {
+        $heightls = $heightls * ($heightls/$widthls);
+        $widthls = 250;
+    }
+
+    $owner = mysql_result($result, $iii-1, "owner");
+    $exhibitquery = mysql_query("SELECT * FROM photos WHERE set_id = '$set_id'");
+    $numberphotos = mysql_num_rows($exhibitquery);
+    
+    if($numberphotos < 1) {
+        continue;
+    }
+   
+    for($i = 0; $i < $numberphotos; $i++) {
+    $points += mysql_result($exhibitquery, $i, "points");
+    $votes += mysql_result($exhibitquery, $i, "votes");
+    }
+    
+    $score = number_format(($points/$votes),2);
+    $price = mysql_result($exhibitquery, $iii, "price");
+    if($price != 'Not For Sale') {
+                    $price = '$' . $price;
+                }
+                elseif($price == 'Not For Sale') {
+                    $price = 'NFS';
+                }
+    
+    $avgscorequery = mysql_query("UPDATE sets SET avgscore = '$score' WHERE id = '$set_id'");
+    
+    $ownerquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$owner'");
+    $firstname = mysql_result($ownerquery, 0, "firstname");
+    $lastname = mysql_result($ownerquery, 0, "lastname");
+    $fullname = $firstname . " " . $lastname;
+    
+	$userid = mysql_result($ownerquery, 0, "user_id");
+    
+    echo'<li style="width:240px;list-style-type:none;position:relative;" class="fPic" id="',$set_id,'"><a style="text-decoration:none;" href="viewprofile.php?u=',$userid,'&view=exhibits&set=',$set_id,'">
+    
+        <div style="padding-top:5px;padding-left:3px;font-size:13px;text-decoration:none;color:#000;font-weight:200;"><span style="font-size:15px;font-weight:400;">',$caption,'</span><br />',$numberphotos,' Photos</div>
+<hr />
+
+    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="https://www.photorankr.com/',$coverpic2,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
+    
+    
+    
+    if($thumb4) {
+        echo'
+            <div style="margin-top:5px;">
+            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb1,'" width="112" height="110" />
+            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb2,'" width="112" height="110" />
+            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb3,'" width="112" height="110" />
+            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb4,'" width="112" height="110" />
+            </div>';
+    }
+    
+    echo'
+    </a>
+    
+    </li>';
+        
+    } //end for loop
+
+echo'</ul>';
+        
+    ?>
+    
+    <!-- Once the page is loaded, initalize the plug-in. -->
+  <script type="text/javascript">
+    $(document).ready(new function() {
+      // Prepare layout options.
+      var options = {
+        autoResize: true, // This will auto-update the layout when the browser window is resized.
+        container: $('#main'), // Optional, used for some extra CSS styling
+        offset: 4, // Optional, the distance between grid items
+        itemWidth: 290 // Optional, the width of a grid item
+      };
       
+      // Get a reference to your grid items.
+      var handler = $('#tiles li');
       
+      // Call the layout function.
+      handler.wookmark(options);
+      
+    });
+  </script>
+
+    
+ <?php
+
+echo'
+</div>
+
+<!--AJAX CODE HERE-->
+   <div class="grid_13 push_9" style="padding-top:50px;">
+   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Exhibits&hellip;</div>
+   </div>';
+
+
+echo '<script>
+
+var last = 0;
+
+	$(window).scroll(function(){
+		if($(window).scrollTop() > $(document).height() - $(window).height()-100) {
+			if(last != $(".fPic:last").attr("id")) {
+				$("div#loadMorePics").show();
+				$.ajax({
+					url: "loadMoreNewExhibits.php?lastPicture=" + $(".fPic:last").attr("id"),
+					success: function(html) {
+						if(html) {
+							$("#thepics").append(html);
+							$("div#loadMorePics").hide();
+						}
+					}
+				});
+				last = $(".fPic:last").attr("id");
+			}
+		}
+	});
+</script>';
+
+
+
+} //end of view == 'exts'
+
+
+if($view == 'following') {
+        
+    //DISPLAY 20 NEWEST FROM FOLLOWING
+    
+    //FOLLOWING LIST
+    $followingquery = "SELECT following FROM userinfo WHERE emailaddress='$email'";
+    $followingresult = mysql_query($followingquery);
+    $followinglistowner = mysql_result($followingresult, 0, "following");   
+    
+    $query="SELECT * FROM photos WHERE emailaddress IN ($followinglistowner) ORDER BY id DESC LIMIT 0, 16";
+    $result=mysql_query($query);
+    $numberofpics=mysql_num_rows($result);
+         
+    echo'<div id="thepics">';
+    echo'<div id="container" style="width:1210px;margin-left:-112px;top:15px;">';
+    
+for($iii=1; $iii <= 16; $iii++) {
+	$image = mysql_result($result, $iii-1, "source");
+    $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
+	$id = mysql_result($result, $iii-1, "id");
+    $caption = mysql_result($result, $iii-1, "caption");
+     $caption = (strlen($caption) > 28) ? substr($caption,0,25). " &#8230;" : $caption;
+    $points = mysql_result($result, $iii-1, "points");
+    $votes = mysql_result($result, $iii-1, "votes");
+    $score = number_format(($points/$votes),2);
+    $owner = mysql_result($result, $iii-1, "emailaddress");
+    $ownerquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$owner'");
+    $firstname = mysql_result($ownerquery, 0, "firstname");
+    $lastname = mysql_result($ownerquery, 0, "lastname");
+    $fullname = $firstname . " " . $lastname;
+    $profilepic = mysql_result($ownerquery, 0, "profilepic");
+    
+	list($width, $height) = getimagesize($image);
+	$imgratio = $height / $width;
+    $heightls = $height / 2.5;
+    $widthls = $width / 2.5;
+
+		echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a style="text-decoration:none;" href="https://photorankr.com/fullsize.php?image=',$image,'&v=n">
+        
+          <div class="statoverlay" style="z-index:1;left:0px;top:235px;position:relative;background-color:black;width:280px;height:50px;"><p style="line-spacing:1.48;padding:5px;color:white;"><img src="',$profilepic,'" width="30" />&nbsp;&nbsp;<span style="font-family:helvetica neue,arial;font-weight:100;font-size:20px;">',$caption,'</span><br/></div>
+        
+        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:300px;min-width:280px;" src="https://photorankr.com/',$imageThumb,'" alt="',$caption,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+       
+	    
+      } //end for loop
+      echo'</div>';
             echo'</div>';
 
 
@@ -337,7 +795,7 @@ var last = 0;
 			if(last != $(".fPic:last").attr("id")) {
 				$("div#loadMorePics").show();
 				$.ajax({
-					url: "loadMoreNewPics.php?lastPicture=" + $(".fPic:last").attr("id"),
+					url: "loadMoreNewPicsFollowing.php?lastPicture=" + $(".fPic:last").attr("id")+"&useremail=',$email,'",
 					success: function(html) {
 						if(html) {
 							$("#thepics").append(html);
@@ -351,92 +809,9 @@ var last = 0;
 	});
 </script>';
 
-
-if($view == 'prs') {
-$prsquery="SELECT * FROM userinfo WHERE (profilepic != 'http://www.photorankr.com/profilepics/default_profile.jpg' AND profilepic != 'profilepics/default_profile.jpg') ORDER BY user_id DESC";
-$prsresult=mysql_query($prsquery);
-
-echo'<div id="container" style="width:1140px;position:relative;left:-120px;top:55px;">';
-for($iii=1; $iii <= 16; $iii++) {
-	$profpic = mysql_result($prsresult, $iii-1, "profilepic");
-    if($profpic == 'http://www.photorankr.com/profilepics/default_profile.jpg') {
-    $profpic = 'profilepics/default_profile.jpg';
-    }
-    $firstname = mysql_result($prsresult, $iii-1, "firstname");
-	$lastname = mysql_result($prsresult, $iii-1, "lastname");
-    $fullname = $firstname . " " . $lastname;
-    $fullname = ucwords($fullname);
-	$userid = mysql_result($prsresult, $iii-1, "user_id");
-
-		echo '<div class="phototitle" id="',$id,'" style="width:240px;height:270px;overflow:hidden;background-color:white;color:#1a618a;font-size:15px;"><a href="http://photorankr.com/viewprofile.php?u=',$userid,'"><img onmousedown="return false" oncontextmenu="return false;" style="min-height:240px;min-width:240px;" src="http://photorankr.com/',$profpic,'" height="240" width="240" /></a><br /><div style="margin-top:4px;text-align:center;">',$fullname,'</div></div>';
-    } //end for loop
-    echo'</div>';
-    
-} //end of view == 'prs'
-
-
-
-elseif($view == 'exts') {
-$query="SELECT * FROM sets ORDER BY id DESC";
-$result=mysql_query($query);
-$numberexhibits=mysql_num_rows($result);
-
-echo'<div id="container" style="width:1140px;position:relative;left:-120px;top:55px;">';
-for($iii=1; $iii <= $numberexhibits; $iii++) {
-	$coverpic = mysql_result($result, $iii-1, "cover");
-    $caption = mysql_result($result, $iii-1, "title");
-    $set_id = mysql_result($result, $iii-1, "id");
-    if($coverpic == '') {
-    $coverpic = 'profilepics/nocoverphoto.png';
-    }
-    $owner = mysql_result($result, $iii-1, "owner");
-    $exhibitquery = mysql_query("SELECT * FROM photos WHERE set_id = '$set_id'");
-    $numberphotos = mysql_num_rows($exhibitquery);
-   
-    for($i = 0; $i < $numberphotos; $i++) {
-    $points += mysql_result($exhibitquery, $i, "points");
-    $votes += mysql_result($exhibitquery, $i, "votes");
-    }
-    
-    $score = number_format(($points/$votes),2);
-    
-    $avgscorequery = mysql_query("UPDATE sets SET avgscore = '$score' WHERE id = '$set_id'");
-    
-    $ownerquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$owner'");
-    $firstname = mysql_result($ownerquery, 0, "firstname");
-    $lastname = mysql_result($ownerquery, 0, "lastname");
-    $fullname = $firstname . " " . $lastname;
-    
-	$userid = mysql_result($ownerquery, 0, "user_id");
-
-		echo '<div class="phototitle" id="',$id,'" style="width:240px;height:240px;overflow:hidden;"><a href="http://photorankr.com/viewprofile.php?u=',$userid,'&ex=y&set=',$set_id,'">
-        
-        <div class="statoverlay2" style="z-index:1;left:0px;top:170px;position:relative;background-color:black;width:240px;height:75px;"><p style="line-spacing:1.48;padding:5px;color:white;">"',$caption,'"<br>By: ',$fullname,'</br>Exhibit Score: ',$score,'</p></div>
-        
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:240px;min-width:240px;" src="http://photorankr.com/',$coverpic,'" height="240" width="240" /></a></div>';
-    } //end for loop
-    echo'</div>';
-
-} //end of view == 'exts'
+} //end of view == 'following'
 
 ?>
-
-
-<!--Footer begin-->   
-<div class="grid_24" style="height:30px;margin-top:30px;background-color:rgb:(238,239,243);text-align:center;padding-top:10px;padding-bottom:20px; background-color:none;text-decoration:none;">
-<p style="text-decoration:none;">
-</br></br>
-Copyright&nbsp;&copy;&nbsp;2012&nbsp;PhotoRankr, Inc.&nbsp;&nbsp;
-<a href="http://photorankr.com/about.php">About</a>&nbsp;&nbsp;                                       
-<a href="http://photorankr.com/terms.php">Terms</a>&nbsp;&nbsp;
-<a href="http://photorankr.com/privacy.php">Privacy</a>&nbsp;&nbsp;
-<a href="http://photorankr.com/help.php">Help<a>&nbsp;&nbsp;
-<a href="http://photorankr.com/contact.php">Contact&nbsp;Us<a>
-<br />
-<br />
-</p>                   
-</div>
-<!--Footer end-->
 
 </div>
 
