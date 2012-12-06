@@ -1,0 +1,171 @@
+.container_custom
+{
+	clear:both;
+	width:1200px;
+	zoom: 1;
+
+}
+
+.clearfix:before,
+.clearfix:after,
+.container_custom:before,
+.container_custom:after {
+  content: '.';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  width: 0;
+  height: 0;
+}
+
+.clearfix:after,
+.container_custom:after {
+  clear: both;
+}
+.content /*for written work*/
+{
+	width:536px;
+	text-align: left;
+	
+}
+.bloc_1,
+.bloc_2,
+.bloc_3,
+.bloc_4,
+.bloc_5,
+.bloc_6,
+.bloc_7,
+.bloc_8,
+.bloc_9,
+.bloc_10,
+.bloc_11,
+.bloc_12,
+.bloc_13,
+.bloc_14,
+.bloc_15,
+.bloc_16,
+.bloc_5_3_wide,
+{
+	margin: 0 4px;
+	display:inline;
+	float:left;
+}
+.container_custom .bloc_1
+{
+	width: 55px;
+	margin: 0 4px;
+}
+.container_custom .bloc_2{
+
+	width:122px;
+	margin: 0 4px;
+}
+.container_custom .bloc_3{
+
+	width:192px;
+	margin: 0 4px;
+}
+.container_custom .bloc_4{
+
+	width:228px;
+	margin: 0 4px;
+}
+.container_custom .bloc_5{
+
+	width:280px;
+	margin: 0 4px;
+}
+.container_custom .bloc_5_3_wide{
+
+	width:320px;
+	margin: 0 4px;
+}
+ .container_custom .bloc_6
+ {
+
+	width:362px;
+	margin: 0 4px;
+}
+ .container_custom .bloc_8
+ {
+
+	width:494px;
+	margin: 0 4px;
+}
+.container_custom .bloc_10
+{
+	width:600px;
+	margin:0 4px;
+}
+.container_custom .bloc_11
+{
+	width:680px;
+	margin:0 4px;
+}
+.container_custom .bloc_12
+{
+	width:800px;
+	margin: 0 4px;
+}
+.container_custom .bloc_13
+{
+	width:860px;
+	margin: 0 4px;
+}
+.container_custom .bloc_14
+{
+	width:920px;
+	margin: 0 4px;
+}
+.container_custom .bloc_16
+{
+	width: 1000px;
+	margin: 0 4px;
+}
+
+#footer_container
+{
+
+	height:120px;
+	width:100%;
+	background:#aaa;
+	margin-top:1%;
+}
+
+/*@media (max-width: 1024px){
+	
+	.container_custom
+	{
+		width:768px;
+	}
+	.container_custom .bloc_16
+	{
+		width:760px;
+	}
+}
+
+@media (max-width: 768px){
+	
+	.container_custom
+	{
+		width:640px;
+	}
+	.container_custom .bloc_16
+	{
+		width:632px;
+	}
+}
+
+@media (max-width: 640px){
+	
+	.container_custom
+	{
+		width:100%;
+	}
+	.container_custom .bloc_16
+	{
+		width:99%;
+	}
+}*/

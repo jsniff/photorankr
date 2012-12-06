@@ -1,0 +1,57 @@
+#images
+{
+	z-index:-23;
+}
+#hover_arrow_left
+{
+	background-color: rgba(255,255,255,.3);
+	width:20px;
+	height:90px;
+	margin-left:9px;
+	margin-top:-90px;
+	z-index:98;
+	float:left;
+	background-repeat:none;
+	background-image:url('../../graphics/arrow_previous.png');
+	<!--[if lt IE9]> background: transparent;-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#00FFFFFF,endColorstr=#00FFFFFF)"; /* IE8 */    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#00FFFFFF,endColorstr=#00FFFFFF);   /* IE6 & 7 */      zoom: 1; <![endif]-->
+}
+
+
+#hover_arrow_right
+{
+	background-color: rgba(255,255,255,.3);
+	width:20px;
+	height:90px;
+	margin-right:-2px;
+	margin-top:-90px;
+	z-index:99;
+	float:right;
+	background-repeat:none;
+	background-image:url('../../graphics/arrow_next.png');
+	<!--[if lt IE9]> background: transparent;-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#00FFFFFF,endColorstr=#00FFFFFF)"; /* IE8 */    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#00FFFFFF,endColorstr=#00FFFFFF);   /* IE6 & 7 */      zoom: 1; <![endif]-->
+
+}
+
+#nextimg1
+{
+	width:90px;
+	height:90px;
+	float:left;
+	z-index:-20;
+}	
+
+#nextimg2
+{
+	width:90px;
+	height:90px;
+	float:left;
+	z-index:-20;
+}
+
+#nextimg3
+{
+	width:90px;
+	height:90px;
+	float:left;
+	z-index:-20;
+}

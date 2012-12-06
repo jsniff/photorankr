@@ -1,0 +1,18 @@
+<div class="CNav">
+	<ul>
+		<li> My Portfolio </li>
+		<li> My Network </li>
+		<li> My Blog </li>
+		<li> Manage Store </li>
+		<li> Settings </li>
+		<li><form >
+					<input type="text"/>
+					<img src="graphics/glass.png" width="20px"/>
+				</form>	
+			</li>
+				
+	</ul>
+</div>
+
+<li><img src="graphics/aperature_new copy.png" style="width:55px;"/><img src="graphics/logo_text.png" style="margin-top:-18px;width:60px!important;
+    height:12px !important;"/> </li>
