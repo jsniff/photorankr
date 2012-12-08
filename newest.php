@@ -1,17 +1,17 @@
 <?php
 
 //connect to the database
-require "db_connection.php";
-require "functionsnav.php";
+require "../db_connection.php";
+require "functions.php";
 
 //start the session
 session_start();
 
     // if login form has been submitted
-    if (htmlentities($_GET['action']) == "login") { 
+    if(htmlentities($_GET['action']) == "login") { 
         login();
     }
-    else if(htmlentities($_GET['action']) == "logout") { 
+    elseif(htmlentities($_GET['action']) == "logout") { 
         logout();
     }
 
@@ -97,35 +97,17 @@ $notsqueryrun = mysql_query($notsquery); }
   <meta name="Description" content="A gallery of the newest photography, photographers, and exhibits on PhotoRankr.">
      <meta name="viewport" content="width=1200" /> 
 
-
-  <link rel="stylesheet" type="text/css" href="market/css/bootstrapNew.css" />
-  <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
-  <link rel="stylesheet" href="market/css/text.css" type="text/css" />
-  <link rel="stylesheet" href="css/style.css" type="text/css" />
-  <link rel="stylesheet" href="960_24.css" type="text/css" />
-  <link rel="stylesheet" type="text/css" href="market/css/all.css"/>              
-  <script type="text/javascript" href="js/bootstrap-dropdown.js"></script>
-  <script type="text/javascript">
-    document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' type='text/javascript'>\<\/script>");
-  </script>  
-  <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
-  <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+	 <link rel="stylesheet" type="text/css" href="css/style.css"/>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
+	<link rel="stylesheet" type="text/css" href="css/reset.css"/> 
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.wookmark.js"></script>            
+    <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
   
   <title>PhotoRankr - Newest Photography</title>
-
-  
-<script type="text/javascript">
-  $(function() {
-  // Setup drop down menu
-  $('.dropdown-toggle').dropdown();
- 
-  // Fix input element click problem
-  $('.dropdown input, .dropdown label').click(function(e) {
-    e.stopPropagation();
-  });
-});
-
-</script>
 
 <style type="text/css">
 
@@ -133,43 +115,38 @@ $notsqueryrun = mysql_query($notsquery); }
  .statoverlay
 
 {
--moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
--webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-filter:alpha(opacity=40);
-z-index:1;
-transition: opacity .5s;
--moz-transition: opacity .5s;
--webkit-transition: opacity .5s;
--o-transition: opacity .5s;
+background-attachment: scroll;
+background-clip: border-box;
+background-color: 
+rgba(0, 0, 0, 0.848438);
+background-image: none;
+background-origin: padding-box;
+color: rgb(255, 255, 255);
+bottom: 0px;
+display: block;
+font-family: 'Helvetica Neue', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+font-size: 14px;
+font-style: normal;
+font-variant: normal;
+font-weight: normal;
+line-height: 0px;
+margin-bottom: 0px;
+margin-left: 0px;
+margin-right: 0px;
+margin-top: 0px;
+overflow-x: hidden;
+overflow-y: hidden;
+padding-bottom: 0px;
+padding-left: 0px;
+padding-right: 0px;
+padding-top: 0px;
+white-space: nowrap;
+width: 270px;
+-moz-box-shadow: 1px 1px 5px #888;
+-webkit-box-shadow: 1px 1px 5px #888;
+box-shadow: 1px 1px 5px #888;
 }
-
-
-
- .statoverlay2
-
-{
-opacity:.6;
-filter:alpha(opacity=40);
-z-index:1;
-transition: opacity .5s;
--moz-transition: opacity .5s;
--webkit-transition: opacity .5s;
--o-transition: opacity .5s;
-}
-                         
-
-.item {
-  margin: 10px;
-  float: left;
-  border: 2px solid transparent;
-}
-
-.item:hover {
-  margin: 10px;
-  float: left;
-  border: 2px solid black;
-}
+        
 
 </style>
 
@@ -190,14 +167,15 @@ transition: opacity .5s;
 
 
 </head>
-<body style="overflow-x:hidden; background-color: #eeeff3;min-width:1220px;">
+<body style="overflow-x:hidden; background-color: #fff;">
 
-<?php navbarnew(); ?>
+<?php navbar(); ?>
 
    <!--big container-->
-    <div id="container" class="container_24" >
+    <div id="container" class="container_24">
     
-
+        <div style="font-size:30px;font-weight:300;margin-left:0px;margin-top:60px;">Fresh Photography</div>
+    
 <!--DIFFERENT GALLERY VIEWS-->
 
 <?php  
@@ -205,105 +183,9 @@ transition: opacity .5s;
 if(isset($_GET['view'])){
 $view = htmlentities($_GET['view']);
 }
-
-        echo'<br /><br /><br /><br />
-        <div style="margin-left:-70px;font-size:15px;font-weight:200;font-family:"Helvetica Neue",Helvetica,Arial;">
-        
-        <a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == '') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="newest.php">Newest Photos</a> 
-        
-        <a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == 'prs') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="newest.php?view=prs">Newest Photographers</a>
-        
-        <a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == 'exts') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="newest.php?view=exts">Newest Exhibits</a>'; 
-        
-	if($_SESSION['loggedin'] == 1) {
-	       
-		 echo'<a class="pxbutton" style="text-decoration:none;margin-right:15px;';if($view == 'following') {echo'padding:10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;background-color:#000;color:#fff;opacity:.9;';} else {echo'';} echo'" href="newest.php?view=following">Following</a>';
-	}
-        
-	echo'
-        </div>
-                
-         <script>
-                    function submitTime(sel) {
-                        sel.form.submit();
-                    }
-                </script>';
-                
-                if($view == '') {
-                
-                    $cat = htmlentities($_GET['c']);
-
-                echo'            
-                    <!-- Select Basic -->
-                    <form action="newest.php" method="get">';
-                    
-                        echo'
-                        <select name="c"  onchange="submitTime(this)" class="input-large" style="width:140px;margin-top:-33px;margin-left:525px;">
-                        
-                        <option value=""'; if($cat == '') {echo'selected value=""';} echo'>All Photos</option>
-                        
-                        <option value="aerial"'; if($cat == 'aerial') {echo'selected value=""';} echo'>Aerial</option>
-                        
-                        <option value="animal"'; if($cat == 'animal') {echo'selected value=""';} echo'>Animal</option>
-                        
-                        <option value="architecture"'; if($cat == 'architecture') {echo'selected value=""';} echo'>Architecture</option>
-                        
-                        <option value="astro"'; if($cat == 'astro') {echo'selected value=""';} echo'>Astro</option>
-                        
-                        <option value="automotive"'; if($cat == 'automotive') {echo'selected value=""';} echo'>Automotive</option>
-                        
-                        <option value="bw"'; if($cat == 'bw') {echo'selected value=""';} echo'>Black & White</option>
-                        
-                        <option value="cityscape"'; if($cat == 'cityscape') {echo'selected value=""';} echo'>Cityscape</option>
-                        
-                        <option value="fashion"'; if($cat == 'fashion') {echo'selected value=""';} echo'>Fashion</option>
-                        
-                        <option value="fineart"'; if($cat == 'fineart') {echo'selected value=""';} echo'>Fine Art</option>
-                        
-                        <option value="fisheye"'; if($cat == 'fisheye') {echo'selected value=""';} echo'>Fish Eye</option>
-                        
-                        <option value="food"'; if($cat == 'food') {echo'selected value=""';} echo'>Food</option>
-                        
-                        <option value="HDR"'; if($cat == 'HDR') {echo'selected value=""';} echo'>HDR</option>
-                        
-                        <option value="historical"'; if($cat == 'historical') {echo'selected value=""';} echo'>Historical</option>
-                        
-                        <option value="industrial"'; if($cat == 'industrial') {echo'selected value=""';} echo'>Industrial</option>
-                        
-                        <option value="landscape"'; if($cat == 'landscape') {echo'selected value=""';} echo'>Landscape</option>
-                        
-                        <option value="longexposure"'; if($cat == 'longexposure') {echo'selected value=""';} echo'>Long Exposure</option>
-                        
-                        <option value="macro"'; if($cat == 'macro') {echo'selected value=""';} echo'>Macro</option>
-                        
-                        <option value="monochrome"'; if($cat == 'monochrome') {echo'selected value=""';} echo'>Monochrome</option>
-                        
-                        <option value="nature"'; if($cat == 'nature') {echo'selected value=""';} echo'>Nature</option>
-                        
-                        <option value="news"'; if($cat == 'news') {echo'selected value=""';} echo'>News</option>
-                        
-                        <option value="night"'; if($cat == 'night') {echo'selected value=""';} echo'>Night</option>
-                        
-                        <option value="panorama"'; if($cat == 'panorama') {echo'selected value=""';} echo'>Panorama</option>
-                        
-                        <option value="people"'; if($cat == 'people') {echo'selected value=""';} echo'>People</option>
-                        
-                        <option value="scenic"'; if($cat == 'scenic') {echo'selected value=""';} echo'>Scenic</option>
-                        
-                        <option value="sports"'; if($cat == 'sports') {echo'selected value=""';} echo'>Sports</option>
-                        
-                        <option value="stilllife"'; if($cat == 'stilllife') {echo'selected value=""';} echo'>Still Life</option>
-                        
-                        <option value="transportation"'; if($cat == 'transportation') {echo'selected value=""';} echo'>Transportation</option>
-                        
-                        <option value="war"'; if($cat == 'war') {echo'selected value=""';} echo'>War</option>
-                        
-                        </select>';
-
-                    echo'    
-                    </form>';
-                } 
-        
+if(isset($_GET['c'])){
+$cat = htmlentities($_GET['c']);
+}
         
 if($view == '') {
         
@@ -429,13 +311,14 @@ if($view == '') {
     $numberofpics=mysql_num_rows($result);
     
     echo'
-    <div id="thepics" style="position:relative;margin-left:-130px;top:-20px;width:1240px;">
-    <div id="main" role="main">
+    <div id="thepics" style="position:relative;left:-82px;top:35px;width:1200px;">
+    <div id="main">
     <ul id="tiles">';
-    
+        
 for($iii=1; $iii <= 16; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
     $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
+    $image = "../" . $image;
 	$id = mysql_result($result, $iii-1, "id");
     $caption = mysql_result($result, $iii-1, "caption");
      $caption = (strlen($caption) > 28) ? substr($caption,0,25). " &#8230;" : $caption;
@@ -460,20 +343,21 @@ for($iii=1; $iii <= 16; $iii++) {
 
 	list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
-    $heightls = $height / 4.3;
-    $widthls = $width / 4.3;
-    if($widthls < 255) {
+    $heightls = $height / 3.3;
+    $widthls = $width / 3.3;
+    if($widthls < 235) {
     $heightls = $heightls * ($heightls/$widthls);
-    $widthls = 270;
+    $widthls = 285;
     }
 
 		echo '
-        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:270px;
-"><img style="-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
-
-<div class="statoverlay" style="z-index:1;background-color:white;position:relative;top:0px;width:270px;height:30px;"><div style="line-spacing:1.48;padding:5px;color:#4A4A4A;"><div style="float:left;"<span style="font-size:16px;font-weight:bold;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:bold;font-size:12px;">',$caption,'</span></div><div style="float:right;"><span style="font-size:12px;">',$price,'</span></div></div><br/></div>
-';
-       	    
+        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="list-style-type: none;width:270px;"><img style="min-width:270px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
+        
+            <div class="statoverlay" style="top:0px;height:50px;position:relative;">
+            <p style="font-weight:100;font-size:20px;padding-top:15px;padding-left:5px;">',$caption,'</p>
+            <p style="font-weight:100;font-size:16px;margin-top:20px;padding-left:5px;">',$score,'<span style="font-size:14px;">/10.0</span></p>
+            </div>';      	
+            
       } //end for loop
         
     echo'
@@ -489,7 +373,7 @@ for($iii=1; $iii <= 16; $iii++) {
         autoResize: true, // This will auto-update the layout when the browser window is resized.
         container: $('#main'), // Optional, used for some extra CSS styling
         offset: 4, // Optional, the distance between grid items
-        itemWidth: 290 // Optional, the width of a grid item
+        itemWidth: 270 // Optional, the width of a grid item
       };
       
       // Get a reference to your grid items.
@@ -508,9 +392,10 @@ echo'
 </div>
 </div>
 
+
 <!--AJAX CODE HERE-->
    <div class="grid_6 push_9" style="padding-top:50px;">
-   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Photos&hellip;</div>
+   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;"><img src="graphics/load.gif" /></div>
    </div>';
 
 
@@ -559,7 +444,7 @@ for($iii=1; $iii <= 16; $iii++) {
 
 		echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a style="text-decoration:none;" href="viewprofile.php?u=',$userid,'">
         
-        <div class="statoverlay" style="z-index:1;left:0px;top:215px;position:relative;background-color:black;width:280px;height:40px;"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-family:helvetica neue,arial;font-weight:100;font-size:22px;">',$fullname,'</span></div>
+        <div class="statoverlay"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-family:helvetica neue,arial;font-weight:100;font-size:22px;">',$fullname,'</span></div>
         
         <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="',$profpic,'" alt="',$fullname,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
 
@@ -571,131 +456,74 @@ for($iii=1; $iii <= 16; $iii++) {
 
 
 elseif($view == 'exts') {
-$query="SELECT * FROM sets ORDER BY id DESC LIMIT 0,16";
-$result=mysql_query($query);
-$numberexhibits=mysql_num_rows($result);
-
-echo'
-    <div id="thepics" style="position:relative;margin-left:-125px;top:20px;width:1240px;">
-    <div id="main" role="main">
-    <ul id="tiles">';
-    
-    for($iii=1; $iii <= $numberexhibits; $iii++) {
-	$coverpic = mysql_result($result, $iii-1, "cover");
-    $coverpic2 = str_replace("userphotos/","userphotos/medthumbs/",$coverpic);
-
-    $caption = mysql_result($result, $iii-1, "title");
-    $set_id = mysql_result($result, $iii-1, "id");
-    $pulltopphoto = mysql_query("SELECT source FROM photos WHERE set_id = '$set_id' ORDER BY votes DESC LIMIT 5");
-
-    if($coverpic == '') {
-        $coverpic = mysql_result($pulltopphoto, 0, "source");
-        $coverpic2 = str_replace("userphotos/","userphotos/medthumbs/",$coverpic);
-    }
-
-    $thumb1 = mysql_result($pulltopphoto, 1, "source");
-    $thumb1 = str_replace("userphotos/","userphotos/medthumbs/",$thumb1);
-    $thumb2 = mysql_result($pulltopphoto, 2, "source");
-    $thumb2 = str_replace("userphotos/","userphotos/medthumbs/",$thumb2);
-    $thumb3 = mysql_result($pulltopphoto, 3, "source");
-    $thumb3 = str_replace("userphotos/","userphotos/medthumbs/",$thumb3);
-    $thumb4 =mysql_result($pulltopphoto, 4, "source");
-    $thumb4 = str_replace("userphotos/","userphotos/medthumbs/",$thumb4);
-
-    list($width, $height) = getimagesize($coverpic);
-    $imgratio = $height / $width;
-    $heightls = $height / 3.2;
-    $widthls = $width / 3.2;
         
-    if($widthls < 240) {
-        $heightls = $heightls * ($heightls/$widthls);
-        $widthls = 250;
-    }
-
-    $owner = mysql_result($result, $iii-1, "owner");
-    $exhibitquery = mysql_query("SELECT * FROM photos WHERE set_id = '$set_id'");
-    $numberphotos = mysql_num_rows($exhibitquery);
-    
-    if($numberphotos < 1) {
-        continue;
-    }
-   
-    for($i = 0; $i < $numberphotos; $i++) {
-    $points += mysql_result($exhibitquery, $i, "points");
-    $votes += mysql_result($exhibitquery, $i, "votes");
-    }
-    
-    $score = number_format(($points/$votes),2);
-    $price = mysql_result($exhibitquery, $iii, "price");
-    if($price != 'Not For Sale') {
-                    $price = '$' . $price;
-                }
-                elseif($price == 'Not For Sale') {
-                    $price = 'NFS';
-                }
-    
-    $avgscorequery = mysql_query("UPDATE sets SET avgscore = '$score' WHERE id = '$set_id'");
-    
-    $ownerquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$owner'");
-    $firstname = mysql_result($ownerquery, 0, "firstname");
-    $lastname = mysql_result($ownerquery, 0, "lastname");
-    $fullname = $firstname . " " . $lastname;
-    
-	$userid = mysql_result($ownerquery, 0, "user_id");
-    
-    echo'<li style="width:240px;list-style-type:none;position:relative;background-color:white;padding:4px;" class="fPic" id="',$set_id,'"><a style="text-decoration:none;" href="viewprofile.php?u=',$userid,'&view=exhibits&set=',$set_id,'">
-    
-        <div style="padding-top:5px;padding-left:3px;font-size:13px;text-decoration:none;color:#000;font-weight:200;"><span style="font-size:15px;font-weight:400;">',$caption,'</span><br />',$numberphotos,' Photos</div>
-<hr />
-
-    <img style="margin-top:-6px;" onmousedown="return false" oncontextmenu="return false;" src="https://www.photorankr.com/',$coverpic2,'" alt="',$setname[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />';
-    
-    
-    
-    if($thumb4) {
-        echo'
-            <div style="margin-top:5px;">
-            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb1,'" width="112" height="110" />
-            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb2,'" width="112" height="110" />
-            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb3,'" width="112" height="110" />
-            <img style="float:left;padding:4px;" src="https://www.photorankr.com/',$thumb4,'" width="112" height="110" />
-            </div>';
-    }
-    
-    echo'
-    </a>
-    
-    </li>';
+        $galleryquery = mysql_query("SELECT * FROM sets ORDER BY id DESC LIMIT 0,50");
+        $numgalleries = mysql_num_rows($galleryquery);
         
-    } //end for loop
+        for($iii=0; $iii<$numgalleries; $iii++) {
+            
+            $id = mysql_result($galleryquery,$iii,'id');
+            $name = mysql_result($galleryquery,$iii,'title');
+            $about = mysql_result($galleryquery,$iii,'about');
+            $photos = mysql_result($galleryquery,$iii,'photos');
+            
+            $pulltopphoto = mysql_query("SELECT source FROM photos WHERE set_id = $id ORDER BY votes DESC LIMIT 7");
+            $numsetphotos = mysql_num_rows($pulltopphoto);
+            
+            if($numsetphotos < 6) {
+                continue;
+            }
+            
+            echo'<div class="grid_12 gallery" style="padding-bottom:20px;">
+                    <header>
+                        <br />
+                        <a style="text-decoration:none;color:#333;" href="viewgallery.php?g=',$id,'"><span style="font-size:20px;"><strong>Exhibit</strong></span> | <span style=\'font-family:"helvetica neue",helvetica,arial;font-weight:200;font-size:20px;\'>',$name,'</span></a>				
+                        <br />
+                        <div class="line" style="background:#62a2de;margin-bottom:10px;"></div>
+                    </header>';
 
-echo'</ul>';
+                
+                $photo1 = mysql_result($pulltopphoto, 0, "source");
+                $photo1 = str_replace("userphotos/","userphotos/medthumbs/",$photo1);
+                $photo2 = mysql_result($pulltopphoto, 1, "source");
+                $photo2 = str_replace("userphotos/","userphotos/medthumbs/",$photo2);
+                $photo3 = mysql_result($pulltopphoto, 2, "source");
+                $photo3 = str_replace("userphotos/","userphotos/medthumbs/",$photo3);
+                $photo4 = mysql_result($pulltopphoto, 3, "source");
+                $photo4 = str_replace("userphotos/","userphotos/medthumbs/",$photo4);
+                $photo5 = mysql_result($pulltopphoto, 4, "source");
+                $photo5 = str_replace("userphotos/","userphotos/medthumbs/",$photo5);
+                $photo6 = mysql_result($pulltopphoto, 5, "source");
+                $photo6 = str_replace("userphotos/","userphotos/medthumbs/",$photo6);
+                
+                echo'<div class="omega grid_6" style="margin:0;height:400px;overflow:hidden;" >	
+                    <div class="pic_1">
+                        <img src="../',$photo1,'" class="gallery_pic"/>
+                    </div>
+                    <div class="pic_1">
+                        <img src="../',$photo2,'" class="gallery_pic"/>
+                    </div>
+                    <div class="pic_1">
+                        <img src="../',$photo3,'" class="gallery_pic"/>
+                    </div>
+                    </div>';
+    
+                echo'<div class="omega grid_5" style="margin:0;height:400px;overflow:hidden;">
+                     <div class="pic_2">
+                        <img src="../',$photo4,'" class="gallery_pic"/>
+                    </div>
+                    <div class="pic_2">
+                        <img src="../',$photo5,'" class="gallery_pic"/>
+                    </div>
+                    <div class="pic_2">
+                        <img src="../',$photo6,'" class="gallery_pic"/>
+                    </div>
+                    </div>';
+            
+            echo'</div>';
         
-    ?>
+        }
     
-    <!-- Once the page is loaded, initalize the plug-in. -->
-  <script type="text/javascript">
-    $(document).ready(new function() {
-      // Prepare layout options.
-      var options = {
-        autoResize: true, // This will auto-update the layout when the browser window is resized.
-        container: $('#main'), // Optional, used for some extra CSS styling
-        offset: 4, // Optional, the distance between grid items
-        itemWidth: 290 // Optional, the width of a grid item
-      };
-      
-      // Get a reference to your grid items.
-      var handler = $('#tiles li');
-      
-      // Call the layout function.
-      handler.wookmark(options);
-      
-    });
-  </script>
-
-    
- <?php
-
 echo'
 </div>
 
@@ -816,7 +644,78 @@ var last = 0;
 
 ?>
 
+
+
 </div>
 
+ <!-- footer -->
+      <div id="footer">
+  <div class="footercontainer clearfix">
+
+      <dl class="footer_nav">
+        <dt>PhotoRankr</dt>
+        <dd><a href="https://github.com/about">About us</a></dd>
+        <dd><a href="https://github.com/blog">Blog</a></dd>
+        <dd><a href="https://github.com/contact">Contact &amp; support</a></dd>
+        <dd><a href="http://enterprise.github.com/">GitHub Enterprise</a></dd>
+        <dd><a href="http://status.github.com/">Site status</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>Applications</dt>
+        <dd><a href="http://mac.github.com/">GitHub for Mac</a></dd>
+        <dd><a href="http://windows.github.com/">GitHub for Windows</a></dd>
+        <dd><a href="http://eclipse.github.com/">GitHub for Eclipse</a></dd>
+        <dd><a href="http://mobile.github.com/">GitHub mobile apps</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>Services</dt>
+        <dd><a href="http://get.gaug.es/">Gauges: Web analytics</a></dd>
+        <dd><a href="http://speakerdeck.com">Speaker Deck: Presentations</a></dd>
+        <dd><a href="https://gist.github.com">Gist: Code snippets</a></dd>
+        <dd><a href="http://jobs.github.com/">Job board</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>Documentation</dt>
+        <dd><a href="http://help.github.com/">GitHub Help</a></dd>
+        <dd><a href="http://developer.github.com/">Developer API</a></dd>
+        <dd><a href="http://github.github.com/github-flavored-markdown/">GitHub Flavored Markdown</a></dd>
+        <dd><a href="http://pages.github.com/">GitHub Pages</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>More</dt>
+        <dd><a href="http://training.github.com/">Training</a></dd>
+        <dd><a href="https://github.com/edu">Students &amp; teachers</a></dd>
+        <dd><a href="http://shop.github.com">The Shop</a></dd>
+        <dd><a href="http://octodex.github.com/">The Octodex</a></dd>
+      </dl>
+
+      <hr class="footer-divider">
+
+
+    <p class="right">&copy; 2012 <span title="0.25032s from fe19.rs.github.com">PhotoRankr</span> Inc. All rights reserved.</p>
+    <a class="left" href="https://photorankr.com/">
+      <span id="footer_image"><img src="graphics/aperture_dark.png" style="width:30px;" /></span>
+    </a>
+    <ul id="legal">
+        <li><a href="https://github.com/site/terms">Terms of Service</a></li>
+        <li><a href="https://github.com/site/privacy">Privacy</a></li>
+        <li><a href="https://github.com/security">Security</a></li>
+    </ul>
+
+  </div><!-- /.container -->
+
+</div><!-- /.#footer -->
+
+    <script src="js/bootstrap-dropdown.js"></script>
+    <script type="text/javascript">  
+        $(document).ready(function () {  
+            $('.dropdown-toggle').dropdown();  
+        });  
+    </script> 
+    
 </body>
 </html>

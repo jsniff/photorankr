@@ -3,7 +3,7 @@
 //connect to the database
 require "db_connection.php";
 require "timefunction.php";
-require "functionsnav.php";
+require "functions.php";
 
 $commenttime = time();
 
@@ -30,36 +30,39 @@ $getowner = mysql_query("SELECT firstname,lastname FROM userinfo WHERE emailaddr
 $ownerfirst = mysql_result($getowner,0,'firstname');
 $ownerlast = mysql_result($getowner,0,'lastname');
 
-echo'
-
-        <li class="grid_16" style="float:left;width:580px;margin-top:20px;">
-            <a href="viewprofile.php?u=',$commenterid,'">
-            <div style="float:left;"><img class="roundedall" src="',$userpic,'" alt="',$name,'" height="40" width="35"/>
-            </a>
-        </div>
-        
-        <div style="float:left;padding-left:6px;width:510px;">
-            <div style="float:left;color:#3e608c;font-size:14px;font-family:helvetica;font-weight:500;border-bottom: 1px solid #ccc;width:510px;">
-            <div style="float:left;">
-            <a name="',$commentid,'" href="viewprofile.php?u=',$commenterid,'">',$name,'</a> &nbsp;<span style="font-size:16px;font-weight:100;color:black;margin-top:2">|</span>&nbsp;<span style="color:#333;font-size:12px;">Rep: ',$commenterrep,'</span>
-                </div>
-                &nbsp;&nbsp;&nbsp;
-                   
-                <div class="progress progress-success" style="float:left;width:110px;height:7px;opacity:.8;margin:7px;">
+echo'<div id="comment" style="width:760px;">
+                <div class="commentTag">
+				<img src="https://photorankr.com/',$userpic,'" height="55" width="50" />
+				<header> Rep: ',$commenterrep,' </header>
+			</div>
+			<div class="commentName">
+				<header> <a href="viewprofile.php?u=',$commenterid,'">',$firstname,' ',$lastname,'</a> </header>
+				<img src="graphics/uploadDate.png"/>
+				<p> ',$commenttime,' </p>
+			</div>
+			<div class="commentBody"><p>',$comment,'</p>';
+            
+                    echo'
+                        <div id="edit"><a href="fullsize.php?image=',$imageid,'&action=editcomment&cid=',$commentid,'#',$commentid,'"> Edit Comment</a></div>';
                 
-                <div class="bar" style="width:',$commenterrep,'%;">
+                    echo'
+                        <div id="edit"><a href="fullsize.php?image=',$imageid,'&action=deletecomment&cid=',$commentid,'">Delete Comment</a></div>';
+                
+                if($_GET['action'] == 'editcomment' && $commentid == $_GET['cid']) {
+                
+                    echo'
+                    <form action="fullsize.php?image=',$imageid,'#',$commentid,'" method="POST" />
+                    <textarea style="height:55px;width:95%;margin-left:10px;margin-top:10px;" name="commentedit">',$comment,'</textarea>
+                    <input type="hidden" name="commentid" value="',$commentid,'" />
+                    <br />
+                    <input type="submit" class="btn btn-primary" style="float:right;font-size:12px;margin-right:10px;margin-bottom:5px;" value="Save Edit" />
+                    </form>';
+                    
+                }
+            
+            echo'
             </div>
-            </div>
-        </div>
-                
-                <br />
-                
-                <div style="float:left;font-size:11px;color:#777;font-weight:400;padding:2px;">',converttime($commenttime),'</div>
-                
-                <div style="float:left;width:470px;padding:10px;font-size:13px;font-family:helvetica;font-weight:300;color:#555;">',$comment,'</div>
-                
-            </div>
-            </li>';
+		</div>';
 
     //INSERT COMMENT INTO DATABASE
     $currenttime = time();
@@ -128,7 +131,7 @@ To view the photo, click here: https://photorankr.com/fullsize.php?imageid=".$im
             
             $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
                         
-            if($foundsetting > 0 && $sendtoemail != $email) {     
+            if($foundsetting > 0 && ($sendtoemail != $email) && $email) {     
                 mail($to, $subject, $returnmessage, $headers);
             } 
     
