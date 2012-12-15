@@ -3,6 +3,7 @@
 //connect to the database
 require "db_connection.php";
 require "functions.php"; 
+
     // if login form has been submitted
     if (htmlentities($_GET['action']) == "login") { 
         login();
@@ -34,6 +35,7 @@ $email = $_SESSION['email'];
     $faves = mysql_result($imagequeryrun,0,'faves');
     $views = mysql_result($imagequeryrun,0,'views');
     $caption = mysql_result($imagequeryrun,0,'caption');
+    $uploaded = mysql_result($imagequeryrun,0,'time');
     $votes = mysql_result($imagequeryrun,0,'votes');
     $ranking = ($points/$votes);
     $ranking = number_format($ranking,2);
@@ -67,10 +69,10 @@ $email = $_SESSION['email'];
     
     $ownerquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$owner'");
     $profilepic = mysql_result($ownerquery,0,'profilepic');
-    $profilepic = 'http://photorankr.com/' . $profilepic;
     $firstname = mysql_result($ownerquery,0,'firstname');
     $lastname = mysql_result($ownerquery,0,'lastname');
     $userid = mysql_result($ownerquery,0,'user_id');
+    $reputation = mysql_result($ownerquery,0,'reputation');
     $fullname = $firstname . " " . $lastname;
     $imagebig = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/", $image);
     $imageoriginal = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/bigphotos/", $image);
@@ -310,32 +312,95 @@ height="100px" width="100px" />
 
 <?php navbar(); ?>
 
-<div class="container_24" style="padding-top:55px;padding-bottom:30px;"><!--Grid container begin-->
+<!-------------------------Grid container begin----------------------->
+<div class="container_24" style="width:1100px;position:relative;left:30px;padding-top:55px;padding-bottom:30px;">
 
 <?php
 $campaigntitlequery = mysql_query("SELECT title from campaigns WHERE id = '$campaign'");
 $camptitle = mysql_result($campaigntitlequery,0,'title');
 ?>
- 
-<!--TITLE OF PHOTO-->     
+
+<!-------------------------Title----------------------->
+<div class="mainTitle">
+<p><?php echo $title; ?> <span id="downText"><img src="graphics/fileDownload.png" height="25" /> Licensed Download</span></p>
+</div>
+
 <div class="grid_24">
-<div class="grid_21 pull_2"><div style="margin-top:10px;padding-top:5px;padding-left:3px;line-height:30px;font-size:25px;"><?php echo'"',$title,'"'; ?>
-</div></div></div>
+<div class="grid_12">
 
-<!--BIG IMAGE BOX-->
-<div class="grid_24">
+<!-------------------------Image----------------------->
+<div class="mainImage">
+<img onmousedown="return false" oncontextmenu="return false;" alt="<?php echo $tags; ?>" src="<?php echo $imagebig2; ?>" alt="<?php echo $title; ?>" />
+</div>
 
-<div class="grid_10 pull_2" style="margin-top:150px;">
-<div style="z-index:1;height:<?php echo $newheight; ?>px;width:<?php echo $newwidth; ?>px;margin-top:-135px;">
-<img onmousedown="return false" oncontextmenu="return false;" alt="<?php echo $tags; ?>" src="<?php echo $imagebig2; ?>" alt="<?php echo $title; ?>" height="<?php echo $newheight; ?>px" width="<?php echo $newwidth; ?>px" /></div>
 
-<?php
-    if($faves > 5 || $points > 120 || $views > 100) {
-        echo'<img style="margin-top:-40px;margin-left:',$newwidth-55,'px;" src="graphics/toplens2.png" height="85" />';
-    }
-?>
-                
-</div> 
+<!-------------------------About Image----------------------->
+		<div id="marketAbout" style="width:580px;">
+			<header> <img src="https://photorankr.com/<?php echo $profilepic; ?>" /> <h5><a href="viewprofile.php?u=<?php echo $userid; ?>"><?php echo $fullname; ?></a></h5><p>Reputation: <?php echo $reputation; ?></p> </header>
+			<ul>
+                <?php 
+                if($views) {
+				echo'<li><img src="graphics/views.png"/>  Views: <span style="margin-left:38px;">',$views,'</span></li>';
+                }
+                if($camera) {
+				echo'<li><img src="graphics/camera.png"/> Camera: <span style="margin-left:28px;">',$camera,'</span></li>';
+                }
+                if($aperture) {
+				echo'<li><img src="graphics/aperature.png"/> Aperture: <span style="margin-left:24px;">',$aperture,'</span></li>';
+                }
+                if($focallength) {
+				echo'<li> <img src="graphics/focalLength.png"/> Focal Length:  <span style="margin-left:3px;">',$focallength,'</span> </li>';
+                }
+                if($lens) {
+				echo'<li> <img src="graphics/lens.png"/> Lens: <span style="margin-left:42px;">',$lens,'</span> </li>';
+                }
+                if($shutterspeed) {
+				echo'<li> <img src="graphics/shutterSpeed.png"/> Shutter: <span style="margin-left:30px;">',$shutterspeed,'</span> </li>';
+                }
+                if($uploaded) {
+                    echo'<li> <img src="graphics/captureDate.png" style="width:16px;margin-left:-3px;"/> Capture Date <span> ',$uploaded,' </span></li>';
+                }
+				if($location) { 
+                    echo'<li> <img src="graphics/location.png" style="width:10px;margin: 0 8px 0 0;"/> Location: <span> ', $location ,' </span></li>';
+                }
+
+                ?>
+            <?php
+                if($tag1 || $tag2 || $tag3 || $tag4) {
+                        echo'<li> <img src="graphics/tag.png" style="width:18px;margin: 0 8px 0 0;"/> Tags:<span style="width:450px;margin-top:-20px;">
+                                <ul class="tags" style="position:relative;float:left;">';
+                            if($tag1) {
+                                echo'<li><a href="newsfeed.php?view=search&tag=',$tag1,'">',$tag1,'</a></li>';
+                            }
+                            if($tag2) {
+                                echo'<li><a href="newsfeed.php?view=search&tag=',$tag2,'"">',$tag2,'</a></li>';
+                            }
+                            if($tag3) {
+                                echo'<li><a href="newsfeed.php?view=search&tag=',$tag3,'"">',$tag3,'</a></li>';
+                            }
+                            if($tag4) {
+                                echo'<li><a href="newsfeed.php?view=search&tag=',$tag4,'"">',$tag4,'</a></li>';
+                            }
+                            echo'
+                        </ul>
+                      </span>
+                      </li>';
+                }
+            ?>
+
+            </ul>
+		</div>
+
+</div>
+
+
+<div class="grid_7 push_4">        
+<!-------------------------License Options----------------------->
+<div id="marketLicense">
+    <header>
+        Pick Your Resolution & License
+        <p>Every download comes watermark-free and at the chosen resolution. You are downloading an image to be used within the regulations of your chosen license type.</p>
+    </header>
 
 <?php
 $smallwidth = number_format(($originalwidth/2.5),0,',','');
@@ -494,14 +559,14 @@ $medprice = number_format(($price / 1.5),2);
         </script>
         
         
-<div class="grid_4 push_4" style="margin-top:20px;">
-<div class="span6">
+<div class="grid_4" style="margin-top:20px;">
+<div class="span6 licenseTable">
 <table class="table">
 <thead>
 <tr>
-<th>Size</th>
-<th>Resolution</th>
-<th>Price</th>
+<th style="color:black;">Size</th>
+<th style="color:black;">Resolution</th>
+<th style="color:black;">Price</th>
 </tr>
 </thead>
 <tbody>
@@ -560,8 +625,8 @@ echo'Free';
 </tr>
 
 <tr>
-<td>License</td>
-<td colspan="2"><input style="margin-left:130px;"  type="radio" name="license" value="standard"  onclick="showSelectHide();" /><a style="color:black;text-decoration:none;" href="#"  rel="popover" data-content="
+<td style="color:black;font-weight:700;">License</td>
+<td colspan="2" style="color:black;"><input style="margin-left:130px;"  type="radio" name="license" value="standard"  onclick="showSelectHide();" /><a style="color:black;text-decoration:none;" href="#"  rel="popover" data-content="
 
 <span style='font-size:13px;'>A perpetual, non-exclusive, non-transferable, worldwide license to use the Content for the following permitted uses:
 </br><ul>
@@ -585,7 +650,7 @@ The Standard Content License Agreement governs this option.
 </br></br>
 </span>
 
-" data-original-title="What is the Standard License?">&nbsp;&nbsp;&nbsp;Standard</a>
+" data-original-title="What is the Standard License?">&nbsp;&nbsp;&nbsp;Editorial</a>
 
 <script>  
     $(function ()  
@@ -593,7 +658,7 @@ The Standard Content License Agreement governs this option.
     });  
 </script>
 
-<input style="margin-left:15px;" type="radio" name="license" value="extended"  onclick="showSelect();"/>&nbsp;&nbsp;&nbsp;Extended Options</td>
+<input style="margin-left:15px;" type="radio" name="license" value="extended"  onclick="showSelect();"/>&nbsp;&nbsp;&nbsp;Commercial</td>
 
 </tr>
 </tbody>
@@ -740,7 +805,7 @@ The Extended Content License Provisions govern this option.
         echo'<a class="btn btn-primary" style="margin-left:200px;width:80px;float:left;" href="#"">Photo Saved</a>';
         }
         else {
-        echo'<a class="btn btn-success" style="margin-left:200px;width:80px;float:left;" data-toggle="modal" data-backdrop="static" href="#maybemodal">Maybe Later</a>';
+        echo'<a class="btn btn-success buyButton" style="margin-left:200px;width:90px;float:left;" data-toggle="modal" data-backdrop="static" href="#maybemodal">Maybe Later</a>';
         }
 
 		$cartquery=mysql_query("SELECT * FROM userscart WHERE emailaddress = '$email'");
@@ -763,79 +828,32 @@ The Extended Content License Provisions govern this option.
         echo'<a class="btn btn-danger" style="margin-left:10px;width:120px;float:left;" href="fullsizemarket.php?imageid=',$imageid,'&action=removed">Remove from Cart</a>';
         }
         else {
-            echo'<button type="submit" class="btn btn-success" style="margin-left:10px;width:100px;float:left;" href="download2.php?imageid=',$imageid,'&action=added">Add to Cart</button>
+            echo'<button type="submit" class="btn btn-success buyButton" style="margin-left:10px;width:100px;float:left;" href="download2.php?imageid=',$imageid,'&action=added">Add to Cart</button>
             </form>';		
 }
 
 ?>
-</div>
-
-
-<div class="span6" style="margin-left:0px;margin-top:10px;">
-
-<b>Photo Market Details</b><br /><hr />
-<div><span style="float:left;">Photographer:</span><a style="font-weight:bold;color:#3e608c;" href="viewprofile.php?u=<?php echo $userid; ?>"><img style="float:left;margin-top:-10px;margin-left:5px;border: 1px solid rgb(115,115,115);" src="<?php echo $profilepic; ?>" alt="<?php echo $fullname; ?>" height="30" width="30" /><span style="padding-left:5px;"><?php echo $fullname; ?></span></a></div>
-<br />
-
-<?php 
-
-    if($location) {echo'
-        Location: ',$location,'<br />'; }
-
-    if($about) {echo'
-        About Photo: ',$about,'<br />'; }
-
-    if($exhibit) {
-        $exname = mysql_query("SELECT * FROM sets WHERE id = '$exhibit'");
-        $exhibitname = mysql_result($exname,0,'title');
-        echo'
-        Exhibit: <a href="viewprofile.php?u=',$userid,'&view=exhibits&set=',$exhibit,'">',$exhibitname,'</a><br />'; }
-
-if($keywords) {echo'
-        Keywords: ',$keywords,'<br />'; }
- 
-?>
 
 </div>
-
-
-<div class="span6" style="margin-left:0px;margin-top:25px;">
-
-    <b>Photo Network Details</b><br /><hr />
-
-    <div style="margin-top:-10px;">Photo Rank: <?php echo $ranking; ?>
-    <br />
-
-    Views: <?php echo $views; ?>
-    <br />
-
-    Favorites: <?php echo $faves; ?>
-    <br />
-    
-    <a href="fullsize.php?image=<?php echo $image; ?>">View Photo in Network</a>
-
 </div>
+</div><!--end grid_8-->
 
-
-<br />
-</div>
-</div>
-
-<!--SIMILAR PHOTOS CODE-->
+<!-------------------------Similar Photos Code----------------------->
+<div class="grid_7">
 <?php
 $similarquery = mysql_query("SELECT * FROM photos WHERE (caption LIKE '$caption' OR location LIKE '$location' OR caption LIKE '$tag1' OR caption LIKE '$tag2' OR caption LIKE '$tag3') ORDER BY RAND() LIMIT 0,5");
 $numsimilar = mysql_num_rows($similarquery);
 if($numsimilar > 4) {
 echo'
-    <div class="span6">
-    <b>Similar Photos:</b><br /><hr />';
+    <div class="span6 similarMarket">
+    <p class="similarText">Recommended For You</p>';
 
     for($iii=0; $iii < $numsimilar && $iii < 5; $iii++) {
         $simphoto = mysql_result($similarquery,$iii,'source');
         $simphoto2 = str_replace("userphotos/", "http://photorankr.com/userphotos/medthumbs/", $simphoto); 
         $simimageid = mysql_result($similarquery,$iii,'id');
 
-        echo'<a href="fullsizemarket.php?imageid=',$simimageid,'"><img class="rollover" style="float:left;margin-right:3px;" src="',$simphoto2,'" height="85" width="85" /></a>';
+        echo'<a href="fullsizemarket.php?imageid=',$simimageid,'"><img class="rollover" style="float:left;margin-right:3px;" src="',$simphoto2,'" height="84" width="84" /></a>';
         
     }
 }
@@ -843,22 +861,11 @@ echo'
 ?>
 </div>
 
-
-
-
-</div><!--end 24 grid-->
-
-</div><!--end container-->
+<!-------------------------End Grid 24----------------------->
 </div>
-<br /><br />
-<?php footer(); ?>
+<!-------------------------Container Ends----------------------->
+</div>
 
-<!--Javascripts-->
-<script src="market/js/bootstrap.js" type="text/javascript"></script>
 
 </body>
 </html>
-      
-       
-        
-    

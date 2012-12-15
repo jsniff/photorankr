@@ -644,7 +644,12 @@ var last = 0;
 
 ?>
 
+
+
 </div>
+
+<!---------------FOOTER----------->
+<?php footer(); ?>
 
     <script src="js/bootstrap-dropdown.js"></script>
     <script type="text/javascript">  
