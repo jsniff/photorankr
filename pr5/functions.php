@@ -136,6 +136,9 @@ jQuery(document).ready(function(){
          jQuery("#cartNot").hide();
          jQuery("#nots").hide();
     });
+    jQuery("#signUp").live("click", function(event) {        
+         jQuery("#hiddenSignUp").toggle();
+    });
 
 });
 
@@ -411,9 +414,9 @@ jQuery(document).ready(function(){
         }
         
         echo'
-        <li'; if(strpos($uri,'galleries.php') || strpos($uri,'newest.php') || strpos($uri,'trending.php') || strpos($uri,'topranked.php') || strpos($uri,'discover.php') || strpos($uri,'fullsize.php') || strpos($uri,'fullsizeview.php')) {echo' id="inset"';} echo'><a href="galleries.php"><img src="graphics/galleries_b.png"/><p> Gallery </p><div class="arrow-right"></div></li></a>
-        
-		<li'; if(strpos($uri,'newsfeed.php')) {echo' id="inset"';} echo'><a href="newsfeed.php"><img src="graphics/news_b.png"/><p> News </p></a></li>
+        <li'; if(strpos($uri,'newsfeed.php')) {echo' id="inset"';} echo'><a href="newsfeed.php"><img src="graphics/news_b.png"/><p> News </p></a></li>
+
+        <li'; if(strpos($uri,'galleries.php') || strpos($uri,'newest.php') || strpos($uri,'trending.php') || strpos($uri,'topranked.php') || strpos($uri,'discover.php') || strpos($uri,'fullsize.php') || strpos($uri,'fullsizeview.php')) {echo' id="inset"';} echo'><a href="galleries.php"><img src="graphics/galleries_b.png"/><p> Galleries </p><div class="arrow-right"></div></li></a>
         
 		<li'; if(strpos($uri,'groups.php')) {echo' id="inset"';} echo'><a href="groups.php"><img src="graphics/groups_b.png"/><p> Groups </p></a></li>
         
@@ -451,16 +454,17 @@ jQuery(document).ready(function(){
 		<li'; if(strpos($uri,'mygroups')) {echo' id="topselected"';} echo'><a style="text-decoration:none;color:#fff;" href="groups.php?view=mygroups">My Groups</a></li>';
         }
         
-        elseif(strpos($uri,'viewprofile.php')) {
+        elseif(strpos($uri,'profile.php')) {
 		echo'
         <li'; if($uri == '/groups.php') {echo' id="topselected"';} echo'><a style="text-decoration:none;color:#fff;" href="groups.php">My Portfolio</a></li>
 		<li'; if(strpos($uri,'mygroups')) {echo' id="topselected"';} echo'><a style="text-decoration:none;color:#fff;" href="groups.php?view=mygroups">My Network</a></li>
         <li'; if(strpos($uri,'mygroups')) {echo' id="topselected"';} echo'><a style="text-decoration:none;color:#fff;" href="groups.php?view=mygroups">My Blog</a></li>
         <li'; if(strpos($uri,'mygroups')) {echo' id="topselected"';} echo'><a style="text-decoration:none;color:#fff;" href="groups.php?view=mygroups">Store</a></li>
-        <li'; if(strpos($uri,'mygroups')) {echo' id="topselected"';} echo'><a style="text-decoration:none;color:#fff;" href="groups.php?view=mygroups">Settings</a></li>';
+        <li'; if(strpos($uri,'mygroups')) {echo' id="topselected"';} echo'><a style="text-decoration:none;color:#fff;" href="groups.php?view=mygroups">Settings</a></li>
+        <li>Status</li>';
         }
         
-        elseif(strpos($uri,'newsfeed.php')) {
+        elseif(strpos($uri,'newsfeed_matthew.php')) {
 		echo'
         <li'; if($uri == '/newsfeed.php') {echo' id="topselected"';} echo'><a style="text-decoration:none;color:#fff;" href="newsfeed.php">All News</a></li>
 		<li'; if(strpos($uri,'uploads')) {echo' id="topselected"';} echo'><a style="text-decoration:none;color:#fff;" href="newsfeed.php?view=uploads">Uploads</a></li>
@@ -471,14 +475,29 @@ jQuery(document).ready(function(){
 
         
             echo'
+            
+            <li style="float:right;height:19px;">
+            <!-- creation menu -->
+				<div id="add">
+					<a id="addbutton" href="/organizer#upload"><div id="plus"></div>UPLOAD</a>
+                </div>
+			</li>	
+            
+            <li style="width:120px;height:19px;">
             <form >
                 <input type="text" onkeyup="showResult(this.value)" />
                 <img src="graphics/glass.png" width="20px"/>
                 <div id="livesearch"></div>
             </form>	
-        </li>
-				
+            </li>
+
 	</ul>
+    
+    <!--<div style="padding-bottom:30px;">
+        <div id="hiddenSignUp"><div style="font-size:60px;text-align:center;position:relative;top:100px;">JOIN PHOTORANKR!!!</div></div>
+        <div id="signUp" class="signUp"><div class="btn btn-success" style="text-align:center;font-weight:500;margin-left:43%;font-size:14px;position:relative;top:5px;">Sign Up Free Today</div></div>
+    </div>-->
+    
 </div>';
     
 } //end of navbar
@@ -584,34 +603,67 @@ echo'
 function footer() {
 
 echo'
-<link rel="stylesheet" href="css/all.css" type="text/css"/> 
-<div class="fixed-bottom" style="width:100%;background:#ccc;box-shadow: inset 1px 1px 1px #999;">
-	<div class="container_24">
-	<div class="grid_24" style="margin-top:.1em;">	
-	<div class="grid_18 push_2">
-		<ul class="footer">
-			<li> <a href="about.php"><div class="footer_grid"> About </div> </a> </li>
-			<li> <a href="contact.php"><div class="footer_grid">Contact Us </div></a> </li>
-			<li> <a href="help.php"><div class="footer_grid">Help/FAQ </div></a> </li>
-			<li> <a href="terms.php"><div class="footer_grid">Terms </div></a> </li>
-			<li> <a href="privacy.php"><div class="footer_grid">Privacy Policy </div></a> </li>
-			<li> <a href="blog/post"><div class="footer_grid">Blog  </div></a></li>
-			<li> <a href="press.php"><div class="footer_grid">Press </div></a></li>
-		</ul>
-	</div>	
-		<div class="grid_4 pull_1" style="margin: 1em 3em 0 0 ">
-			<div class="grid_1" style="float:right;"><a class="twitter" href="https://twitter.com/photorankr"><img src="graphics/twitter.png"/> </a>
-			</div>
-			<div class="grid_1" style="float:right;"><a class="twitter" href="http://www.facebook.com/pages/PhotoRankr/140599622721692"><img src="graphics/facebook.png"/> </a>
-			</div>
-			<div class="grid_1" style="float:right;"><a class="twitter" href="https://plus.google.com/102253183291914861528/posts"><img src="graphics/g+.png"/> </a>
-			</div>
-	</div>
-<div class="grid_24">
-	<p class="copyright" style="margin-top:1em;">PhotoRankr is a trademark of PhotoRankr, Inc. The PhotoRankr Logo is a trademark of PhotoRankr, Inc. </p>
-<p class="copyright" style="margin-bottom:1em;">Copyright &copy 2012 PhotoRankr, Inc.</p>
-</div>
-</div>';
+ <!-- footer -->
+      <div id="footer">
+  <div class="footercontainer clearfix">
+
+      <dl class="footer_nav">
+        <dt>PhotoRankr</dt>
+        <dd><a href="https://github.com/about">About us</a></dd>
+        <dd><a href="https://github.com/blog">Blog</a></dd>
+        <dd><a href="https://github.com/contact">Contact &amp; support</a></dd>
+        <dd><a href="http://enterprise.github.com/">GitHub Enterprise</a></dd>
+        <dd><a href="http://status.github.com/">Site status</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>Applications</dt>
+        <dd><a href="http://mac.github.com/">GitHub for Mac</a></dd>
+        <dd><a href="http://windows.github.com/">GitHub for Windows</a></dd>
+        <dd><a href="http://eclipse.github.com/">GitHub for Eclipse</a></dd>
+        <dd><a href="http://mobile.github.com/">GitHub mobile apps</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>Services</dt>
+        <dd><a href="http://get.gaug.es/">Gauges: Web analytics</a></dd>
+        <dd><a href="http://speakerdeck.com">Speaker Deck: Presentations</a></dd>
+        <dd><a href="https://gist.github.com">Gist: Code snippets</a></dd>
+        <dd><a href="http://jobs.github.com/">Job board</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>Documentation</dt>
+        <dd><a href="http://help.github.com/">GitHub Help</a></dd>
+        <dd><a href="http://developer.github.com/">Developer API</a></dd>
+        <dd><a href="http://github.github.com/github-flavored-markdown/">GitHub Flavored Markdown</a></dd>
+        <dd><a href="http://pages.github.com/">GitHub Pages</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>More</dt>
+        <dd><a href="http://training.github.com/">Training</a></dd>
+        <dd><a href="https://github.com/edu">Students &amp; teachers</a></dd>
+        <dd><a href="http://shop.github.com">The Shop</a></dd>
+        <dd><a href="http://octodex.github.com/">The Octodex</a></dd>
+      </dl>
+
+      <hr class="footer-divider">
+
+
+    <p class="right">&copy; 2012 <span title="0.25032s from fe19.rs.github.com">PhotoRankr</span> Inc. All rights reserved.</p>
+    <a class="left" href="https://photorankr.com/">
+      <span id="footer_image"><img src="graphics/aperture_dark.png" style="width:30px;" /></span>
+    </a>
+    <ul id="legal">
+        <li><a href="https://github.com/site/terms">Terms of Service</a></li>
+        <li><a href="https://github.com/site/privacy">Privacy</a></li>
+        <li><a href="https://github.com/security">Security</a></li>
+    </ul>
+
+  </div><!-- /.container -->
+
+</div><!-- /.#footer -->';
 
 }
 

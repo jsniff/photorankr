@@ -18,11 +18,8 @@ session_start();
     $email = $_SESSION['email'];
     
     //Get views
-    if(isset($_GET['users'])){
-        $users = htmlentities($_GET['users']);
-    }
-    if(isset($_GET['photos'])){
-        $photos = htmlentities($_GET['photos']);
+    if(isset($_GET['image'])){
+        $image = htmlentities($_GET['image']);
     }
     
     //QUERY FOR NOTIFICATIONS
@@ -35,8 +32,7 @@ session_start();
     $notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email6'";
     $notsqueryrun = mysql_query($notsquery); }
 
-    //DISCOVER SCRIPT
-    
+  //DISCOVER SCRIPT
   //get the users information from the database
   $likesquery = "SELECT * FROM userinfo WHERE emailaddress='$email'";
   $likesresult = mysql_query($likesquery) or die(mysql_error());
@@ -89,6 +85,84 @@ session_start();
   }
 
   $discoverimage = mysql_result($viewresult, 0, "id");
+  
+//DISCOVER PHOTO INFORMATION
+$query="SELECT * FROM photos where source='$image'";
+$result=mysql_query($query);
+//if no images match what is in the url, then send them back to trending 
+if(mysql_num_rows($result) == 0) {
+	header("Location: profile.php?view=about&option=editinfo&error=disc#disc");
+	exit();
+}
+
+$row=mysql_fetch_array($result);
+$emailaddress=$row['emailaddress'];
+$caption=$row['caption'];
+$location=$row['location'];
+$country=$row['country'];
+$prevpoints=$row['points'];
+$prevvotes=$row['votes'];
+$imageID=$row['id'];
+$price=mysql_result($result, 0, "price");
+$camera = $row['camera'];
+$faves= $row['faves'];
+$views = $row['views'];
+$exhibit = $row['set_id'];
+$exhibitname = $row['sets'];
+$focallength = $row['focallength'];
+$shutterspeed = $row['shutterspeed'];
+$aperture = $row['aperture'];
+$lens = $row['lens'];
+$filter = $row['filter'];
+$copyright = $row['copyright'];
+$about = $row['about'];
+$tag1 = $row['tag1'];
+$tag2 = $row['tag2'];
+$tag3 = $row['tag3'];
+$tag4 = $row['tag4'];
+$maintags = $row['maintags'];
+$settags = $row['settags'];
+$singlecategorytags = $row['singlecategorytags'];
+$singlestyletags = $row['singlestyletags'];
+$tags = $settags + $maintags + $singlecategorytags + $singlestyletags;
+
+//find how many photos the photographer has
+$numberofpics = mysql_query("SELECT * FROM photos WHERE emailaddress='$emailaddress'");
+$numberofpics = mysql_num_rows($numberofpics);
+
+$locationandcountry = $location . $country;
+
+if ($price == "") {$price='.25';}  
+
+//FIND THE PHOTOGRAPHER NAME IN DATABASE
+$namequery="SELECT * FROM userinfo WHERE emailaddress='$emailaddress'";
+$nameresult=mysql_query($namequery);
+$row=mysql_fetch_array($nameresult);
+$user=$row['user_id'];
+$firstname=$row['firstname'];
+$lastname=$row['lastname'];
+$fullname = $firstname . " " . $lastname;
+$fullname = (strlen($fullname ) > 14) ? substr($fullname,0,12). " &#8230;" : $fullname;
+$profilepic=$row['profilepic'];
+$profilescore=$row['totalscore'];
+$reputation=$row['reputation'];
+
+//calculate the size of the picture
+$maxwidth=800;
+$maxheight=800;
+
+list($width, $height)=getimagesize($image);
+$imgratio=$width/$height;
+
+if($imgratio > 1) {
+	$newwidth=$maxwidth;
+	$newheight=$maxwidth/$imgratio;
+}
+else {
+	$newheight=$maxheight;
+	$newwidth=$maxheight*$imgratio;
+}
+
   
 ?>
 
@@ -169,27 +243,33 @@ width: 240px;
 
 
 </head>
-<body style="overflow-x:hidden; background-color: #222;">
+<body style="overflow-x:hidden; background-image: url('graphics/linen.png');">
 
 <?php navbar(); ?>
 
    <!--big container-->
-    <div id="container" class="container_24" style="width:1200px;">
+    <div id="container" class="container_24" style="width:1200px;overflow:hidden;">
     
-    <div style="font-size:44px;font-weight:300;margin-left:60px;margin-top:60px;color:#fff;">Discover Amazing Photography</div>
+       <div class="galleryToolbar" style="margin-top:70px;margin-left:70px;">
+            <ul>
+                <a style="color:#333;" href="newest.php"><li style="width:550px;-webkit-border-radius: 4px;-moz-border-radius: 2px;border-radius: 2px;padding-left:8px;margin-left:0px;text-align:left;font-size:30px;"><img style="float:left;width:22px;height:22px;" src="graphics/picture.png" />&nbsp;&nbsp;Discover Amazing Photography</li></a>
+                <li style="float:right;width:170px;height:20px;margin-right:-10px;"><a style="font-size:14px;font-weight:500;color:#fff;margin-left:10px;" class="btn btn-primary" href="discover.php?image=<?php echo $nextimage; ?>">Click to Discover</a></li>
+                <a style="color:#333;" href="profile.php?view=about&option=editinfo&error=disc#disc"><li style="font-size:14px;float:right;width:170px;padding-top:14px;padding-bottom:12px;padding-right:5px;height:20px;margin-top:-1px;margin-right:-4px;"><img style="width:16px;height:16px;" src="graphics/tick 2.png" /> Choose Preferences</li></a>
+            </ul>
+        </div>
     
 <?php
     
-    $result = mysql_query("SELECT * FROM photos WHERE faves > 6 ORDER BY RAND() LIMIT 0,16 ");
+    $result = mysql_query("SELECT * FROM photos WHERE faves > 6 ORDER BY RAND() LIMIT 0,19 ");
     
-    if($users == '' && $keyword == '') {
+    if($image == '') {
 
 echo'
-    <div id="thepics" style="position:relative;top:45px;left:40px;width:750px;float:left;">
+    <div id="thepics" style="position:relative;left:40px;top:10px;width:1210px;">
     <div id="main">
     <ul id="tiles">';
         
-for($iii=1; $iii <= 16; $iii++) {
+for($iii=1; $iii <= 19; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
     $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
     $image = "../" . $image;
@@ -219,18 +299,21 @@ for($iii=1; $iii <= 16; $iii++) {
 	$imgratio = $height / $width;
     $heightls = $height / 3.3;
     $widthls = $width / 3.3;
-    if($widthls < 235) {
+    if($widthls < 185) {
     $heightls = $heightls * ($heightls/$widthls);
-    $widthls = 245;
+    $widthls = 240;
     }
 
 		echo '
-        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="list-style-type: none;width:240px;"><img style="min-width:240px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
+        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="list-style-type: none;width:280px;"><img style="min-width:280px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
         
-            <div class="statoverlay" style="top:0px;height:50px;position:relative;">
-            <p style="font-weight:100;font-size:20px;padding-top:15px;padding-left:5px;">',$caption,'</p>
-            <p style="font-weight:100;font-size:16px;margin-top:20px;padding-left:5px;">',$score,'<span style="font-size:14px;">/10.0</span></p>
-            </div>';       	
+            <div class="statoverlay" style="z-index:1;background-color:white;position:relative;top:0px;width:280px;height:30px;">
+                <div style="line-spacing:1.48;padding:5px;color:#4A4A4A;">
+                    <div style="float:left;padding-top:10px;">
+                        <span style="font-size:15px;font-weight:500;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:300;font-size:15px;">',$caption,'</span>
+                    </div>
+                </div>
+            </div>';       	    	    	
             
       } //end for loop
         
@@ -246,8 +329,8 @@ for($iii=1; $iii <= 16; $iii++) {
       var options = {
         autoResize: true, // This will auto-update the layout when the browser window is resized.
         container: $('#main'), // Optional, used for some extra CSS styling
-        offset: 4, // Optional, the distance between grid items
-        itemWidth: 240 // Optional, the width of a grid item
+        offset: 10, // Optional, the distance between grid items
+        itemWidth: 280 // Optional, the width of a grid item
       };
       
       // Get a reference to your grid items.
@@ -264,58 +347,20 @@ for($iii=1; $iii <= 16; $iii++) {
 
 echo'
 </div>
-</div>
-
-<!--AJAX CODE HERE-->
-   <div class="grid_6 push_9" style="padding-top:50px;">
-   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;">Loading More Photos&hellip;</div>
-   </div>';
-
-
-echo '<script>
-
-var last = 0;
-
-	$(window).scroll(function(){
-		if($(window).scrollTop() > $(document).height() - $(window).height()-100) {
-			if(last != $(".fPic:last").attr("id")) {
-				$("div#loadMorePics").show();
-				$.ajax({
-					url: "loadMoreNewPicsTest.php?lastPicture=" + $(".fPic:last").attr("id")+"&c=',$cat,'",
-					success: function(html) {
-						if(html) {
-							$("#thepics").append(html);
-							$("div#loadMorePics").hide();
-						}
-					}
-				});
-				last = $(".fPic:last").attr("id");
-			}
-		}
-	});
-</script>
-
-<!--Search/Discover Button-->
-<div style="float:left;position:fixed;margin-left:850px;margin-top:120px;">
-        <form method="GET">
-            <input id="searchBox" name="searchword" placeholder="Begin your search&hellip;" type="text" />
-        </form>
-            <br /><div style="color:#fff;font-size:25px;text-align:center;padding-bottom:5px;font-weight:300;">or</div><br />
-    <a class="btn btn-primary" style="padding:15px;width:275px;font-size:23px;font-weight:300;" href="#">Click to Discover</a>
 </div>';
 
 } //end of view == ''
 
-elseif($photos != ''){
+elseif($image != ''){
 
-    $result = mysql_query("SELECT * FROM photos WHERE concat(caption,location,camera,tag1,tag2,tag3,tag4) LIKE '%$photos%' ORDER BY views DESC LIMIT 0,16 ");
+    $result = mysql_query("SELECT * FROM photos WHERE concat(caption,location,camera,tag1,tag2,tag3,tag4) LIKE '%$photos%' ORDER BY views DESC LIMIT 0,19 ");
         
     echo'
     <div id="thepics" style="position:relative;left:-50px;top:20px;width:1150px;">
     <div id="main" role="main">
     <ul id="tiles">';
     
-for($iii=1; $iii <= 16; $iii++) {
+for($iii=1; $iii <= 19; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
     $image = '../' . $image;
     $imageThumb=str_replace("../userphotos/","../userphotos/medthumbs/", $image);
@@ -423,63 +468,7 @@ var last = 0;
 
 } //end of photos view
 
-elseif($users != '') {
-        
-        $searchterm = $users;
-        $searchterm = explode(" ",$searchterm);
-        $query =  mysql_query("SELECT * FROM userinfo WHERE firstname LIKE '%".$searchterm[0]."%' AND lastname  LIKE '%".$searchterm[1]."%' OR lastname LIKE '%".$searchterm[0]."%'");
-        $numresults = mysql_num_rows($query);
-        echo'<div style="font-size:18px;margin-top:10px;padding:15px;font-weight:lighter;">Photographers | ',$numresults,' Results</div>'; 
 
-        echo'<div class="grid_20">';
-
-        for($iii=0; $iii<$numresults; $iii++) {
-            $photographer = mysql_result($query,$iii,'firstname')." ".mysql_result($query,$iii,'lastname');
-            $profilepic = mysql_result($query,$iii,'profilepic'); 
-            $userid = mysql_result($query,$iii,'user_id'); 
-            $reputation = mysql_result($query,$iii,'reputation'); 
-            $useremail = mysql_result($query,$iii,'emailaddress'); 
-            $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$useremail%'";
-            $followersresult=mysql_query($followersquery);
-            $numberfollowers = mysql_num_rows($followersresult);
-            $userphotos="SELECT * FROM photos WHERE emailaddress = '$useremail' ORDER BY (points/votes) DESC";
-            $userphotosquery=mysql_query($userphotos);
-            $profileimage = mysql_result($userphotosquery,0,'source'); 
-            $profileimage = str_replace('userphotos/','userphotos/thumbs/',$profileimage);
-            $profileimage2 = mysql_result($userphotosquery,1,'source');
-            $profileimage2 = str_replace('userphotos/','userphotos/thumbs/',$profileimage2);
-            $profileimage3 = mysql_result($userphotosquery,2,'source');
-            $profileimage3 = str_replace('userphotos/','userphotos/thumbs/',$profileimage3);
-            $profileimage4 = mysql_result($userphotosquery,3,'source');
-            $profileimage4 = str_replace('userphotos/','userphotos/thumbs/',$profileimage4);
-            $numphotos=mysql_num_rows($userphotosquery);
-                for($ii = 0; $ii < $numphotos; $ii++) {
-                    $points = mysql_result($userphotosquery, $ii, "points");
-                    $votes = mysql_result($userphotosquery, $ii, "votes");
-                    $totalfaves = mysql_result($userphotosquery, $ii, "faves");
-                    $portfoliopoints+=$points;
-                    $portfoliovotes+=$votes;
-                    $portfoliofaves+=$totalfaves;
-                }
-                if($portfoliovotes > 0) {
-                    $portfolioranking=($portfoliopoints/$portfoliovotes);
-                    $portfolioranking=number_format($portfolioranking, 2, '.', '');
-                }
-                elseif($portfoliovotes = 0){$portfolioranking="N/A";}
-            
-            echo'<div style="clear:both;border-bottom:1px solid #ccc;"><div style="padding:15px;float:left;"><img src="../',$profilepic,'" height="100" width="100" alt="',$photographer,'" />';
-                            
-                if($reputation > 60) {
-                    echo'<img style="margin-top:-10px;margin-left:10px;" src="../graphics/toplens.png" height="75" />';
-                }
-            
-        echo'
-            </div><div style="float:left;margin-top:15px;"><a style="color:#3e608c;font-weight:bold;font-size:14px;" href="viewprofile.php?u=',$userid,'">',$photographer,'</a><br />Reputation: ',$reputation,'<br />Followers: ',$numberfollowers,'<br />Portfolio Ranking: ',$portfolioranking,'<br />Favorites: ',$portfoliofaves,'</div><div style="float:left;margin-top:15px;margin-left:30px;">';if($numphotos > 3){echo'<img style="padding:3px;" src="../',$profileimage,'" height="100" width="100" /><img style="padding:3px;" src="../',$profileimage2,'" height="100" width="100" /><img style="padding:3px;" src="../',$profileimage3,'" height="100" width="100" /><img style="padding:3px;" src="../',$profileimage4,'" height="100" width="100" />';}echo'</div><hr></div>';
-        }
-        
-        echo'</div>';
-
-} //end of users view
 
 ?>
 

@@ -16,6 +16,9 @@ session_start();
     }
 
     $email = $_SESSION['email'];
+    
+//Get view
+$view = htmlentities($_GET['view']);
 
 //QUERY FOR NOTIFICATIONS
 $currentnots = "SELECT * FROM userinfo WHERE emailaddress = '$email'";
@@ -164,26 +167,77 @@ box-shadow: 1px 1px 5px #888;
 
 
 </head>
-<body style="overflow-x:hidden; background-color: #fff;">
+<body style="overflow-x:hidden; background-image:url('graphics/linen.png');">
 
 <?php navbar(); ?>
 
    <!--big container-->
-    <div id="container" class="container_24">
+    <div id="container" class="container_24" style="width:1200px;overflow:hidden;">
     
-    <div style="font-size:30px;font-weight:300;margin-left:0px;margin-top:60px;">Top Ranked Photography</div>
+<div class="galleryToolbar" style="margin-top:70px;margin-left:70px;">
+            <ul>
+                <a style="color:#333;" href="topranked.php"><li style="width:272px;-webkit-border-radius: 4px;-moz-border-radius: 2px;border-radius: 2px;padding-left:8px;margin-left:0px;text-align:left;"><img style="float:left;width:20px;height:20px;" src="graphics/award.png" />&nbsp;&nbsp;Top Ranked</li></a>
+                <a style="color:#333;" href="topranked.php"><li style="width:134px;"><img src="graphics/camera2.png" /> Photos</li></a>
+                <a style="color:#333;" href="topranked.php?view=prs"><li style="width:134px;"><img src="graphics/user.png" /> Photographers</li></a>
+                <a style="color:#333;" href="topranked.php?view=exts"><li style="width:134px;"><img src="graphics/grid.png" /> Exhibits </li></a>
+            <?php
 
+                if(isset($_GET['t'])){
+                    $timesetting = $_GET['t'];
+                }
+    
+                echo'
+                <script>
+                    function submitTime(sel) {
+                        sel.form.submit();
+                    }
+                </script>';
+                
+                if($view == '') {
+                echo'            
+                    <!-- Select Basic -->
+                    <label class="control-label"></label>
+                    <div style="overflow:hidden;width:160px;float:right;margin-top:7px;margin-right:10px;">
+                    <form action="topranked.php" method="get">';
+                    
+                    if($timesetting == '') {
+                        echo'
+                        <select name="t"  onchange="submitTime(this)" style="width:150px;">
+                        <option value="" selected value="">All Time</option>
+                        <option value="m">This Month</option>
+                        <option value="w">This Week</option>
+                        </select>';
+                     }   
+                     elseif($timesetting == 'm') {
+                        echo'
+                        <select name="t"  onchange="submitTime(this)" style="width:150px;">
+                        <option value="">All Time</option>
+                        <option value="m" selected value="" >This Month</option>
+                        <option value="w">This Week</option>
+                        </select>';
+                     }  
+                     elseif($timesetting == 'w') {
+                        echo'
+                        <select name="t"  onchange="submitTime(this)" style="width:150px;">
+                        <option value="">All Time</option>
+                        <option value="m" >This Month</option>
+                        <option value="w" selected value="" >This Week</option>
+                        </select>';
+                     }  
+                    
+                    echo'    
+                    </form>
+                    </div>';
+
+                } 
+                ?>
+                </li>
+            </ul>
+        </div>
 
 <!--DIFFERENT GALLERY VIEWS-->
 
 <?php  
-
-if(isset($_GET['view'])){
-$view = htmlentities($_GET['view']);
-}
-if(isset($_GET['c'])){
-$cat = htmlentities($_GET['c']);
-}
         
 if($view == '') {
     
@@ -209,43 +263,55 @@ elseif ($timesetting == 'w') {
 $numberofpics=mysql_num_rows($result);
     
     echo'
-    <div id="thepics" style="position:relative;left:-82px;top:35px;width:1200px;">
+    <div id="thepics" style="position:relative;left:40px;top:10px;width:1210px;">
     <div id="main">
     <ul id="tiles">';
         
 for($iii=1; $iii <= 16; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
-    $imageThumb = str_replace("userphotos/","userphotos/medthumbs/", $image);
+    $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
     $image = "../" . $image;
+	$id = mysql_result($result, $iii-1, "id");
     $caption = mysql_result($result, $iii-1, "caption");
-    $id = mysql_result($result, $iii-1, "id");
-    $price = mysql_result($result, $iii-1, "price");
+     $caption = (strlen($caption) > 28) ? substr($caption,0,25). " &#8230;" : $caption;
     $points = mysql_result($result, $iii-1, "points");
-    $emailaddress = mysql_result($result, $iii-1, "emailaddress");
-    $namequery="SELECT * FROM userinfo WHERE emailaddress='$emailaddress'";
-    $nameresult=mysql_query($namequery);
-    $row=mysql_fetch_array($nameresult);
-    $firstname=$row['firstname'];
-    $lastname=$row['lastname'];
+    $price = mysql_result($result, $iii-1, "price");
+    if($price != 'Not For Sale') {
+        $price = '$' . $price;
+    }
+    elseif(!$price || $price == 'Not For Sale') {
+        $price = 'NFS';
+    }
+    elseif($price == '.00') {
+        $price = 'Free';
+    }
+    $votes = mysql_result($result, $iii-1, "votes");
+    $score = number_format(($points/$votes),2);
+    $owner = mysql_result($result, $iii-1, "emailaddress");
+    $ownerquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$owner'");
+    $firstname = mysql_result($ownerquery, 0, "firstname");
+    $lastname = mysql_result($ownerquery, 0, "lastname");
     $fullname = $firstname . " " . $lastname;
-    $fullname = ucwords($fullname);
-	
-    list($width, $height) = getimagesize($image);
+
+	list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
     $heightls = $height / 3.3;
     $widthls = $width / 3.3;
     if($widthls < 235) {
     $heightls = $heightls * ($heightls/$widthls);
-    $widthls = 285;
+    $widthls = 280;
     }
 
 		echo '
-        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="list-style-type: none;width:270px;"><img style="min-width:270px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
+        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="list-style-type: none;width:280px;"><img style="min-width:280px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
         
-            <div class="statoverlay" style="top:0px;height:50px;position:relative;">
-            <p style="font-weight:100;font-size:20px;padding-top:15px;padding-left:5px;">',$caption,'</p>
-            <p style="font-weight:100;font-size:16px;margin-top:20px;padding-left:5px;">',$score,'<span style="font-size:14px;">/10.0</span></p>
-            </div>';      	
+            <div class="statoverlay" style="z-index:1;background-color:white;position:relative;top:0px;width:280px;height:30px;">
+                <div style="line-spacing:1.48;padding:5px;color:#4A4A4A;">
+                    <div style="float:left;padding-top:10px;">
+                        <span style="font-size:15px;font-weight:500;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:300;font-size:15px;">',$caption,'</span>
+                    </div>
+                </div>
+            </div>'; 	
             
       } //end for loop
         
@@ -261,8 +327,8 @@ for($iii=1; $iii <= 16; $iii++) {
       var options = {
         autoResize: true, // This will auto-update the layout when the browser window is resized.
         container: $('#main'), // Optional, used for some extra CSS styling
-        offset: 4, // Optional, the distance between grid items
-        itemWidth: 270 // Optional, the width of a grid item
+        offset: 10, // Optional, the distance between grid items
+        itemWidth: 280 // Optional, the width of a grid item
       };
       
       // Get a reference to your grid items.
@@ -315,26 +381,35 @@ var last = 0;
 
 
 elseif($view == 'prs') {
-$prsquery="SELECT * FROM userinfo WHERE (profilepic != 'https://www.photorankr.com/profilepics/default_profile.jpg' AND profilepic != 'profilepics/default_profile.jpg') ORDER BY user_id DESC";
-$prsresult=mysql_query($prsquery);
+//get number of photographers with score greater than 700
+$topquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress NOT IN ('msniff16@gmail.com') ORDER BY reputation DESC LIMIT 0,33");
 
-echo'<div id="container" style="width:1210px;margin-left:-112px;top:15px;">';
-for($iii=1; $iii <= 16; $iii++) {
-	$profpic = mysql_result($prsresult, $iii-1, "profilepic");
+echo'<div id="container" style="width:1210px;margin-left:65px;top:10px;">';
+for($iii=1; $iii <= 20; $iii++) {
+	$profpic = mysql_result($topquery, $iii-1, "profilepic");
     if($profpic == 'https://www.photorankr.com/profilepics/default_profile.jpg') {
     $profpic = 'profilepics/default_profile.jpg';
     }
-    $firstname = mysql_result($prsresult, $iii-1, "firstname");
-	$lastname = mysql_result($prsresult, $iii-1, "lastname");
+    $firstname = mysql_result($topquery, $iii-1, "firstname");
+    $rep = number_format(mysql_result($topquery, $iii-1, "reputation"),2);
+	$lastname = mysql_result($topquery, $iii-1, "lastname");
     $fullname = $firstname . " " . $lastname;
     $fullname = ucwords($fullname);
-	$userid = mysql_result($prsresult, $iii-1, "user_id");
+	$userid = mysql_result($topquery, $iii-1, "user_id");
 
-		echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a style="text-decoration:none;" href="viewprofile.php?u=',$userid,'">
+		echo '
+        <a style="text-decoration:none;color:#333;" href="viewprofile.php?u=',$userid,'">
+            <div class="fPic" id="',$id,'" style="float:left;width:275px;padding:5px;">
+                <img style="min-width:275px;" src="https://photorankr.com/',$profpic,'" />
         
-        <div class="statoverlay"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-family:helvetica neue,arial;font-weight:100;font-size:22px;">',$fullname,'</span></div>
-        
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="',$profpic,'" alt="',$fullname,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+            <div class="statoverlay" style="z-index:1;background-color:white;position:relative;top:0px;width:275px;height:30px;">
+                <div style="line-spacing:1.48;padding:5px;color:#4A4A4A;">
+                    <div style="float:left;padding-top:10px;">
+                        <span style="font-size:15px;font-weight:500;">',$rep,'</span>&nbsp;&nbsp;<span style="font-weight:300;font-size:15px;">',$fullname,'</span>
+                    </div>
+                </div>
+            </div>
+        </div>';       	
 
     } //end for loop
     echo'</div>';
@@ -345,14 +420,16 @@ for($iii=1; $iii <= 16; $iii++) {
 
 elseif($view == 'exts') {
         
-        $galleryquery = mysql_query("SELECT * FROM sets ORDER BY id DESC LIMIT 0,50");
+        $galleryquery = mysql_query("SELECT * FROM sets ORDER BY avgscore DESC LIMIT 0,30");
         $numgalleries = mysql_num_rows($galleryquery);
         
+        echo'<div id="container" style="width:1210px;margin-left:65px;top:10px;">';
         for($iii=0; $iii<$numgalleries; $iii++) {
             
             $id = mysql_result($galleryquery,$iii,'id');
             $name = mysql_result($galleryquery,$iii,'title');
             $about = mysql_result($galleryquery,$iii,'about');
+            $avgscore = mysql_result($galleryquery,$iii,'avgscore');
             $photos = mysql_result($galleryquery,$iii,'photos');
             
             $pulltopphoto = mysql_query("SELECT source FROM photos WHERE set_id = $id ORDER BY votes DESC LIMIT 7");
@@ -362,13 +439,13 @@ elseif($view == 'exts') {
                 continue;
             }
             
-            echo'<div class="grid_12 gallery" style="padding-bottom:20px;">
-                    <header>
-                        <br />
-                        <a style="text-decoration:none;color:#333;" href="viewgallery.php?g=',$id,'"><span style="font-size:20px;"><strong>Exhibit</strong></span> | <span style=\'font-family:"helvetica neue",helvetica,arial;font-weight:200;font-size:20px;\'>',$name,'</span></a>				
-                        <br />
-                        <div class="line" style="background:#62a2de;margin-bottom:10px;"></div>
-                    </header>';
+            echo'<div class="grid_10 gallery" style="width:375px;padding-bottom:10px;padding-top:10px;">
+                     <div class="statoverlay" style="z-index:1;background-color:white;position:relative;top:0px;width:358px;height:35px;-webkit-border-radius: 2px;-moz-border-radius: 2px;border-radius: 2px;">
+                        <a style="text-decoration:none;color:#333;" href="viewgallery.php?g=',$id,'">
+                     <div style="margin-top:18px;margin-left:12px;">
+                          <span style=\'font-family:"helvetica neue",helvetica,arial;font-weight:200;font-size:18px;\'>',$avgscore,'&nbsp;&nbsp;',$name,'</span>         </div>
+                        </a>	
+                     </div>';
 
                 
                 $photo1 = mysql_result($pulltopphoto, 0, "source");
@@ -384,31 +461,35 @@ elseif($view == 'exts') {
                 $photo6 = mysql_result($pulltopphoto, 5, "source");
                 $photo6 = str_replace("userphotos/","userphotos/medthumbs/",$photo6);
                 
-                echo'<div class="omega grid_6" style="margin:0;height:400px;overflow:hidden;" >	
-                    <div class="pic_1">
+                
+                echo'<a style="text-decoration:none;color:#333;" href="viewgallery.php?g=',$id,'">
+                
+                <div class="omega grid_6" style="width:210px;margin:0;margin-left:-2px;height:400px;overflow:hidden;padding-top:5px;-webkit-border-radius: 2px;-moz-border-radius: 2px;border-radius: 2px;" >	
+                    <div class="pic_1" style="padding:3px;">
                         <img src="../',$photo1,'" class="gallery_pic"/>
                     </div>
-                    <div class="pic_1">
+                    <div class="pic_1" style="padding:3px;">
                         <img src="../',$photo2,'" class="gallery_pic"/>
                     </div>
-                    <div class="pic_1">
+                    <div class="pic_1" style="padding:3px;">
                         <img src="../',$photo3,'" class="gallery_pic"/>
                     </div>
                     </div>';
     
-                echo'<div class="omega grid_5" style="margin:0;height:400px;overflow:hidden;">
-                     <div class="pic_2">
+                echo'<div class="omega grid_4" style="margin:0;height:400px;overflow:hidden;padding-top:5px;-webkit-border-radius: 2px;-moz-border-radius: 2px;border-radius: 2px;">
+                     <div class="pic_2" style="padding:3px;">
                         <img src="../',$photo4,'" class="gallery_pic"/>
                     </div>
-                    <div class="pic_2">
+                    <div class="pic_2" style="padding:3px;">
                         <img src="../',$photo5,'" class="gallery_pic"/>
                     </div>
-                    <div class="pic_2">
+                    <div class="pic_2" style="padding:3px;">
                         <img src="../',$photo6,'" class="gallery_pic"/>
                     </div>
                     </div>';
             
-            echo'</div>';
+            echo'</div>
+                 </a>'; 
         
         }
     
@@ -443,8 +524,6 @@ var last = 0;
 		}
 	});
 </script>';
-
-
 
 } //end of view == 'exts'
 

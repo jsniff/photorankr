@@ -152,7 +152,7 @@ $notsqueryrun = mysql_query($notsquery); }
     <script type="text/javascript" src="js/jquery.wookmark.js"></script>            
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
   
-  <title>PhotoRankr - Newest Photography</title>
+  <title>Trending Photography</title>
 
 <style type="text/css">
 
@@ -212,14 +212,21 @@ box-shadow: 1px 1px 5px #888;
 
 
 </head>
-<body style="overflow-x:hidden; background-color: #fff;">
+<body style="overflow-x:hidden; background-image:url('graphics/linen.png');">
 
 <?php navbar(); ?>
 
    <!--big container-->
-    <div id="container" class="container_24">
+    <div id="container" class="container_24" style="width:1200px;overflow:hidden;">
     
-            <div style="font-size:30px;font-weight:300;margin-left:0px;margin-top:60px;">Trending Photography</div>
+<div class="galleryToolbar" style="margin-top:70px;margin-left:70px;">
+            <ul>
+                <a style="color:#333;" href="newest.php"><li style="width:272px;-webkit-border-radius: 4px;-moz-border-radius: 2px;border-radius: 2px;padding-left:8px;margin-left:0px;text-align:left;"><img style="float:left;width:20px;height:20px;" src="graphics/graph.png" />&nbsp;&nbsp;Trending</li></a>
+                <a style="color:#333;" href="trending.php"><li style="width:134px;"><img src="graphics/camera2.png" /> Photos</li></a>
+                <a style="color:#333;" href="trending.php?view=prs"><li style="width:134px;"><img src="graphics/user.png" /> Photographers</li></a>
+                <a style="color:#333;" href="trending.php?view=exts"><li style="width:134px;"><img src="graphics/grid.png" /> Exhibits </li></a>
+            </ul>
+        </div>
 
 <!--DIFFERENT GALLERY VIEWS-->
 
@@ -236,7 +243,7 @@ if($view == '') {
     $numberofpics=mysql_num_rows($result);
     
     echo'
-    <div id="thepics" style="position:relative;left:-82px;top:35px;width:1200px;">
+    <div id="thepics" style="position:relative;left:40px;top:10px;width:1210px;">
     <div id="main">
     <ul id="tiles">';
         
@@ -266,12 +273,15 @@ for($iii=1; $iii <= 16; $iii++) {
     }
 
 		echo '
-        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="list-style-type: none;width:270px;"><img style="min-width:270px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
+        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="list-style-type: none;width:280px;"><img style="min-width:280px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
         
-            <div class="statoverlay" style="top:0px;height:50px;position:relative;">
-            <p style="font-weight:100;font-size:20px;padding-top:15px;padding-left:5px;">',$caption,'</p>
-            <p style="font-weight:100;font-size:16px;margin-top:20px;padding-left:5px;">',$score,'<span style="font-size:14px;">/10.0</span></p>
-            </div>';  
+            <div class="statoverlay" style="z-index:1;background-color:white;position:relative;top:0px;width:280px;height:30px;">
+                <div style="line-spacing:1.48;padding:5px;color:#4A4A4A;">
+                    <div style="float:left;padding-top:10px;">
+                        <span style="font-size:15px;font-weight:500;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:300;font-size:15px;">',$caption,'</span>
+                    </div>
+                </div>
+            </div>';        
             
       } //end for loop
       
@@ -287,8 +297,8 @@ for($iii=1; $iii <= 16; $iii++) {
       var options = {
         autoResize: true, // This will auto-update the layout when the browser window is resized.
         container: $('#main'), // Optional, used for some extra CSS styling
-        offset: 4, // Optional, the distance between grid items
-        itemWidth: 270 // Optional, the width of a grid item
+        offset: 10, // Optional, the distance between grid items
+        itemWidth: 280 // Optional, the width of a grid item
       };
       
       // Get a reference to your grid items.
@@ -345,23 +355,35 @@ elseif($view == 'prs') {
 $prsquery="SELECT * FROM userinfo WHERE (profilepic != 'https://www.photorankr.com/profilepics/default_profile.jpg' AND profilepic != 'profilepics/default_profile.jpg') ORDER BY user_id DESC";
 $prsresult=mysql_query($prsquery);
 
-echo'<div id="container" style="width:1210px;margin-left:-112px;top:15px;">';
-for($iii=1; $iii <= 16; $iii++) {
-	$profpic = mysql_result($prsresult, $iii-1, "profilepic");
-    if($profpic == 'https://www.photorankr.com/profilepics/default_profile.jpg') {
-    $profpic = 'profilepics/default_profile.jpg';
+echo'<div id="container" style="width:1210px;margin-left:65px;top:10px;">';
+for($iii=1; $iii <= 30; $iii++) {
+    $owner = mysql_result($result, $iii-1, "emailaddress");
+    $ownerquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$owner'");
+    $profilepic = mysql_result($ownerquery, 0, "profilepic");
+    $reputation = number_format(mysql_result($ownerquery, 0, "reputation"),2);
+    $userid = mysql_result($ownerquery, 0, "user_id");
+    $pos = strpos($prevlist, $profilepic);
+    if($pos !== false) {
+        continue;
     }
-    $firstname = mysql_result($prsresult, $iii-1, "firstname");
-	$lastname = mysql_result($prsresult, $iii-1, "lastname");
+    $firstname = mysql_result($ownerquery, 0, "firstname");
+    $lastname = mysql_result($ownerquery, 0, "lastname");
     $fullname = $firstname . " " . $lastname;
-    $fullname = ucwords($fullname);
-	$userid = mysql_result($prsresult, $iii-1, "user_id");
+    $prevlist = $prevlist . $profilepic;
 
-		echo '<div class="fPic" id="',$id,'" style="float:left;margin-right:20px;margin-top:20px;width:280px;height:280px;overflow:hidden;"><a style="text-decoration:none;" href="viewprofile.php?u=',$userid,'">
+		echo '
+        <a style="text-decoration:none;color:#333;" href="viewprofile.php?u=',$userid,'">
+            <div class="fPic" id="',$id,'" style="float:left;width:275px;padding:5px;">
+                <img style="min-width:275px;" src="https://photorankr.com/',$profilepic,'" />
         
-        <div class="statoverlay"><p style="line-spacing:1.48;padding:5px;color:white;"><span style="font-family:helvetica neue,arial;font-weight:100;font-size:22px;">',$fullname,'</span></div>
-        
-        <img onmousedown="return false" oncontextmenu="return false;" style="position:relative;top:-75px;min-height:290px;min-width:280px;" src="',$profpic,'" alt="',$fullname,'" height="',$heightls,'px" width="',$widthls,'px" /></a></div>';
+            <div class="statoverlay" style="z-index:1;background-color:white;position:relative;top:0px;width:275px;height:30px;">
+                <div style="line-spacing:1.48;padding:5px;color:#4A4A4A;">
+                    <div style="float:left;padding-top:10px;">
+                        <span style="font-size:15px;font-weight:500;">',$reputation,'</span>&nbsp;&nbsp;<span style="font-weight:300;font-size:15px;">',$fullname,'</span>
+                    </div>
+                </div>
+            </div>
+        </div>';       	
 
     } //end for loop
     echo'</div>';
@@ -372,14 +394,16 @@ for($iii=1; $iii <= 16; $iii++) {
 
 elseif($view == 'exts') {
         
-        $galleryquery = mysql_query("SELECT * FROM sets ORDER BY id DESC LIMIT 0,50");
+        $galleryquery = mysql_query("SELECT * FROM sets WHERE id > 280 ORDER BY views DESC LIMIT 0,24");
         $numgalleries = mysql_num_rows($galleryquery);
         
+        echo'<div id="container" style="width:1210px;margin-left:65px;top:10px;">';
         for($iii=0; $iii<$numgalleries; $iii++) {
             
             $id = mysql_result($galleryquery,$iii,'id');
             $name = mysql_result($galleryquery,$iii,'title');
             $about = mysql_result($galleryquery,$iii,'about');
+            $avgscore = mysql_result($galleryquery,$iii,'avgscore');
             $photos = mysql_result($galleryquery,$iii,'photos');
             
             $pulltopphoto = mysql_query("SELECT source FROM photos WHERE set_id = $id ORDER BY votes DESC LIMIT 7");
@@ -389,13 +413,13 @@ elseif($view == 'exts') {
                 continue;
             }
             
-            echo'<div class="grid_12 gallery" style="padding-bottom:20px;">
-                    <header>
-                        <br />
-                        <a style="text-decoration:none;color:#333;" href="viewgallery.php?g=',$id,'"><span style="font-size:20px;"><strong>Exhibit</strong></span> | <span style=\'font-family:"helvetica neue",helvetica,arial;font-weight:200;font-size:20px;\'>',$name,'</span></a>				
-                        <br />
-                        <div class="line" style="background:#62a2de;margin-bottom:10px;"></div>
-                    </header>';
+            echo'<div class="grid_10 gallery" style="width:375px;padding-bottom:10px;padding-top:10px;">
+                     <div class="statoverlay" style="z-index:1;background-color:white;position:relative;top:0px;width:358px;height:35px;-webkit-border-radius: 2px;-moz-border-radius: 2px;border-radius: 2px;">
+                        <a style="text-decoration:none;color:#333;" href="viewgallery.php?g=',$id,'">
+                     <div style="margin-top:18px;margin-left:12px;">
+                          <span style=\'font-family:"helvetica neue",helvetica,arial;font-weight:200;font-size:18px;\'>',$avgscore,'&nbsp;&nbsp;',$name,'</span>         </div>
+                        </a>	
+                     </div>';
 
                 
                 $photo1 = mysql_result($pulltopphoto, 0, "source");
@@ -411,32 +435,34 @@ elseif($view == 'exts') {
                 $photo6 = mysql_result($pulltopphoto, 5, "source");
                 $photo6 = str_replace("userphotos/","userphotos/medthumbs/",$photo6);
                 
-                echo'<div class="omega grid_6" style="margin:0;height:400px;overflow:hidden;" >	
-                    <div class="pic_1">
+                echo'<a style="text-decoration:none;color:#333;" href="viewgallery.php?g=',$id,'">
+                
+                <div class="omega grid_6" style="width:210px;margin:0;margin-left:-2px;height:400px;overflow:hidden;padding-top:5px;-webkit-border-radius: 2px;-moz-border-radius: 2px;border-radius: 2px;" >	
+                    <div class="pic_1" style="padding:3px;">
                         <img src="../',$photo1,'" class="gallery_pic"/>
                     </div>
-                    <div class="pic_1">
+                    <div class="pic_1" style="padding:3px;">
                         <img src="../',$photo2,'" class="gallery_pic"/>
                     </div>
-                    <div class="pic_1">
+                    <div class="pic_1" style="padding:3px;">
                         <img src="../',$photo3,'" class="gallery_pic"/>
                     </div>
                     </div>';
     
-                echo'<div class="omega grid_5" style="margin:0;height:400px;overflow:hidden;">
-                     <div class="pic_2">
+                echo'<div class="omega grid_4" style="margin:0;height:400px;overflow:hidden;padding-top:5px;-webkit-border-radius: 2px;-moz-border-radius: 2px;border-radius: 2px;">
+                     <div class="pic_2" style="padding:3px;">
                         <img src="../',$photo4,'" class="gallery_pic"/>
                     </div>
-                    <div class="pic_2">
+                    <div class="pic_2" style="padding:3px;">
                         <img src="../',$photo5,'" class="gallery_pic"/>
                     </div>
-                    <div class="pic_2">
+                    <div class="pic_2" style="padding:3px;">
                         <img src="../',$photo6,'" class="gallery_pic"/>
                     </div>
                     </div>';
             
-            echo'</div>';
-        
+            echo'</div>
+                 </a>';        
         }
     
 echo'
@@ -470,8 +496,6 @@ var last = 0;
 		}
 	});
 </script>';
-
-
 
 } //end of view == 'exts'
 

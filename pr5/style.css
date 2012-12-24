@@ -1060,18 +1060,6 @@ background-repeat: no-repeat;
 width:245px;
 }
 
-#searchStore {
- padding: 7px 10px 7px 30px;
-font-size:15px;
-line-height:26px;
-font-weight:300;
-background-image: url('glass.png');
-background-position: .7em 5px;
-background-size: 1em 1em;
-background-repeat: no-repeat;
-width:250px;
-}
-
 #list {
 width:300px;
 overflow:hidden;
@@ -1092,7 +1080,7 @@ color:#555;
 display:none;
 }
 
-.arrow-left {
+.arrow-leftStore {
 width: 0; 
 height: 0; 
 border-top: 18px solid transparent;
