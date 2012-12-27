@@ -29,6 +29,9 @@ session_start();
     //Category
     $cat = mysql_real_escape_string(htmlentities($_GET['category']));
     
+    //Grab URI
+    $uri = $_SERVER["REQUEST_URI"];
+    
     //Cart Statistics
     $incart = mysql_query("SELECT * FROM userscart WHERE emailaddress = '$email' ORDER BY id ASC");
     $incartresults = mysql_num_rows($incart);
@@ -46,6 +49,127 @@ session_start();
     $topranked = mysql_query("SELECT * FROM photos WHERE (points/votes) > 8.5 and votes > 5 and time > ($currenttime - 430000) ORDER BY time DESC LIMIT 24");
     $numphotosquery = mysql_query("SELECT * FROM photos");
     $numphotos = number_format(mysql_num_rows($numphotosquery),2);
+    
+    //Search Queries
+    $license = $_GET['license'];
+    $category = htmlentities($_GET['category']);
+    $maxprice = htmlentities($_GET['maxPrice']);
+  $minprice = htmlentities($_GET['minPrice']);
+
+    $minwidth = $_GET['minWidth'];
+    $maxwidth = $_GET['maxWidth'];
+    $minheight = $_GET['minHeight'];
+    $maxheight = $_GET['maxHeight'];
+    $minrep = $_GET['minRep'];
+    $maxrep = $_GET['maxRep'];
+    $quality = $_GET['quality'];
+    $minrank = $_GET['minRank'];
+    $maxrank = $_GET['maxRank'];
+
+    // if($minrank || $maxrank) {
+    //     $result .= " AND (points/votes) > $minrank";
+    //     $result .= " AND (points/votes) < $maxrank";
+    // }
+// JOIN userinfo ON photos.emailaddress = userinfo.emailaddress
+if($searchword) {
+        //$numsearchquery = mysql_query("SELECT * FROM photos WHERE concat(caption,location,tag1,tag2,tag3,tag4,singlecategorytags,singlestyletags) LIKE '%$searchword%'");
+        $result = "SELECT * FROM photos WHERE concat(caption,location,tag1,tag2,tag3,tag4,singlecategorytags,singlestyletags) LIKE '%$searchword%'";
+    }
+        
+  if($category) {
+    $result .= " AND singlecategorytags LIKE '%$category%'";
+}
+//echo $result;
+
+if($minrank) {
+    $result .= " AND (points/votes) > $minrank";
+}
+if($maxrank) {
+    $result .= " AND (points/votes) < $maxrank";
+}
+
+
+if($license) {
+    $result .= " AND license LIKE '%$license%'";
+}
+
+
+if($maxwidth) {
+    $result .= " AND width < $maxwidth";
+}
+
+
+if($minwidth) {
+    $result .= " AND width > $minwidth";
+}
+
+if($maxheight) {
+    $result .= " AND license < $height";
+}
+
+
+if($minheight) {
+    $result .= " AND license > $height";
+}
+
+
+if($quality) {
+    $result .= " AND quality LIKE '%$quality%'";
+}
+
+
+
+
+
+
+
+// $price = mysql_result($result,$iii,'price');
+
+if($minprice) {
+    $result .= " AND price > $minprice";
+
+}
+
+
+
+if($maxprice) {
+
+    $result .= " AND price < $maxprice";
+
+}
+
+
+
+
+  
+                if($maxrep) {
+                $result .= " AND userinfo.reputation < $maxrep";
+                }
+                
+                // if($minrep) {
+                // $result .= " AND userinfo.reputation > $minrep";
+                // }
+      
+
+
+// if($maxrep) {
+//     $result .= " AND (points/votes) < $maxrank";
+// }
+
+
+ 
+//         if(!empty($higherrep)) {
+//                 $result .= " AND userinfo.reputation < $higherrep";
+//                 }
+                
+//                 if(!empty($lowerrep)) {
+//                 $result.= " AND userinfo.reputation > $lowerrep";
+//                 }
+
+ $result = mysql_query($result);
+        $successresults = mysql_num_rows($result);
+
+    
   
 ?>
 
@@ -145,22 +269,19 @@ jQuery(document).ready(function(){
 			</header>
 			<div id="featuredImgContainer"> 
             <?php 
+
                 $featuredPhotos = mysql_query("SELECT * FROM photos WHERE time > ($currenttime - 200000) ORDER BY faves DESC LIMIT 6");
                 for($iii=0;$iii<5;$iii++) {
-                    $smallimageid = mysql_result($featuredPhotos,$iii,'id');
                     $source = mysql_result($featuredPhotos,$iii,'source');
                     $source = str_replace("userphotos/","userphotos/medthumbs/",$source);
                     
-                    echo'<a href="fullsizemarket.php?imageid=',$smallimageid,'">
-                         <div class="featuredImgContainer">
+                    echo'<div class="featuredImgContainer">
                             <img style="width:140px;height:140px;" src="https://photorankr.com/',$source,'" />
-                         </div>
-                         </a>';
+                         </div>';
 				}
                 $bigsource = mysql_result($featuredPhotos,5,'source');
                 $bigcaption = mysql_result($featuredPhotos,5,'caption');
                 $bigprice = mysql_result($featuredPhotos,5,'price');
-                $bigimageid = mysql_result($featuredPhotos,5,'id');
                 $bigranking = number_format((mysql_result($featuredPhotos,0,'points')/mysql_result($featuredPhotos,0,'votes')),2);
                 $width = mysql_result($featuredPhotos,5,'width');
                 $height = mysql_result($featuredPhotos,5,'height');
@@ -178,11 +299,9 @@ jQuery(document).ready(function(){
                 ?>
 			</div>
 			
-            <a href="fullsizemarket.php?imageid=<?php echo $bigimageid; ?>">
             <div id="bigImg"> 
 				<img src="https://photorankr.com/<?php echo $bigsource; ?>"/>
 			</div>
-            </a>
             
         <div class="marketoverlay" style="float:right;margin-right:-5px;position:relative;top:-250px;width:255px;height:30px;">
             <div style="line-spacing:1.48;padding:5px;color:#4A4A4A;">
@@ -214,37 +333,64 @@ jQuery(document).ready(function(){
     <!--Clickable Featured Boxes-->
     <div class="grid_24 push_3" style="width:1120px;margin-top:20px;">
     
-    <!-------------------------------MARKET SEARCH------------------------------------->
+<?php echo $result; ?>
+
+    <script type="text/javascript">
+    function formSubmit()
+    {
+        document.getElementById("frm1").submit();
+    }
+    </script>
+    
     <div style="width:720px;overflow:hidden;margin-left:-28px;float:left;">
     
         <div class="marketSearch">
-            <form action="" method="get">
+            <form action="" method="get" id="frm1">
+
+  
+        <input type="hidden" name="minwidth" value="<?php echo $minwidth; ?>" />
+
+               
+            <input type="hidden" name="maxwidth" value="<?php echo $maxwidth; ?>" />
+        <input type="hidden" name="minheight" value="<?php echo $minheight; ?>" />
+
+               
+            <input type="hidden" name="minrep" value="<?php echo $minrep; ?>" />
+        <input type="hidden" name="maxrep" value="<?php echo $maxrep; ?>" />
+
+               
+            <input type="hidden" name="quality" value="<?php echo $quality; ?>" />
+        <input type="hidden" name="minrank" value="<?php echo $minrank; ?>" />
+
+            <input type="hidden" name="maxrank" value="<?php echo $maxrank; ?>" />
+            
+
+
+
+
+
                 <input id="searchBar" type="text" name="term" placeholder="Search by keywords or tags&hellip;" />
                 <div id="gbqfbw">
-                    <button id="gbqfb" class="gbqfb" aria-label="PR Search">
+                    <button onClick="formSubmit()" id="gbqfb" class="gbqfb" aria-label="PR Search">
                         <span class="gbqfi">Search</span> 
                     </button>
                 </div>
-            </form>
         </div>
     
         <!--Left market bar-->
         <div class="leftMarketBar">
             <ul>
                 <li>  
-                <form action="#" method="get">
                 <select name="license" onchange="submitLicense(this)" style="margin-top:-5px;width:120px;">
                     <option value=""> License </option>
                     <option value="editorial"> Editorial </option>
                     <option value="commercial"> Commercial </option>
                 </select>
-                </form>
                 </li>
                 <li>  
-                 <form action="#" method="get">
                     <?php
                         echo'
-                        <select name="categories" onchange="submitCategories(this)" style="margin-top:-5px;width:120px;">
+                        <select name="category" onchange="submitCategories(this)" style="margin-top:-5px;width:120px;">
                         <option value=""'; if($cat == '') {echo'selected value=""';} echo'>All Photos</option>
                         
                         <option value="aerial"'; if($cat == 'aerial') {echo'selected value=""';} echo'>Aerial</option>
@@ -303,50 +449,98 @@ jQuery(document).ready(function(){
                         
                         <option value="war"'; if($cat == 'war') {echo'selected value=""';} echo'>War</option>
                         </select>';
+
                         ?>
                     </form>
                 </li>
+                
+                <li>  
+                    Top Ranked
+                </li>
+                
+                <li>
+                    Free
+                </li>
+                
             </ul>
         </div>
 
         <!-----Search Tools Button----->
-        <div class="searchTools" id="searchTools" style="cursor:pointer;"> Search Tools</div>
+        <div class="searchTools" id="searchTools"> Search Tools</div>
         
         <!-----Search Options------>
         <div class="leftMarketDrop" id="searchToolsDiv">
-            <form action="#" method="get">
+
+            <form action="" method="get">
+            
+            <input type="hidden" name="term" value="<?php echo $searchword; ?>" />
+        <input type="hidden" name="category" value="<?php echo $category; ?>" />
+
+            <input type="hidden" name="license" value="<?php echo $license; ?>" />
+        <input type="hidden" name="minwidth" value="<?php echo $minwidth; ?>" />
+
+               
+            <input type="hidden" name="maxwidth" value="<?php echo $maxwidth; ?>" />
+        <input type="hidden" name="minheight" value="<?php echo $minheight; ?>" />
+
+               
+            <input type="hidden" name="minrep" value="<?php echo $minrep; ?>" />
+        <input type="hidden" name="maxrep" value="<?php echo $maxrep; ?>" />
+
+               
+            <input type="hidden" name="quality" value="<?php echo $quality; ?>" />
+        <input type="hidden" name="minRank" value="<?php echo $minrank; ?>" />
+
+            <input type="hidden" name="maxrank" value="<?php echo $maxrank; ?>" />
             
             <div class="leftIntDrop">
                 <header>Price</header>
                 <div>
-                    Min <input type="text" name="minPrice" />  Max <input type="text" name="maxPrice" />
+                    Min <input type="text" name="minPrice" value="<?php echo $minprice; ?>" />  Max <input type="text" name="maxPrice" value="<?php echo $maxprice; ?>" />
                 </div>
                 <header>Photo Rank</header>
                 <div>
-                    Min <input type="text" name="minRank" />  Max <input type="text" name="maxRank" />
+                    Min <input type="text" name="minRank" value="<?php echo $minrank; ?>" />  Max <input type="text" name="maxRank" value="<?php echo $maxrank; ?>" />
                 </div>
             </div>
             
             <div class="leftIntDrop">
                 <header>Width</header>
                 <div>
-                    Min <input type="text" name="minWidth" />  Max <input type="text" name="maxWidth" />
+                    Min <input type="text" name="minWidth" value="<?php echo $minwidth; ?>" />  Max <input type="text" name="maxWidth" value="<?php echo $maxwidth; ?>" />
                 </div>
                 <header>Height</header>
                 <div>
-                    Min <input type="text" name="minHeight" />  Max <input type="text" name="maxHeight" />
+                    Min <input type="text" name="minHeight" value="<?php echo $minheight; ?>" />  Max <input type="text" name="maxHeight" value="<?php echo $maxheight; ?>" />
                 </div>
             </div>
             
             <div class="leftIntDrop" style="border-right:none;">
                 <header>Photographer Rep</header>
                 <div>
-                    Min <input type="text" name="minRep" />  Max <input type="text" name="maxRep" />
+                    Min <input type="text" name="minRep" value="<?php echo $minrep; ?>" />  Max <input type="text" name="maxRep" value="<?php echo $maxrep; ?>" />
                 </div>
                 <header>Quality</header>
                 <div>
-                    <input style="width:15px;height:20px;" type="radio" name="quality" /> Regular <input style="width:15px;height:20px;" type="radio" name="quality" > Premium
+                <?php 
+                    if($quality == 'regular') {
+                        echo'
+                        <input style="width:15px;height:20px;" checked="checked" type="radio" name="quality" value="regular" /> Regular 
+                        <input style="width:15px;height:20px;" type="radio" value="premium" name="quality" > Premium';
+                    }
+                    elseif($quality == 'premium') {
+                        echo'
+                        <input style="width:15px;height:20px;" type="radio" name="quality" value="regular" /> Regular 
+                        <input style="width:15px;height:20px;" checked="checked" type="radio" value="premium" name="quality" > Premium';
+                    }
+                    else {
+                         echo'
+                        <input style="width:15px;height:20px;" type="radio" name="quality" value="regular" /> Regular 
+                        <input style="width:15px;height:20px;" type="radio" value="premium" name="quality" > Premium';
+                    }
+                ?>
                 </div>
+                
                     <input type="submit" style="float:right;padding:10px;" />            
             </div>
             
@@ -360,9 +554,9 @@ jQuery(document).ready(function(){
         <!--Right market bar-->
         <div class="rightMarketBar">
             <ul>
-                <li id="myCart" style="cursor:pointer;"> <img src="graphics/cart_b.png" /> Cart <span style="font-weight:500;"><?php echo $incartresults; ?></span></li>
-                <li id="myWishList" style="cursor:pointer;"> <img src="graphics/star.png" /> Wishlist <span style="font-weight:500;"><?php echo $numsavedinmarket; ?></span></li>
-                <li id="myPurchases" style="border:none;width:115px;cursor:pointer;"> <img src="graphics/bag.png" /> Purchases <span style="font-weight:500;"><?php echo $numpurchased; ?></span></li>
+                <li id="myCart"> <img src="graphics/cart_b.png" /> Cart <span style="font-weight:500;"><?php echo $incartresults; ?></span></li>
+                <li id="myWishList"> <img src="graphics/star.png" /> Wishlist <span style="font-weight:500;"><?php echo $numsavedinmarket; ?></span></li>
+                <li id="myPurchases" style="border:none;width:115px;"> <img src="graphics/bag.png" /> Purchases <span style="font-weight:500;"><?php echo $numpurchased; ?></span></li>
             </ul>
         </div>
         
@@ -374,14 +568,12 @@ jQuery(document).ready(function(){
                 for($iii=0;$iii<$numresults;$iii++) {
                     $source = mysql_result($cartquery,$iii,'source');
                     $price = mysql_result($cartquery,$iii,'price');
-                    $caption= mysql_result($cartquery,$iii,'caption');
                     $size = mysql_result($cartquery,$iii,'size');
-                    $imageid = mysql_result($cartquery,$iii,'imageid');
-                    echo'<div style="padding:3px;clear:both;overflow:hidden;">
-                            <a href="fullsizemarket.php?imageid=',$imageid,'"><img style="float:left;width:100px;height:100px;" src="',$source,'" /></a>
-                            <div class="commentTriangle" style="margin-top:-10px;"></div>
-                            <div style="width:225px;float:left;padding-left:10px;height:75px;margin-top:25px;border-bottom:1px solid #aaa;">
-                                <span style="width:15px;">$',$price,' ',$caption,'<br /><span style="font-size:14px;color:#666;">',$size,'</span></span>
+                    $imagid = mysql_result($cartquery,$iii,'imageid');
+                    echo'<div style="padding:3px;clear:both;">
+                            <img style="float:left;width:100px;height:100px;" src="',$source,'" />
+                            <div style="width:240px;float:left;">
+                                <span style="width:15px;">$',$price,' </span>
                             </div>
                          </div>';
                 }
@@ -390,49 +582,11 @@ jQuery(document).ready(function(){
         </div>
         
         <div class="rightMarketDrop" id="myWishListDiv">
-            <?php
-                $cartquery = mysql_query("SELECT * FROM usersmaybe WHERE emailaddress = '$email' ORDER BY id DESC");
-                $numresults = mysql_num_rows($cartquery);
-                echo'<div class="uiScrollableAreaGripper">';
-                for($iii=0;$iii<$numresults;$iii++) {
-                    $source = mysql_result($cartquery,$iii,'source');
-                    $price = mysql_result($cartquery,$iii,'price');
-                    $caption= mysql_result($cartquery,$iii,'caption');
-                    $size = mysql_result($cartquery,$iii,'size');
-                    $imageid = mysql_result($cartquery,$iii,'imageid');
-                    echo'<div style="padding:3px;clear:both;">
-                            <a href="fullsizemarket.php?imageid=',$imageid,'"><img style="float:left;width:100px;height:100px;" src="',$source,'" /></a>
-                            <div class="commentTriangle" style="margin-top:-10px;"></div>
-                            <div style="width:225px;float:left;padding-left:10px;height:75px;margin-top:25px;border-bottom:1px solid #aaa;">
-                                <span style="width:15px;">$',$price,' ',$caption,'<br /><span style="font-size:14px;color:#666;">',$size,'</span></span>
-                            </div>
-                         </div>';
-                }
-                echo'</div>';
-            ?>
+        
         </div>
 
         <div class="rightMarketDrop" id="myPurchasesDiv">
-            <?php
-                $cartquery = mysql_query("SELECT * FROM userdownloads WHERE emailaddress = '$email' ORDER BY id DESC");
-                $numresults = mysql_num_rows($cartquery);
-                echo'<div class="uiScrollableAreaGripper">';
-                for($iii=0;$iii<$numresults;$iii++) {
-                    $source = mysql_result($cartquery,$iii,'source');
-                    $price = mysql_result($cartquery,$iii,'price');
-                    $caption= mysql_result($cartquery,$iii,'caption');
-                    $size = mysql_result($cartquery,$iii,'size');
-                    $imageid = mysql_result($cartquery,$iii,'imageid');
-                    echo'<div style="padding:3px;clear:both;">
-                            <a href="fullsizemarket.php?imageid=',$imageid,'"><img style="float:left;width:100px;height:100px;" src="',$source,'" /></a>
-                            <div class="commentTriangle" style="margin-top:-10px;"></div>
-                            <div style="width:225px;float:left;padding-left:10px;height:75px;margin-top:25px;border-bottom:1px solid #aaa;">
-                                <span style="width:15px;">$',$price,' ',$caption,'<br /><span style="font-size:14px;color:#666;">',$size,'</span></span>
-                            </div>
-                         </div>';
-                }
-                echo'</div>';
-            ?>
+        
         </div>
 
     </div>
@@ -525,129 +679,14 @@ jQuery(document).ready(function(){
     } //end view == ''
     
    
-   elseif($cat || $searchword) {
+   elseif($searchword) {
    
-    if($searchword) {
-$searchwordquery="INSERT INTO marketSearch (searchword, timestamp) VALUES ('$searchword', '$currenttime')";
-$searchquery= mysql_query($searchwordquery);
-        $numsearchquery = mysql_query("SELECT * FROM photos WHERE concat(caption,location,tag1,tag2,tag3,tag4,singlecategorytags,singlestyletags) LIKE '%$searchword%'");
-        $numsearchresults = mysql_num_rows($numsearchquery);
-        $result = mysql_query("SELECT * FROM photos WHERE concat(caption,location,tag1,tag2,tag3,tag4,singlecategorytags,singlestyletags) LIKE '%$searchword%' ORDER BY views DESC LIMIT 0,16");
-    }
-    
-    if($cat == 'aerial') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Aerial%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'animal') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Animal%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'architecture') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Architecture%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'astro') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Astro%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'automotive') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Automotive%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'bw') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%B&W%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'cityscape') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%cityscape%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-     elseif($cat == 'fashion') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Fashion%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'fineart') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Fine Art%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'fisheye') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Fisheye%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-     elseif($cat == 'food') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Food%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'HDR') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%HDR%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-     elseif($cat == 'historical') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Historical%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-     elseif($cat == 'industrial') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Industrial%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'landscape') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Landscape%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'longexposure') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Long Exposure%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'macro') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Macro%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'monochrome') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Monochrome%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-     elseif($cat == 'nature') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Nature%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'news') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%News%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'night') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Night%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'panorama') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Panorama%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'people') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%People%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'scenic') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Scenic%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'sports') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Sports%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'stilllife') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Still Life%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'transportation') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Transportation%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'war') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%War%' ORDER BY faves DESC LIMIT 0, 12");
-    }
-    
-        $numresults = mysql_num_rows($result);
+    // if($searchword) {
+    //     //$numsearchquery = mysql_query("SELECT * FROM photos WHERE concat(caption,location,tag1,tag2,tag3,tag4,singlecategorytags,singlestyletags) LIKE '%$searchword%'");
+    //     $result = "SELECT * FROM photos WHERE concat(caption,location,tag1,tag2,tag3,tag4,singlecategorytags,singlestyletags) LIKE '%$searchword%'";
+    // }
+    //     $result = mysql_query($result);
+    //     $numsearchresults = mysql_num_rows($result);
         
         //Search Title
         if($cat) {
@@ -662,7 +701,7 @@ $searchquery= mysql_query($searchwordquery);
     <div id="main">
     <ul id="tiles">';
             
-    for($iii=1; $iii < 18; $iii++) {
+    for($iii=1; $iii < $successresults; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
     $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
     $image = "../" . $image;

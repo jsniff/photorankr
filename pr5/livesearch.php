@@ -2,7 +2,7 @@
 
 //connect to the database
 require "db_connection.php";
-require "functionsnav.php";
+require "functions.php";
 
 //start the session
 session_start();
@@ -31,7 +31,7 @@ session_start();
      <meta name="viewport" content="width=1200" /> 
 
 
-  <link rel="stylesheet" type="text/css" href="market/css/bootstrapNew.css" />
+  <link rel="stylesheet" type="text/css" href="css/main3.css" />
   <link rel="stylesheet" href="market/css/reset.css" type="text/css" />
   <link rel="stylesheet" href="market/css/text.css" type="text/css" />
   <link rel="stylesheet" href="css/style.css" type="text/css" />
@@ -108,6 +108,8 @@ function showResult(str)
 
 
 <body style="overflow-x:hidden; background-color: #eeeff3;min-width:1220px;">
+
+<?php navbar(); ?>
 
 <!--Search Form-->
 

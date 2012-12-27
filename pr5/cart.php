@@ -17,12 +17,36 @@ session_start();
 
     $email = $_SESSION['email'];
     
+    //Get user info
+    $findreputationme = mysql_query("SELECT user_id,reputation,profilepic,firstname,lastname FROM userinfo WHERE emailaddress = '$email'");
+    $sessionfirst =  mysql_result($findreputationme,0,'firstname');
+    $sessionlast =  mysql_result($findreputationme,0,'lastname');
+
     //Time
     $currenttime = time();
     
+    //Image ID
+    $imageid = mysql_real_escape_string(htmlentities($_GET['imageid']));
+    $imageinfo = mysql_query("SELECT price,caption,source FROM photos WHERE id = $imageid");
+    
+    $wishprice = mysql_result($imageinfo,0,'price');
+    $wishcaption = mysql_result($imageinfo,0,'caption'); 
+    $wishsource = mysql_result($imageinfo,0,'source');
+    $wishsource = "https://photorankr.com/".$wishsource;
+    
     //View
     $view = mysql_real_escape_string(htmlentities($_GET['view']));
-  
+    
+    //Cart Statistics
+    $incart = mysql_query("SELECT * FROM userscart WHERE emailaddress = '$email' ORDER BY id ASC");
+    $incartresults = mysql_num_rows($incart);
+    
+    $marketquery = mysql_query("SELECT * FROM usersmaybe WHERE emailaddress = '$email'");
+    $numsavedinmarket = mysql_num_rows($marketquery);
+    
+    $downloadquery = mysql_query("SELECT * FROM userdownloads WHERE emailaddress = '$email'");
+    $numpurchased = mysql_num_rows($downloadquery);
+    
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -70,61 +94,247 @@ session_start();
    <!--big container-->
     <div id="container" class="container_24">
     
-<div class="grid_24" style="width:1120px;">
+<div class="grid_24" style="width:1120px;margin-left:-40px;overflow:hidden;">
     
-    <div class="grid_16" style="margin-left:-50px;">
+    <!------------------------TOP BAR------------------------>
+    <div class="topCartBar">
+    <?php
+        if($view == 'maybe') {  
+            echo'<header>My Wishlist</header>';
+        }
+        elseif($view == 'purchases') {
+            echo'<header>My Purchases</header>';
+        }
+        else {
+            echo'<header>My Cart</header>';
+        }
+    ?>
+        <ul>
+            <li> <a style="color:#333;text-decoration:none;" href="cart.php"><img style="width:20px;" src="graphics/cart_b.png" /> Cart <span style="font-size:16px;">(<?php echo $incartresults; ?>)</span> </a> </li>
+            <li> <a style="color:#333;text-decoration:none;" href="cart.php?view=maybe"> <img style="width:20px;" src="graphics/cloud.png" /> Wishlist <span style="font-size:16px;">(<?php echo $numsavedinmarket; ?>)&nbsp;</span></a></li>
+            <li> <a style="color:#333;text-decoration:none;" href="cart.php?view=purchases"><img style="width:16px;" src="graphics/file 2.png" /> Purchases <span style="font-size:16px;">(<?php echo $numpurchased; ?>)</span>&nbsp;</a></li>
+        </ul>
+    </div>
     
+    
+<div id="container" class="grid_16" style="width:660px;margin-top:20px;padding-left:0px;margin-left:-50px;">
+     
 <?php
         
       if($view == 'maybe') {  
     
-        if($_GET['action'] == 'remove') {
-        
-            $removedphoto = mysql_real_escape_string($_GET['pd']);
-            $removephoto = mysql_query("DELETE FROM usersmaybe WHERE id = '$removedphoto' AND emailaddress = '$email'");
-         
+        //Delete photo from wishlist
+        if(htmlentities($_GET['action']) == 'removed') {
+            $removephoto = mysql_query("DELETE FROM usersmaybe WHERE imageid = '$imageid' AND emailaddress = '$email'");
         }
         
-        echo'<div class="grid_18 bigText" style="position:relative;top:-20px;">My Wish List</div>';
-
+        //Move photo to cart
+        if(htmlentities($_GET['action']) == 'cart') {
+            $deletequery = mysql_query("DELETE FROM usersmaybe WHERE emailaddress = '$email' AND imageid = '$imageid'");
+            $wishlistquery = mysql_query("INSERT INTO userscart (source, caption, size, price, emailaddress, imageid) VALUES ('$wishsource','$wishcaption','Large','$wishprice','$email','$imageid')");
+        
+        }
+        
         $marketquery = mysql_query("SELECT * FROM usersmaybe WHERE emailaddress = '$email'");
-                $numsavedinmarket = mysql_num_rows($marketquery);
+        $numsavedinmarket = mysql_num_rows($marketquery);
+        
+        if($numsavedinmarket < 1) {
+            echo'<div style="margin-left:455px;width:300px;height:300px;margin-top:130px;">
+                    <div style="float:center;text-align:center;"><img style="width:60px;" src="graphics/bag.png" /></div>
+                    <br />
+                    <div style="float:center;text-align:center;font-size:18px;font-weight:300;line-height:24px;">
+                    You have no photos saved in your wishlist. <br />
+                    <a href="market.php">Visit the Market</a>
+                    </div>
+                    </div>';
+        }
                 
-                echo'<div id="thepics" style="width:740px;">
-                     <div id="main">';
+                echo'<div id="container" class="grid_15" style="width:660px;margin-top:20px;padding-left:20px;">';
           
                 for($iii=0; $iii<$numsavedinmarket; $iii++) {
-                        $photo[$iii] = mysql_result($marketquery, $iii, "source");
-                        $photo2[$iii] = str_replace("http://photorankr.com/userphotos/","../userphotos/medthumbs/", $photo[$iii]);
-                        $photoid[$iii] = mysql_result($marketquery, $iii, "id");
-                        $imageid[$iii] = mysql_result($marketquery, $iii, "imageid");
+                        $photo = mysql_result($marketquery, $iii, "source");
+                        $photo2 = str_replace("http://photorankr.com/userphotos/","../userphotos/medthumbs/", $photo);
+                        $photoid = mysql_result($marketquery, $iii, "id");
+                        $imagecartid = mysql_result($marketquery, $iii, "imageid");
                         $caption = mysql_result($marketquery, $iii, "caption");
                         $caption = strlen($caption) > 30 ? substr($caption,0,27). " &#8230;" : $caption;
                         $price = mysql_result($marketquery, $iii, "price");
+                        $totalcharge += $price;
+                        
+                        list($height,$width) = getimagesize($photo);
+                        $widthnew = $width / 4;
+                        $heightnew = $height / 4;
+                
+                         echo'<div class="span9">
+                        <a name="',$imagecartid,'" style="text-decoration:none;color:#333;" href="fullsizemarket.php?imageid=',$imagecartid,'">
+                        <table class="table">
+                        <thead>
+                        <tr>
+                        <th>Photo</th>
+                        <th>Caption</th>
+                        <th>Price</th>  
+                        </tr>
+                        </thead>
+                        <tbody>
+            
+                        <tr>
+                        <td><div style="height:',$heightls,'px;width:',$width,'"><img style="height:',$heightnew,'px;width:',$widthnew,'" onmousedown="return false" oncontextmenu="return false;" alt="',$caption,'" src="',$photo2,'" /><br /><br />
+                        <div style="text-align:left;">
+                            <i class="icon-remove"></i>
+                            <a style="font-weight:500;font-size:14px;" href="cart.php?view=maybe&imageid=',$imagecartid,'&action=removed">Remove from wishlist</a>
+                                <br /> 
+                            <i class="icon-arrow-right"></i>               
+                            <a style="padding-top:5px;font-weight:500;font-size:14px;" href="cart.php?view=maybe&imageid=',$imagecartid,'&action=cart">Move to Cart</a>
+                        </div>
+                        </div>
+                        </td>
+                        <td style="width:140px;">',$caption,'</td>
+                        <td style="width:140px;">$',$price,'</td>
+                        </tr>
 
-                        list($height,$width) = getimagesize($photo2[$iii]);
-                        $widthnew = $width / 2.8;
-                        $heightnew = $height / 2.8;
-                
-                echo'
-                  <div class="fPic" id="',$views,'" style="float:left;height:240px;width:240px;padding-left:1px;padding-bottom:1px;overflow:hidden;">
-                 
-                <a href="fullsizemarket.php?imageid=',$imageid[$iii],'">
-                <img onmousedown="return false" oncontextmenu="return false;"  style="height:240px;min-width:240px;"  alt="',$caption,'" src="',$photo2[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /></a>
-                
-                <div style="height:30px;background-color:rgba(34,34,34,.8);width:240px;position:relative;top:-30px;padding:8px;">
-                 <a style="color:white;font-size:14px;font-weight:300;" name="removed" href="cart.php?view=maybe&pd=',$photoid[$iii],'&action=remove#return">Click to Remove</button></a>
-                 </div>
-                 
-                 </div>';
+                        </tbody>
+                        </table>
+                        </a>
+                        </div>';
    
                 }
         
         echo'</div>
              </div>';
+             
+             //PAYMENT STUFF ON RIGHT SIDE
+    echo'<div class="grid_10 push_2" style="width:365px;padding-left:20px;">';
+        
+    if($numsavedinmarket > 0) {
+    
+            echo'<div class="grid_9"><a name="added" style="color:black;text-decoration:none;" href="#"><div style="padding:15px;padding-right:200px;background-color:#ddd;width:180px;margin-left:25px;margin-top:30px;"><span style="font-size:20px;font-weight:300;">Wishlist Summary</span></div></a>
+        
+        <div style="margin-left:20px;font-size:14px;font-weight:normal;">
+        <table class="table">
+            <thead>
+            <tr>
+            <th># Photos</th>
+            <th>Total Price</th>
+            </thead>
+            
+            <tbody>
+        
+            <tr>
+            <td style="width:220px;">',$numsavedinmarket,'</td>
+            <td>$',$totalcharge,'</td>
+            </tr>
+        
+            </tbody>
+            </table>
+        </div>
+        
+        </div><br />';
+        
+    }
         
 }
 
+elseif($view == 'paymentsuccess') {  
+    
+    //add in code from confirmpaymentpaypal.php
+    
+    $tokengetexpress = addslashes($_REQUEST['token']);
+    $identity = addslashes($_REQUEST['identities']);
+    $paymentamount = addslashes($_REQUEST['paymentAmount']);
+
+$environment = 'live';	// or 'beta-sandbox' or 'live'
+ 
+/**
+ * Send HTTP POST Request
+ *
+ * @param	string	The API method name
+ * @param	string	The POST Message fields in &name=value pair format
+ * @return	array	Parsed HTTP Response body
+ */
+function PPHttpPost($methodName_, $nvpStr_) {
+	global $environment;
+ 
+	// Set up your API credentials, PayPal end point, and API version.
+	$API_UserName = urlencode('photorankr_api2.photorankr.com');
+	$API_Password = urlencode('GDXGAJQZK7DFFRFY');
+	$API_Signature = urlencode('AIloodktrq1eS0t7zyszxtmBoLm6Ah08o2sBNi3Yd6Fc8C1lQYOTKa1y');
+	$API_Endpoint = "https://api-3t.paypal.com/nvp";
+	if("sandbox" === $environment || "beta-sandbox" === $environment) {
+		$API_Endpoint = "https://api-3t.$environment.paypal.com/nvp";
+	}
+	$version = urlencode('51.0');
+ 
+	// setting the curl parameters.
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $API_Endpoint);
+	curl_setopt($ch, CURLOPT_VERBOSE, 1);
+ 
+	// Set the curl parameters.
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+ 
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_POST, 1);
+ 
+	// Set the API operation, version, and API signature in the request.
+	$nvpreq = "METHOD=$methodName_&VERSION=$version&PWD=$API_Password&USER=$API_UserName&SIGNATURE=$API_Signature$nvpStr_";
+ 
+	// Set the request as a POST FIELD for curl.
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
+ 
+	// Get response from the server.
+	$httpResponse = curl_exec($ch);
+ 
+	if(!$httpResponse) {
+		exit('$methodName_ failed: '.curl_error($ch).'('.curl_errno($ch).')');
+	}
+ 
+	// Extract the response details.
+	$httpResponseAr = explode("&", $httpResponse);
+ 
+	$httpParsedResponseAr = array();
+	foreach ($httpResponseAr as $i => $value) {
+		$tmpAr = explode("=", $value);
+		if(sizeof($tmpAr) > 1) {
+			$httpParsedResponseAr[$tmpAr[0]] = $tmpAr[1];
+		}
+	}
+ 
+	if((0 == sizeof($httpParsedResponseAr)) || !array_key_exists('ACK', $httpParsedResponseAr)) {
+		exit("Invalid HTTP Response for POST request($nvpreq) to $API_Endpoint.");
+	}
+ 
+	return $httpParsedResponseAr;
+}
+ 
+/**
+ * This example assumes that a token was obtained from the SetExpressCheckout API call.
+ * This example also assumes that a payerID was obtained from the SetExpressCheckout API call
+ * or from the GetExpressCheckoutDetails API call.
+ */
+// Set request-specific fields.
+$payerID = urlencode($identity);
+$token = urlencode($tokengetexpress);
+ 
+$paymentType = urlencode("Authorization");	// or 'Sale' or 'Order'
+//$paymentAmount = urlencode("2");
+$currencyID = urlencode("USD");	// or other currency code ('GBP', 'EUR', 'JPY', 'CAD', 'AUD')
+ 
+// Add request-specific fields to the request string.
+
+$nvpStr = "&TOKEN=$token&PAYERID=$payerID&PAYMENTACTION=$paymentType&AMT=$paymentamount&CURRENCYCODE=$currencyID";
+ 
+// Execute the API operation; see the PPHttpPost function above.
+$httpParsedResponseAr = PPHttpPost('DoExpressCheckoutPayment', $nvpStr);
+ 
+if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"])) {
+	echo'<div style="font-size:18px;font-weight:300;">Payment Successful</div>';
+} else  {
+	exit('DoExpressCheckoutPayment failed: ' . print_r($httpParsedResponseAr, true));
+}
+    
+} //end view == 'paymentsuccess'
+     
 
     elseif($view == 'purchases') {  
     
@@ -136,45 +346,131 @@ session_start();
             });
         </script>';
                 
-        echo'<div class="grid_18 bigText" style="position:relative;top:-20px;">My Purchases</div>';
-
             $downloadquery = mysql_query("SELECT * FROM userdownloads WHERE emailaddress = '$email'");
             $numpurchased = mysql_num_rows($downloadquery);
-            
-            echo'<div id="thepics" style="width:740px;">
-                 <div id="main">';
+          
+            if($numpurchased < 1) {
+            echo'<div style="margin-left:455px;width:300px;height:300px;margin-top:130px;">
+                    <div style="float:center;text-align:center;"><img style="width:60px;" src="graphics/bag.png" /></div>
+                    <br />
+                    <div style="float:center;text-align:center;font-size:18px;font-weight:300;line-height:24px;">
+                    You have not purchased any photos yet. <br />
+                    <a href="market.php">Visit the Market</a>
+                    </div>
+                    </div>';
+        }
+                
+                echo'<div id="container" class="grid_15" style="width:660px;margin-top:20px;padding-left:20px;">';
           
                 for($iii=0; $iii<$numpurchased; $iii++) {
+                        $photo = mysql_result($downloadquery, $iii, "source");
+                        $photo2 = str_replace("userphotos/","userphotos/medthumbs/", $photo);
+                        $photoid = mysql_result($downloadquery, $iii, "id");
+                        $imagecartid = mysql_result($downloadquery, $iii, "imageid");
+                        $caption = mysql_result($downloadquery, $iii, "caption");
+                        $caption = strlen($caption) > 30 ? substr($caption,0,27). " &#8230;" : $caption;
+                        $price = mysql_result($downloadquery, $iii, "price");
+                        $totalcharge += $price;
+                        
+                        list($height,$width) = getimagesize($photo);
+                        $widthnew = $width / 4;
+                        $heightnew = $height / 4;
                 
-                        $photo[$iii] = mysql_result($downloadquery, $iii, "source");
-                        $photo2[$iii] = str_replace("http://photorankr.com/","../", $photo[$iii]);
-                        $photoid[$iii] = mysql_result($downloadquery, $iii, "id");
-                        $imageid[$iii] = mysql_result($downloadquery, $iii, "imageid");
-                        $captionquery =  mysql_query("SELECT caption FROM photos WHERE id = '$imageid[$iii]'");
-                        $caption = mysql_result($captionquery, 0, "caption");
-                        $caption = strlen($caption) > 20 ? substr($caption,0,17). " &#8230;" : $caption;
+                         echo'<div class="span9">
+                        <table class="table">
+                        <thead>
+                        <tr>
+                        <th>Photo</th>
+                        <th>Caption</th>
+                        <th>Price</th>  
+                        </tr>
+                        </thead>
+                        <tbody>';
+                        ?>
+                        
+                        <script type="text/javascript">
+                            function submitForm() {
+                                document.getElementById("download<?php echo $iii; ?>").submit();
+                            }
+                        </script>
+                        
+                        <?php
+                        echo'
+                        <tr>
+                        <td><div style="height:',$heightls,'px;width:',$width,'"><img style="height:',$heightnew,'px;width:',$widthnew,'" onmousedown="return false" oncontextmenu="return false;" alt="',$caption,'" src="',$photo2,'" /><br /><br />
+                        <div style="text-align:left;">
+                             <form action="https://photorankr.com/downloadphoto.php" method="POST" id="download',$iii,'">
+                            <input type="hidden" name="image" value="',$photo,'">
+                            </form>
+                                <br /> 
+                            <i class="icon-download"></i>               
+                                <a style="padding-top:1px;font-weight:500;font-size:14px;" href="#" onclick="submitForm()">Download</a>
+                                <br />
+                            <i class="icon-picture"></i>               
+                                <a style="padding-top:1px;font-weight:500;font-size:14px;" href="fullsize.php?imageid=',$imagecartid,'">View in network</a>
+                        </div>
+                        </div>
+                        </td>
+                        <td style="width:140px;">',$caption,'</td>
+                        <td style="width:140px;">$',$price,'</td>
+                        </tr>
 
-                        list($height,$width) = getimagesize($photo2[$iii]);
-                        $widthnew = $width / 2.7;
-                        $heightnew = $height / 2.7;
-                
-                echo'
-                <form action="../downloadphoto.php" method="POST" name="download">
-                   <input type="hidden" name="image" value="',$photo[$iii],'">
-                   <div class="fPic" id="',$views,'" style="float:left;height:240px;width:240px;padding-left:1px;padding-bottom:1px;overflow:hidden;">
-                        <input type="image" style="height:240px;min-width:240px;"  alt="',$caption,'" src="',$photo[$iii],'" height="',$heightnew,'px" width="',$widthnew,'px" />
-                   </div>
-                </form>';
-                   
+                        </tbody>
+                        </table>
+                        </a>
+                        </div>';
+   
                 }
         
         echo'</div>
              </div>';
+             
+             //PAYMENT STUFF ON RIGHT SIDE
+    echo'<div class="grid_10 push_2" style="width:365px;padding-left:20px;">';
         
-}
+    if($numpurchased > 0) {
+    
+            echo'<div class="grid_9"><a name="added" style="color:black;text-decoration:none;" href="#"><div style="padding:15px;padding-right:200px;background-color:#ddd;width:180px;margin-left:25px;margin-top:30px;"><span style="font-size:20px;font-weight:300;">Purchases Summary</span></div></a>
+        
+        <div style="margin-left:20px;font-size:14px;font-weight:normal;">
+        <table class="table">
+            <thead>
+            <tr>
+            <th># Photos</th>
+            <th>Total Price</th>
+            </thead>
+            
+            <tbody>
+        
+            <tr>
+            <td style="width:220px;">',$numpurchased,'</td>
+            <td>$',$totalcharge,'</td>
+            </tr>
+        
+            </tbody>
+            </table>
+        </div>
+        
+        </div><br />';
+        
+    }
+        
+} //end view == 'purchases'
         
         
         elseif($view == '') {  
+        
+        //Delete photo from cart
+        if(htmlentities($_GET['action']) == 'removed') {
+            $deletequery = mysql_query("DELETE FROM userscart WHERE emailaddress = '$email' AND imageid = '$imageid'");
+        }
+        
+        //Move photo to wishlist
+        if(htmlentities($_GET['action']) == 'wishlist') {
+            $deletequery = mysql_query("DELETE FROM userscart WHERE emailaddress = '$email' AND imageid = '$imageid'");
+            $wishlistquery = mysql_query("INSERT INTO usersmaybe (source, caption, price, emailaddress, imageid) VALUES ('$wishsource','$wishcaption','$wishprice','$email','$imageid')");
+        
+        }
         
 $size = mysql_real_escape_string($_POST['size']);
 
@@ -229,18 +525,12 @@ if(!$licenses) {
 }
             
         
-            echo'<div id="container" class="grid_18" style="width:800px;margin-top:20px;padding-left:20px;">';
-            
-            echo'<div class="grid_18 bigText" style="position:relative;top:-20px;">My Cart</div>';
-            
+            echo'<div id="container" class="grid_15" style="width:660px;margin-top:20px;padding-left:20px;">';
+                        
             if(htmlentities($_GET['action']) == 'download') {
                
                $images = $_POST['downloadedimages'];
                $imagesid = $_POST['imagesid'];
-               
-               echo $images;
-               echo $imagesid;
-               echo'here';
 
                $numberimages = count($images);
     		
@@ -253,13 +543,19 @@ if(!$licenses) {
                     $downloadcheckrows = mysql_num_rows($downloadcheck);
                     
                     if($downloadcheckrows < 1) {
-                    
-                        $stickintouserdownloads = mysql_query("INSERT INTO userdownloads (emailaddress,imageid,source) VALUES ('$email','$imagesid[$i]','$images[$i]')");
+                        
+                        //photo information
+                        $photoinfoquery = mysql_query("SELECT price,caption,width,height FROM photos WHERE id = '$imagesid[$i]'");
+                        $width = mysql_result($photoinfoquery,0,'width');
+                        $height = mysql_result($photoinfoquery,0,'height');
+                        $price =mysql_result($photoinfoquery,0,'price');
+                        $caption =  mysql_result($photoinfoquery,0,'caption');
+                        $stickintouserdownloads = mysql_query("INSERT INTO userdownloads (emailaddress,imageid,source,width,height,time,caption,price) VALUES ('$email','$imagesid[$i]','$images[$i]','$width','$height','$currenttime','$caption','$price')");
                         $deletephotofromcart = mysql_query("DELETE FROM userscart WHERE emailaddress = '$email' AND imageid = '$imagesid[$i]'");
-                        $addsoldtonewsfeed = mysql_query("INSERT INTO newsfeed (emailaddress,type,source) VALUES ('$email','sold','$imagesid[$i]')");
+                        $addsoldtonewsfeed = mysql_query("INSERT INTO newsfeed (firstname,lastname,emailaddress,type,source,time) VALUES ('$sessionfirst','$sessionlast,','$email','sold','$imagesid[$i]','$currenttime')");
                     
                         //Tell them download was successful
-                        echo'<div style="font-size:16px;font-weight:200;margin-top:20px;margin-left:35px;"><img src="',$images[$i],'" height="40" width="40" />&nbsp;&nbsp;&nbsp;Photo Saved in Purchases </div>';
+                        echo'<div style="font-size:16px;font-weight:200;margin-top:20px;margin-left:35px;"><img src="',$images[$i],'" height="100" width="100" />&nbsp;&nbsp;&nbsp;Photo Saved in Purchases "',$caption,'"</div>';
                     
                     }
                  
@@ -269,11 +565,12 @@ if(!$licenses) {
          
          
     //PHOTO CART INFORMATION
-    $imagequery = mysql_query("SELECT source,price FROM photos WHERE id = '$imageid'");
+    $imagequery = mysql_query("SELECT source,price,caption FROM photos WHERE id = '$imageid'");
     $imagenewsource = mysql_result($imagequery,0,'source');
     $imagenewsource2 = str_replace("userphotos/", "$_SERVER[DOCUMENT_ROOT]/userphotos/",$imagenewsource);
     $imagenewsource3 = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "http://photorankr.com/userphotos/",$imagenewsource2); 
     $imagenewprice = mysql_result($imagequery,0,'price'); 
+    $caption = mysql_result($imagequery,0,'caption');
     
     //ADD TO CART IN DB
     
@@ -298,17 +595,30 @@ if(!$licenses) {
         $cartcheck = mysql_query("SELECT * FROM userscart WHERE imageid = '$imageid' && emailaddress = '$email'");
         $numincart = mysql_num_rows($cartcheck);
         if($numincart < 1) {
-            $stickincart = mysql_query("INSERT INTO userscart (source,size,width,height,license,price,emailaddress,imageid) VALUES ('$imagenewsource3','$size','$width','$height','$licenses','$price','$email','$imageid')");
+            $stickincart = mysql_query("INSERT INTO userscart (source,size,width,height,license,price,emailaddress,imageid,caption) VALUES ('$imagenewsource3','$size','$width','$height','$licenses','$price','$email','$imageid','$caption')");
             }
         }
         
         $incart = mysql_query("SELECT * FROM userscart WHERE emailaddress = '$email' ORDER BY id ASC");
         $incartresults = mysql_num_rows($incart);
         
+        if($incartresults < 1  && htmlentities($_GET['action']) != 'download') {
+            echo'<div style="margin-left:435px;width:300px;height:300px;margin-top:120px;">
+                    <div style="float:center;text-align:center;"><img style="width:60px;" src="graphics/bag.png" /></div>
+                    <br />
+                    <div style="float:center;text-align:center;font-size:18px;font-weight:300;line-height:24px;">
+                    You have no photos saved in your cart. <br />
+                    <a href="market.php">Visit the Market</a>
+                    </div>
+                </div>';
+        }
+        
         for($iii=0; $iii < $incartresults; $iii++) {
             $imagesource[$iii] = mysql_result($incart,$iii,'source');
             $imageprice[$iii] = mysql_result($incart,$iii,'price');
             $imagecartid = mysql_result($incart,$iii,'imageid');
+            $sourcelist[] .= $imagesource[$iii];
+            $idlist[] .= $imagecartid;
             $imagelicenses = mysql_result($incart,$iii,'license');
             $standard = strpos($imagelicenses,'Standard');
             if($standard === false) { 
@@ -339,7 +649,14 @@ if(!$licenses) {
             
             <tr>
             <td><div style="min-width:400px;height:<?php echo $height; ?>px;width:<?php echo $width; ?>px;"><img onmousedown="return false" oncontextmenu="return false;" src="',$imagesource[$iii],'" height=',$height,' width=',$width,' /><br /><br />
-           <!-- <div style="text-align:left;"><a style="color:#aaa;font-size:12px;" href="download2.php?imageid=',$imagecartid,'&action=removed">Remove from cart</a></div>--></div>
+            <div style="text-align:left;">
+                <i class="icon-remove"></i>
+                <a style="font-weight:500;font-size:14px;" href="cart.php?imageid=',$imagecartid,'&action=removed">Remove from cart</a>
+                    <br /> 
+                <i class="icon-arrow-right"></i>               
+                <a style="padding-top:5px;font-weight:500;font-size:14px;" href="cart.php?imageid=',$imagecartid,'&action=wishlist">Move to Wishlist</a>
+            </div>
+          </div>
             </td>
             <td style="width:140px;">',$imagesize,'</td>
             <td style="width:140px;">',$imagelicenses,'</td>
@@ -396,11 +713,16 @@ if(!$licenses) {
             </div>';
         } */
         
+        echo'</div></div>';
+    
+    //PAYMENT STUFF ON RIGHT SIDE
+    echo'<div class="grid_10 push_2" style="width:365px;padding-left:20px;">';
         
     if($incartresults > 0) {
+    
+            echo'<div class="grid_9"><a name="added" style="color:black;text-decoration:none;" href="#"><div style="padding:15px;padding-right:200px;background-color:#ddd;width:180px;margin-left:25px;margin-top:30px;"><span style="font-size:20px;font-weight:300;">Payment Summary</span></div></a>
         
-        echo'<div class="grid_18"><a name="checkout" style="color:black;text-decoration:none;" href="#"><div style="padding:15px;padding-right:200px;background-color:#ddd;width:190px;margin-top:50px;"><span style="font-size:22px;font-weight:200;">Payment Summary</span></div></a>
-        
+        <div style="margin-left:20px;font-size:14px;font-weight:normal;">
         <table class="table">
             <thead>
             <tr>
@@ -411,90 +733,85 @@ if(!$licenses) {
             <tbody>
         
             <tr>
-            <td style="width:760px;">',$incartresults,'</td>
+            <td style="width:220px;">',$incartresults,'</td>
             <td>$',$totalcharge,'</td>
             </tr>
         
             </tbody>
             </table>
-        
+        </div>
         
         </div><br />';
         
-        //STRIPE PAYMENT FORM AND DOWNLOAD SYSTEM
+    }
         
-        if($totalcharge > 0) {
-        
-        echo'
+
+if($totalcharge > 0) {
+
+echo'
     
     <!-- to display errors returned by createToken -->
     <span class="payment-errors" style="font-weight:bold;font-size:15px;"></span>
 
     <form action="',htmlentities($_SERVER['PHP_SELF']),'?charge=1" method="POST" id="payment-form">
-    <div class="form-row">
+    <div class="form-row" style="margin-left:25px;">
             
-<input type="hidden" name="price" value="',$price,'">
-<input type="hidden" name="firstname" value="',$firstname,'">
-<input type="hidden" name="lastname" value="',$lastname,'">
-<input type="hidden" name="image" value="',$image,'">
-<input type="hidden" name="label" value="',$label,'">
-<input type="hidden" name="imageID" value="',$imageID,'">
-<input type="hidden" name="customeremail" value="',$customeremail,'">
- 
-    <div class="grid_18"><a name="added" style="color:black;text-decoration:none;"><div style="padding:15px;padding-right:200px;background-color:#ddd;width:190px;margin-top:50px;"><span style="font-size:22px;font-weight:200;">Billing Details</span></div>
+    <div class="grid_9"><a name="added" style="color:black;text-decoration:none;"><div style="padding:15px;padding-right:200px;background-color:#ddd;width:180px;"><span style="font-size:20px;font-weight:300;">Billing Details</span></div>
     <br /><br /> 
     
-    <div style="width:740px;">
+    <div>
         <table class="table">
         <tbody>
-        
+            
             <tr>
-            <td style="font-size:15px;width:450px;">Payment Options</td>
-            <td><input type="radio" name="creditcard" value="creditcard" />&nbsp;&nbsp;<img src="graphics/creditcards.jpg" width="300" />
+            <td style="font-size:14px;width:450px;">Payment Options</td>
+            <td><img src="graphics/creditcards.jpg" width="200" />
                 &nbsp;&nbsp;&nbsp;
-                <input type="radio" name="paypal" value="paypal" />&nbsp;&nbsp;<img src="graphics/paypal.gif" width="60" /></td>
+                <a href="paypalsetexpresscheckout.php"><img src="graphics/paypal.gif" width="50" /></a></td>
             </tr>
             
-            <div id="creditcard">
-            
             <tr>
-            <td style="font-size:15px;">Credit Card</td>
+            <td style="font-size:14px;">Credit Card</td>
             <td>
             
-                <input style="float:left;font-size:15px;padding:5px;position:relative;top:-7px;width:180px;margin-top:5px;" type="text" name="firstname" size="20" autocomplete="off" class="card-number" style;"/>
+                <input style="float:left;font-size:15px;padding:5px;position:relative;top:-7px;width:110px;margin-top:5px;" type="text" name="firstname" size="20" autocomplete="off" class="card-number" style;"/>
 
-                <input style="float:left;font-size:15px;margin-left:40px;padding:5px;position:relative;top:-7px;width:180px;margin-top:5px;" type="text" name="lastname" size="20" autocomplete="off" class="card-number" style;"/>
+                <input style="float:left;font-size:15px;margin-left:20px;padding:5px;position:relative;top:-7px;width:110px;margin-top:5px;" type="text" name="lastname" size="20" autocomplete="off" class="card-number" style;"/>
                 
-                <div style="float:left;margin-top:-10px;font-size:13px;font-weight:200;">First Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Last Name</div>
+                <div style="float:left;margin-top:-10px;font-size:13px;font-weight:200;">First Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Last Name</div>
                 
                 <br />
                 
-                <input style="float:left;font-size:15px;padding:5px;position:relative;width:415px;margin-top:5px;" type="text" name="card" size="20" autocomplete="off" class="card-number" style;"/>
+                <input style="float:left;clear:both;font-size:15px;padding:5px;position:relative;width:255px;margin-top:5px;" type="text" name="cardnumber" size="20" autocomplete="off" class="card-number" style;"/>
                 
-                <div style="float:left;font-size:13px;font-weight:200;">Credit Card Number</div>
+                <div style="clear:both;float:left;font-size:13px;font-weight:200;">Credit Card Number</div>
+
+                          <input style="clear:both;float:left;font-size:15px;padding:5px;position:relative;width:255px;margin-top:5px;" type="text" name="cardtype" size="20" autocomplete="off" class="card-number" style;"/>
+                
+                <div style="clear:both;float:left;font-size:13px;font-weight:200;">Card Type</div>
                 
                 <br />
                                 
                 <div style="float:left;clear:both;margin-top:15px;">
-                <select style="width:120px;">
+               <select name = "month" style="width:120px;">
                     <option value="volvo">Select Month</option>
-                    <option value="January">January</option>
-                    <option value="February">February</option>
-                    <option value="March">March</option>
-                    <option value="April">April</option>
-                    <option value="May">May</option>
-                    <option value="June">June</option>
-                    <option value="July">July</option>
-                    <option value="August">August</option>
-                    <option value="September">September</option>
-                    <option value="October">October</option>
-                    <option value="November">November</option>
-                    <option value="December">December</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
                 </select>
                 </div>
                                 
                 <div style="float:left;margin-left:10px;margin-top:15px;">
-                <select style="width:80px;">
+              <select name = "year" style="width:80px;">
                     <option value="2012">2012</option>
                     <option value="2013">2013</option>
                     <option value="2014">2014</option>
@@ -512,11 +829,11 @@ if(!$licenses) {
                 </select>
                 </div>
                                 
-                <div style="float:left;;margin-left:45px;margin-top:15px;">
-                <input style="float:left;font-size:15px;padding:5px;position:relative;top:-7px;width:160px;margin-top:5px;" type="text" name="code" size="20" autocomplete="off" class="card-number" style;"/>
+                <div style="float:left;;margin-left:10px;margin-top:18px;">
+                <input style="float:left;font-size:15px;padding:5px;position:relative;top:-7px;width:30px;margin-top:5px;" type="text" name="expdatemonth" size="20" autocomplete="off" class="card-number" style;"/>
                 </div>
                 
-                <div style="float:left;margin-top:-10px;font-size:13px;font-weight:200;">Expiration Month&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Year&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CVC (Verification #)</div>
+                <div style="float:left;margin-top:-10px;font-size:13px;font-weight:200;">Expiration Month&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Year&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CVC #</div>
             
             </div>
 
@@ -524,32 +841,22 @@ if(!$licenses) {
             </tr>
             
             <tr>
-            <td style="font-size:15px;">Billing Address</td>
+            <td style="font-size:14px;">Billing Address</td>
             <td>
             
-                <input style="float:left;font-size:15px;padding:5px;position:relative;width:415px;margin-top:5px;" type="text" name="address" size="20" autocomplete="off" class="card-number" style;"/>
+                <input style="clear:both;float:left;font-size:15px;padding:5px;position:relative;width:260px;margin-top:5px;" type="text" name="address" size="20" autocomplete="off" class="card-number" style;"/>
                 
-                <div style="float:left;font-size:13px;font-weight:200;">Street Address</div>
+                <div style="clear:both;float:left;font-size:13px;font-weight:200;">Street Address</div>
                 
                 <input style="float:left;font-size:15px;padding:5px;position:relative;top:-7px;width:150px;clear:both;margin-top:15px;" type="text" name="city" size="20" autocomplete="off" class="card-number" style;"/>
 
-                <input style="float:left;font-size:15px;margin-left:20px;padding:5px;position:relative;top:-7px;width:110px;margin-top:15px;" type="text" name="zip" size="20" autocomplete="off" class="card-number" style;"/>
+                <input style="float:left;font-size:15px;margin-left:20px;padding:5px;position:relative;top:-7px;width:80px;margin-top:15px;" type="text" name="zipcode" size="20" autocomplete="off" class="card-number" style;"/>
+                   
+                <div style="clear:both;float:left;margin-top:-10px;font-size:13px;font-weight:200;">City&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Zip Code</div>
                 
-                <div style="float:left;margin-left:20px;margin-top:10px;">
-                <select style="width:100px;">
-                    <option value="volvo">State</option>
-                    <option value="volvo">Volvo</option>
-                    <option value="saab">Saab</option>
-                    <option value="mercedes">Mercedes</option>
-                    <option value="audi">Audi</option>
-                </select>
-                </div>
-                
-                <div style="float:left;margin-top:-10px;font-size:13px;font-weight:200;">City&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Zip Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;State</div>
-                
-                <div style="float:left;margin-top:10px;">
-                <select>
-<option value="" selected="selected"></option>
+                <div style="clear:both;float:left;margin-top:10px;">
+                <select name = "country" style="width:160px;">
+<option value="" selected="selected">Country</option>
 <option value="United States">United States</option>
 <option value="United Kingdom">United Kingdom</option>
 <option value="Australia">Australia</option>
@@ -766,33 +1073,113 @@ if(!$licenses) {
 </select>
             </div>
             
-            <div style="float:left;font-size:13px;font-weight:200;clear:both;">Country</div>
-                
+            <div style="float:left;margin-left:20px;margin-top:10px;">
+                <select name = "state" style="width:90px;">
+                 <option value="">State</option>
+                 <option value="AB">Alberta</option>
+                 <option value="BC">British Columbia</option>
+                 <option value="MB">Manitoba</option>
+                 <option value="NB">New Brunswick</option>
+                 <option value="NL">Newfoundland and Labrador</option>
+                 <option value="NT">Northwest Territories</option>
+                 <option value="NS">Nova Scotia</option>
+                 <option value="NU">Nunavut</option>
+                 <option value="ON">Ontario</option>
+                 <option value="PE">Prince Edward Island</option>
+                 <option value="QC">Quebec</option>
+                 <option value="SK">Saskatchewan</option>
+                 <option value="AL">Alabama</option>
+                 <option value="AK">Alaska</option>
+                 <option value="AS">American Samoa</option>
+                 <option value="AZ">Arizona</option>
+                 <option value="AR">Arkansas</option>
+                 <option value="CA">California</option>
+                 <option value="CO">Colorado</option>
+                 <option value="CT">Connecticut</option>
+                 <option value="DE">Delaware</option>
+                 <option value="DC">District of Columbia</option>
+                 <option value="FM">Federated States of Micronesia</option>
+                 <option value="FL">Florida</option>
+                 <option value="GA">Georgia</option>
+                 <option value="GU">Guam</option>
+                 <option value="HI">Hawaii</option>
+                 <option value="ID">Idaho</option>
+                 <option value="IL">Illinois</option>
+                 <option value="IN">Indiana</option>
+                 <option value="IA">Iowa</option>
+                 <option value="KS">Kansas</option>
+                 <option value="KY">Kentucky</option>
+                <option value="LA">Louisiana</option>
+                 <option value="ME">Maine</option>
+                 <option value="MH">Marshall Islands</option>
+                 <option value="MD">Maryland</option>
+                 <option value="MA">Massachusetts</option>
+                 <option value="MI">Michigan</option>
+                 <option value="MN">Minnesota</option>
+                 <option value="MS">Mississippi</option>
+                 <option value="MT">Montana</option>
+                 <option value="NE">Nebraska</option>
+                 <option value="NV">Nevada</option>
+                 <option value="NH">New Hampshire</option>
+                 <option value="NJ">New Jersey</option>
+                 <option value="NM">New Mexico</option>
+                <option value="NY">New York</option>
+                 <option value="NC">North Carolina</option>
+                 <option value="ND">North Dakota</option>
+                 <option value="MD">Maryland</option>
+                 <option value="MP">Northern Mariana Islands</option>
+                 <option value="OH">Ohio</option>
+                 <option value="OK">Oklahoma</option>
+                 <option value="OR">Oregon</option>
+                 <option value="PW">Palau</option>
+                 <option value="PA">Pennsylvania</option>
+                 <option value="PR">Puerto Rico</option>
+                 <option value="RI">Rhode Island</option>
+                 <option value="SC">South Carolina</option>
+                 <option value="SD">South Dakota</option>
+                 <option value="TN">Tennessee</option>
+                 <option value="TX">Texas</option>
+                 <option value="UT">Utah</option>
+                 <option value="VT">Vermont</option>
+                 <option value="VI">Virgin Islands</option>
+                 <option value="VA">Virginia</option>
+                 <option value="WA">Washington</option>
+                 <option value="WV">West Virginia</option>
+                 <option value="WI">Wisconsin</option>
+                 <option value="WY"Wyoming</option>
+                 <option value="AA">Armed Forces Americas</option>
+                 <option value="AP ">Armed Forces Pacific</option>
+                </select>
+                </div>
+            
+            <div style="float:left;font-size:13px;font-weight:200;clear:both;">Country&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;State</div>
+                            
             </td>
             </tr>
             
             <tr>
-            <td style="font-size:15px;">Submit Payment</td>
+            <td style="font-size:15px;"></td>
             <td> 
             
-                <button type="submit" class="button submit btn btn-success" style="font-size:16px;float:left;margin-top:5px;padding-top:10px;padding-bottom:10px;padding-right:40px;padding-left:40px;font-weight:200;width:440px;">Submit Payment</button>
+                <button type="submit" class="button submit btn btn-success" style="font-size:16px;float:left;margin-left:-80px;margin-top:5px;padding-top:10px;padding-bottom:10px;padding-right:40px;padding-left:40px;font-weight:200;width:355px;">Submit Payment</button>
                 </form>
             
             </td>
             </tr>
-            
-            </div>
         
         </tbody>
         </table>
     </div>
 
          
-    </div></div>'; 
-       
-         }
-         
-         else {
+      <div></div>';
+   
+   
+}
+
+
+
+elseif($totalcharge == 0 && $incartresults > 0) {
          
          echo'
             <form name="download_form" method="post" action="cart.php?action=download">';
@@ -806,54 +1193,178 @@ if(!$licenses) {
             }
             
             echo'
-            <button type="submit" name="submit" class="button submit btn btn-success"  style="font-size:16px;font-weight:200;width:295px;height:40px;">Download Free</button>
+            <button type="submit" name="submit" value="download" class="button submit btn btn-success"  style="font-size:16px;float:left;margin-left:40px;margin-top:5px;padding-top:10px;padding-bottom:10px;padding-right:40px;padding-left:40px;font-weight:200;width:355px;">Download Free</button>
             </form>';
          
-         }
-        
-        }
-        
-        
-        
-        
+    }
+    
+        echo'</div>';
+
+
+    echo'</div>';
+
  } //end if logged in
 
-echo'</div>';
 
+if($_GET['charge'] == 1){
+
+$environment = 'live';  // or 'beta-sandbox' or 'live'
+ 
+function PPHttpPost($methodName_, $nvpStr_) {
+        global $environment;
+ 
+    // Set up your API credentials, PayPal end point, and API version.
+ $API_UserName = urlencode('photorankr_api2.photorankr.com');
+    $API_Password = urlencode('GDXGAJQZK7DFFRFY');
+    $API_Signature = urlencode('AIloodktrq1eS0t7zyszxtmBoLm6Ah08o2sBNi3Yd6Fc8C1lQYOTKa1y');
+    $API_Endpoint = "https://api-3t.paypal.com/nvp";
+    if("sandbox" === $environment || "beta-sandbox" === $environment) {
+        $API_Endpoint = "https://api-3t.$environment.paypal.com/nvp";
     }
+    $version = urlencode('51.0');
+ 
+    // Set the curl parameters.
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $API_Endpoint);
+    curl_setopt($ch, CURLOPT_VERBOSE, 1);
+ 
+    // Turn off the server and peer verification (TrustManager Concept).
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+ 
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_POST, 1);
+ 
+    // Set the API operation, version, and API signature in the request.
+    $nvpreq = "METHOD=$methodName_&VERSION=$version&PWD=$API_Password&USER=$API_UserName&SIGNATURE=$API_Signature$nvpStr_";
+ 
+    // Set the request as a POST FIELD for curl.
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
+ 
+    // Get response from the server.
+    $httpResponse = curl_exec($ch);
+ 
+    if(!$httpResponse) {
+        exit("$methodName_ failed: ".curl_error($ch).'('.curl_errno($ch).')');
+    }
+ 
+    // Extract the response details.
+    $httpResponseAr = explode("&", $httpResponse);
+ 
+    $httpParsedResponseAr = array();
+    foreach ($httpResponseAr as $i => $value) {
+        $tmpAr = explode("=", $value);
+        if(sizeof($tmpAr) > 1) {
+            $httpParsedResponseAr[$tmpAr[0]] = $tmpAr[1];
+        }
+    }
+ 
+    if((0 == sizeof($httpParsedResponseAr)) || !array_key_exists('ACK', $httpParsedResponseAr)) {
+        exit("Invalid HTTP Response for POST request($nvpreq) to $API_Endpoint.");
+    }
+ 
+    return $httpParsedResponseAr;
+}
+
+     $paymentType = urlencode('Authorization');             // or 'Sale'
+
+ $firstName = urlencode($_POST["firstname"]);
+ $lastName = urlencode($_POST["lastname"]);
+ $creditCardType = urlencode($_POST["cardtype"]);
+$creditCardNumber = urlencode($_POST["cardnumber"]);
+ $expDateMonth = $_POST["month"];
+// // Month must be padded with leading zero
+ $padDateMonth = urlencode(str_pad($expDateMonth, 2, '0', STR_PAD_LEFT));
+ 
+ $expDateYear = urlencode($_POST["year"]);
+$cvv2Number = urlencode($_POST["cv2number"]);
+ $address1 = urlencode($_POST["address"]);
+//$address2 = urlencode('Princeton University');
+$city = urlencode($_POST["city"]);
+ $state = urlencode($_POST["state"]);
+ $zip = urlencode($_POST["zipcode"]);
+ $country = urlencode($_POST["country"]);                // US or other valid country code
+$amount = $totalcharge;
+$currencyID = urlencode('USD'); 
+
+
+
+// Add request-specific fields to the request string.
+$nvpStr =   "&PAYMENTACTION=$paymentType&AMT=$amount&CREDITCARDTYPE=$creditCardType&ACCT=$creditCardNumber".
+            "&EXPDATE=$padDateMonth$expDateYear&CVV2=$cvv2Number&FIRSTNAME=$firstName&LASTNAME=$lastName".
+            "&STREET=$address1&CITY=$city&STATE=$state&ZIP=$zip&COUNTRYCODE=$country&CURRENCYCODE=$currencyID";
+ 
+// Execute the API operation; see the PPHttpPost function above.
+$httpParsedResponseAr = PPHttpPost('DoDirectPayment', $nvpStr);
+ 
+
+
+if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"])) {
+for($iii=0; $iii < $incartresults; $iii++) {
+$imagesource = mysql_result($incart,$iii,'source');
+$imageprice = mysql_result($incart,$iii,'price');
+$imagecartid = mysql_result($incart,$iii,'imageid');
+$imagewidth = mysql_result($incart,$iii,'width');
+$imageheight = mysql_result($incart,$iii,'height');
+$emailquery = mysql_query("SELECT emailaddress FROM photos WHERE id = '$imagecartid'");
+
+$photogemail = mysql_result($emailquery,0,'emailaddress');
+$stickintouserdownloads = mysql_query("INSERT INTO userdownloads (emailaddress,imageid,source,width,height,time) VALUES ('$repemail','$imagecartid','$imagesource','$imagewidth','$imageheight','$currenttime,')");
+ $deletephotofromcart = mysql_query("DELETE FROM userscart WHERE emailaddress = '$email' AND imageid = '$imagecartid'");
+    }      
+
+
+header("Location: cart.php?view=paymentsuccess");
+
+}
+
+
+else  {
+    exit('DoDirectPayment failed: ' . print_r($httpParsedResponseAr, true));
+
+}
+
+
+//         var form$ = $("#payment-form");
+
+//<meta http-equiv="refresh" content="0;url=http://photorankr.com/account.php?view=download">    
+}           
+
+}
+
+//PayPal Return Payment Check
+if($view == 'confirmpp') {
+
+    require('../paypalcheckoutagain.php');
+    
+            echo'<div class="grid_18"><a name="added" style="color:black;text-decoration:none;" href="#"><div style="padding:15px;padding-right:200px;background-color:#ddd;width:180px;margin-left:25px;margin-top:50px;"><span style="font-size:22px;font-weight:200;">Confirm payment</span></div></a>
         
+        <div style="margin-left:20px;">
+        <table class="table">
+            <thead>
+            <tr>
+            <th># Photos</th>
+            <th>Total Price</th>
+            </thead>
+            
+            <tbody>
+        
+            <tr>
+            <td style="width:760px;">',$incartresults,'</td>
+            <td>$',$totalcharge,'</td>
+            </tr>
+        
+            </tbody>
+            </table>
+        </div>
+        
+        </div><br />';
+                
+    }
+
 ?>
 
 </div>
-
-<?php
-
-    //Cart Statistics
-    $incart = mysql_query("SELECT * FROM userscart WHERE emailaddress = '$email' ORDER BY id ASC");
-    $incartresults = mysql_num_rows($incart);
-    
-    $marketquery = mysql_query("SELECT * FROM usersmaybe WHERE emailaddress = '$email'");
-    $numsavedinmarket = mysql_num_rows($marketquery);
-    
-    $downloadquery = mysql_query("SELECT * FROM userdownloads WHERE emailaddress = '$email'");
-    $numpurchased = mysql_num_rows($downloadquery);
-    
-    
-    
-    echo'
-        <!--Quick Links to Cart-->
-        
-        <div class="grid_7 cartBox rounded shadow" style="position:fixed;margin-left:200px;">
-             <div class="cartText"><a class="green" style="text-decoration:none;color:#333;'; if($view == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="cart.php">My Cart (',$incartresults,')</a></div>
-             <div class="cartText"><a class="green" style="text-decoration:none;color:#333;'; if($view == 'purchases') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="cart.php?view=purchases">Purchases (',$numpurchased,')</a></div>
-             <div class="cartText"><a class="green" style="text-decoration:none;color:#333;'; if($view == 'maybe') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="cart.php?view=maybe">Wish List (',$numsavedinmarket,')</a></div>
-        </div>   
-        <br />
-        <a href="#checkout" class="grid_6 btn btn-success" style="width:245px;font-size:20px;padding:12px;position:fixed;margin-left:200px;margin-top:140px;color:white;text-decoration:none;">Checkout</a>     
-    </div>';
-    
-?>
-
     
     </div><!--end of grid 24-->
     

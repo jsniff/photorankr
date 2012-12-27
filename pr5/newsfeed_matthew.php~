@@ -15,7 +15,8 @@ session_start();
         logout();
     }
 
-    $email = $_SESSION['email'];
+    //$email = $_SESSION['email'];
+    $email = 'msniff16@gmail.com';
     
     $findreputationme = mysql_query("SELECT user_id,reputation,profilepic,firstname,lastname,following FROM userinfo WHERE emailaddress = '$email'");
     $reputationme = mysql_result($findreputationme,0,'reputation');
@@ -35,10 +36,10 @@ session_start();
     $currenttime = time();
     
        
-    if (!$_SESSION['email']) {
-        header("Location: signup.php");
+    /*if (!$_SESSION['email']) {
+        header("Location: galleries.php");
         exit();
-    } 
+    } */
 
 $query="SELECT * FROM photos ORDER BY id DESC LIMIT 0, 16";
 $result=mysql_query($query);
@@ -67,8 +68,8 @@ $view=htmlentities($_GET['view']);
 
 <head>
 
- <meta name="Generator" content="EditPlus">
-  <meta name="Author" content="PhotoRankr, PhotoRankr.com">
+ <meta name="generator" content="Bluefish 2.2.3" >
+  <meta name="author" content="Matthew Sniff" >
   <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
   <meta name="Description" content="A gallery of the newest photography, photographers, and exhibits on PhotoRankr.">
      <meta name="viewport" content="width=1200" /> 
@@ -105,200 +106,82 @@ $view=htmlentities($_GET['view']);
     } 
     });
     
-    </script>
+    //Post status update
+        $(function() {
+        $("#statusForm").submit(function() 
+        {
+        var firstname = '<?php echo $sessionfirst; ?>';
+        var lastname = '<?php echo $sessionlast; ?>';
+        var email = '<?php echo $email; ?>';
+        var userpic = '<?php echo $sessionpic; ?>';
+        var viewerid = '<?php echo $sessionid; ?>';
+        var imageid = '<? echo $imageID; ?>';
+        var comment = $("#status").val();
+        var dataString = 'firstname='+ firstname + '&lastname=' + lastname + '&email=' + email + '&comment=' + comment + '&userpic=' + userpic + '&viewerid=' + viewerid + '&imageid=' + imageid;
+        $("#flash").show();
+        $("#flash").fadeIn(400).html();
+        $.ajax({
+        type: "POST",
+        url: "ajaxStatus.php",
+        data: dataString,
+        cache: false,
+        success: function(html){
+        $("ol#update<?php echo $id; ?>").append(html);
+        $("ol#update li:last").fadeIn("slow");
+        $("#flash").hide();
+        }
+        });
+        return false;
+        }); });    
 
+			//Display textarea
+        $(function() 
+        {
+        $("#status").focus(function()
+        {
+        $(this).animate({"height": "42px",}, "fast" );
+        $("#button_block").slideDown("fast");
+        return false;
+        });
+        
+        $("#status").focusout(function()
+        {
+        $(this).animate({"height": "22px",}, "fast" );
+        $("#button_block").slideUp("fast");
+        return false;
+        });
+
+        
+        });
+        </script>
+        
+        <style type="text/css">
+            #button_block {
+                display:none;
+            }
+            #button {
+                background-color:#33C33C;
+                color:#ffffff;
+                font-size:13px;
+                font-weight:bold;
+                padding:3px;
+                margin-left:40px;
+
+            }
+        </style> 
 </head>
-<body style="overflow-x:hidden;background-color:#eee;">
+<body style="overflow-x:hidden;background-image:url('graphics/linen.png')">
 
 <?php navbar(); ?>
 
 <!-----------------------Begin Container---------------------->
 <div id="newsbg" class="container_24" style="width:1050px;position:relative;left:35px;">
 
-<!-----------------------Begin Left Column---------------------->
-
-<div class="grid_9" style="margin-top:70px;">
-
-    <!-----------------------Title------------------------------->
-    
-    <div class="newsTitle">My News</div>
-
-    <!--------------------Menu Options--------------------------->
-    
-    <ul class="followBoxes menu">
-        <a class="link" href="newsfeed.php"><li><img src="graphics/galleries_b.png" />All News</li></a>
-        <a class="link" href="newsfeed.php?view=uploads"><li><img src="graphics/camera.png" />Uploads</li></a>
-        <a class="link" href="newsfeed.php?view=comments"><li><img src="graphics/collection_i.png" />Comments</li></a>
-        <a class="link" href="newsfeed.php?view=favorites"><li><img src="graphics/fave_i.png" />Favorites</li></a>
-    </ul>
-    
-    <!-------------------Suggested Photographers----------------->
-    <?php
-        //select all of the people they are following
-	$followingquery = "SELECT following FROM userinfo WHERE emailaddress='$email' LIMIT 1";
-	$followingresult = mysql_query($followingquery);
-	$followinglistowner = mysql_result($followingresult, 0, "following");
-    
-	//select all the people they are following who aren't themselves
-	$str = mysql_real_escape_string("%'%',%'%',%'%',%'%'%',%'%'%");
-	$followingquery = "SELECT following FROM userinfo WHERE emailaddress IN($followinglistowner) AND emailaddress NOT IN('$email') AND following LIKE('" . $str . "') ORDER BY RAND() LIMIT 1";
-	$followingresult = mysql_query($followingquery) or die(mysql_error());
-	$followinglist = mysql_result($followingresult, 0, "following");
-	$followingnumber = mysql_num_rows($followingresult);
-	
-	//if they aren't yet following anyone, just get four random photographers
-	if($followingnumber == 0) {
-		$displayquery = "SELECT firstname, lastname, profilepic FROM userinfo ORDER BY RAND() LIMIT 4";
-		$displayresult = mysql_query($displayquery);
-	}
-	//else they are following people so go ahead with the original procedure
-	else {
-		$displayquery = "SELECT firstname, lastname, profilepic,user_id FROM userinfo WHERE emailaddress IN($followinglist) AND emailaddress NOT IN('$email', $followinglistowner, 'support@photorankr.com') ORDER BY RAND() LIMIT 4";		
-		$displayresult = mysql_query($displayquery) or die(mysql_error());
-        $numdisplayresult = mysql_num_rows($displayresult);
-	}
-	
-	//see if we have enough information to even display this 
-		//loop through the people, printing out their name and profile picture
-        //echo'<span style="font-size:16px;font-weight:100;padding:15px;">Photographers to Follow:</span>';
-        
-        echo'<ul class="followBoxes">';
-        
-		for($iii=0; $iii < 4; $iii++) {
-            $firstname = mysql_result($displayresult, $iii, "firstname");
-			$name = mysql_result($displayresult, $iii, "firstname") . " " . mysql_result($displayresult, $iii, "lastname");
-			$profilepic = mysql_result($displayresult, $iii, "profilepic");
-            $profileid = mysql_result($displayresult, $iii, "user_id");
-            
-            if($name == '' || $pofilepic == ''){
-            $somequery = mysql_query("SELECT firstname,lastname,profilepic,user_id,emailaddress FROM userinfo WHERE profilepic != 'profilepics/default_profile.jpg' && firstname != 'PhotoRankr' ORDER BY RAND()");
-            $firstname = mysql_result($somequery, $iii, "firstname");
-            $name = $firstname . " " . mysql_result($somequery, $iii, "lastname");
-			$profilepic = mysql_result($somequery, $iii, "profilepic");
-            $profileid = mysql_result($somequery, $iii, "user_id");
-            $profileemail = mysql_result($somequery, $iii, "emailaddress");
-             
-            $numownerphotosquery = mysql_query("SELECT * FROM photos WHERE emailaddress = '$profileemail' ORDER BY (points/votes) DESC");
-            $numownerphotos = mysql_num_rows($numownerphotosquery);
-            $photo1 = mysql_result($numownerphotosquery,0,'source');
-            $photo1 = str_replace('userphotos/','userphotos/medthumbs/',$photo1);
-            $photo2 = mysql_result($numownerphotosquery,1,'source');
-            $photo2 = str_replace('userphotos/','userphotos/medthumbs/',$photo2);
-            $photo3 = mysql_result($numownerphotosquery,2,'source');
-            $photo3 = str_replace('userphotos/','userphotos/medthumbs/',$photo3);
-            $photo4 = mysql_result($numownerphotosquery,3,'source');
-            $photo4 = str_replace('userphotos/','userphotos/medthumbs/',$photo4);           
-            
-            $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$profileemail%'";
-            $followersresult=mysql_query($followersquery);
-            $numberfollowers = mysql_num_rows($followersresult);
-                
-            for($ii = 0; $ii < $numownerphotos; $ii++) {
-                $points = mysql_result($numownerphotosquery, $ii, "points");
-                $votes = mysql_result($numownerphotosquery, $ii, "votes");
-                $totalfaves = mysql_result($numownerphotosquery, $ii, "faves");
-                $portfoliopoints+=$points;
-                $portfoliovotes+=$votes;
-                $portfoliofaves+=$totalfaves;
-            }
-            if ($portfoliovotes > 0) {
-                $portfolioranking=($portfoliopoints/$portfoliovotes);
-                $portfolioranking=number_format($portfolioranking, 2, '.', '');    
-                }
-            else if ($portfoliovotes < 1) {
-                $portfolioranking="N/A";
-                }	
-                
-        } 
-        ?>
-        
-        <script type="text/javascript">
-        //Show Follower Images
-        jQuery(document).ready(function(){
-            jQuery("#showImages<?php echo $profileid; ?>").live("click", function(event) {        
-                jQuery("#hiddenImages<?php echo $profileid; ?>").toggle();
-            });
-        });
-        </script>
-        
-        <?php
-
-                    echo'<li>
-                            <img style="float:left;" src="https://photorankr.com/',$profilepic,'" />
-                            <div class="innerFollowBox">
-                                <div id="name" style="width:245px;">
-                                    ',$name,' <br />
-                                    <span id="smaller">Followed by ',$numberfollowers,' photographers</span>
-                                </div>
-                                
-                                <!--Top Images from this Photographer---->';
-                                if($numownerphotos > 4) {
-                                echo'<div style="float:left;width:250px;font-size:13px;">
-                                        <div style="color:#3b5998;cursor:pointer;" id="showImages',$profileid,'">Top Images from ',$firstname,'</div>
-                                     </div>
-                                     </div>
-                                     <div id="hiddenImages',$profileid,'" class="hiddenFollowerImages">
-                                        <img src="https://photorankr.com/',$photo1,'" />
-                                        <img src="https://photorankr.com/',$photo2,'" />
-                                        <img src="https://photorankr.com/',$photo3,'" />
-                                        <img src="https://photorankr.com/',$photo4,'" />
-                                     </div>';
-                                }
-                             echo'
-                        </li>';
-		}
-        
-                
-        echo'</ul>
-        
-        <!---------------------Trending Photography------------------->';
-                   
-            echo'<div class="trendingBox">
-                    <div class="cartText" style="font-size:22px;">Trending Photography</div>';
-                    
-                    $trendingnow = mysql_query("SELECT * FROM photos ORDER BY score DESC LIMIT 0,8");
-                    
-                    for($iii=0; $iii<8; $iii++) {
-                        $trendingimage = mysql_result($trendingnow, $iii, 'source');
-                        $trendingimagenew = '../' . $trendingimage;
-                        $trendingimage2 = str_replace("userphotos/","userphotos/medthumbs/", $trendingimage);
-                        $caption = mysql_result($trendingnow,$iii,'caption');
-                        $views = mysql_result($trendingnow,$iii,'views');
-                        $points = mysql_result($trendingnow,$iii,'points');
-                        $votes = mysql_result($trendingnow,$iii,'votes');
-                        $about = mysql_result($trendingnow,$iii,'about');
-                        $imageid = mysql_result($trendingnow,$iii,'id');
-                        $rank = ($points / $votes);
-                        $rank = number_format($rank,2);
-                                
-                        list($width, $height) = getimagesize($trendingimagenew);
-                        $width = ($width / 5.5);
-                        $height = ($height / 5.5);
-			
-                        echo'<div class="fPic" id="',$views,'" style="float:left;width:169px;height:169px;padding-left:1px;padding-bottom:1px;overflow:hidden;">
-                        
-						<a href="viewprofile.php?u=',$profileid,'"><img style="min-width:169px;min-height:169px;" src="https://photorankr.com/',$trendingimage2,'" /></a>
-                        
-                        <div style="height:15px;background-color:rgba(34,34,34,.8);width:169px;position:relative;top:-30px;padding:8px;color:#fff;font-weight:300;font-size:14px;">',$caption,'</div>
-                        
-                    </div>';            
-                        
-                        }
-                    
-                echo'</div>';
-                
-
-?>
-
-</div>
-
-<!-----------------------End Left Column---------------------->
-
 <!-----------------------Begin Newsfeed----------------------->
 
   <!--NEWSFEED-->
-    <div class="grid_14" id="thepics" style="width:650px;margin-top:70px;position:relative;left:30px;">
-    <div id="main" style=">
+    <div class="grid_14" id="thepics" style="width:530px;margin-top:70px;position:relative;left:-60px;">
+    <div id="main" style="">
     <ul id="tiles">
     
 <?php
@@ -386,7 +269,14 @@ if($view == '') {
 
     echo'<div class="grid_16">
          <!--Profile Picture-->
-         <div class="profilepic"><img src="https://photorankr.com/',$ownerprofilepic,'" /></div>
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$ownerprofilepic,'" />
+                    <li><img src="graphics/comment_1.png"></li>
+                    <li><img src="graphics/heart.png"></li>
+                     <a href="fullsizemarket.php?imageid=',id,'"><li><img src="graphics/tag.png"></li></a>
+                </ul>
+            </div>
          
          <!--Content Box-->
          <div class="newsContainer">
@@ -397,14 +287,11 @@ if($view == '') {
                         <div class="newsName">',$phrase,'</div>
                         <div class="newsTools">
                             <span id="time">',$time,'</span>
-                            <img src="graphics/rank_b_c.png">
-                            <img src="graphics/fave_b_c.png">
-                            <img src="graphics/market_b_c.png">
                         </div>
                     </div>
                     <!--Content-->
                     <div class="newsContent">
-                        <img src="https://photorankr.com/',$image,'" />
+                        <a href="fullsize.php?imageid=',id,'"><img style="max-height:500px;" src="https://photorankr.com/',$image,'" /></a>
                     </div>
                     <!---Stats--->
                     <div class="newsStats">
@@ -528,38 +415,28 @@ if($view == '') {
         });
         return false;
         }); });
-                
-        //Javascript for showing hidden comments
-        jQuery(document).ready(function(){
-            jQuery("#commentOption<?php echo $id; ?>").live("click", function(event) {        
-                jQuery("#hiddenComments<?php echo $id; ?>").toggle();
-            });
-        });
+ 
         
         //Display textarea
         $(function() 
         {
-        $("#comment<?php echo $id; ?>").focus(function()
+        $("#comment<?php echo $id; ?>").click(function()
         {
-        $(this).animate({"height": "85px",}, "fast" );
+        $("#commentBox<?php echo $id; ?>").animate({"height": "85px",}, "fast" );
         $("#button_block<?php echo $id; ?>").slideDown("fast");
+        jQuery("#commentform<?php echo $id; ?>").toggle();
+        jQuery("#hiddenComments<?php echo $id; ?>").toggle();
         return false;
-        });
-        
-        $("#comment<?php echo $id; ?>").focusout(function()
-        {
-        $(this).animate({"height": "20px",}, "fast" );
-        $("#button_block<?php echo $id; ?>").slideUp("fast");
-        return false;
-        });
-
-        
+        });        
         });
         </script>
         
         <style type="text/css">
             #hiddenComments<?php echo $id; ?> {
                 display:none;
+            }
+            #commentform<?php echo $id; ?> {
+            	display:none;
             }
             #commentOption<?php echo $id; ?> {
                 font-size:13px;
@@ -603,8 +480,15 @@ if($view == '') {
         
         echo'<div class="grid_16">
          <!--Profile Picture-->
-         <div class="profilepic"><img src="https://photorankr.com/',$commenterpic,'" /></div>
-         
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$commenterpic,'" />
+                    <li id="comment',$id,'"><img src="graphics/comment_1.png"></li>
+                    <li><img src="graphics/heart.png"></li>
+                     <a href="fullsizemarket.php?imageID=',id,'"><li><img src="graphics/tag.png"></li></a>
+                </ul>
+            </div>
+                     
          <!--Content Box-->
          <div class="newsContainer">
             <div class="newsTriangle"></div>
@@ -614,14 +498,11 @@ if($view == '') {
                         <div class="newsName">',$fullname,' > ',$ownerfull,'</div>
                         <div class="newsTools">
                             <span id="time">',$time,'</span>
-                            <img src="graphics/rank_b_c.png">
-                            <img src="graphics/fave_b_c.png">
-                            <img src="graphics/market_b_c.png">
                         </div>
                     </div>
                     <!--Content-->
                     <div class="commentPhoto">
-                        <img src="https://photorankr.com/',$source,'" />
+                         <a href="fullsize.php?imageID=',id,'"><img style="max-height:500px;" src="https://photorankr.com/',$source,'" /></a>
                     </div>
                     <div class="commentBox">
                         <blockquote>
@@ -637,7 +518,7 @@ if($view == '') {
                     <div class="postCommentBox">
                          <form action="#" id="commentform',$id,'" method="post" style="margin-top:5px;padding-bottom:5px;"> 
                         <img style="float:left;" src="https://photorankr.com/',$sessionpic,'" height="30" width="30"  />
-                        <textarea id="comment',$id,'"  style="margin-left:5px;width:445px;height:20px;" placeholder="Leave feedback for ',$firstname,'&#8230;"></textarea>
+                        <textarea id="commentBox',$id,'" style="resize:none;margin-left:5px;width:400px;height:20px;" placeholder="Leave feedback for ',$firstname,'&#8230;"></textarea>
                         <div id="button_block',$id,'">
                          <input type="submit" id="button',$id,'" class="btn btn-success" value=" Comment "/>
                         </div>
@@ -666,7 +547,7 @@ if($view == '') {
 
                                 echo'<li style="overflow:hidden;"> 
                                         <div style="width:35px;float:left;"><img src="https://photorankr.com/',$commenterpic,'" height="35" width="35" /></div>
-                                        <div style="width:460px;float:left;" id="commenterName" style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a>
+                                        <div style="width:440px;float:left;" id="commenterName" style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a>
                                         <div style="float:right">',$commenttime,'</div>
                                         <div id="commentText">
                                             ',$prevcomment,'
@@ -754,8 +635,15 @@ if($view == '') {
 
          echo'<div class="grid_16">
          <!--Profile Picture-->
-         <div class="profilepic"><img src="https://photorankr.com/',$commenterpic,'" /></div>
-         
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$commenterpic,'" />
+                    <li><img src="graphics/comment_1.png"></li>
+                    <li><img src="graphics/heart.png"></li>
+                    <li><img src="graphics/tag.png"></li>
+                </ul>
+            </div>
+                     
          <!--Content Box-->
          <div class="newsContainer">
             <div class="newsTriangle"></div>
@@ -793,11 +681,193 @@ if($view == '') {
     
 } //end of for loop
     
-    echo'</ul>';
+    echo'</ul>
+    </div>
+    </div>';
     
 ?>
 
 <!-----------------------End Newsfeed----------------------->
+
+
+
+<!-----------------------Begin Middle Column---------------------->
+
+<div class="grid_6" style="position:relative;left:-15px;margin-top:55px;">
+
+<!-------------------Suggested Photographers----------------->
+    <?php
+        //select all of the people they are following
+	$followingquery = "SELECT following FROM userinfo WHERE emailaddress='$email' LIMIT 1";
+	$followingresult = mysql_query($followingquery);
+	$followinglistowner = mysql_result($followingresult, 0, "following");
+    
+	//select all the people they are following who aren't themselves
+	$str = mysql_real_escape_string("%'%',%'%',%'%',%'%'%',%'%'%");
+	$followingquery = "SELECT following FROM userinfo WHERE emailaddress IN($followinglistowner) AND emailaddress NOT IN('$email') AND following LIKE('" . $str . "') ORDER BY RAND() LIMIT 1";
+	$followingresult = mysql_query($followingquery) or die(mysql_error());
+	$followinglist = mysql_result($followingresult, 0, "following");
+	$followingnumber = mysql_num_rows($followingresult);
+	
+	//if they aren't yet following anyone, just get four random photographers
+	if($followingnumber == 0) {
+		$displayquery = "SELECT firstname, lastname, profilepic FROM userinfo ORDER BY RAND() LIMIT 4";
+		$displayresult = mysql_query($displayquery);
+	}
+	//else they are following people so go ahead with the original procedure
+	else {
+		$displayquery = "SELECT firstname, lastname, profilepic,user_id FROM userinfo WHERE emailaddress IN($followinglist) AND emailaddress NOT IN('$email', $followinglistowner, 'support@photorankr.com') ORDER BY RAND() LIMIT 4";		
+		$displayresult = mysql_query($displayquery) or die(mysql_error());
+        $numdisplayresult = mysql_num_rows($displayresult);
+	}
+	
+	//see if we have enough information to even display this 
+		//loop through the people, printing out their name and profile picture
+        //echo'<span style="font-size:16px;font-weight:100;padding:15px;">Photographers to Follow:</span>';
+        
+        echo'<ul class="followBoxes">';
+        
+		for($iii=0; $iii < 4; $iii++) {
+            $firstname = mysql_result($displayresult, $iii, "firstname");
+			$name = mysql_result($displayresult, $iii, "firstname") . " " . mysql_result($displayresult, $iii, "lastname");
+			$profilepic = mysql_result($displayresult, $iii, "profilepic");
+            $profileid = mysql_result($displayresult, $iii, "user_id");
+            
+            if($name == '' || $pofilepic == ''){
+            $somequery = mysql_query("SELECT firstname,lastname,profilepic,user_id,emailaddress FROM userinfo WHERE profilepic != 'profilepics/default_profile.jpg' && firstname != 'PhotoRankr' ORDER BY RAND()");
+            $firstname = mysql_result($somequery, $iii, "firstname");
+            $name = $firstname . " " . mysql_result($somequery, $iii, "lastname");
+			$profilepic = mysql_result($somequery, $iii, "profilepic");
+            $profileid = mysql_result($somequery, $iii, "user_id");
+            $profileemail = mysql_result($somequery, $iii, "emailaddress");
+             
+            $numownerphotosquery = mysql_query("SELECT * FROM photos WHERE emailaddress = '$profileemail' ORDER BY (points/votes) DESC");
+            $numownerphotos = mysql_num_rows($numownerphotosquery);
+            $photo1 = mysql_result($numownerphotosquery,0,'source');
+            $photo1 = str_replace('userphotos/','userphotos/medthumbs/',$photo1);
+            $photo2 = mysql_result($numownerphotosquery,1,'source');
+            $photo2 = str_replace('userphotos/','userphotos/medthumbs/',$photo2);
+            $photo3 = mysql_result($numownerphotosquery,2,'source');
+            $photo3 = str_replace('userphotos/','userphotos/medthumbs/',$photo3);
+            $photo4 = mysql_result($numownerphotosquery,3,'source');
+            $photo4 = str_replace('userphotos/','userphotos/medthumbs/',$photo4);           
+            
+            $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$profileemail%'";
+            $followersresult=mysql_query($followersquery);
+            $numberfollowers = mysql_num_rows($followersresult);
+                
+            for($ii = 0; $ii < $numownerphotos; $ii++) {
+                $points = mysql_result($numownerphotosquery, $ii, "points");
+                $votes = mysql_result($numownerphotosquery, $ii, "votes");
+                $totalfaves = mysql_result($numownerphotosquery, $ii, "faves");
+                $portfoliopoints+=$points;
+                $portfoliovotes+=$votes;
+                $portfoliofaves+=$totalfaves;
+            }
+            if ($portfoliovotes > 0) {
+                $portfolioranking=($portfoliopoints/$portfoliovotes);
+                $portfolioranking=number_format($portfolioranking, 2, '.', '');    
+                }
+            else if ($portfoliovotes < 1) {
+                $portfolioranking="N/A";
+                }	
+                
+        } 
+        ?>
+        
+        <script type="text/javascript">
+        //Show Follower Images
+        jQuery(document).ready(function(){
+            jQuery("#showImages<?php echo $profileid; ?>").live("click", function(event) {        
+                jQuery("#hiddenImages<?php echo $profileid; ?>").toggle();
+            });
+        });
+        </script>
+        
+        <?php
+
+                    echo'<li>
+                            <img style="float:left;" src="https://photorankr.com/',$profilepic,'" />
+                            <div class="innerFollowBox">
+                                <div id="name" style="width:245px;">
+                                    ',$name,' <br />
+                                    <span id="smaller">Followed by ',$numberfollowers,' photographers</span>
+                                </div>
+                                
+                                <!--Top Images from this Photographer---->';
+                                if($numownerphotos > 4) {
+                                echo'<div style="float:left;width:250px;font-size:13px;">
+                                        <div style="color:#3b5998;cursor:pointer;" id="showImages',$profileid,'">Top Images from ',$firstname,'</div>
+                                     </div>
+                                     </div>
+                                     <div id="hiddenImages',$profileid,'" class="hiddenFollowerImages">
+                                        <img src="https://photorankr.com/',$photo1,'" />
+                                        <img src="https://photorankr.com/',$photo2,'" />
+                                        <img src="https://photorankr.com/',$photo3,'" />
+                                        <img src="https://photorankr.com/',$photo4,'" />
+                                     </div>';
+                                }
+                             echo'
+                        </li>';
+		}
+        
+                
+        echo'</ul>';
+?>
+
+</div>
+
+
+
+<!-----------------------End Middle Column---------------------->
+
+
+
+<!-----------------------Begin Far Right Column---------------------->
+
+<div class="grid_6" style="margin-top:70px;position:relative;left:45px;">
+
+    <!-----------------------Title------------------------------->
+    
+    <div class="newsUpdateBox">
+    
+    	<div class="updateBoxTop">
+    		<img src="https://photorankr.com/<?php echo $sessionpic; ?>" />
+    		<header><?php echo $sessionname; ?></header>
+    	</div>
+    	
+    	<div class="updateBoxMiddle">
+    		<ul>
+    			<li><?php echo $numphotos; ?><p>Photos</p></li>
+    			<li><?php echo $numberfollowers; ?><p>Followers</p></li>
+    			<li style="border:none;"><?php echo $numberfollowing; ?><p>Following</p></li>
+    		</ul>
+    	</div>
+    
+		<div class="updateBoxBottom">
+			<form action="#" id="statusForm">
+				<textarea id="status" style="resize:none;margin:10px;padding:4px;width:240px;height:22px;" placeholder="What's new with your photography?"></textarea>
+				 <div id="button_block">
+                 <input type="submit" id="button" class="btn btn-success" value=" Post "/>
+             </div>
+        </form>
+		</div>    
+    
+    </div>
+
+    <!--------------------Menu Options--------------------------->
+    
+    <ul class="followBoxes menu">
+        <a class="link" href="newsfeed.php"><li><img src="graphics/galleries_b.png" />All News</li></a>
+        <a class="link" href="newsfeed.php?view=uploads"><li><img src="graphics/camera.png" />Uploads</li></a>
+        <a class="link" href="newsfeed.php?view=comments"><li><img src="graphics/collection_i.png" />Comments</li></a>
+        <a class="link" href="newsfeed.php?view=favorites"><li><img src="graphics/fave_i.png" />Favorites</li></a>
+    </ul>
+
+</div>
+
+<!-----------------------End Far Right Column---------------------->
+
 
 <!-----------------------End of Container--------------------->
 </div>

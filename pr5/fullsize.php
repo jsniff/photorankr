@@ -3,6 +3,7 @@
 //connect to the database
 require "../db_connection.php";
 require "functions.php";
+//require "timefunction.php";
 
 //start the session
 session_start();
@@ -49,6 +50,9 @@ session_start();
     //GET THE IMAGE
 $image = addslashes($_GET['image']);
 $view = htmlentities($_GET['v']);
+if($view == '') {
+    $view = 't';
+}
 
 if(!$image) {
 
@@ -193,7 +197,7 @@ $lastname=$row['lastname'];
 $reputation=number_format($row['reputation'],2);
 $promos = mysql_result($nameresult,0,'promos');
 $fullname = $firstname . " " . $lastname;
-$fullname = (strlen($fullname ) > 14) ? substr($fullname,0,12). " &#8230;" :$fullname;
+$fullname = (strlen($fullname ) > 17) ? substr($fullname,0,16). " &#8230;" :$fullname;
 
 $profilepic=$row['profilepic'];
 $profilescore=$row['totalscore'];
@@ -777,6 +781,45 @@ else if($view == 'r') {
 }*/
 	</style>
     
+    <script type="text/javascript">
+    //Display textarea
+    $(function() 
+    {
+        $("#photocomment").focus(function()
+        {
+        $(this).animate({"height": "85px",}, "fast" );
+        $("#button_block").slideDown("show");
+        return false;
+        });
+        
+        $("#photocomment").focusout(function()
+        {
+        $(this).animate({"height": "45px",}, "fast" );
+        $("#button_block").slideUp("fast");
+        return false;
+        });        
+    });
+    </script>
+        
+        <style type="text/css">
+            #photocomment {
+                -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #666;
+                -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #666;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #666;
+                outline:none;
+                border:none;
+                color:#333;
+                font-size:15px;
+                font-weight:300;
+                -webkit-border-top-left-radius: 2px;
+                -webkit-border-top-right-radius: 2px;
+                -moz-border-radius-topleft: 2px;
+                -moz-border-radius-topright: 2px;
+                border-top-left-radius: 2px;
+                border-top-right-radius: 2px;
+            }
+        </style>
+    
     <script language="javascript" type="text/javascript">
 
 function createRequestObject() {
@@ -1112,11 +1155,11 @@ height="100px" width="100px" />
 </div>
 </div>
 
-<body id="body" >
+<body style="overflow-x:hidden; background-image:url('graphics/linen.png');">
 
 <?php navbar(); ?>
 
-<div class="container_custom" style="margin:50px 0 0 120px;width:1080px;">
+<div class="container_24" style="position:relative;left:35px;margin-top:50px;width:1100px;">
 	
 	<div class="bloc_4" style="float:right;width:24.07%;margin:45px 0 0 0;display:block;">
 
@@ -1124,7 +1167,11 @@ height="100px" width="100px" />
 		<div id="Tag">
 			<div id="topHalf">
 				<img src="../<?php echo $profilepic; ?>" />
-				<header style="min-width:100px;"> <?php echo $fullname; ?> </header>
+				<header style="min-width:100px;">
+                    <a href="viewprofile.php?u=<?php echo $user; ?>">
+                        <?php echo $fullname; ?>
+                    </a> 
+                </header>
                 
                  <?php
                     if($_SESSION['loggedin'] == 1) {
@@ -1151,8 +1198,8 @@ height="100px" width="100px" />
 
 			</div>
 			<div id="bottomHalf">  
-				<header> Photos: 345 </header>
-				<header> Rep: <?php echo $reputation; ?> </header>
+				<header><img src="graphics/camera2.png" style="width:15px;margin-top:-3px;padding-right:3px;" /> Photos &mdash; 345 </header>
+				<header> Rep &mdash; <?php echo $reputation; ?> </header>
 			</div>	
 		</div>
         
@@ -1167,7 +1214,7 @@ height="100px" width="100px" />
 			<ul>
 				<li id="rankButton">  <img src="graphics/rank_b_c.png" /> Rank </li>
 				<a style="color:#333;text-decoration:none;" data-toggle="modal" data-backdrop="static" href="#collectionmodal">
-                <li><img src="graphics/collection_b_c.png"/>  Collect </li>
+                <li style="border-right:1px solid #c6c6c6;width:42px;"><img style="width:32px;height:35px;" src="graphics/collection_b_c.png" />  Collect </li>
                 </a>
                 
                 <?php
@@ -1219,7 +1266,7 @@ height="100px" width="100px" />
 		</div>
 
 		<!--PREVIEW BAR-->
-		<div id="nextPhotos" style="margin-top:10px;">
+		<div id="nextPhotos" style="position:relative;top:5px;">
 			<header> 
             <?php 
                     
@@ -1237,7 +1284,7 @@ height="100px" width="100px" />
             
             ?>
             </header>
-				<div id="nextPhotosInner">
+				<div id="nextPhotosInner" style="margin-top:-3px;">
                     
                     <a href="javascript:ajaxNextPics()">
                         <div id="arrowLeft"> 
@@ -1245,7 +1292,7 @@ height="100px" width="100px" />
                     </a>
                     
                     <a href="javascript:ajaxPrevPics()">
-                        <div id="arrowRight"> 
+                        <div id="arrowRight" style="margin-right:-2px;"> 
                         </div>	
                     </a>
                     
@@ -1259,7 +1306,7 @@ height="100px" width="100px" />
 		</div>
     
     <!--SHARE BAR-->
-		<div id="shareBar">
+		<div id="shareBar" style="position:relative;top:20px;">
 			<ul>
 				<li style="border-radius:5px 0 0 5px;width:47px;text-align:center;"> <img src="graphics/share_b.png" style="opacity:1;box-shadow: none;padding-bottom:2px;width:21px;height:19px;margin:0 0 0 12px;"/> Share  </li>
 				<li > <img src="graphics/twitter_s.png"/> </li>
@@ -1272,7 +1319,7 @@ height="100px" width="100px" />
     <!--PHOTO STORY-->
     <?php
         if($about) {
-		echo'<div id="photoStory">
+		echo'<div id="photoStory" style="position:relative;top:30px;">
 			<header> Behind the Lens </header>
 			<p>',$about,'</p>
 		</div>';
@@ -1280,10 +1327,23 @@ height="100px" width="100px" />
     ?>
     
     <!--ABOUT PHOTO-->
-		<div id="AboutPhoto">
+		<div id="AboutPhoto" style="position:relative;top:20px;">
 			<header> About </header>
 			<ul>
                 <?php 
+                 if($exhibit) {
+                        echo'
+						<li><img src="graphics/grid.png"/>  Exhibit: <a class="click" href="viewprofile.php?u=',$user,'&view=exhibits&set=',$exhibit,'"><u>',$exhibitname,'</u></a></li>'; 
+                    }
+                    
+                    if($exhibit && $expic1 && $expic2 && $expic3) {
+                        echo'
+						<li style="clear:both;margin-left:5px;overflow:hidden;margin-left:-10px;width:250px;">
+                        <a href="fullsize.php?image=',$expic1,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb1,'" height="80" width="78" /></a> 
+                        <a href="fullsize.php?image=',$expic2,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb2,'" height="80" width="78" /></a> 
+                        <a href="fullsize.php?image=',$expic3,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb3,'" height="80" width="78" /></a> 
+                        </li>';
+                    }
                 if($views) {
 				echo'<li><img src="graphics/views.png"/>  Views: <span style="margin-left:38px;">',$views,'</span></li>';
                 }
@@ -1321,7 +1381,7 @@ height="100px" width="100px" />
 	
 	<!--TITLE-->
 	<div class="bloc_12" style="float:left;display:block;width:74.07%;" id="title">
-		<header> <?php echo $caption; ?> <img src="graphics/uploadDate.png"/>  <span> Uploaded <?php echo $time; ?> </span> </header>
+		<header> <?php echo $caption; ?> <span> <?php echo $time; ?> </span> <img style="margin-right:4px;" src="graphics/arrow 4.png"/>  </header>
 	</div>
 
 	<!--IMAGE-->
@@ -1330,26 +1390,31 @@ height="100px" width="100px" />
 	</div>
 
 	<!--COMMENTS-->
-	<div class="bloc_12" style="float:left;width:74.07%;">
+	<div class="bloc_12" style="float:left;width:820px;">
 
         <?php
         //AJAX COMMENT
         if($_SESSION['loggedin'] == 1) {
             echo'
-            <div style="width:790px;"> 
-            <form action="#" method="post" style="margin-top:5px;padding-bottom:5px;">        
-           
-            <div id="comment">
-                <div class="commentTag">
-				<img src="https://photorankr.com/',$sessionpic,'" height="55" width="50" />
-				<header> Rep: ',$reputationme,' </header>
-                </div>
-            <div>
+            <div style="width:820px;margin-top:30px;position:relative;left:0px;"> 
             
-                <textarea id="photocomment" style="margin-top:15px;width:675px;height:65px;" placeholder="Leave feedback for ',$firstname,'&#8230;"></textarea>
-                <input style="margin-right:45px;float:right;" type="submit" class="submit btn btn-success" value="Comment"/>
+            <div style="float:left;">
+                <img id="commentPhoto" src="https://photorankr.com/',$sessionpic,'" height="55" width="50" />
             </div>
+            
+            <div style="float:left;margin-left:14px;margin-top:5px;">
+                <div class="commentTriangle"></div>
+            <form action="#" method="post" style="margin-top:5px;padding-bottom:5px;">        
+                <textarea id="photocomment" style="margin-left:0px;margin-top:-10px;width:740px;height:45px;font-size:15px;padding:5px;resize:none;color:#333;" placeholder="Leave feedback for ',$firstname,' &#8230;"></textarea>
+                    <div id="button_block">
+                        <div class="postCommentBtn">
+                            <img style="float:left" src="graphics/comment_1.png" height="16" width="16" />&nbsp;&nbsp;
+                            <a href="#" style="color:#333;text-decoration:none;" id="postComment">Post Feedback</a>
+                            
+                        </div>
+                    </div>
             </form>
+        </div>
         
             <!--AJAX COMMENTS-->
             <div class="float:left;"> 
@@ -1367,6 +1432,7 @@ height="100px" width="100px" />
             $comment = mysql_result($grabcomments,$iii,'comment');
             $commentid = mysql_result($grabcomments,$iii,'id');
             $commenttime = mysql_result($grabcomments,$iii,'time');
+            //$commenttime = converttime($commenttime);
             $commenteremail = mysql_result($grabcomments,$iii,'commenter');
             $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
             $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
@@ -1376,15 +1442,19 @@ height="100px" width="100px" />
         
         
         echo'
-            <div id="comment" style="width:760px;">
-                <div class="commentTag">
-				<img src="https://photorankr.com/',$commenterpic,'" height="55" width="50" />
-				<header> Rep: ',$commenterrep,' </header>
-			</div>
+            <div id="comment" style="width:820px;clear:both;margin-left:0px;">
+                <div id="commentProfPic">
+                    <img src="https://photorankr.com/',$commenterpic,'" height="55" width="50" />
+                </div>
+            
+        <div style="position:relative;left:15px;">
+        
+            <div class="commentTriangle" style="margin-top:-18px;"></div>
+
 			<div class="commentName">
-				<header> <a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> </header>
-				<img src="graphics/uploadDate.png"/>
-				<p> ',$commenttime,' </p>
+				<header><span style="font-size:14px;">',$commenterrep,'</span> <a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> </header>
+				<p> ',$commenttime,' </p>&nbsp;
+                <img style="padding-right:3px;" src="graphics/clock.png"/>&nbsp;
 			</div>
 			<div class="commentBody"><p>',$comment,'</p>';
             
@@ -1412,6 +1482,7 @@ height="100px" width="100px" />
             
             echo'
             </div>
+          </div>
 		</div>';
             
         }
@@ -1429,21 +1500,17 @@ height="100px" width="100px" />
                 
     ?>
         
-    </div>	
-
-
-	</div>
-
-	
 </div>
 
-</body>
+</div>
+</div>
+
+<?php echo footer(); ?>
 
 <?php 
 //add to the views column
 $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image'") or die(mysql_error());
 ?>
-
 <script type="text/javascript">
 (function(){
 
@@ -1458,5 +1525,6 @@ $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image
 })();
 </script>
 
+</body>
 </html>
 			

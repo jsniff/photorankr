@@ -330,8 +330,37 @@ google.setOnLoadCallback(drawChart);
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
         chart.draw(data, options);
       }
-    </script>
-
+      
+    //Display textarea
+    $(function() 
+    {
+        $("#status").focus(function()
+        {
+        $("#button_block").slideDown("fast");
+        return false;
+        });
+        
+        $("#status").focusout(function()
+        {
+        $("#button_block").slideUp("fast");
+        return false;
+        });        
+    });
+        </script>
+        
+        <style type="text/css">
+            #button_block {
+                display:none;
+            }
+            #button {
+                background-color:#33C33C;
+                color:#ffffff;
+                font-size:13px;
+                font-weight:bold;
+                padding:3px;
+                margin-left:40px;
+            }
+        </style>
 </head>
 
 <?php
@@ -469,9 +498,12 @@ height="100px" width="100px" />
             <!------------------------PROFILE PICTURE------------------------>    
             <div class="profileBox">
                 <div id="profilePicture">
+                    <div class="storeContainerOverlay">
+                        <header> <?php echo $bio;?> </header>
+                    </div>
                     <img src="https://photorankr.com/<?php echo $profilepic ?>" />
                 </div>
-                <div id="nameLabel">
+                <div id="nameLabel" style="margin-top:5px;">
                     <header><span style="font-weight:normal;font-size:17px;"><?php echo $reputation; ?></span> <?php echo $fullname ?></header>
                 </div>
                 <div id="followBlock">
@@ -482,87 +514,31 @@ height="100px" width="100px" />
             
         <div class="profileRightSide">
             <!------------------------STATS BOXES------------------------>   
-            <div class="topHalfBlock">
-                <div id="bioText">
-                    <header>About Me</header>
-                    <img style="width:12px;margin:-10px 4px 0px 2px;" src="graphics/quote 2.png" />
-                    <?php echo $bio; ?>
-                    <img style="width:12px;margin:-10px 4px 0px 4px;" src="graphics/quote 1.png" />
+            <div class="smallAboutBox" style="float:left;margin-top:20px;">   
+                <div class="smallCornerTab">
+                    <img src="graphics/camera2.png" /> Snapshot
                 </div>
+                <ul id="snapshot">
+                    <li><img style="width:12px;" src="graphics/camera.png"> Photos &mdash; <?php echo $numphotos; ?></li>
+                    <li><img style="width:12px;" src="graphics/rank_prof.png"> Avg Score &mdash; <?php echo $portfolioranking; ?></li>
+                    <li><img style="width:14px;" src="graphics/eye.png"> Views &mdash; <?php echo $profileviews; ?></li>
+                    <li><img style="width:20px;margin-left:-8px;" src="graphics/groups_b.png"> Followers &mdash; <?php echo $numberfollowers; ?></li>
+                     <li><img style="width:20px;margin-left:-8px;" src="graphics/heart.png"> Favorites &mdash; <?php echo $portfoliofaves; ?></li>
+                </ul>
             </div>
             
-            <div class="topHalfBlock">
-                <div id="bioText" style="padding-left:12px;">
-                    <header> Reputation </header>
-                    <ul>
-                        <li><span id="statTxt"><img style="width:12px;" src="graphics/rep_i.png" /> Rep: <?php echo $reputation; ?></span></li>
-                        <li><span id="statTxt"><img style="width:12px;" src="graphics/camera.png"> Photos: <?php echo $numphotos; ?></span></li>
-                        <li><span id="statTxt"> <img style="width:12px;" src="graphics/rank_prof.png"> Avg Score: <?php echo $portfolioranking; ?></span></li>
-                        <li><span id="statTxt"> <img style="width:14px;" src="graphics/eye.png"> Views: <?php echo $profileviews; ?></span></li>
-                        <li><span id="statTxt"> <img style="width:20px;margin-left:-8px;" src="graphics/network_i.png"> Followers: <?php echo $numberfollowers; ?></span></li>
-                    </ul>
+            <!--------Activity Box------>
+            <div class="smallAboutBox" style="float:left;margin-top:20px;margin-left:20px;width:310px;">   
+                <div class="smallCornerTab">
+                    <img src="graphics/camera2.png" /> Activity
                 </div>
-            </div>
-            
-           <!---<div class="topHalfBlock">
-                <div id="bioText" style="padding:5px 0px 5px 0px;">
-                    <header>My Network</header>
-                    <?php
-                    
-                        $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$email%' ORDER BY reputation DESC";
-                        $followingquery=mysql_query($followersquery);
-                        $numberfollowing = mysql_num_rows($followingquery);
-                        
-                        for($iii = 0; $iii < $numberfollowing; $iii++) {
-                            $followingpic = mysql_result($followingquery, $iii, "profilepic");
-                            $followingid = mysql_result($followingquery, $iii, "user_id");
-		
-                            echo '   
-                            <div style="width:52px;height:52px;overflow:hidden;float:left;"><a style="text-decoration:none;" href="http://photorankr.com/viewprofile.php?u=',$followingid,'">
-                            <img onmousedown="return false" oncontextmenu="return false;" style="min-height:52px;min-width:52px;padding:1px;" src="http://www.photorankr.com/',$followingpic,'" width="50" /></a></div>';
-        
-                        }
-                      
-                    ?>
+                <div style="width:200px;height:200px;">
+                 <div class="uiScrollableAreaTrack">
+                    <div class="uiScrollableAreaGripper">
+                    </div>
                 </div>
-            </div>--->
-            
-            <!-------<div class="topHalfBlock" style="width:197px;">
-                <div id="bioText" style="padding:5px 0px 5px 0px;">
-                    <header>My Store</header>
-                    <?php
-                        $storephotos = mysql_query("SELECT source,id,caption,price FROM photos WHERE emailaddress = '$email' AND price != '.00' ORDER BY points DESC LIMIT 0,6");
-                        $numphotos = mysql_num_rows($storephotos);
-        
-                        if($numphotos == 6) {
-                            for($ii=0;$ii<=5;$ii++) {
-                                $source = mysql_result($storephotos,$ii,'source');
-                                $source = str_replace('userphotos','userphotos/medthumbs/',$source);
-                                $price = mysql_result($storephotos,$ii,'price');
-                                $price = number_format($price,0);
-                                $caption = mysql_result($storephotos,$ii,'caption');
-                                $caption = (strlen($caption) > 18) ? substr($caption,0,15). " &#8230;" : $caption;      
-
-                                $imageid = mysql_result($storephotos,$ii,'id');
-
-                                echo'<li style="list-style-type:none;">
-                                     <div class="storeContainer">
-                                     <div class="storeContainerOverlay">
-                                     <header> $',$price,' </header>
-                                     <header> ',$caption,' </header>
-                                     </div>
-                                     <img src="https://photorankr.com/',$source,'"/>
-                                     </div>	
-                                     </li>';
-                            }
-                        }
-                    ?>
                 </div>
-            </div>----------->
-            
-            <div class="topHalfBlock" style="width:265px;">
                 <div id="activityText">
-                    <header>Activity</header>
                     <ul>
                     <?php
                      for($iii = 0; $iii < 12; $iii++) {
@@ -723,14 +699,16 @@ height="100px" width="100px" />
                 </div>
             </div>
             
-            
-             <div class="topHalfBlock" style="width:280px;">
-                <div id="bioText" style="overflow-y:scroll;">
-                    <header>Post an Update</header>
-                        <form action="#" name="commentForm" method="post"> 
-                        <textarea id="status"  style="margin-left:5px;margin-top:-5px;width:248px;height:50px;" placeholder="What's new with your photography?"></textarea>
-                        <a class="buttonNew" href="#" id="submitStatus" style="clear:both;text-decoration:none;color:#000;width:60px;float:right;margin:6px;margin-right:4px;"><img style="width:15px;margin:-5px 4px 0px 2px;" src="graphics/arrow 6.png" />Post</a>
-                        </form>
+            <!--------Status Box------>
+            <div class="smallAboutBox" style="float:left;margin-top:20px;margin-left:20px;width:310px;">   
+                <form action="#" name="commentForm" method="post"> 
+                    <textarea id="status"  style="margin-left:0px;margin-top:0px;width:300px;height:60px;font-size:15px;padding:5px;resize:none" placeholder="What's new with your photography?"></textarea>
+                <div id="button_block">
+                    <ul>
+                        <li>Post</li>
+                    </ul>
+                </div>
+                </form>
                         
                         <!--AJAX COMMENTS-->
                         <div class="float:left;"> 
@@ -752,9 +730,8 @@ height="100px" width="100px" />
                                  </div>';
                         }
                         ?>
-                </div>
             </div>
-
+        
         
         </div><!---end of right side profile-->
         
@@ -800,17 +777,17 @@ height="100px" width="100px" />
              </div>';
               
         if($option == '') {        
-        $query = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY id DESC LIMIT 0,21");
+        $query = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY id DESC LIMIT 0,16");
         $numresults = mysql_num_rows($query);
         }
         
         elseif($option == 'top') {
-        $query = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email' AND views > 20 ORDER BY (points/votes) DESC LIMIT 0,21");
+        $query = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email' AND views > 20 ORDER BY (points/votes) DESC LIMIT 0,16");
         $numresults = mysql_num_rows($query);
         }
                 
         elseif($option == 'fave') {
-        $query = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY faves DESC LIMIT 0,21");
+        $query = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY faves DESC LIMIT 0,16");
         $numresults = mysql_num_rows($query);
         }
         
@@ -852,13 +829,13 @@ height="100px" width="100px" />
                 $widthls = $width / 3.2;
                 
                 list($width, $height) = getimagesize($image);
-	$imgratio = $height / $width;
-    $heightls = $height / 3.3;
-    $widthls = $width / 3.3;
-    if($widthls < 235) {
-    $heightls = $heightls * ($heightls/$widthls);
-    $widthls = 280;
-    }
+                $imgratio = $height / $width;
+                $heightls = $height / 3.3;
+                $widthls = $width / 3.3;
+                if($widthls < 235) {
+                    $heightls = $heightls * ($heightls/$widthls);
+                    $widthls = 280;
+                }
 
 		echo '
         <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="list-style-type: none;width:280px;"><img style="min-width:280px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
@@ -993,13 +970,13 @@ var last = 0;
                 $widthls = $width / 3.2;
                 
                 list($width, $height) = getimagesize($image);
-	$imgratio = $height / $width;
-    $heightls = $height / 3.3;
-    $widthls = $width / 3.3;
-    if($widthls < 235) {
-    $heightls = $heightls * ($heightls/$widthls);
-    $widthls = 280;
-    }
+                $imgratio = $height / $width;
+                $heightls = $height / 3.3;
+                $widthls = $width / 3.3;
+                if($widthls < 235) {
+                    $heightls = $heightls * ($heightls/$widthls);
+                    $widthls = 280;
+                }
 
 		echo '
         <a style="text-decoration:none;color:#333;" href="fullsizemarket.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="list-style-type: none;width:280px;"><img style="min-width:280px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
