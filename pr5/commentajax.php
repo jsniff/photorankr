@@ -30,25 +30,33 @@ $getowner = mysql_query("SELECT firstname,lastname FROM userinfo WHERE emailaddr
 $ownerfirst = mysql_result($getowner,0,'firstname');
 $ownerlast = mysql_result($getowner,0,'lastname');
 
-echo'<div id="comment" style="width:760px;">
-                <div class="commentTag">
-				<img src="https://photorankr.com/',$userpic,'" height="55" width="50" />
-				<header> Rep: ',$commenterrep,' </header>
-			</div>
+//Comment ID
+$commentidquery = mysql_query("SELECT id FROM comments WHERE imageid = '$imageID' ORDER BY id DESC LIMIT 1");
+$commentid = mysql_result($commentidquery,$iii,'id');
+
+echo'
+    <div id="comment" style="width:820px;clear:both;margin-left:0px;">
+    
+        <div id="commentProfPic">
+            <img src="https://photorankr.com/',$userpic,'" height="55" width="50" />
+        </div>
+        
+        <div style="position:relative;left:15px;">
+        
+            <div class="commentTriangle" style="margin-top:-18px;"></div>
+
 			<div class="commentName">
-				<header> <a href="viewprofile.php?u=',$commenterid,'">',$firstname,' ',$lastname,'</a> </header>
-				<img src="graphics/uploadDate.png"/>
-				<p> ',$commenttime,' </p>
+				<header><span style="font-size:14px;">',$commenterrep,'</span> <a href="viewprofile.php?u=',$commenterid,'">',$firstname,' ',$lastname,'</a> </header>
+				<p> ',converttime($commenttime),' </p>&nbsp;
+                <img style="width:12px;padding-right:3px;" src="graphics/clock.png"/>&nbsp;
 			</div>
-			<div class="commentBody"><p>',$comment,'</p>';
+			<div class="commentBody"><p>',$comment,'</p>
             
-                    echo'
-                        <div id="edit"><a href="fullsize.php?image=',$imageid,'&action=editcomment&cid=',$commentid,'#',$commentid,'"> Edit Comment</a></div>';
+            <div id="edit"><a href="fullsize.php?image=',$imageid,'&action=editcomment&cid=',$commentid,'#',$commentid,'"> Edit Comment</a></div>
                 
-                    echo'
-                        <div id="edit"><a href="fullsize.php?image=',$imageid,'&action=deletecomment&cid=',$commentid,'">Delete Comment</a></div>';
-                
-                if($_GET['action'] == 'editcomment' && $commentid == $_GET['cid']) {
+            <div id="edit"><a href="fullsize.php?image=',$imageid,'&action=deletecomment&cid=',$commentid,'">Delete Comment</a></div>';
+            
+            if($_GET['action'] == 'editcomment' && $commentid == $_GET['cid']) {
                 
                     echo'
                     <form action="fullsize.php?image=',$imageid,'#',$commentid,'" method="POST" />
@@ -58,11 +66,11 @@ echo'<div id="comment" style="width:760px;">
                     <input type="submit" class="btn btn-primary" style="float:right;font-size:12px;margin-right:10px;margin-bottom:5px;" value="Save Edit" />
                     </form>';
                     
-                }
+            }
             
             echo'
             </div>
-		</div>';
+          </div>';
 
     //INSERT COMMENT INTO DATABASE
     $currenttime = time();

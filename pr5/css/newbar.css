@@ -1,0 +1,78 @@
+.navbar-inner
+{
+	text-align:center;
+	background-image:url('graphics/gradient.png');
+}
+
+.center.navbar .nav,
+.center.navbar .nav > li {
+    float:none;
+    display:inline-block;
+    *display:inline; /* ie7 fix */
+    *zoom:1; /* hasLayout ie7 trigger */
+    vertical-align: top;
+}
+
+.center .navbar-inner {
+    text-align:center;
+}
+.navbar .nav,
+.navbar .nav > li {
+    float:none;
+    display:inline-block;
+    *display:inline; /* ie7 fix */
+    *zoom:1; /* hasLayout ie7 trigger */
+    vertical-align: top;
+}
+.center .dropdown-menu {
+    text-align: left;
+}
+ul.nav li.dropdown:hover ul.dropdown-menu{
+    display: block;    
+}
+
+a.menu:after, .dropdown-toggle:after {
+  content: none;
+}
+.topcenter
+{
+	margin-top:.05%;
+	margin-bottom:.05%;
+}
+.search {
+box-sizing: initial;
+width: 14em;
+outline-color: none;
+border: 2px solid #6aae45;
+-webkit-border-top-left-radius: 5px;
+-webkit-border-bottom-left-radius: 5px;
+-moz-border-radius-topleft: 5px;
+-moz-border-radius-bottomleft: 5px;
+border-top-left-radius: 5px;
+border-bottom-left-radius: 5px;
+font-family: helvetica neue, arial, lucida grande;
+font-size: 14px;
+background-image: url('graphics/glass.png');
+background-position: 14.60em 2px;
+background-size:1.4em 1.4em;
+background-repeat: no-repeat;
+}
+.marginL
+{
+	margin-left:1em;
+}
+.marginT
+{
+	margin-top:-.3em;
+}
+.margint
+{
+	margin-top:.1em;
+}
+.notifications
+{
+	width:1.8em;
+	height:1.8em;
+	border-radius:.9em;
+	background:#efefef;
+}

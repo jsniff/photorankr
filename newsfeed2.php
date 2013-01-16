@@ -2,8 +2,7 @@
 
 //connect to the database
 require "db_connection.php";
-require "functionsnav.php";
-require "timefunction.php";
+require "functions.php";
 
 //start the session
 session_start();
@@ -18,8 +17,26 @@ session_start();
 
     $email = $_SESSION['email'];
     
+    $findreputationme = mysql_query("SELECT user_id,reputation,profilepic,firstname,lastname,following FROM userinfo WHERE emailaddress = '$email'");
+    $reputationme = mysql_result($findreputationme,0,'reputation');
+    $sessionpic = mysql_result($findreputationme,0,'profilepic');
+    $sessionuserid =  mysql_result($findreputationme,0,'user_id');
+    $sessionfirst =  mysql_result($findreputationme,0,'firstname');
+    $sessionlast =  mysql_result($findreputationme,0,'lastname');
+    $sessionid =  mysql_result($findreputationme,0,'user_id');
+    $sessionfollowing =  mysql_result($findreputationme,0,'following');
+    $sessionname = mysql_result($findreputationme,0,'firstname') ." ". mysql_result($findreputationme,0,'lastname');
+    $followersquery = mysql_query("SELECT * FROM userinfo WHERE following LIKE '%$email%'");
+    $sesnumberfollowers = mysql_num_rows($followersquery);
+    $followingquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress IN ($sessionfollowing)");
+    $sesnumberfollowing = mysql_num_rows($followingquery);
+    $userphotos = mysql_query("SELECT id FROM photos WHERE emailaddress = '$email'");
+    $numphotos = mysql_num_rows($userphotos);
+    $currenttime = time();
+    
+       
     if (!$_SESSION['email']) {
-        header("Location: signup.php");
+        header("Location: galleries.php");
         exit();
     } 
 
@@ -37,78 +54,12 @@ if($currentnotsresult > 0) {
 $notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email6'";
 $notsqueryrun = mysql_query($notsquery); }
 
-//DISCOVER SCRIPT
+//Grab the view
+if(isset($_GET['view'])) {
+$view=htmlentities($_GET['view']);
+}
 
-    
-  //get the users information from the database
-  $likesquery = "SELECT * FROM userinfo WHERE emailaddress='$email'";
-  $likesresult = mysql_query($likesquery) or die(mysql_error());
-  $discoverseen = mysql_result($likesresult, 0, "discoverseen");
-
-  //find out what they like
-  $likes = mysql_result($likesresult, 0, "viewLikes");
-    if($likes=="") {
-		$nolikes = 1;
-        		
-	}
-
-  $likes .= "  ";
-  $likes .= mysql_result($likesresult, 0, "buyLikes");
-
-  //create an array from what they like
-  $likesArray = explode("  ", $likes);
-
-  //loop through the array to format the likes in the proper format for the query
-  $formattedLikes = "%";
-  for($iii=0; $iii < count($likesArray); $iii++) {
-    $formattedLikes .= $likesArray[$iii];
-    $formattedLikes .= "%";
-  }
-
-    //make an array of the photos they have already seen
-  if($discoverseen != "") {
-    $discoverArray = explode(" ", $discoverseen);
-    $discoverFormatted = "";
-    for($iii=0; $iii < count($discoverArray)-1; $iii++) {
-      $discoverFormatted .= "'";
-      $discoverFormatted .= $discoverArray[$iii];
-      $discoverFormatted .= "', ";
-    }
-    $discoverFormatted .= "'";
-    $discoverFormatted .= $discoverArray[count($discoverArray)-1];
-    $discoverFormatted .= "'";
-  }
-  
-  //select the image that they will be seeing next
-  //delineate between whether they have used discover feature before
-  if($discoverseen != "") {     //get the photos that match this person's view interests
-    $viewquery = "SELECT *, MATCH(maintags, singlecategorytags, singlestyletags) AGAINST ('$formattedLikes') AS matching FROM photos WHERE MATCH(maintags, singlecategorytags, singlestyletags) AGAINST ('$formattedLikes') AND id NOT IN(" . $discoverFormatted . ") ORDER BY matching DESC, points DESC LIMIT 0, 1";
-    $viewresult = mysql_query($viewquery) or die(mysql_error());
-  }
-  else {
-    //get the photos that match this person's view interests
-    $viewquery = "SELECT *, MATCH(maintags, singlecategorytags, singlestyletags) AGAINST ('$formattedLikes') AS matching FROM photos WHERE MATCH(maintags, singlecategorytags, singlestyletags) AGAINST ('$formattedLikes') ORDER BY matching DESC, points DESC LIMIT 0, 1";
-    $viewresult = mysql_query($viewquery) or die(mysql_error());
-  }
-
-  $discoverimage = mysql_result($viewresult, 0, "id");
-  
-  
-          if($_GET['action'] == 'comment') {
-    
-            $blogid = htmlentities($_GET['blogid']);
-            $comment = mysql_real_escape_string($_POST['comment']);
-                    
-            $commentinsertion = mysql_query("INSERT INTO blogcomments (comment,blogid,emailaddress) VALUES ('$comment','$blogid','$email')");
-            
-            echo '<META HTTP-EQUIV="Refresh" Content="0; URL=newsfeed.php">';
-            exit();
-
-    
-        }
-  
 ?>
-
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
@@ -116,89 +67,26 @@ $notsqueryrun = mysql_query($notsquery); }
 
 <head>
 
- <meta name="Generator" content="EditPlus">
-  <meta name="Author" content="PhotoRankr, PhotoRankr.com">
   <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
   <meta name="Description" content="A gallery of the newest photography, photographers, and exhibits on PhotoRankr.">
      <meta name="viewport" content="width=1200" /> 
 
-  <link rel="stylesheet" type="text/css" href="css/bootstrapNew.css" />
- <link rel="stylesheet" href="reset.css" type="text/css" />
-  <link rel="stylesheet" href="text2.css" type="text/css" />
-  <link rel="stylesheet" href="960_24.css" type="text/css" />
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-  <script src="bootstrap.js" type="text/javascript"></script>
-  <script src="bootstrap-dropdown.js" type="text/javascript"></script>
-  <script src="bootstrap-collapse.js" type="text/javascript"></script>
-  <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+	 <link rel="stylesheet" type="text/css" href="css/style.css"/>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
+	<link rel="stylesheet" type="text/css" href="css/reset.css"/> 
+    <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
 
-<title>PhotoRankr - Your Personal News Feed</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.wookmark.js"></script>  
+    <script src="js/bootstrap.js"></script>          
+    <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
 
-  
-<script type="text/javascript">
-  $(function() {
-  // Setup drop down menu
-  $('.dropdown-toggle').dropdown();
- 
-  // Fix input element click problem
-  $('.dropdown input, .dropdown label').click(function(e) {
-    e.stopPropagation();
-  });
-});
-
-</script>
-
-<style type="text/css">
-
-
- .statoverlay
-
-{
-opacity:.0;
-filter:alpha(opacity=40);
-z-index:1;
-transition: opacity .5s;
--moz-transition: opacity .5s;
--webkit-transition: opacity .5s;
--o-transition: opacity .5s;
-}
-
-
-
- .statoverlay2
-
-{
-opacity:.6;
-filter:alpha(opacity=40);
-z-index:1;
-transition: opacity .5s;
--moz-transition: opacity .5s;
--webkit-transition: opacity .5s;
--o-transition: opacity .5s;
-}
-            
-.statoverlay:hover
-{
-opacity:.7;
-}                
-
-.item {
-  margin: 10px;
-  float: left;
-  border: 2px solid transparent;
-}
-
-.item:hover {
-  margin: 10px;
-  float: left;
-  border: 2px solid black;
-}
-
-</style>
+    <title>PhotoRankr - Your Personal News Feed</title>
 
 <!--GOOGLE ANALYTICS CODE-->
 <script type="text/javascript">
-
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-28031297-1']);
   _gaq.push(['_trackPageview']);
@@ -209,325 +97,440 @@ opacity:.7;
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
   
-</script>
-
-
-</head>
-<body style="overflow-x:hidden; background-color: #eeeff3;min-width:1220px;">
-
-<?php navbarnew(); ?>
-
-   <!--big container-->
-    <div id="container" class="container_24">
+    //Fix Sidebar Left
+    $(window).scroll(function(){
+    if  ($(window).scrollTop() >= 229){
+          $('#suggestedphotos').css({position:'fixed',top:400});
+    } 
+    });
     
-    
-<!--Side Bar-->    
-<div style="position:fixed;margin-top:70px;margin-left:-110px;">
-<?php
+    //Post status update
+        $(function() {
+        $("#statusButton").click(function() 
+        {
+        var firstname = '<?php echo $sessionfirst; ?>';
+        var lastname = '<?php echo $sessionlast; ?>';
+        var email = '<?php echo $email; ?>';
+        var userpic = '<?php echo $sessionpic; ?>';
+        var viewerid = '<?php echo $sessionid; ?>';
+        var imageid = '<? echo $imageID; ?>';
+        var status = $("#status").val();
+        var dataString = 'firstname='+ firstname + '&lastname=' + lastname + '&email=' + email + '&status=' + status + '&userpic=' + userpic + '&viewerid=' + viewerid + '&imageid=' + imageid;
+        $("#flash").show();
+        $("#flash").fadeIn(400).html();
+        $.ajax({
+        type: "POST",
+        url: "ajaxStatus.php",
+        data: dataString,
+        cache: false,
+        success: function(html){
+        $("ol#updateStatus").append(html);
+        $("ol#update li:last").fadeIn("slow");
+        $("#flash").hide();
+        }
+        });
+        return false;
+        }); });    
 
-if($_SESSION['loggedin'] == 1) {
-
-$profilequery = mysql_query("SELECT profilepic,firstname,lastname FROM userinfo WHERE emailaddress = '$email'");
-$profilepic=mysql_result($profilequery, 0, "profilepic");
-$firstname=mysql_result($profilequery, 0, "firstname");
-$lastname=mysql_result($profilequery, 0, "lastname");
-$fullname = $firstname . " " . $lastname;
-$shortname = (strlen($fullname) > 19) ? substr($fullname,0,19) : $fullname;
-
-$followingquery = mysql_query("SELECT following FROM userinfo WHERE emailaddress = '$email'");
-$followinglist=mysql_result($followingquery, 0, "following");
-$followingquery=mysql_query("SELECT * FROM userinfo WHERE emailaddress IN ($followinglist)");
-$numfollowing = mysql_num_rows($followingquery);    
-$followersquery=mysql_query("SELECT * FROM userinfo WHERE following LIKE '%$email%'");
-$numfollowers = mysql_num_rows($followersquery);
-
-echo'
-<div id="accordion2" class="accordion" style="width:150px;"><a href="myprofile.php">
-<img class="dropshadow" style="border: 2px solid white;margin-top:5px;" src="',$profilepic,'" height="140" width="145" /></a><div style="font-size:14px;text-align:center;margin-top:5px;">',$shortname,'<br /><span style="font-size:13px;">',$numfollowers,' <i class="icon-user"> </i> <a style="color:black;" href="myprofile.php?view=followers">Followers</a><br />',$numfollowing,' <i class="icon-user"> </i> <a style="color:black;" href="myprofile.php?view=following">Following</a></span></div>';
-
-}
-
-else {
-echo'
-<div id="accordion2" class="accordion" style="margin-top:60px;width:150px;">
-';
-}
-
-?>
-
-<!--SIDEBAR-->
-
-<div style="font-size:14px;">
-<br />
-
-<a style="color:black;margin-top:5px;" href="newsfeed.php?view=up"><img style="padding-right:10px;" src="graphics/newsfeedupload.png" height="28" width="28" />Uploads</a>
-<hr>
-
-<a style="color:black;" href="newsfeed.php?view=cmp"><img style="padding-right:10px;" src="graphics/smallcampaignicon.png" height="28" width="28" />Campaigns</a>
-<hr>
-
-<a style="color:black;" href="newsfeed.php?view=tr"><img style="padding-right:10px;" src="graphics/newsfeedtrending.png" height="28" width="28" />Trending</a>
-<hr>
-
-<a style="color:black;" href="newsfeed.php?view=fv"><img style="padding-right:10px;" src="graphics/newsfeedfavorite.png" height="28" width="28" />Favorites</a>
-<hr>
-
-<a style="color:black;" href="newsfeed.php?view=fw"><img style="padding-right:10px;" src="graphics/newsfeednewfollower.png" height="28" width="28" />Follows</a>
-<hr>
-
-<a style="color:black;" href="newsfeed.php?view=cmt"><img style="padding-right:10px;" src="graphics/newsfeedcomment.png" height="28" width="28" />Comments</a>
-<hr>
-</div>
-
-</div>
-</div>
-
-<!--WHO TO FOLLOW-->
-<?php
-//RECOMMENDATIONS
-
-echo'<div class="grid_5 push_2" style="margin-top:75px;">
-<span class="medtext">Suggested Photographers</span><br /><br />
-
-<hr style="width:323px;">
-
-
-';
-//PHOTOGRAPHERS THEY MIGHT LIKE
-
-	//select all of the people they are following
-	$followingquery = "SELECT following FROM userinfo WHERE emailaddress='$email' LIMIT 1";
-	$followingresult = mysql_query($followingquery);
-	$followinglistowner = mysql_result($followingresult, 0, "following");
-    
-	//select all the people they are following who aren't themselves
-	$str = mysql_real_escape_string("%'%',%'%',%'%',%'%'%',%'%'%");
-	$followingquery = "SELECT following FROM userinfo WHERE emailaddress IN($followinglistowner) AND emailaddress NOT IN('$email') AND following LIKE('" . $str . "') ORDER BY RAND() LIMIT 1";
-	$followingresult = mysql_query($followingquery) or die(mysql_error());
-	$followinglist = mysql_result($followingresult, 0, "following");
-	$followingnumber = mysql_num_rows($followingresult);
-	
-	//if they aren't yet following anyone, just get four random photographers
-	if($followingnumber == 0) {
-		$displayquery = "SELECT firstname, lastname, profilepic FROM userinfo ORDER BY RAND() LIMIT 4";
-		$displayresult = mysql_query($displayquery);
-	}
-	//else they are following people so go ahead with the original procedure
-	else {
-		$displayquery = "SELECT firstname, lastname, profilepic,user_id FROM userinfo WHERE emailaddress IN($followinglist) AND emailaddress NOT IN('$email', $followinglistowner, 'support@photorankr.com') ORDER BY RAND() LIMIT 4";		
-		$displayresult = mysql_query($displayquery) or die(mysql_error());
-        $numdisplayresult = mysql_num_rows($displayresult);
-	}
-	
-	//see if we have enough information to even display this 
-		//loop through the people, printing out their name and profile picture
-        //echo'<span style="font-size:16px;font-weight:100;padding:15px;">Photographers to Follow:</span>';
+			//Display textarea
+        $(function() 
+        {
+        $("#status").focus(function()
+        {
+        $(this).animate({"height": "42px",}, "fast" );
+        $("#button_blockFeed").slideDown("fast");
+        return false;
+        });
         
-		for($iii=0; $iii < 4; $iii++) {
-			$name = mysql_result($displayresult, $iii, "firstname") . " " . mysql_result($displayresult, $iii, "lastname");
-			$profilepic = mysql_result($displayresult, $iii, "profilepic");
-            $profileid = mysql_result($displayresult, $iii, "user_id");
-            
-            if($name == '' || $pofilepic == ''){
-            $somequery = mysql_query("SELECT firstname,lastname,profilepic,user_id,emailaddress FROM userinfo WHERE profilepic != 'profilepics/default_profile.jpg' && firstname != 'PhotoRankr' ORDER BY RAND()");
-            $firstname = mysql_result($somequery, $iii, "firstname");
-            $name = $firstname . " " . mysql_result($somequery, $iii, "lastname");
-			$profilepic = mysql_result($somequery, $iii, "profilepic");
-            $profileid = mysql_result($somequery, $iii, "user_id");
-            $profileemail = mysql_result($somequery, $iii, "emailaddress");
-             
-            $numownerphotosquery = mysql_query("SELECT * FROM photos WHERE emailaddress = '$profileemail'");
-            $numownerphotos = mysql_num_rows($numownerphotosquery);
-            
-            $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$profileemail%'";
-            $followersresult=mysql_query($followersquery);
-            $numberfollowers = mysql_num_rows($followersresult);
-                
-            for($ii = 0; $ii < $numownerphotos; $ii++) {
-                $points = mysql_result($numownerphotosquery, $ii, "points");
-                $votes = mysql_result($numownerphotosquery, $ii, "votes");
-                $totalfaves = mysql_result($numownerphotosquery, $ii, "faves");
-                $portfoliopoints+=$points;
-                $portfoliovotes+=$votes;
-                $portfoliofaves+=$totalfaves;
+       /* $("#status").focusout(function()
+        {
+        $(this).animate({"height": "22px",}, "fast" );
+        $("#button_blockFeed").slideUp("fast");
+        return false;
+        }); */
+
+        
+        });
+        </script>
+        
+        <style type="text/css">
+            #button_blockFeed {
+                display:none;
             }
-            if ($portfoliovotes > 0) {
-                $portfolioranking=($portfoliopoints/$portfoliovotes);
-                $portfolioranking=number_format($portfolioranking, 2, '.', '');    
-                }
-            else if ($portfoliovotes < 1) {
-                $portfolioranking="N/A";
-                }	
-                
-        } 
-            
-                            echo '<div style="width:320px;">
-                                <a style="text-decoration:none;" href="viewprofile.php?u=',$profileid,'">
-                                <img class="dropshadow" style="border: 1px solid white;margin-left:8px;margin-top:-8px;" src="',$profilepic,'" height="40" width="40"/>
-                                <a id="suggestedtext" style="padding-top:15px;padding-left:10px;" href="viewprofile.php?u=',$profileid,'"><span style="font-size:13px;font-weight:400;">',$name,'</span></a>
-                                <br />
-                                <div style="font-size:12px;font-weight:300;margin-bottom:5px;clear:both;padding:6px;">Photos: ',$numownerphotos,'&nbsp;|&nbsp;Average: ',$portfolioranking,'&nbsp;|&nbsp;Followers: ',$numberfollowers,'</div>
-                            <hr></a></div>';
-		}
-        
-        
-//PHOTOS THEY MIGHT LIKE
+            #statusButton {
+                background-color:#33C33C;
+                color:#ffffff;
+                font-size:13px;
+                font-weight:bold;
+                padding:3px;
+                margin-left:40px;
+                float:right;
+                margin-right:15px;
+            }
+        </style> 
+</head>
+<body style="overflow-x:hidden;background-image:url('graphics/linen.png')">
 
-echo'<span class="medtext">Recommended Photography</span><br /><br />';
+<?php navbar(); ?>
 
-//find out all of the photos they have ever favorited
-	$favesquery = "SELECT faves from userinfo WHERE emailaddress='$email' LIMIT 1";
-	$favesresult = mysql_query($favesquery);
-	$faveslistowner = mysql_result($favesresult, 0, "faves");
-	
-	//select all the photos they have ever favorited
-	$favesquery = "SELECT maintags, singlecategorytags, singlestyletags FROM photos WHERE source IN($faveslistowner)";
-	$favesresult = mysql_query($favesquery);
-	$favesnumber = mysql_num_rows($favesresult);
+<!-----------------------Begin Container---------------------->
+<div id="newsbg" class="container_24" style="width:1050px;position:relative;left:35px;">
 
-	//if they actually had favorites
-	if($favesnumber != 0) {	
-		//loop through the results to create a variable which holds all tags for all the photos they have ever favorited
-		$favetags = "";
-		for($iii=0; $iii < $favesnumber; $iii++) {
-			$favetags .= mysql_result($favesresult, $iii, "maintags");
-			$favetags .= mysql_result($favesresult, $iii, "singlecategorytags");
-			$favetags .= mysql_result($favesresult, $iii, "singlestyletags");		
-		}	
+<!-----------------------Begin Newsfeed----------------------->
 
-		//now select all of the photos with similar tags that weren't favorited by them
-		$favesquery = "SELECT source, MATCH(maintags, singlecategorytags, singlestyletags) AGAINST ('$favetags') AS matching FROM photos WHERE MATCH(maintags, singlecategorytags, singlestyletags) AGAINST ('$favetags') AND source NOT IN($faveslistowner) ORDER BY RAND() LIMIT 4";
-		$favesresult = mysql_query($favesquery);
-	}
-	//otherwise they had no faves so pick four random photos
-	else {	
-		$favesquery = "SELECT source FROM photos ORDER BY RAND() LIMIT 4";
-		$favesresult = mysql_query($favesquery);
-	}
-
-	//see if they had enough information to display photos
-	if(mysql_num_rows($favesresult) >= 4) {
-		for($iii=0; $iii < 4; $iii++) {
-        $image = mysql_result($favesresult, $iii, "source");
-        $image2 = str_replace("userphotos/","userphotos/medthumbs/", $image);
-        list($width, $height) = getimagesize($image);
-        $imgratio = $height / $width;
-        $heightls = $height / 4;
-        $widthls = $width / 4;
-        $query7 =  mysql_query("SELECT caption FROM photos WHERE source = '$image'");
-        $captionarray = mysql_fetch_array($query7);
-        $caption = $captionarray['caption'];
-        
-        $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
-        $views = mysql_result($imageinfo,0,'views');
-        $points = mysql_result($imageinfo,0,'points');
-        $votes = mysql_result($imageinfo,0,'votes');
-        $about = mysql_result($imageinfo,0,'about');
-        $rank = ($points / $votes);
-        $rank = number_format($rank,2);
-        
-        list($width, $height) = getimagesize($image);
-        $width = ($width / 4.5);
-        $height = ($height / 4.5);
-			
-            echo '<div style="width:320px;"><a style="text-decoration:none;" href="fullsize.php?image=',$image,'"><img class="dropshadow" style="max-width:275px;border: 2px solid white;" src="',$image2,'"  width="',$width,'px" height="',$height,'px" /><br /><br /><span style="font-size:15px;"><a style="padding-top:20px;" href="fullsize.php?image=',$image,'">"',$caption,'"</a></span><br />
-            <div style="font-size:13px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'<br /><br />',$about,'</div>
-            <hr></a></div>';            
-		}
-        
-    //Blog Post
+  <!--NEWSFEED-->
+    <div class="grid_14" id="thepics" style="width:530px;margin-top:70px;position:relative;margin-bottom:-30px;left:-60px;">
+    <div id="container">
     
-    $blogtitlequery = mysql_query("SELECT title FROM entries ORDER BY id DESC LIMIT 0,1");
-    $blogtitle = mysql_result($blogtitlequery,0,'title');
-    
-    echo '<div id="bar" style="width:283px;"><a style="text-decoration:none;" href="blog/post"><img class="dropshadow" style="background-color:#875752;max-width:275px;border: 2px solid white;padding:3px;" src="graphics/blogtext.png" /><br /><br /><span style="font-size:13px;"><a style="padding-top:20px;" href="blog/post">Latest Post: "',$blogtitle,'"</a></span><br />
-    <hr></a></div>';  
-            
-	} //end of photos you might like
-
-    echo'</div>'; //end of 4 grid
-?>
-
-
-<div>
-</div>    
-    
-
-<!--NEWSFEED-->
-<div class="grid_16 push_4" id="thepics" style="margin-top:75px;">
-<div id="container">
-
 <?php
-if(isset($_GET['view'])) {
-$view=htmlentities($_GET['view']);
+
+//Grab the view!
+$view = htmlentities($_GET['view']);
+
+if($view == 'search') {
+
+    $hashTag = htmlentities($_GET['tag']);
+    $searchQuery = mysql_query("SELECT * FROM photos WHERE concat(tag1,tag2,tag3,tag4,singlestyletags,singlecategorytags) LIKE '%$hashTag%' ORDER BY id DESC LIMIT 0,16");
+    $numhashresults = mysql_num_rows($searchQuery);
+    
+    echo'<div class="galleryToolbar" style="width:550px;margin-bottom:10px;margin-left:5px;">
+            <ul>
+                <div style="font-size:16px;font-weight:300;padding:10px;"><img style="width:18px;" src="graphics/search.png" />&nbsp;&nbsp;<span style="font-weight:500;">',$numhashresults,' Results</span> for ',$hashTag,'</div>
+            </ul>
+         </div>';
+         
+    for($ii=0; $ii< $numhashresults && $ii < 16; $ii++) {
+    
+	$image = mysql_result($searchQuery,$ii,'source');
+    $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $image);
+    $caption = mysql_result($searchQuery,$ii,'caption');
+    $owner = mysql_result($searchQuery,$ii,'emailaddress');
+    $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
+    $ownerresult = mysql_query($ownersquery); 
+    $ownerrow = mysql_fetch_array($ownerresult);
+    $ownerfirst = $ownerrow['firstname'];
+    $ownerlast = $ownerrow['lastname'];
+    $ownerid = $ownerrow['user_id'];
+    $ownerprofilepic = $ownerrow['profilepic'];
+    $ownerfull = $ownerfirst . " " . $ownerlast;
+    $ownerfull = ucwords($ownerfull);
+  	list($width, $height) = getimagesize($image);
+	$imgratio = $height / $width;
+	$height = $imgratio * $maxwidth;
+    $phrase = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfull . "</a> uploaded a photo";
+    
+    $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
+    $views = mysql_result($imageinfo,0,'views');
+    $points = mysql_result($imageinfo,0,'points');
+    $votes = mysql_result($imageinfo,0,'votes');
+    $faves = mysql_result($imageinfo,0,'faves');
+    $about = mysql_result($imageinfo,0,'about');
+    $camera = mysql_result($imageinfo,0,'camera');
+    $time = mysql_result($imageinfo,0,'time');
+    $time = converttime($time);
+    $id = mysql_result($imageinfo,0,'id');
+    $lens = mysql_result($imageinfo,0,'lens');
+    $filter = mysql_result($imageinfo,0,'filter');
+    $aperture = mysql_result($imageinfo,0,'aperture');
+    $shutterspeed = mysql_result($imageinfo,0,'shutterspeed');
+    $rank = ($points / $votes);
+    $rank = number_format($rank,2);
+    $tag1 = mysql_result($imageinfo,0,'tag1');
+    $tag2 = mysql_result($imageinfo,0,'tag2');
+    $tag3 = mysql_result($imageinfo,0,'tag3');
+    $tag4 = mysql_result($imageinfo,0,'tag4');
+    
+    list($width, $height) = getimagesize($image);
+    $width = ($width / 3.2);
+    $height = ($height / 3.2);
+    
+    ?>
+    
+    <script type="text/javascript">
+        
+        //Comment jQuery Script
+        $(function() {
+        $("#commentform<?php echo $id; ?>").submit(function() 
+        {
+        var firstname = '<?php echo $sessionfirst; ?>';
+        var lastname = '<?php echo $sessionlast; ?>';
+        var email = '<?php echo $email; ?>';
+        var userpic = '<?php echo $sessionpic; ?>';
+        var viewerid = '<?php echo $sessionid; ?>';
+        var imageid = '<? echo $id; ?>';
+        var comment = $("#commentBox<?php echo $id; ?>").val();
+        var dataString = 'firstname='+ firstname + '&lastname=' + lastname + '&email=' + email + '&comment=' + comment + '&userpic=' + userpic + '&viewerid=' + viewerid + '&imageid=' + imageid;
+        $("#flash").show();
+        $("#flash").fadeIn(400).html();
+        $.ajax({
+        type: "POST",
+        url: "newsfeedcomment.php",
+        data: dataString,
+        cache: false,
+        success: function(html){
+        $("ol#update<?php echo $id; ?>").append(html);
+        $("ol#update li:last").fadeIn("slow");
+        $("#flash").hide();
+        }
+        });
+        return false;
+        }); });
+        
+        //Display textarea
+        $(function() 
+        {
+        $("#comment<?php echo $id; ?>").click(function()
+        {
+        $("#commentBox<?php echo $id; ?>").animate({"height": "85px",}, "fast" );
+        $("#button_block<?php echo $id; ?>").slideDown("fast");
+        jQuery("#commentform<?php echo $id; ?>").toggle();
+        jQuery("#hiddenComments<?php echo $id; ?>").toggle();
+        return false;
+        });        
+        });
+ 
+    jQuery(document).ready(function(){
+        jQuery("#showStats<?php echo $id; ?>").live("click", function(event) {        
+            jQuery(".hiddenStats<?php echo $id; ?>").toggle();
+        });
+    });
+    </script>
+    
+     <style type="text/css">
+        .hiddenStats<?php echo $id; ?> {
+            display:none;
+        }
+        .hiddenStats<?php echo $id; ?> ul {
+            padding:15px;
+            padding-top:60px;
+            font-size:13px;
+        }
+        .hiddenStats<?php echo $id; ?> li {
+            display:inline;
+            padding:4px;
+        }
+        #hiddenComments<?php echo $id; ?> {
+                display:none;
+        }
+        #commentform<?php echo $id; ?> {
+            display:none;
+            padding:20px 0;
+        }
+        #commentOption<?php echo $id; ?> {
+            font-size:13px;
+            padding-top:10px;
+            font-weight:700;
+            cursor:pointer;
+        }
+        #button_block<?php echo $id; ?> {
+            display:none;
+        }
+        #button<?php echo $id; ?> {
+            background-color:#33C33C;
+            color:#ffffff;
+            font-size:13px;
+            font-weight:bold;
+            padding:3px;
+            margin-left:40px;
+        }
+    </style>
+    
+    <?php
+
+    echo'<div class="grid_16">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$ownerprofilepic,'" />
+                    <li id="comment',$id,'"><img src="graphics/comment_1.png"></li>
+                    <li><img src="graphics/heart.png"></li>
+                     <a href="fullsizemarket.php?imageid=',id,'"><li><img src="graphics/tag.png"></li></a>
+                </ul>
+            </div>
+         
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName">',$phrase,'</div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div class="newsContent">
+                        <a href="fullsize.php?imageid=',$id,'"><img style="min-width:485px;" src="https://photorankr.com/',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
+                    </div>
+                    <!---Stats--->
+                    <div class="newsStats">
+                        <span style="font-size:18px;font-weight:500;">',$rank,'</span>
+                        <span style="font-size:18px;font-weight:300;">',$caption,'
+                        <div style="display:inline;width:240px;float:right;margin-right:50px;text-align:right;font-size:15px;">';
+                        if($tag1) {
+                            echo'#',$tag1,' ';
+                        }
+                        if($tag2) {
+                            echo'#',$tag2,' ';
+                        }
+                        if($tag3) {
+                            echo'#',$tag3,' ';
+                        }                    
+                        echo'
+                            <img id="showStats',$id,'" style="width:20px;margin-top:-3px;padding-left:8px;" src="graphics/stats 4.png" />
+                        </div>
+                    </div>
+                    
+                    <div class="hiddenStats',$id,'">
+                        <ul>
+                            <li><img src="graphics/view.png" width="15" /> Views: ',$views,'</li>';
+                        
+                        if($camera) {
+                            echo'<li><img src="graphics/camera.png" width="15" /> Camera: ',$camera,'</li>';
+                        }
+                        if($lens) {
+                            echo'<li><img src="graphics/lens.png" width="15" /> Lens: ',$lens,'</li>';
+                        }
+                        if($focallength) {
+                            echo'<li><img src="graphics/focal-length.png" width="15" /> Focal Length: ',$focallength,'</li>';
+                        }
+                        if($aperture) {
+                            echo'<li><img src="graphics/aperature.png" width="15" /> Aperture: ',$aperture,'</li>';
+                        }
+                        if($shutterspeed) {
+                            echo'<li><img src="graphics/shutter-speed.png" width="15" /> Shutter Speed: ',$shutterspeed,'</li>';
+                        }   
+                        echo'
+                        </ul>
+                    <!--About Photo-->';
+                    if($about) {
+                    echo'<div style="font-size:14px;font-weight:700;padding:10px 0 0 20px;">Behind the lens</div>
+                        <div class="newsAbout">
+                           ',$about,'
+                        </div>';
+                    }
+                    if($tag1 || $tag2 || $tag3 || $tag4) {
+                    echo'<div class="newsTagBox">
+                        <ul class="tags">';
+                            if($tag1) {
+                                echo'<li><a href="#">',$tag1,'</a></li>';
+                            }
+                            if($tag2) {
+                                echo'<li><a href="#">',$tag2,'</a></li>';
+                            }
+                            if($tag3) {
+                                echo'<li><a href="#">',$tag3,'</a></li>';
+                            }
+                            if($tag4) {
+                                echo'<li><a href="#">',$tag4,'</a></li>';
+                            }
+                            echo'
+                        </ul>
+                    </div>';
+                    }
+                    
+                    echo'
+                </div>
+                <!--Comment Box-->
+                    <div class="postCommentBox">
+                         <form action="#" id="commentform',$id,'" method="post" style="margin-top:5px;padding-bottom:5px;"> 
+                        <img style="float:left;" src="https://photorankr.com/',$sessionpic,'" height="30" width="30"  />
+                        <textarea id="commentBox',$id,'" style="resize:none;margin-left:5px;width:395px;height:20px;" placeholder="Leave feedback for ',$firstname,'&#8230;"></textarea>
+                        <div id="button_block',$id,'">
+                         <input type="submit" id="button',$id,'" class="btn btn-success" value=" Comment "/>
+                        </div>
+                        </form>
+                    </div>
+                    
+                    <!--AJAX COMMENTS-->
+                        <ol id="update',$id,'" class="timeline">
+                        </ol>
+                    
+                    <!--Previous Comments-->
+                    <div id="hiddenComments',$id,'" class="previousComments">
+                        <ul class="indPrevComment">';
+
+                             for($iii = 0; $iii < $numcomments; $iii++) {
+                                $prevcomment = mysql_result($grabcomments,$iii,'comment');
+                                $commentid = mysql_result($grabcomments,$iii,'id');
+                                $commenttime = mysql_result($grabcomments,$iii,'time');
+                                $commenttime = converttime($commenttime);
+                                $commenteremail = mysql_result($grabcomments,$iii,'commenter');
+                                $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
+                                $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
+                                $commenterid = mysql_result($commenterinfo,0,'user_id');
+                                $commenterpic = mysql_result($commenterinfo,0,'profilepic');            
+                                $commenterrep = number_format(mysql_result($commenterinfo,0,'reputation'),2);
+
+                                echo'<li style="overflow:hidden;"> 
+                                        <div style="width:35px;float:left;"><img src="https://photorankr.com/',$commenterpic,'" height="35" width="35" /></div>
+                                        <div style="width:420px;float:left;" id="commenterName" style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a>
+                                        <div style="float:right">',$commenttime,'</div>
+                                        <div id="commentText">
+                                            ',$prevcomment,'
+                                        </div>
+                                        </div>
+                                     
+                                     </li>';
+                        
+                            }
+                            
+                            echo'
+                        </ul>
+                    </div>
+         <!--End Content Box-->
+         </div>
+    </div>
+</div>';
+        
+       } //end for loop
+
 }
 
-//PHOTOSTREAM PHOTOS QUERY
-$emailquery=("SELECT following FROM userinfo WHERE emailaddress ='$email'");
-$followresult=mysql_query($emailquery);
-$followlist=mysql_result($followresult, 0, "following");
-$followrow=mysql_fetch_array($followresult);
-$following=$followrow['following'];
+//AJAX STATUS HERE
+echo'<!--AJAX COMMENTS-->
+<div class="float:left;"> 
+    <ol id="updateStatus" class="timeline">
+    </ol>
+</div>';
 
-$newsfeedquery = "SELECT * FROM newsfeed WHERE (owner IN ($followlist) OR emailaddress IN ($followlist)) AND emailaddress NOT IN ('$email') AND type NOT IN ('message','reply') ORDER BY id DESC LIMIT 0,13";
+$followresult = mysql_query("SELECT following,groups FROM userinfo WHERE emailaddress = '$email'");   
+$followlist = mysql_result($followresult, 0, "following");
+$groupslist = mysql_result($followresult, 0, "groups");
+$groupslist = substr($groupslist,0,-1);
+$newsfeedquery = "SELECT * FROM newsfeed WHERE (owner IN ($followlist) OR emailaddress IN ($followlist) OR group_id IN ($groupslist)) AND emailaddress NOT IN ('$email') AND type NOT IN ('message','reply') ORDER BY id DESC LIMIT 0,20";
 $newsfeedresult = mysql_query($newsfeedquery);
-$maxwidth = 400;
+$numresults = mysql_num_rows($newsfeedresult);
+
                
-for($iii=0; $iii <= 12; $iii++) {
+for($iii=0; $iii <= 19 && $iii < $numresults; $iii++) {
+
+if($iii == 5) {
+    flush();
+}
+    
     $newsrow = mysql_fetch_array($newsfeedresult);
+    $newsid = $newsrow['id'];
+    $pos = strpos($idlist,$id);
     $newsemail = $newsrow['emailaddress'];    
-    $owner = $newsrow['owner'];
+    $photoowner = $newsrow['owner'];
     $time = $newsrow['time'];
+    $time = converttime($time);
     $emailfollowing = $newsrow['following'];
-    $id = $newsrow['id'];
     $type = $newsrow['type'];
-    $source = mysql_result($newsfeedresult,$iii,'source');
-    $time = mysql_result($newsfeedresult,$iii,'time');
+    $source = $newsrow['source'];
+    $firstname = $newsrow['firstname'];
+    $lastname = $newsrow['lastname'];
+    $idcomment = $newsrow['imageid'];
+    $status = $newsrow['status'];
+    $statusid = $newsrow['status_id'];
+    $statusemail = $newsrow['status_poster'];
+    $groupid = $newsrow['group_id'];
     
 if($view == '') {
 
-    if ($type == "campaign") {
-    $photoid = $newsrow['source'];
-	$caption = $newsrow['caption'];
-    
-    $quotequery = mysql_query("SELECT quote,views FROM campaigns WHERE id = '$photoid'");
-    $quote = mysql_result($quotequery,0,'quote');
-    $views = mysql_result($quotequery,0,'views');
-    $phrase = 'New Campaign: (Reward: $'. $quote .') "'. $caption . '"';
-    
-    $campphotosquery = mysql_query("SELECT source FROM campaignphotos WHERE campaign = '$photoid' ORDER by (points/votes) DESC");
-    $numcampphotos = mysql_num_rows($campphotosquery);
-    $flowimage1 = mysql_result($campphotosquery,0,'source');
-    $flowimage1=str_replace("userphotos/","campaign/userphotos/medthumbs/", $flowimage1);
-    $flowimage2 = mysql_result($campphotosquery,1,'source');
-    $flowimage2=str_replace("userphotos/","campaign/userphotos/medthumbs/", $flowimage2);
-    $flowimage3 = mysql_result($campphotosquery,2,'source');
-    $flowimage3=str_replace("userphotos/","campaign/userphotos/medthumbs/", $flowimage3);
-    
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="graphics/newsfeedcampaignicon.png" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
-    <br />
-    <div class="phototitle" style="margin-left:85px;height:150px;width:450px;"><a style="text-decoration:none;" href="campaignphotos.php?id=',$photoid,'">';
-    
-    if($numcampphotos > 2) {
-    echo'
-    <img style="border:1px solid white;" src="',$flowimage1,'" height="148" width="145" />
-    <img style="border:1px solid white;" src="',$flowimage2,'" height="148" width="145" />
-    <img style="border:1px solid white;" src="',$flowimage3,'" height="148" width="145" />';
-    }
-    else {
-    echo'<div style="text-align:center;font-size:14px;margin-top:40px;">Less than 3 entries to this campaign so far</div>';
-    }
-    
-    echo'
-    </a>
-    </div>
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Entries: ',$numcampphotos,'</div>';
-
-    echo '</div>';
-    }
-                     
-    elseif ($type == "photo") {
+    if ($type == "photo") {
 	$image = $newsrow['source'];
     $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $image);
 	$caption = $newsrow['caption'];
@@ -541,47 +544,276 @@ if($view == '') {
     $ownerprofilepic = $ownerrow['profilepic'];
     $ownerfull = $ownerfirst . " " . $ownerlast;
     $ownerfull = ucwords($ownerfull);
-	list($width, $height) = getimagesize($image);
+  	list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
 	$height = $imgratio * $maxwidth;
-    $phrase = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfull . "</a> uploaded " . '"' . $caption . '"';
-    //$phrase2 = (strlen($phrase) > 90) ? substr($phrase,0,87). " &#8230;" : $phrase;
+    $phrase = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfull . "</a> uploaded a photo";
     
     $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
     $votes = mysql_result($imageinfo,0,'votes');
+    $faves = mysql_result($imageinfo,0,'faves');
     $about = mysql_result($imageinfo,0,'about');
+    $camera = mysql_result($imageinfo,0,'camera');
+    $id = mysql_result($imageinfo,0,'id');
+    $lens = mysql_result($imageinfo,0,'lens');
+    $filter = mysql_result($imageinfo,0,'filter');
+    $aperture = mysql_result($imageinfo,0,'aperture');
+    $shutterspeed = mysql_result($imageinfo,0,'shutterspeed');
     $rank = ($points / $votes);
     $rank = number_format($rank,2);
+    $tag1 = mysql_result($imageinfo,0,'tag1');
+    $tag2 = mysql_result($imageinfo,0,'tag2');
+    $tag3 = mysql_result($imageinfo,0,'tag3');
+    $tag4 = mysql_result($imageinfo,0,'tag4');
     
     list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
+    $width = ($width / 3.2);
+    $height = ($height / 3.2);
+    
+    ?>
+    
+    <script type="text/javascript">
+        
+        //Comment jQuery Script
+        $(function() {
+        $("#commentform<?php echo $newsid; ?>").submit(function() 
+        {
+        var firstname = '<?php echo $sessionfirst; ?>';
+        var lastname = '<?php echo $sessionlast; ?>';
+        var email = '<?php echo $email; ?>';
+        var userpic = '<?php echo $sessionpic; ?>';
+        var viewerid = '<?php echo $sessionid; ?>';
+        var imageid = '<? echo $id; ?>';
+        var comment = $("#commentBox<?php echo $newsid; ?>").val();
+        var dataString = 'firstname='+ firstname + '&lastname=' + lastname + '&email=' + email + '&comment=' + comment + '&userpic=' + userpic + '&viewerid=' + viewerid + '&imageid=' + imageid;
+        $("#flash").show();
+        $("#flash").fadeIn(400).html();
+        $.ajax({
+        type: "POST",
+        url: "newsfeedcomment.php",
+        data: dataString,
+        cache: false,
+        success: function(html){
+        $("ol#update<?php echo $newsid; ?>").append(html);
+        $("ol#update li:last").fadeIn("slow");
+        $("#flash").hide();
+        }
+        });
+        return false;
+        }); });
+        
+        //Display textarea
+        $(function() 
+        {
+        $("#comment<?php echo $newsid; ?>").click(function()
+        {
+        $("#commentBox<?php echo $newsid; ?>").animate({"height": "85px",}, "fast" );
+        $("#button_block<?php echo $newsid; ?>").slideDown("fast");
+        jQuery("#commentform<?php echo $newsid; ?>").toggle();
+        jQuery("#hiddenComments<?php echo $newsid; ?>").toggle();
+        return false;
+        });        
+        });
+ 
+    jQuery(document).ready(function(){
+        jQuery("#showStats<?php echo $newsid; ?>").live("click", function(event) {        
+            jQuery(".hiddenStats<?php echo $newsid; ?>").toggle();
+        });
+    });
+    </script>
+    
+     <style type="text/css">
+        .hiddenStats<?php echo $newsid; ?> {
+            display:none;
+        }
+        .hiddenStats<?php echo $newsid; ?> ul {
+            padding:15px;
+            padding-top:60px;
+            font-size:13px;
+        }
+        .hiddenStats<?php echo $newsid; ?> li {
+            display:inline;
+            padding:4px;
+        }
+        #hiddenComments<?php echo $newsid; ?> {
+                display:none;
+        }
+        #commentform<?php echo $newsid; ?> {
+            display:none;
+            padding:20px 0;
+        }
+        #commentOption<?php echo $newsid; ?> {
+            font-size:13px;
+            padding-top:10px;
+            font-weight:700;
+            cursor:pointer;
+        }
+        #button_block<?php echo $newsid; ?> {
+            display:none;
+        }
+        #button<?php echo $newsid; ?> {
+            background-color:#33C33C;
+            color:#ffffff;
+            font-size:13px;
+            font-weight:bold;
+            padding:3px;
+            margin-left:40px;
+        }
+    </style>
+    
+    <?php
 
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
-    
-    if($time > 0) {
-        echo'
-        <br /><div style="float:left;font-size:12px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</div>';
-    }
-    
-    echo'
+    echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$ownerprofilepic,'" />
+                    <li id="comment',$newsid,'"><img src="graphics/comment_1.png"></li>
+                    <li><img src="graphics/heart.png"></li>
+                     <a href="fullsizemarket.php?imageid=',$id,'"><li><img src="graphics/tag.png"></li></a>
+                </ul>
+            </div>
+         
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName">',$phrase,'</div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div class="newsContent">
+                        <a href="fullsize.php?imageid=',$id,'"><img style="min-width:480px;" src="https://photorankr.com/',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
+                    </div>
+                    <!---Stats--->
+                    <div class="newsStats">
+                        <span style="font-size:18px;font-weight:500;">',$rank,'</span>
+                        <span style="font-size:18px;font-weight:300;">',$caption,'
+                        <div style="display:inline;width:240px;float:right;margin-right:50px;text-align:right;font-size:15px;">';
+                        if($tag1) {
+                            echo'#',$tag1,' ';
+                        }
+                        if($tag2) {
+                            echo'#',$tag2,' ';
+                        }
+                        if($tag3) {
+                            echo'#',$tag3,' ';
+                        }                    
+                        echo'
+                            <img id="showStats',$newsid,'" style="width:20px;margin-top:-3px;padding-left:8px;" src="graphics/stats 4.png" />
+                        </div>
+                    </div>
+                    
+                    <div class="hiddenStats',$newsid,'">
+                        <ul>
+                            <li><img src="graphics/view.png" width="15" /> Views: ',$views,'</li>';
+                        
+                        if($camera) {
+                            echo'<li><img src="graphics/camera.png" width="15" /> Camera: ',$camera,'</li>';
+                        }
+                        if($lens) {
+                            echo'<li><img src="graphics/lens.png" width="15" /> Lens: ',$lens,'</li>';
+                        }
+                        if($focallength) {
+                            echo'<li><img src="graphics/focal-length.png" width="15" /> Focal Length: ',$focallength,'</li>';
+                        }
+                        if($aperture) {
+                            echo'<li><img src="graphics/aperature.png" width="15" /> Aperture: ',$aperture,'</li>';
+                        }
+                        if($shutterspeed) {
+                            echo'<li><img src="graphics/shutter-speed.png" width="15" /> Shutter Speed: ',$shutterspeed,'</li>';
+                        }   
+                        echo'
+                        </ul>
+                    <!--About Photo-->';
+                    if($about) {
+                    echo'<div style="font-size:14px;font-weight:700;padding:10px 0 0 20px;">Behind the lens</div>
+                        <div class="newsAbout">
+                           ',$about,'
+                        </div>';
+                    }
+                    if($tag1 || $tag2 || $tag3 || $tag4) {
+                    echo'<div class="newsTagBox">
+                        <ul class="tags">';
+                            if($tag1) {
+                                echo'<li><a href="#">',$tag1,'</a></li>';
+                            }
+                            if($tag2) {
+                                echo'<li><a href="#">',$tag2,'</a></li>';
+                            }
+                            if($tag3) {
+                                echo'<li><a href="#">',$tag3,'</a></li>';
+                            }
+                            if($tag4) {
+                                echo'<li><a href="#">',$tag4,'</a></li>';
+                            }
+                            echo'
+                        </ul>
+                    </div>';
+                    }
+                    
+                    echo'
+                </div>
+                <!--Comment Box-->
+                    <div class="postCommentBox">
+                         <form action="#" id="commentform',$newsid,'" method="post" style="margin-top:5px;padding-bottom:5px;"> 
+                        <img style="float:left;" src="https://photorankr.com/',$sessionpic,'" height="30" width="30"  />
+                        <textarea id="commentBox',$newsid,'" style="resize:none;margin-left:5px;width:395px;height:20px;" placeholder="Leave feedback for ',$firstname,'&#8230;"></textarea>
+                        <div id="button_block',$newsid,'">
+                         <input type="submit" id="button',$newsid,'" class="btn btn-success" value=" Comment "/>
+                        </div>
+                        </form>
+                    </div>
+                    
+                    <!--AJAX COMMENTS-->
+                        <ol id="update',$newsid,'" class="timeline">
+                        </ol>
+                    
+                    <!--Previous Comments-->
+                    <div id="hiddenComments',$newsid,'" class="previousComments">
+                        <ul class="indPrevComment">';
+
+                             for($iii = 0; $iii < $numcomments; $iii++) {
+                                $prevcomment = mysql_result($grabcomments,$iii,'comment');
+                                $commentid = mysql_result($grabcomments,$iii,'id');
+                                $commenttime = mysql_result($grabcomments,$iii,'time');
+                                $commenttime = converttime($commenttime);
+                                $commenteremail = mysql_result($grabcomments,$iii,'commenter');
+                                $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
+                                $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
+                                $commenterid = mysql_result($commenterinfo,0,'user_id');
+                                $commenterpic = mysql_result($commenterinfo,0,'profilepic');            
+                                $commenterrep = number_format(mysql_result($commenterinfo,0,'reputation'),2);
+
+                                echo'<li style="overflow:hidden;"> 
+                                        <div style="width:35px;float:left;"><img src="https://photorankr.com/',$commenterpic,'" height="35" width="35" /></div>
+                                        <div style="width:420px;float:left;" id="commenterName" style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a>
+                                        <div style="float:right">',$commenttime,'</div>
+                                        <div id="commentText">
+                                            ',$prevcomment,'
+                                        </div>
+                                        </div>
+                                     
+                                     </li>';
+                        
+                            }
+                            
+                            echo'
+                        </ul>
+                    </div>
+         <!--End Content Box-->
+         </div>
     </div>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
+</div>';
+    } //end type upload
     
-    if($about) {
-        echo'
-        <br /><div style="float:left;margin-left:85px;font-size:12px;color:#777;font-weight:400;padding:2px;width:460px;padding-bottom:10px;">',$about,'</div>';
-    }
-    
-    echo'
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
-    echo '</div>';  
-	}
-    
-    elseif ($type == "fave" || $type == "discoverfave") {
+    if ($type == "fave") {
     $owner = $newsrow['owner'];
     $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
     $ownerresult = mysql_query($ownersquery); 
@@ -607,342 +839,282 @@ if($view == '') {
 	$height = $imgratio * $maxwidth;
     $fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname . "</a>";
     if($type == "fave") {
-        $phrase = $fullname . " favorited " . '"' . $caption . '"' . " by " . $ownerfull;
+        $phrase = $fullname . " favorited " . 'a photo' . " by " . $ownerfull;
     }
     elseif($type == "discoverfave") {
-            $phrase = $fullname . " discovered " . '"' . $caption . '"' . " by " . $ownerfull;
+            $phrase = $fullname . " discovered " . 'a photo' . " by " . $ownerfull;
     }
     $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
     $votes = mysql_result($imageinfo,0,'votes');
+    $faves = mysql_result($imageinfo,0,'faves');
     $about = mysql_result($imageinfo,0,'about');
+    $camera = mysql_result($imageinfo,0,'camera');
+    $id = mysql_result($imageinfo,0,'id');
+    $lens = mysql_result($imageinfo,0,'lens');
+    $filter = mysql_result($imageinfo,0,'filter');
+    $aperture = mysql_result($imageinfo,0,'aperture');
+    $shutterspeed = mysql_result($imageinfo,0,'shutterspeed');
     $rank = ($points / $votes);
     $rank = number_format($rank,2);
-    
-    //Faves List Modal
-    $favelistquery = mysql_query("SELECT firstname,lastname,user_id FROM userinfo WHERE faves LIKE '%$image%'");
-    $numfavesinlist = mysql_num_rows($favelistquery);
-    for($jjj=0; $jjj<$numfavesinlist; $jjj++) {
-    $fvname = mysql_result($favelistquery,$jjj,'firstname') . " " . mysql_result($favelistquery,$jjj,'lastname');
-    $fvid = mysql_result($favelistquery,$jjj,'user_id');
-    $fvname = '<a href="viewprofile.php?u='.$fvid.'"'.'>' . $fvname . '</a>';
-    if($jjj == 0) {
-    $fvlist = $fvlist . $fvname;
-    } 
-    elseif($jjj > 0) {
-    $fvlist = $fvlist . ", " .$fvname; }
-
-    }
+    $tag1 = mysql_result($imageinfo,0,'tag1');
+    $tag2 = mysql_result($imageinfo,0,'tag2');
+    $tag3 = mysql_result($imageinfo,0,'tag3');
+    $tag4 = mysql_result($imageinfo,0,'tag4');
     
     list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
+    $width = ($width / 3.2);
+    $height = ($height / 3.2);
     
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;width:490px;">',$phrase,'';
+    ?>
     
-    if($time > 0) {
-        echo'
-        <br /><div style="float:left;font-size:12px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</div>';
-    }
+    <script type="text/javascript">
+        
+        //Comment jQuery Script
+        $(function() {
+        $("#commentform<?php echo $newsid; ?>").submit(function() 
+        {
+        var firstname = '<?php echo $sessionfirst; ?>';
+        var lastname = '<?php echo $sessionlast; ?>';
+        var email = '<?php echo $email; ?>';
+        var userpic = '<?php echo $sessionpic; ?>';
+        var viewerid = '<?php echo $sessionid; ?>';
+        var imageid = '<? echo $id; ?>';
+        var comment = $("#commentBox<?php echo $newsid; ?>").val();
+        var dataString = 'firstname='+ firstname + '&lastname=' + lastname + '&email=' + email + '&comment=' + comment + '&userpic=' + userpic + '&viewerid=' + viewerid + '&imageid=' + imageid;
+        $("#flash").show();
+        $("#flash").fadeIn(400).html();
+        $.ajax({
+        type: "POST",
+        url: "newsfeedcomment.php",
+        data: dataString,
+        cache: false,
+        success: function(html){
+        $("ol#update<?php echo $newsid; ?>").append(html);
+        $("ol#update li:last").fadeIn("slow");
+        $("#flash").hide();
+        }
+        });
+        return false;
+        }); });
+        
+        //Display textarea
+        $(function() 
+        {
+        $("#comment<?php echo $newsid; ?>").click(function()
+        {
+        $("#commentBox<?php echo $newsid; ?>").animate({"height": "85px",}, "fast" );
+        $("#button_block<?php echo $newsid; ?>").slideDown("fast");
+        jQuery("#commentform<?php echo $newsid; ?>").toggle();
+        jQuery("#hiddenComments<?php echo $newsid; ?>").toggle();
+        return false;
+        });        
+        });
+ 
+    jQuery(document).ready(function(){
+        jQuery("#showStats<?php echo $newsid; ?>").live("click", function(event) {        
+            jQuery(".hiddenStats<?php echo $newsid; ?>").toggle();
+        });
+    });
+    </script>
     
-    echo'
-    </div>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
+     <style type="text/css">
+        .hiddenStats<?php echo $newsid; ?> {
+            display:none;
+        }
+        .hiddenStats<?php echo $newsid; ?> ul {
+            padding:15px;
+            padding-top:60px;
+            font-size:13px;
+        }
+        .hiddenStats<?php echo $newsid; ?> li {
+            display:inline;
+            padding:4px;
+        }
+        #hiddenComments<?php echo $newsid; ?> {
+                display:none;
+        }
+        #commentform<?php echo $newsid; ?> {
+            display:none;
+            padding:20px 0;
+        }
+        #commentOption<?php echo $newsid; ?> {
+            font-size:13px;
+            padding-top:10px;
+            font-weight:700;
+            cursor:pointer;
+        }
+        #button_block<?php echo $newsid; ?> {
+            display:none;
+        }
+        #button<?php echo $newsid; ?> {
+            background-color:#33C33C;
+            color:#ffffff;
+            font-size:13px;
+            font-weight:bold;
+            padding:3px;
+            margin-left:40px;
+        }
+    </style>
     
-    if($about) {
-        echo'
-        <br /><div style="float:left;margin-left:85px;font-size:12px;color:#777;font-weight:400;padding:2px;width:460px;padding-bottom:10px;">',$about,'</div>';
-    }
+    <?php
     
-    echo'
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'&nbsp;|&nbsp;Favorited By: ',$fvlist,'</div>';
-    echo '</div>';   
-    
-    $fvlist = '';
-    }
-    
-    elseif ($type == "trending") {
-    $owner = $newsrow['owner'];
-    $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
-    $ownerresult = mysql_query($ownersquery); 
-    $ownerrow = mysql_fetch_array($ownerresult);
-    $ownerfirst = $ownerrow['firstname'];
-    $ownerlast = $ownerrow['lastname'];
-    $ownerprofilepic = $ownerrow['profilepic'];
-    $ownerid = $ownerrow['user_id'];
-    $ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "</a>";
-    $ownerfull = ucwords($ownerfull);
-    $image = $newsrow['source'];
-    $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $image);
-	$caption = $newsrow['caption'];
-	list($width, $height) = getimagesize($image);
-	$imgratio = $height / $width;
-	$height = $imgratio * $maxwidth;
-    $phrase = '"' . $caption . '"' . " by " . $ownerfull . " is now trending";
-    
-    $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
-    $views = mysql_result($imageinfo,0,'views');
-    $points = mysql_result($imageinfo,0,'points');
-    $votes = mysql_result($imageinfo,0,'votes');
-    $about = mysql_result($imageinfo,0,'about');
-    $rank = ($points / $votes);
-    $rank = number_format($rank,2);
-    
-    list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
-    
-     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
-    
-    if($time > 0) {
-        echo'
-        <br /><span style="font-size:12px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</span>';
-    }
-    
-    echo'
-    </div>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
-    
-    if($about) {
-        echo'
-        <br /><div style="float:left;margin-left:85px;font-size:12px;color:#777;font-weight:400;padding:2px;width:460px;padding-bottom:10px;">',$about,'</div>';
-    }
-    
-    echo'
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
-    echo '</div>';  
-    }
-    
-    elseif ($type == "blogpost") {
-    $owner = $newsrow['emailaddress'];
-    $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
-    $ownerresult = mysql_query($ownersquery); 
-    $ownerrow = mysql_fetch_array($ownerresult);
-    $ownerfirst = $ownerrow['firstname'];
-    $ownerlast = $ownerrow['lastname'];
-    $ownerprofilepic = $ownerrow['profilepic'];
-    $ownerid = $ownerrow['user_id'];
-    $ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "</a>";
-    $ownerfull = ucwords($ownerfull);
-    $blogid = $newsrow['source'];
-    $phrase = $ownerfull . " wrote a new blog post";
-    
-    $bloginfo = mysql_query("SELECT * FROM blog WHERE id = '$blogid' AND emailaddress = '$owner'");
-    $title = mysql_result($bloginfo,0,'title');
-    $subject = mysql_result($bloginfo,0,'subject');
-    $content = mysql_result($bloginfo,0,'content');
-    $content = (strlen($content) > 700) ? substr($content,0,697). " &#8230;" : $content;
+    //All Previous Comments
+    $grabcomments = mysql_query("SELECT * FROM comments WHERE imageid = '$id' ORDER BY id DESC");
+    $numcomments = mysql_num_rows($grabcomments);
 
-    $photo = mysql_result($bloginfo,0,'photo');
-    $time = mysql_result($bloginfo,0,'time');
-    if($time) {
-    $date = date("m-d-Y", $time); }
-    
-    $profileshotquery = mysql_query("SELECT profilepic FROM userinfo WHERE emailaddress = '$email'");
-    $profileshot = mysql_result($profileshotquery,0,'profilepic');
-    
-     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
-    
-    if($time > 0) {
-        echo'
-        <br /><div style="float:left;font-size:12px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</div>';
-    }
-    
-    echo'
-    </div>
-    <br /><div style="margin-left:85px;margin-bottom:15px;clear:both;">
 
-            <a href="viewprofile.php?u=',$ownerid,'&view=blog#',$blogid,'">';
-            if($photo) {
-            echo'<div style="float:left;padding:20px;width:130px;height:130px;"><img src="',$photo,'" height="100" width="100" /></div>
-            <div style="text-decoration:underline;color:black;float:left;font-size:20px;font-weight:200;padding-top:30px;width:300px;">',$title,'</div></a>
-            <div style="float:left;font-size:15px;font-weight:200;padding-top:15px;">Subject: ',$subject,'&nbsp;|&nbsp;Date: ',$date,'</div>
-                       
-            <div style="float:left;margin-top:0px;width:450px;padding-left:20px;font-size:15px;font-weight:200;line-height:1.48;">',$content,'<br /><br />
-            </div><br />';
-            }
-            else {
-            echo'
-            <div style="text-decoration:underline;color:black;float:left;font-size:20px;font-weight:200;padding-top:30px;width:450px;">',$title,'</div></a>
-            <div style="float:left;font-size:15px;font-weight:200;padding-top:15px;">Subject: ',$subject,'&nbsp;|&nbsp;Date: ',$date,'</div>
-                       
-            <div style="float:left;margin-top:0px;width:450px;padding:20px;font-size:15px;font-weight:200;line-height:1.48;">',$content,'<br /><br />
-            </div><br />';
-            }
-            
-            
-            echo'
-                    <div style="float:left;margin-top:15px;margin-left:20px;width:650px;padding:10px;font-size:15px;font-weight:200;line-height:1.48;">
-                    <div class="panelblog',$blogid,'">';
+    echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$commenterpic,'" />
+                    <li id="comment',$newsid,'"><img src="graphics/comment_1.png"></li>
+                    <li><img src="graphics/heart.png"></li>
+                     <a href="fullsizemarket.php?imageid=',$id,'"><li><img src="graphics/tag.png"></li></a>
+                </ul>
+            </div>
+         
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName">',$phrase,'</div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div class="newsContent">
+                        <a href="fullsize.php?imageid=',$id,'"><img style="min-width:480px;" src="https://photorankr.com/',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
+                    </div>
+                    <!---Stats--->
+                    <div class="newsStats">
+                        <span style="font-size:18px;font-weight:500;">',$rank,'</span>
+                        <span style="font-size:18px;font-weight:300;">',$caption,'
+                        <div style="display:inline;width:240px;float:right;margin-right:50px;text-align:right;font-size:15px;">';
+                        if($tag1) {
+                            echo'#',$tag1,' ';
+                        }
+                        if($tag2) {
+                            echo'#',$tag2,' ';
+                        }
+                        if($tag3) {
+                            echo'#',$tag3,' ';
+                        }                    
+                        echo'
+                            <img id="showStats',$newsid,'" style="width:20px;margin-top:-3px;padding-left:8px;" src="graphics/stats 4.png" />
+                        </div>
+                    </div>
                     
-                        //Comment Loop
-                        $commentquery= mysql_query("SELECT * FROM blogcomments WHERE blogid = '$blogid'");
-                        $numcomments = mysql_num_rows($commentquery);
+                    <div class="hiddenStats',$newsid,'">
+                        <ul>
+                            <li><img src="graphics/view.png" width="15" /> Views: ',$views,'</li>';
                         
-                            for($ii=0; $ii < $numcomments; $ii++) {
-                                $comment = mysql_result($commentquery,$ii,'comment');
-                                $commenteremail = mysql_result($commentquery,$ii,'emailaddress');
-                                $userquery = mysql_query("SELECT user_id,profilepic,firstname,lastname FROM userinfo WHERE emailaddress = '$commenteremail'");
-                                $commenterpic = mysql_result($userquery,0,'profilepic');
-                                $commenterid = mysql_result($userquery,0,'user_id');
-                                $commentername = mysql_result($userquery,0,'firstname')." ".mysql_result($userquery,0,'lastname');
-                                
-                                echo'<div><a href="viewprofile.php?u=',$commenterid,'"><img src="',$commenterpic,'" height="30" width="30" /><span style="font-weight:bold;color:#3e608c;font-size:12px;padding-left:10px;">',$commentername,'</a></span>&nbsp;&nbsp;',$comment,'</div><hr>';
+                        if($camera) {
+                            echo'<li><img src="graphics/camera.png" width="15" /> Camera: ',$camera,'</li>';
+                        }
+                        if($lens) {
+                            echo'<li><img src="graphics/lens.png" width="15" /> Lens: ',$lens,'</li>';
+                        }
+                        if($focallength) {
+                            echo'<li><img src="graphics/focal-length.png" width="15" /> Focal Length: ',$focallength,'</li>';
+                        }
+                        if($aperture) {
+                            echo'<li><img src="graphics/aperature.png" width="15" /> Aperture: ',$aperture,'</li>';
+                        }
+                        if($shutterspeed) {
+                            echo'<li><img src="graphics/shutter-speed.png" width="15" /> Shutter Speed: ',$shutterspeed,'</li>';
+                        }   
+                        echo'
+                        </ul>
+                    <!--About Photo-->';
+                    if($about) {
+                    echo'<div style="font-size:14px;font-weight:700;padding:10px 0 0 20px;">Behind the lens</div>
+                        <div class="newsAbout">
+                           ',$about,'
+                        </div>';
+                    }
+                    if($tag1 || $tag2 || $tag3 || $tag4) {
+                    echo'<div class="newsTagBox">
+                        <ul class="tags">';
+                            if($tag1) {
+                                echo'<li><a href="#">',$tag1,'</a></li>';
                             }
+                            if($tag2) {
+                                echo'<li><a href="#">',$tag2,'</a></li>';
+                            }
+                            if($tag3) {
+                                echo'<li><a href="#">',$tag3,'</a></li>';
+                            }
+                            if($tag4) {
+                                echo'<li><a href="#">',$tag4,'</a></li>';
+                            }
+                            echo'
+                        </ul>
+                    </div>';
+                    }
+                    
                     echo'
-                    <form action="newsfeed.php?action=comment&blogid=',$blogid,'" method="POST">
-                    <div style="width:450px;"><img style="float:left;padding:10px;" src="',$profileshot,'" height="30" width="30" />
-                    <input style="float:left;height:20px;position:relative;top:10px;width:380px;" type="text" name="comment" placeholder="Leave a comment&#8230;" /></div>
-                    </form>
-                    <br /><br />
+                </div>
+                <!--Comment Box-->
+                    <div class="postCommentBox">
+                         <form action="#" id="commentform',$newsid,'" method="post" style="margin-top:5px;padding-bottom:5px;"> 
+                        <img style="float:left;" src="https://photorankr.com/',$sessionpic,'" height="30" width="30"  />
+                        <textarea id="commentBox',$newsid,'" style="resize:none;margin-left:5px;width:395px;height:20px;" placeholder="Leave feedback for ',$ownerfirst,'&#8230;"></textarea>
+                        <div id="button_block',$newsid,'">
+                         <input type="submit" id="button',$newsid,'" class="btn btn-success" value=" Comment "/>
+                        </div>
+                        </form>
                     </div>
-                   
                     
-                    <a name="',$blogid,'" href="#"><p class="flipblog',$blogid,'" style="font-size:15px;"></a>',$numcomments,' Comments</p>
+                    <!--AJAX COMMENTS-->
+                        <ol id="update',$newsid,'" class="timeline">
+                        </ol>
+                    
+                    <!--Previous Comments-->
+                    <div id="hiddenComments',$newsid,'" class="previousComments">
+                        <ul class="indPrevComment">';
+
+                             for($iii = 0; $iii < $numcomments; $iii++) {
+                                $prevcomment = mysql_result($grabcomments,$iii,'comment');
+                                $commentid = mysql_result($grabcomments,$iii,'id');
+                                $commenttime = mysql_result($grabcomments,$iii,'time');
+                                $commenttime = converttime($commenttime);
+                                $commenteremail = mysql_result($grabcomments,$iii,'commenter');
+                                $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
+                                $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
+                                $commenterid = mysql_result($commenterinfo,0,'user_id');
+                                $commenterpic = mysql_result($commenterinfo,0,'profilepic');            
+                                $commenterrep = number_format(mysql_result($commenterinfo,0,'reputation'),2);
+
+                                echo'<li style="overflow:hidden;"> 
+                                        <div style="width:35px;float:left;"><img src="https://photorankr.com/',$commenterpic,'" height="35" width="35" /></div>
+                                        <div style="width:420px;float:left;" id="commenterName" style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a>
+                                        <div style="float:right">',$commenttime,'</div>
+                                        <div id="commentText">
+                                            ',$prevcomment,'
+                                        </div>
+                                        </div>
+                                     
+                                     </li>';
+                        
+                            }
+                            
+                            echo'
+                        </ul>
                     </div>
-                     </div>
-                     
-                    <style type="text/css">
-                    p.flipblog',$blogid,' {
-                    margin-left:-10px;
-                    padding:10px;
-                    width:470px;
-                    text-align:center;
-                    background:white;
-                    border:solid 1px #c3c3c3;
-                    }
-
-                    p.flipblog',$blogid,':hover {
-                    background-color: #ccc;
-                    }
-
-                    div.panelblog',$blogid,' {
-                    display:none;
-                    margin:-10px;
-                    width:460px;
-                    padding:15px;
-                    text-align:left;
-                    background:white;
-                    border:solid 1px #c3c3c3;
-                    }
-                    </style>';
-                    
-                    ?>
-                    
-                    <!--HIDDEN COMMENT SCRIPT-->
-                    <script type="text/javascript">   
-                    $(document).ready(function(){
-                    $(".flipblog<?php echo $blogid; ?>").click(function(){
-                        $(".panelblog<?php echo $blogid; ?>").slideToggle("slow");
-                    });
-                    });
-                    </script>
-                    
-                    <?php
-    
-    echo'
-    </div></a>';  
-    }
-    
-    elseif ($type == "follow") {
-    $newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$emailfollowing'";
-    $accountresult = mysql_query($newaccount); 
-    $accountrow = mysql_fetch_array($accountresult);
-    $profilepic5 = $accountrow['profilepic'];
-    $ownerid = $accountrow['user_id'];
-    
-    $numownerphotosquery = mysql_query("SELECT source FROM photos WHERE emailaddress = '$emailfollowing' ORDER by (points/votes) DESC LIMIT 4");
-    $numownerphotos = mysql_num_rows($numownerphotosquery);
-    $flowimage1 = mysql_result($numownerphotosquery,0,'source');
-    $flowimage1=str_replace("userphotos/","userphotos/medthumbs/", $flowimage1);
-    $flowimage2 = mysql_result($numownerphotosquery,1,'source');
-    $flowimage2=str_replace("userphotos/","userphotos/medthumbs/", $flowimage2);
-    $flowimage3 = mysql_result($numownerphotosquery,2,'source');
-    $flowimage3=str_replace("userphotos/","userphotos/medthumbs/", $flowimage3);
-    
-    $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$emailfollowing%'";
-	$followersresult=mysql_query($followersquery);
-	$numberfollowers = mysql_num_rows($followersresult);
-    
-    for($iii = 0; $iii < $numownerphotos; $iii++) {
-		$points = mysql_result($numownerphotosquery, $iii, "points");
-        $votes = mysql_result($numownerphotosquery, $iii, "votes");
-        $totalfaves = mysql_result($numownerphotosquery, $iii, "faves");
-        $portfoliopoints+=$points;
-        $portfoliovotes+=$votes;
-        $portfoliofaves+=$totalfaves;
-        }
-    
-    if ($portfoliovotes > 0) {
-    $portfolioranking=($portfoliopoints/$portfoliovotes);
-    $portfolioranking=number_format($portfolioranking, 2, '.', '');    
-        }
-    
-    else if ($portfoliovotes < 1) {
-    $portfolioranking="N/A";
-        }	
-
-    $ownerfirst = $accountrow['firstname'];
-    $commenteremail = $accountrow['emailaddress'];
-    $commenteremail = $newsrow['emailaddress'];
-    $commentersquery = mysql_query("SELECT user_id,profilepic FROM userinfo WHERE emailaddress = '$commenteremail'");
-    $commenterpic = mysql_result($commentersquery,0,'profilepic');
-    $commenterid = mysql_result($commentersquery,0,'user_id');
-    $ownerlast = $accountrow['lastname'];
-    $firstname = $newsrow['firstname'];
-    $firstname = ucwords($firstname);
-    $lastname = $newsrow['lastname'];
-    $lastname = ucwords($lastname);
-    $fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname. "</a>";
-    $owner = $newsrow['owner'];
-    $ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "'s</a>";
-    $owner = ucwords($ownerfull);
-    if($profilepic5 == "") {
-    $profilepic5 = "profilepics/default_profile.jpg";
-    }
-    $phrase = $fullname . ' is now following ' . $owner ." photography";
-    
-    list($width, $height) = getimagesize($profilepic5);
-    $width = ($width / 3.5);
-    $height = ($height / 3.5);
-
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;width:490px;">',$phrase,'';
-    
-    if($time > 0) {
-        echo'
-        <br /><div style="float:left;font-size:11px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</div>';
-    }
-    
-    echo'
+         <!--End Content Box-->
+         </div>
     </div>
-    <br /><a href="viewprofile.php?u=',$ownerid,'"><img class="phototitle" style="margin-left:20px;margin-top:15px;margin-bottom:15px;" src="',$profilepic5,'" width="',$width,'px" height="',$height,'px" /></a>&nbsp;&nbsp;
-    <div class="phototitle" style="height:110px;width:320px;">';
+</div>';
+    } //end type favorite
     
-    if($numownerphotos > 2) {
-    echo'
-    <img style="border:1px solid white;" src="',$flowimage1,'" height="108" width="102" />
-    <img style="border:1px solid white;" src="',$flowimage2,'" height="108" width="102" />
-    <img style="border:1px solid white;" src="',$flowimage3,'" height="108" width="102" />';
-    }
-    else {
-    echo'<div style="text-align:center;font-size:14px;margin-top:40px;">',$ownerfirst,' just joined!</div>';
-    }
-    
-    echo'
-    </div>
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Photos: ',$numownerphotos,'&nbsp;|&nbsp;Portfolio Average: ',$portfolioranking,'&nbsp;|&nbsp;Followers: ',$numberfollowers,'</div>';
+    elseif ($type == "exhibitfave") {
 
-    echo '</div>'; 
-    }
-    
-    
-     elseif ($type == "exhibitfave") {
-    
     $set = $newsrow['source'];
     $setinfo = mysql_query("SELECT title,cover,faves,about FROM sets WHERE id = '$set'");
     $settitle = mysql_result($setinfo,0,'title');
@@ -985,252 +1157,739 @@ if($view == '') {
     $width = ($width / 4.5);
     $height = ($height / 4.5);
 
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;width:490px;">',$phrase,'';
+    echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$commenterpic,'" />
+                </ul>
+            </div>
+         
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName">',$phrase,'</div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div class="newsContent">
+                        
+                        <!--Content-->
+                    <div id="followContent">
+                        <a href="viewprofile.php?u=',$ownerid,'&view=exhibits&set=',$set,'">';
+                       if($numsetphotos > 2) {
+                        echo'
+                            <img style="border:1px solid white;" src="https://photorankr.com/',$thumb1,'" />
+                            <img style="border:1px solid white;" src="https://photorankr.com/',$thumb2,'"  />
+                            <img style="border:1px solid white;" src="https://photorankr.com/',$thumb3,'" />';
+                        }
+                       echo'
+                       </a>
+                    </div>';
+                    
+      			 if($aboutset) {
+   				 echo'
+    				<div style="width:520px;clear:both;padding:20px;margin-left:0px;">
+   				 <span style="font-weight:400;font-size:15px;">About Exhibit:</span> <span style="font-weight:300;font-size:14px;">',$aboutset,'</span>
+   				 </div>';
+   			 }
     
-    if($time > 0) {
-        echo'
-        <br /><div style="float:left;font-size:11px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</div>';
-    }
-    
-    echo'
-    </div>
-    <br /><a href="viewprofile.php?u=',$ownerid,'&view=exhibits&set=',$set,'"><img class="phototitle" style="margin-left:20px;margin-top:15px;margin-bottom:15px;" src="',$setcover,'" width="140px" /></a>&nbsp;&nbsp;
-    <div class="phototitle" style="height:110px;width:320px;">';
-    
-    if($numsetphotos > 2) {
-    echo'
-    <a style="clear:both;" href="viewprofile.php?u=',$ownerid,'&view=exhibits&set=',$set,'">
-    <img style="border:1px solid white;" src="',$thumb1,'" height="108" width="102" />
-    <img style="border:1px solid white;" src="',$thumb2,'" height="108" width="102" />
-    <img style="border:1px solid white;" src="',$thumb3,'" height="108" width="102" />
-    </a>';
-    }
-    
-    echo'
-    </div>';
-    
-    if($aboutset) {
-    echo'
-    <div style="width:520px;clear:both;padding:20px;margin-left:65px;">
-    <span style="font-weight:400;font-size:15px;">About Exhibit:</span> <span style="font-weight:200;font-size:14px;">',$aboutset,'</span>
-    </div>';
-    }
-    
-    echo'
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;margin-bottom:30px;clear:both;"># Photos: ',$numsetphotos,'&nbsp;|&nbsp;Exhibit Favorites: ',$setfaves,'&nbsp;</div>';
+    			echo'
+    			<div style="font-size:13px;font-weight:500;margin-left:15px;margin-bottom:10px;margin-bottom:15px;clear:both;"># Photos: ',$numsetphotos,'&nbsp;|&nbsp;Exhibit Favorites: ',$setfaves,'&nbsp;</div>';
 
-    echo '</div>'; 
-    }
-    
-    elseif($type == "articlecomment") {
-     
-    $owner = $newsrow['emailaddress'];
-    $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
-    $ownerresult = mysql_query($ownersquery); 
-    $ownerrow = mysql_fetch_array($ownerresult);
-    $ownerfirst = $ownerrow['firstname'];
-    $ownerlast = $ownerrow['lastname'];
-    $ownerprofilepic = $ownerrow['profilepic'];
-    $ownerid = $ownerrow['user_id'];
-    $ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "</a>";
-    $ownerfull = ucwords($ownerfull);
-    $blogid = $newsrow['source'];
-    $articleinfo = mysql_query("SELECT title,contents FROM entries WHERE id = $blogid");
-    $articletitle = mysql_result($articleinfo,0,'title');
-    $articletitle = "<a href='post.php?a=" . $blogid . "'>" . $articletitle . "</a>";
-    $content = mysql_result($articleinfo,0,'contents');
-    $content = (strlen($content) > 1500) ? substr($content,0,1497). " &#8230;" : $content;
-    $phrase = $ownerfull . " commented on '$articletitle'";
-    
-    $profileshotquery = mysql_query("SELECT profilepic FROM userinfo WHERE emailaddress = '$email'");
-    $profileshot = mysql_result($profileshotquery,0,'profilepic');
-    
-     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-   
-     <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />
-     
-     &nbsp;&nbsp;
-    
-    <div style="float:left;font-size:15px;padding:10px;width:490px;">',$phrase,'</div>
-    
-        <br /><div style="float:left;font-size:12px;color:#777;font-weight:400;padding-left:10px;">',converttime($time),'</div>
-    
-    <br />
-                           
-        <div style="float:left;margin-top:20px;margin-left:85px;width:450px;font-size:15px;font-weight:200;line-height:1.48;">',$content,'</div>
+   			 echo'</div>
+               </div>
+    	</div>
+</div>';
 
-            
-    </div></div>'; 
-    
-    }
+    } //end type exhibit fave
+
     
     elseif ($type == "comment") {
-    $owner = $newsrow['owner'];
-    $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
-    $ownerresult = mysql_query($ownersquery); 
-    $ownerrow = mysql_fetch_array($ownerresult);
-    $ownerfirst = $ownerrow['firstname'];
-    $ownerlast = $ownerrow['lastname'];
-    $ownerid = $ownerrow['user_id'];
-    $ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "</a>";
-    $ownerfull = ucwords($ownerfull);
-    $firstname = $newsrow['firstname'];
-    $commenteremail = $newsrow['emailaddress'];
-    $commentersquery = mysql_query("SELECT user_id,profilepic FROM userinfo WHERE emailaddress = '$commenteremail'");
-    $commenterpic = mysql_result($commentersquery,0,'profilepic');
-    $commenterid = mysql_result($commentersquery,0,'user_id');
-    $firstname = ucwords($firstname);
-    $lastname = $newsrow['lastname'];
-    $lastname = ucwords($lastname);
-    $image = $newsrow['source'];
-    $id = $newsrow['id'];
-   
-    $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
-    $views = mysql_result($imageinfo,0,'views');
-    $points = mysql_result($imageinfo,0,'points');
-    $about = mysql_result($imageinfo,0,'about');
-    $imageID = mysql_result($imageinfo,0,'id');
-    $votes = mysql_result($imageinfo,0,'votes');
-    $rank = ($points / $votes);
-    $rank = number_format($rank,2);
-    
-    $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $image);
-    $fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname ."</a>";
-    list($width, $height) = getimagesize($image);
-	$imgratio = $height / $width;
-	$height = $imgratio * $maxwidth;
-    $phrase = $fullname . " commented on " . $ownerfull . "'s photo";
-    
-    list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
-    
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="float:left;border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<div style="float:left;font-size:15px;padding:10px;">',$phrase,'';
-    
-    if($time > 0) {
-        echo'
-        <br /><div style="float:left;font-size:11px;color:#777;font-weight:400;padding:2px;">',converttime($time),'</div>';
-    }
-    
-    echo'
-    </div>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
-    
-    if($about) {
-        echo'
-        <br /><div style="float:left;margin-left:85px;font-size:12px;color:#777;font-weight:400;padding:2px;width:460px;padding-bottom:10px;">',$about,'</div>';
-    }
-    
-	echo '<br /><br /><div style="margin-left: 85px;padding:15px;width:480px;clear:both;">
-    
-    <div class="panel',$id,'">';
-    
-   $grabcomments = mysql_query("SELECT * FROM comments WHERE imageid = '$imageID' ORDER BY id DESC");
-        $numcomments = mysql_num_rows($grabcomments);
+		$owner = $newsrow['owner'];
+		$ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
+		$ownerresult = mysql_query($ownersquery); 
+		$ownerrow = mysql_fetch_array($ownerresult);
+		$ownerfirst = $ownerrow['firstname'];
+		$ownerlast = $ownerrow['lastname'];
+		$ownerid = $ownerrow['user_id'];
+		$ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "</a>";
+		$ownerfull = ucwords($ownerfull);
+		$firstname = $newsrow['firstname'];
+		$commenteremail = $newsrow['emailaddress'];
+		$commentersquery = mysql_query("SELECT user_id,profilepic FROM userinfo WHERE emailaddress = '$commenteremail'");
+		$commenterpic = mysql_result($commentersquery,0,'profilepic');
+		$commenterid = mysql_result($commentersquery,0,'user_id');
+		$firstname = ucwords($firstname);
+		$lastname = $newsrow['lastname'];
+		$lastname = ucwords($lastname);
+		$image = $newsrow['source'];
+		$id = $newsrow['id'];
+		$getimageid = mysql_query("SELECT id FROM photos WHERE source = '$image'");
+		$oldimageid = mysql_result($getimageid,0,'id');
+	   
+		$imageinfo = mysql_query("SELECT * FROM photos WHERE (id = '$image' OR id = '$oldimageid')");
+		$views = mysql_result($imageinfo,0,'views');
+		$points = mysql_result($imageinfo,0,'points');
+		$about = mysql_result($imageinfo,0,'about');
+		$imageID = mysql_result($imageinfo,0,'id');
+		$source = mysql_result($imageinfo,0,'source');
+		$votes = mysql_result($imageinfo,0,'votes');
+		$rank = ($points / $votes);
+		$rank = number_format($rank,2);
         
-        for($iii = 0; $iii < $numcomments; $iii++) {
+        ?>
         
-            $comment = mysql_result($grabcomments,$iii,'comment');
-            $commentid = mysql_result($grabcomments,$iii,'id');
-            $commenteremail = mysql_result($grabcomments,$iii,'commenter');
-            $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
-            $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
-            $commenterid = mysql_result($commenterinfo,0,'user_id');
-            $commenterpic = mysql_result($commenterinfo,0,'profilepic');
-            $commenterrep = number_format(mysql_result($commenterinfo,0,'reputation'),2);
-        
-        //SHOW PREVIOUS COMMENTS
-        echo'
-            <div style="width:460px;clear:both;margin-top:10px;">
-            <a href="viewprofile.php?u=',$commenterid,'"><div style="float:left;"><img class="roundedall" src="',$commenterpic,'" height="40" width="35"/></a></div>
-           
-             <div style="float:left;padding-left:6px;width:410px;">
-               
-                 <div style="float:left;color:#3e608c;font-size:14px;font-family:helvetica;font-weight:500;border-bottom: 1px solid #ccc;width:410px;"><div style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> &nbsp;<span style="font-size:16px;font-weight:100;color:black;margin-top:2">|</span>&nbsp;<span style="color:#333;font-size:12px;">Rep: ',$commenterrep,'</span></div>&nbsp;&nbsp;&nbsp;
-                   
-                     <div class="progress progress-success" style="float:left;width:110px;height:7px;opacity:.8;margin:7px;">
-                    <div class="bar" style="width:',$commenterrep,'%;">
-                    </div></div>
-                   
-                </div>
-                <div style="float:left;width:370px;padding:10px;font-size:13px;font-family:helvetica;font-weight:300;color:#555;">',$comment,'</div>
-            </div>
-            </div>';
-            
+        <script type="text/javascript">
+        //Comment jQuery Script
+        $(function() {
+        $("#commentform<?php echo $id; ?>").submit(function() 
+        {
+        var firstname = '<?php echo $sessionfirst; ?>';
+        var lastname = '<?php echo $sessionlast; ?>';
+        var email = '<?php echo $email; ?>';
+        var userpic = '<?php echo $sessionpic; ?>';
+        var viewerid = '<?php echo $sessionid; ?>';
+        var imageid = '<? echo $imageID; ?>';
+        var comment = $("#commentBox<?php echo $id; ?>").val();
+        var dataString = 'firstname='+ firstname + '&lastname=' + lastname + '&email=' + email + '&comment=' + comment + '&userpic=' + userpic + '&viewerid=' + viewerid + '&imageid=' + imageid;
+        $("#flash").show();
+        $("#flash").fadeIn(400).html();
+        $.ajax({
+        type: "POST",
+        url: "newsfeedcomment.php",
+        data: dataString,
+        cache: false,
+        success: function(html){
+        $("ol#update<?php echo $id; ?>").append(html);
+        $("ol#update li:last").fadeIn("slow");
+        $("#flash").hide();
         }
-        
-        
-        $imagenew=str_replace("userphotos/","", $image);
-        $imagelink=str_replace(" ","", $image);
-        $searchchars=array('.jpg','.png','.tiff','.JPG','.jpeg','.JPEG','.gif');
-        $imagenew=str_replace($searchchars,"", $imagenew);
-        $txt=".txt";
-        $file = "comments/" . $imagenew . $txt;
-        echo'
-        <div style="width:460px;">';
-        @include("$file"); 
-
-        echo'</div>
-        <div style="clear:both;"><br /><br /></div>';
-
-    echo'
-    </div>
-    
-    <p class="flip',$id,'" style="font-size:15px;">View comment thread</p>';
-	echo '</div>';
-    
-    echo'
-    <br />
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
-    echo '</div>
-    
-          <style type="text/css">
-                    p.flip',$id,' {
-                    margin-left:-10px;
-                    padding:10px;
-                    width:470px;
-                    text-align:center;
-                    background:white;
-                    border:solid 1px #c3c3c3;
-                    }
-
-                    p.flip',$id,':hover {
-                    background-color: #ccc;
-                    }
-
-                    div.panel',$id,' {
-                    display:none;
-                    margin:-10px;
-                    width:460px;
-                    padding:15px;
-                    text-align:left;
-                    background:white;
-                    border:solid 1px #c3c3c3;
-                    }
-                    </style>';
-                    
-                    ?>
-                    
-                    <!--HIDDEN COMMENT SCRIPT-->
-                    <script type="text/javascript">   
-                    $(document).ready(function(){
-                    $(".flip<?php echo $id; ?>").click(function(){
-                        $(".panel<?php echo $id; ?>").slideToggle("slow");
-                    });
-                    });
-                    </script>
-                    
-                <?php
-    }
-    
-    } //end view == ''   
-    
+        });
+        return false;
+        }); });
  
-//UPLOAD VIEW
-elseif($view == 'up') {
-if ($type == "photo") {     
+        
+        //Display textarea
+        $(function() 
+        {
+        $("#comment<?php echo $id; ?>").click(function()
+        {
+        $("#commentBox<?php echo $id; ?>").animate({"height": "85px",}, "fast" );
+        $("#button_block<?php echo $id; ?>").slideDown("fast");
+        jQuery("#commentform<?php echo $id; ?>").toggle();
+        jQuery("#hiddenComments<?php echo $id; ?>").toggle();
+        return false;
+        });        
+        });
+        </script>
+        
+        <style type="text/css">
+            #hiddenComments<?php echo $id; ?> {
+                display:none;
+            }
+            #commentform<?php echo $id; ?> {
+            	display:none;
+                padding:20px 0;
+            }
+            #commentOption<?php echo $id; ?> {
+                font-size:13px;
+                padding-top:10px;
+                font-weight:700;
+                cursor:pointer;
+            }
+            #button_block<?php echo $id; ?> {
+                display:none;
+            }
+            #button<?php echo $id; ?> {
+                background-color:#33C33C;
+                color:#ffffff;
+                font-size:13px;
+                font-weight:bold;
+                padding:3px;
+                margin-left:40px;
+            }
+        </style>
+        
+        <?php
+        
+        //Get user's comment
+        $lastcommentquery = mysql_query("SELECT comment FROM comments WHERE id = '$idcomment' LIMIT 0,1");
+        $lastcomment = mysql_result($lastcommentquery,0,'comment');
+        
+         //All Previous Comments
+        $grabcomments = mysql_query("SELECT * FROM comments WHERE imageid = '$imageID' ORDER BY id DESC");
+        $numcomments = mysql_num_rows($grabcomments);
+		
+		$imagenew=str_replace("userphotos/","userphotos/medthumbs/", $source);
+		$fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname ."</a>";
+		list($width, $height) = getimagesize($image);
+		$imgratio = $height / $width;
+		$height = $imgratio * $maxwidth;
+		$phrase = $fullname . " commented on " . $ownerfull . "'s photo";
+		
+		list($width, $height) = getimagesize($source);
+		$width = ($width / 2.5);
+		$height = ($height / 2.5);
+        
+        echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$commenterpic,'" />
+                    <li id="comment',$id,'"><img src="graphics/comment_1.png"></li>
+                    <li><img src="graphics/heart.png"></li>
+                     <a href="fullsizemarket.php?imageid=',$imageID,'"><li><img src="graphics/tag.png"></li></a>
+                </ul>
+            </div>
+                     
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName">',$fullname,' > ',$ownerfull,'</div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div class="commentPhoto">
+                         <a href="fullsize.php?imageid=',$imageID,'"><img style="max-height:500px;" src="https://photorankr.com/',$source,'" /></a>
+                    </div>
+                    <div class="commentBox">
+                        <blockquote>
+                            <p>',$lastcomment,'</p>
+                        </blockquote>
+                    </div>
+                    <!--Comment Box-->
+                    <div class="postCommentBox">
+                         <form action="#" id="commentform',$id,'" method="post" style="margin-top:5px;padding-bottom:5px;"> 
+                        <img style="float:left;" src="https://photorankr.com/',$sessionpic,'" height="30" width="30"  />
+                        <textarea id="commentBox',$id,'" style="resize:none;margin-left:5px;width:395px;height:20px;" placeholder="Leave feedback for ',$firstname,'&#8230;"></textarea>
+                        <div id="button_block',$id,'">
+                         <input type="submit" id="button',$id,'" class="btn btn-success" value=" Comment "/>
+                        </div>
+                        </form>
+                    </div>
+                    
+                    <!--AJAX COMMENTS-->
+                        <ol id="update',$id,'" class="timeline">
+                        </ol>
+                    
+                    <!--Previous Comments-->
+                    <div id="hiddenComments',$id,'" class="previousComments">
+                        <ul class="indPrevComment">';
+
+                             for($iii = 0; $iii < $numcomments; $iii++) {
+                                $prevcomment = mysql_result($grabcomments,$iii,'comment');
+                                $commentid = mysql_result($grabcomments,$iii,'id');
+                                $commenttime = mysql_result($grabcomments,$iii,'time');
+                                $commenttime = converttime($commenttime);
+                                $commenteremail = mysql_result($grabcomments,$iii,'commenter');
+                                $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
+                                $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
+                                $commenterid = mysql_result($commenterinfo,0,'user_id');
+                                $commenterpic = mysql_result($commenterinfo,0,'profilepic');            
+                                $commenterrep = number_format(mysql_result($commenterinfo,0,'reputation'),2);
+
+                                echo'<li style="overflow:hidden;"> 
+                                        <div style="width:35px;float:left;"><img src="https://photorankr.com/',$commenterpic,'" height="35" width="35" /></div>
+                                        <div style="width:420px;float:left;" id="commenterName" style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a>
+                                        <div style="float:right">',$commenttime,'</div>
+                                        <div id="commentText">
+                                            ',$prevcomment,'
+                                        </div>
+                                        </div>
+                                     
+                                     </li>';
+                        
+                            }
+                            
+                            echo'
+                        </ul>
+                    </div>
+                    
+                </div>
+         <!--End Content Box-->
+         </div>
+         
+         </div>';
+        
+    } //end type == 'comments'
+    
+        
+    elseif($type == 'follow') {
+    
+    $newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$emailfollowing'";
+		$accountresult = mysql_query($newaccount); 
+		$accountrow = mysql_fetch_array($accountresult);
+		$profilepic5 = $accountrow['profilepic'];
+		$ownerid = $accountrow['user_id'];
+		
+		$numownerphotosquery = mysql_query("SELECT source FROM photos WHERE emailaddress = '$emailfollowing' ORDER by (points/votes) DESC LIMIT 4");
+		$numownerphotos = mysql_num_rows($numownerphotosquery);
+		$flowimage1 = mysql_result($numownerphotosquery,0,'source');
+		$flowimage1=str_replace("userphotos/","userphotos/medthumbs/", $flowimage1);
+		$flowimage2 = mysql_result($numownerphotosquery,1,'source');
+		$flowimage2=str_replace("userphotos/","userphotos/medthumbs/", $flowimage2);
+		$flowimage3 = mysql_result($numownerphotosquery,2,'source');
+		$flowimage3=str_replace("userphotos/","userphotos/medthumbs/", $flowimage3);
+		
+		$followersquery="SELECT * FROM userinfo WHERE following LIKE '%$emailfollowing%'";
+		$followersresult=mysql_query($followersquery);
+		$numberfollowers = mysql_num_rows($followersresult);
+		
+		for($iii = 0; $iii < $numownerphotos; $iii++) {
+			$points = mysql_result($numownerphotosquery, $iii, "points");
+			$votes = mysql_result($numownerphotosquery, $iii, "votes");
+			$totalfaves = mysql_result($numownerphotosquery, $iii, "faves");
+			$portfoliopoints+=$points;
+			$portfoliovotes+=$votes;
+			$portfoliofaves+=$totalfaves;
+		}
+		
+		if ($portfoliovotes > 0) {
+			$portfolioranking=($portfoliopoints/$portfoliovotes);
+			$portfolioranking=number_format($portfolioranking, 2, '.', '');    
+		}
+		else if ($portfoliovotes < 1) {
+			$portfolioranking="N/A";
+		}	
+
+		$ownerfirst = $accountrow['firstname'];
+		$commenteremail = $accountrow['emailaddress'];
+		$commenteremail = $newsrow['emailaddress'];
+		$commentersquery = mysql_query("SELECT user_id,profilepic FROM userinfo WHERE emailaddress = '$commenteremail'");
+		$commenterpic = mysql_result($commentersquery,0,'profilepic');
+		$commenterid = mysql_result($commentersquery,0,'user_id');
+		$ownerlast = $accountrow['lastname'];
+		$firstname = $newsrow['firstname'];
+		$firstname = ucwords($firstname);
+		$lastname = $newsrow['lastname'];
+		$lastname = ucwords($lastname);
+		$fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname. "</a>";
+		$owner = $newsrow['owner'];
+		$ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "'s</a>";
+		$owner = ucwords($ownerfull);
+		if($profilepic5 == "") {
+		$profilepic5 = "profilepics/default_profile.jpg";
+		}
+		$phrase = $fullname . ' is now following ' . $owner ." photography";
+		
+		list($width, $height) = getimagesize($profilepic5);
+		$width = ($width / 3.5);
+		$height = ($height / 3.5);
+
+         echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$commenterpic,'" />
+                </ul>
+            </div>
+                     
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem"s>
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName">',$phrase,'</div>
+                        <br />
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div id="followContent">';
+                       if($numownerphotos > 2) {
+                        echo'
+                            <img style="border:1px solid white;" src="https://photorankr.com/',$flowimage1,'" />
+                            <img style="border:1px solid white;" src="https://photorankr.com/',$flowimage2,'"  />
+                            <img style="border:1px solid white;" src="https://photorankr.com/',$flowimage3,'" />';
+                        }
+                        else {
+                            echo'<div style="text-align:center;font-size:14px;margin-top:40px;">',$ownerfirst,' just joined!</div>';
+                        }
+                       echo'
+                    </div>
+                </div>
+         <!--End Content Box-->
+         </div>
+         
+         </div>';
+    
+    } //end type == 'follow'
+    
+    elseif($type == 'status') {
+        $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$newsemail'";
+        $ownerresult = mysql_query($ownersquery); 
+        $ownerrow = mysql_fetch_array($ownerresult);
+        $ownerfirst = $ownerrow['firstname'];
+        $ownerlast = $ownerrow['lastname'];
+        $ownerid = $ownerrow['user_id'];
+        $ownerprofilepic = $ownerrow['profilepic'];
+        
+        echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$ownerprofilepic,'" />
+                </ul>
+            </div>
+                     
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName"><a href="viewprofile.php?u=',$ownerid,'">',$firstname,' ',$lastname,'</a> posted an update</div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div id="followContent">
+                        ',$status,'
+                    </div>
+                </div>
+         <!--End Content Box-->
+         </div>
+                  
+         </div>';
+    
+    } //end type == 'status'
+    
+    elseif($type == 'create') {
+        $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$newsemail'";
+        $ownerresult = mysql_query($ownersquery); 
+        $ownerrow = mysql_fetch_array($ownerresult);
+        $ownerfirst = $ownerrow['firstname'];
+        $ownerlast = $ownerrow['lastname'];
+        $ownerid = $ownerrow['user_id'];
+        $ownerprofilepic = $ownerrow['profilepic'];
+        //group info
+        $groupinfoquery = mysql_query("SELECT * FROM groups WHERE id = $groupid");
+        $about = mysql_result($groupinfoquery,0,'about');
+        $groupname = mysql_result($groupinfoquery,0,'name');
+        
+        echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$ownerprofilepic,'" />
+                </ul>
+            </div>
+                     
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName"><a href="viewprofile.php?u=',$ownerid,'">',$firstname,' ',$lastname,'</a> created a new group</div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div id="followContent">
+                        <a style="color:#333;" href="groups.php?id=',$groupid,'">
+                            <header style="padding: 0px 20px;font-size:18px;font-weight:300;line-height:20px;"><img style="width:18px;padding:4px;margin-top:-4px;" src="graphics/groups_b.png">',$groupname,'</header>
+                        </a>
+                        <div style="width:400px;padding:25px;font-size:14px;font-weight:300;">
+                            <span style="font-size:15px;font-weight:normal;line-height:22px;">About:</span><br />
+                            ',$about,'
+                        </div>
+                    </div>
+                </div>
+         <!--End Content Box-->
+         </div>
+                  
+         </div>';
+    
+    } //end type == 'create'
+    
+    elseif($type == 'join') {
+        $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$newsemail'";
+        $ownerresult = mysql_query($ownersquery); 
+        $ownerrow = mysql_fetch_array($ownerresult);
+        $ownerfirst = $ownerrow['firstname'];
+        $ownerlast = $ownerrow['lastname'];
+        $ownerid = $ownerrow['user_id'];
+        $ownerprofilepic = $ownerrow['profilepic'];
+        //group info
+        $groupinfoquery = mysql_query("SELECT * FROM groups WHERE id = $groupid");
+        $about = mysql_result($groupinfoquery,0,'about');
+        $groupname = mysql_result($groupinfoquery,0,'name');
+        
+        echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$ownerprofilepic,'" />
+                </ul>
+            </div>
+                     
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName"><a href="viewprofile.php?u=',$ownerid,'">',$firstname,' ',$lastname,'</a> joined the group <a href="groups.php?id=',$groupid,'">',$groupname,'</a></div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div id="followContent">
+                        <a style="color:#333;" href="groups.php?id=',$groupid,'">
+                            <header style="padding: 0px 20px;font-size:18px;font-weight:300;line-height:20px;"><img style="width:18px;padding:4px;margin-top:-4px;" src="graphics/groups_b.png">',$groupname,'</header>
+                        </a>
+                        <div style="width:400px;padding:25px;font-size:14px;font-weight:300;">
+                            <span style="font-size:15px;font-weight:normal;line-height:22px;">About:</span><br />
+                            ',$about,'
+                        </div>
+                    </div>
+                </div>
+         <!--End Content Box-->
+         </div>
+                  
+         </div>';
+    
+    } //end type == 'join'
+    
+    
+    elseif($type == 'post') {
+        $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$newsemail'";
+        $ownerresult = mysql_query($ownersquery); 
+        $ownerrow = mysql_fetch_array($ownerresult);
+        $ownerfirst = $ownerrow['firstname'];
+        $ownerlast = $ownerrow['lastname'];
+        $ownerid = $ownerrow['user_id'];
+        $ownerprofilepic = $ownerrow['profilepic'];
+        //Group info
+        $groupinfoquery = mysql_query("SELECT * FROM groups WHERE id = $groupid");
+        $groupname = mysql_result($groupinfoquery,0,'name');
+        //Post info
+        $groupphotosquery = mysql_query("SELECT * FROM groupnews WHERE id = '$source' LIMIT 1");
+        $comment = mysql_result($groupphotosquery,0,'comment');
+        $photos = mysql_result($groupphotosquery,0,'photo');
+        $photos = trim($photos);
+        $photosarray = explode(" ",$photos);
+        $numberphotos = count($photosarray);
+        
+        echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$ownerprofilepic,'" />
+                </ul>
+            </div>
+                     
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName"><a href="viewprofile.php?u=',$ownerid,'">',$firstname,' ',$lastname,'</a> posted in <a href="groups.php?id=',$groupid,'">',$groupname,'</a></div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div id="postContent">';
+                        //Show photos if posted with a photo
+                        
+                        if($numberphotos == 1) {
+                            for($ii=0; $ii < 1; $ii++) {
+                                $getphotosource = mysql_query("SELECT id,source FROM photos WHERE id = $photosarray[$ii]");
+                                $photosource = mysql_result($getphotosource,0,'source');
+                                $medphoto = str_replace("userphotos/","userphotos/medthumbs/",$photosource);
+                                $photoid = mysql_result($getphotosource,0,'id');
+                                list($width, $height) = getimagesize($photosource);
+                                $heightls = $height / 2.5;
+                                $widthls = $width / 2.5;
+                                                        
+                                echo'<a href="fullsize.php?imageid=',$photoid,'"><div style="width:440px;padding:10px;margin-left:4%;overflow:hidden;"><img style="min-width:440px;" src="https://photorankr.com/',$medphoto,'" width="',$widthls,'" height="',$heightls,'" /></div></a>';
+                            }
+                        }
+                       
+                       elseif($numberphotos == 2) {
+                            echo'<div style="width:505px;padding:10px;margin-left:10px;overflow:hidden;">';
+                            for($ii=0; $ii < 2; $ii++) {
+                                $getphotosource = mysql_query("SELECT id,source FROM photos WHERE id = $photosarray[$ii]");
+                                $photosource = mysql_result($getphotosource,0,'source');
+                                $photoid = mysql_result($getphotosource,0,'id');
+                                $medphoto = str_replace("userphotos/","userphotos/medthumbs/",$photosource);
+                                $photoid = mysql_result($getphotosource,0,'id');
+                                list($width, $height) = getimagesize($photosource);
+                                $heightls = $height / 3.5;
+                                $widthls = $width / 3.5;
+                                
+                                echo'<a href="fullsize.php?imageid=',$photoid,'"><div style="float:left;height:215px;max-width:215px;padding:3px;"><img style="height:245px;" src="https://photorankr.com/',$medphoto,'" width="',$widthls,'" /></div></a>';
+                            }
+                            echo'</div>';
+                       }
+                       
+                       elseif($numberphotos == 3) {
+                              echo'<div style="width:505px;padding:10px;margin-left:10px;overflow:hidden;">';
+                            for($ii=0; $ii < 3; $ii++) {
+                                $getphotosource = mysql_query("SELECT id,source FROM photos WHERE id = $photosarray[$ii]");
+                                $photosource = mysql_result($getphotosource,0,'source');
+                                $photoid = mysql_result($getphotosource,0,'id');
+                                $medphoto = str_replace("userphotos/","userphotos/medthumbs/",$photosource);
+                                $photoid = mysql_result($getphotosource,0,'id');
+                                list($width, $height) = getimagesize($photosource);
+                                $heightls = $height / 3.5;
+                                $widthls = $width / 3.5;
+                                
+                                echo'<a href="fullsize.php?imageid=',$photoid,'"><div style="float:left;height:160px;max-width:140px;padding:3px;"><img style="height:160px;" src="https://photorankr.com/',$medphoto,'" width="',$widthls,'" /></div></a>';
+                            }
+                            echo'</div>';
+                       }
+                       
+                       elseif($numberphotos == 4) {
+                              echo'<div style="width:505px;padding:10px;margin-left:10px;overflow:hidden;">';
+                            for($ii=0; $ii < 4; $ii++) {
+                                $getphotosource = mysql_query("SELECT id,source FROM photos WHERE id = $photosarray[$ii]");
+                                $photosource = mysql_result($getphotosource,0,'source');
+                                $photoid = mysql_result($getphotosource,0,'id');
+                                $medphoto = str_replace("userphotos/","userphotos/medthumbs/",$photosource);
+                                $photoid = mysql_result($getphotosource,0,'id');
+                                list($width, $height) = getimagesize($photosource);
+                                $heightls = $height / 3.5;
+                                $widthls = $width / 3.5;
+                                
+                                echo'<a href="fullsize.php?imageid=',$photoid,'"><div style="float:left;height:195px;max-width:225px;padding:3px;"><img style="height:195px;" src="https://photorankr.com/',$medphoto,'" width="',$widthls,'" /></div></a>';
+                            }
+                            echo'</div>';
+                       }
+                        echo'
+                        <div style="width:400px;padding-left:25px;padding-right:25px;font-size:14px;font-weight:300;">';
+                            if($comment) {
+                                echo'<img style="width:18px;padding:4px;margin-top:-4px;" src="graphics/groups_b.png"> ',$comment,'';
+                            }
+                            echo'
+                            <div style="font-weight:500;padding-top:10px;">
+                                <a href="groups.php?id=',$groupid,'#',$source,'">View post >>></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+         <!--End Content Box-->
+         </div>
+                  
+         </div>';
+    
+    } //end type == 'post'
+    
+    elseif($type == 'sold') {
+        $owner = $newsrow['owner'];
+		$ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
+		$ownerresult = mysql_query($ownersquery); 
+		$ownerrow = mysql_fetch_array($ownerresult);
+		$ownerfirst = $ownerrow['firstname'];
+		$ownerlast = $ownerrow['lastname'];
+        $ownerpic = $ownerrow['profilepic'];
+		$ownerid = $ownerrow['user_id'];
+		$ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "</a>";
+		$ownerfull = ucwords($ownerfull);
+		$firstname = $newsrow['firstname'];
+		$commenteremail = $newsrow['emailaddress'];
+		$commentersquery = mysql_query("SELECT user_id,profilepic FROM userinfo WHERE emailaddress = '$commenteremail'");
+		$commenterpic = mysql_result($commentersquery,0,'profilepic');
+		$commenterid = mysql_result($commentersquery,0,'user_id');
+		$firstname = ucwords($firstname);
+		$lastname = $newsrow['lastname'];
+		$lastname = ucwords($lastname);
+        
+        $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$source'");
+        $image = mysql_result($imageinfo,0,'source');
+        $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $image);
+
+        $views = mysql_result($imageinfo,0,'views');
+        $points = mysql_result($imageinfo,0,'points');
+        $votes = mysql_result($imageinfo,0,'votes');
+        $faves = mysql_result($imageinfo,0,'faves');
+        $about = mysql_result($imageinfo,0,'about');
+        $camera = mysql_result($imageinfo,0,'camera');
+        $id = mysql_result($imageinfo,0,'id');
+        $lens = mysql_result($imageinfo,0,'lens');
+        $filter = mysql_result($imageinfo,0,'filter');
+        $aperture = mysql_result($imageinfo,0,'aperture');
+        $shutterspeed = mysql_result($imageinfo,0,'shutterspeed');
+        $rank = ($points / $votes);
+        $rank = number_format($rank,2);
+        $tag1 = mysql_result($imageinfo,0,'tag1');
+        $tag2 = mysql_result($imageinfo,0,'tag2');
+        $tag3 = mysql_result($imageinfo,0,'tag3');
+        $tag4 = mysql_result($imageinfo,0,'tag4');
+        
+        $image = $newsrow['source'];
+		$imageinfo = mysql_query("SELECT * FROM photos WHERE (id = '$image' OR id = '$oldimageid')");
+		$views = mysql_result($imageinfo,0,'views');
+        $caption = mysql_result($imageinfo,0,'caption');
+		$points = mysql_result($imageinfo,0,'points');
+		$about = mysql_result($imageinfo,0,'about');
+		$imageID = mysql_result($imageinfo,0,'id');
+		$source = mysql_result($imageinfo,0,'source');
+		$votes = mysql_result($imageinfo,0,'votes');
+		$rank = ($points / $votes);
+		$rank = number_format($rank,2);
+        
+		list($width, $height) = getimagesize($source);
+		$width = ($width / 2.5);
+		$height = ($height / 2.5);
+
+        
+        echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$ownerpic,'" />
+                </ul>
+            </div>
+                     
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName"><a href="viewprofile.php?u=',$ownerid,'"><img style="width:14px;margin-top:-4px;padding:3px;" src="graphics/tag.png" /> <a href="viewprofile.php?u=',$ownerid,'">',$ownerfirst,' ',$ownerlast,'</a> sold "',$caption,'"</div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div class="newsContent">
+                        <a href="fullsize.php?imageid=',$imageID,'"><img style="min-width:480px;" src="https://photorankr.com/',$source,'" width="',$width,'px" height="',$height,'px" /></a>
+                    </div>
+                </div>
+         <!--End Content Box-->
+         </div>
+                  
+         </div>';
+    
+    } //end type == 'sold'
+    
+  } //end view == ''
+
+  elseif($view == 'up') {
+    
+    if($type == "photo") {
+	
     $image = $newsrow['source'];
     $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $image);
 	$caption = $newsrow['caption'];
@@ -1244,77 +1903,500 @@ if ($type == "photo") {
     $ownerprofilepic = $ownerrow['profilepic'];
     $ownerfull = $ownerfirst . " " . $ownerlast;
     $ownerfull = ucwords($ownerfull);
-	list($width, $height) = getimagesize($image);
+  	list($width, $height) = getimagesize($image);
 	$imgratio = $height / $width;
 	$height = $imgratio * $maxwidth;
-    $phrase = '<a href="viewprofile.php?u=",$ownerid,"">' . $ownerfull . "</a> uploaded " . '"' . $caption . '"';
-    $phrase2 = (strlen($phrase) > 90) ? substr($phrase,0,87). " &#8230;" : $phrase;
+    $phrase = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfull . "</a> uploaded a photo";
     
     $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
     $votes = mysql_result($imageinfo,0,'votes');
+    $faves = mysql_result($imageinfo,0,'faves');
+    $about = mysql_result($imageinfo,0,'about');
+    $camera = mysql_result($imageinfo,0,'camera');
+    $id = mysql_result($imageinfo,0,'id');
+    $lens = mysql_result($imageinfo,0,'lens');
+    $filter = mysql_result($imageinfo,0,'filter');
+    $aperture = mysql_result($imageinfo,0,'aperture');
+    $shutterspeed = mysql_result($imageinfo,0,'shutterspeed');
     $rank = ($points / $votes);
     $rank = number_format($rank,2);
+    $tag1 = mysql_result($imageinfo,0,'tag1');
+    $tag2 = mysql_result($imageinfo,0,'tag2');
+    $tag3 = mysql_result($imageinfo,0,'tag3');
+    $tag4 = mysql_result($imageinfo,0,'tag4');
     
     list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
-
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase2,'</span>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
-    echo '</div>';  
-	}
-} //end view == 'up'  
-
-
-
-//TRENDING VIEW
-elseif($view == 'tr') {
-if ($type == "trending") {     
-    $owner = $newsrow['owner'];
-    $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
-    $ownerresult = mysql_query($ownersquery); 
-    $ownerrow = mysql_fetch_array($ownerresult);
-    $ownerfirst = $ownerrow['firstname'];
-    $ownerlast = $ownerrow['lastname'];
-    $ownerprofilepic = $ownerrow['profilepic'];
-    $ownerid = $ownerrow['user_id'];
-    $ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "</a>";
-    $ownerfull = ucwords($ownerfull);
-    $image = $newsrow['source'];
-    $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $image);
-	$caption = $newsrow['caption'];
-	list($width, $height) = getimagesize($image);
-	$imgratio = $height / $width;
-	$height = $imgratio * $maxwidth;
-    $phrase = '"' . $caption . '"' . " by " . $ownerfull . " is now trending";
+    $width = ($width / 3.2);
+    $height = ($height / 3.2);
     
-    $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
-    $views = mysql_result($imageinfo,0,'views');
-    $points = mysql_result($imageinfo,0,'points');
-    $votes = mysql_result($imageinfo,0,'votes');
-    $rank = ($points / $votes);
-    $rank = number_format($rank,2);
+    ?>
     
-    list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
+    <script type="text/javascript">
+        
+        //Comment jQuery Script
+        $(function() {
+        $("#commentform<?php echo $id; ?>").submit(function() 
+        {
+        var firstname = '<?php echo $sessionfirst; ?>';
+        var lastname = '<?php echo $sessionlast; ?>';
+        var email = '<?php echo $email; ?>';
+        var userpic = '<?php echo $sessionpic; ?>';
+        var viewerid = '<?php echo $sessionid; ?>';
+        var imageid = '<? echo $id; ?>';
+        var comment = $("#commentBox<?php echo $id; ?>").val();
+        var dataString = 'firstname='+ firstname + '&lastname=' + lastname + '&email=' + email + '&comment=' + comment + '&userpic=' + userpic + '&viewerid=' + viewerid + '&imageid=' + imageid;
+        $("#flash").show();
+        $("#flash").fadeIn(400).html();
+        $.ajax({
+        type: "POST",
+        url: "newsfeedcomment.php",
+        data: dataString,
+        cache: false,
+        success: function(html){
+        $("ol#update<?php echo $id; ?>").append(html);
+        $("ol#update li:last").fadeIn("slow");
+        $("#flash").hide();
+        }
+        });
+        return false;
+        }); });
+        
+        //Display textarea
+        $(function() 
+        {
+        $("#comment<?php echo $id; ?>").click(function()
+        {
+        $("#commentBox<?php echo $id; ?>").animate({"height": "85px",}, "fast" );
+        $("#button_block<?php echo $id; ?>").slideDown("fast");
+        jQuery("#commentform<?php echo $id; ?>").toggle();
+        jQuery("#hiddenComments<?php echo $id; ?>").toggle();
+        return false;
+        });        
+        });
+ 
+    jQuery(document).ready(function(){
+        jQuery("#showStats<?php echo $id; ?>").live("click", function(event) {        
+            jQuery(".hiddenStats<?php echo $id; ?>").toggle();
+        });
+    });
+    </script>
     
-     echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$ownerprofilepic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
-    echo '</div>';  
-	}
-} //end view == 'tr'  
+     <style type="text/css">
+        .hiddenStats<?php echo $id; ?> {
+            display:none;
+        }
+        .hiddenStats<?php echo $id; ?> ul {
+            padding:15px;
+            padding-top:60px;
+            font-size:13px;
+        }
+        .hiddenStats<?php echo $id; ?> li {
+            display:inline;
+            padding:4px;
+        }
+        #hiddenComments<?php echo $id; ?> {
+                display:none;
+        }
+        #commentform<?php echo $id; ?> {
+            display:none;
+            padding:20px 0;
+        }
+        #commentOption<?php echo $id; ?> {
+            font-size:13px;
+            padding-top:10px;
+            font-weight:700;
+            cursor:pointer;
+        }
+        #button_block<?php echo $id; ?> {
+            display:none;
+        }
+        #button<?php echo $id; ?> {
+            background-color:#33C33C;
+            color:#ffffff;
+            font-size:13px;
+            font-weight:bold;
+            padding:3px;
+            margin-left:40px;
+        }
+    </style>
+    
+    <?php
 
+    echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$ownerprofilepic,'" />
+                    <li id="comment',$id,'"><img src="graphics/comment_1.png"></li>
+                    <li><img src="graphics/heart.png"></li>
+                     <a href="fullsizemarket.php?imageid=',id,'"><li><img src="graphics/tag.png"></li></a>
+                </ul>
+            </div>
+         
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName">',$phrase,'</div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div class="newsContent">
+                        <a href="fullsize.php?imageid=',id,'"><img style="min-width:480px;" src="https://photorankr.com/',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
+                    </div>
+                    <!---Stats--->
+                    <div class="newsStats">
+                        <span style="font-size:18px;font-weight:500;">',$rank,'</span>
+                        <span style="font-size:18px;font-weight:300;">',$caption,'
+                        <div style="display:inline;width:240px;float:right;margin-right:50px;text-align:right;font-size:15px;">';
+                        if($tag1) {
+                            echo'#',$tag1,' ';
+                        }
+                        if($tag2) {
+                            echo'#',$tag2,' ';
+                        }
+                        if($tag3) {
+                            echo'#',$tag3,' ';
+                        }                    
+                        echo'
+                            <img id="showStats',$id,'" style="width:20px;margin-top:-3px;padding-left:8px;" src="graphics/stats 4.png" />
+                        </div>
+                    </div>
+                    
+                    <div class="hiddenStats',$id,'">
+                        <ul>
+                            <li><img src="graphics/view.png" width="15" /> Views: ',$views,'</li>';
+                        
+                        if($camera) {
+                            echo'<li><img src="graphics/camera.png" width="15" /> Camera: ',$camera,'</li>';
+                        }
+                        if($lens) {
+                            echo'<li><img src="graphics/lens.png" width="15" /> Lens: ',$lens,'</li>';
+                        }
+                        if($focallength) {
+                            echo'<li><img src="graphics/focal-length.png" width="15" /> Focal Length: ',$focallength,'</li>';
+                        }
+                        if($aperture) {
+                            echo'<li><img src="graphics/aperature.png" width="15" /> Aperture: ',$aperture,'</li>';
+                        }
+                        if($shutterspeed) {
+                            echo'<li><img src="graphics/shutter-speed.png" width="15" /> Shutter Speed: ',$shutterspeed,'</li>';
+                        }   
+                        echo'
+                        </ul>
+                    <!--About Photo-->';
+                    if($about) {
+                    echo'<div style="font-size:14px;font-weight:700;padding:10px 0 0 20px;">Behind the lens</div>
+                        <div class="newsAbout">
+                           ',$about,'
+                        </div>';
+                    }
+                    if($tag1 || $tag2 || $tag3 || $tag4) {
+                    echo'<div class="newsTagBox">
+                        <ul class="tags">';
+                            if($tag1) {
+                                echo'<li><a href="#">',$tag1,'</a></li>';
+                            }
+                            if($tag2) {
+                                echo'<li><a href="#">',$tag2,'</a></li>';
+                            }
+                            if($tag3) {
+                                echo'<li><a href="#">',$tag3,'</a></li>';
+                            }
+                            if($tag4) {
+                                echo'<li><a href="#">',$tag4,'</a></li>';
+                            }
+                            echo'
+                        </ul>
+                    </div>';
+                    }
+                    
+                    echo'
+                </div>
+                <!--Comment Box-->
+                    <div class="postCommentBox">
+                         <form action="#" id="commentform',$id,'" method="post" style="margin-top:5px;padding-bottom:5px;"> 
+                        <img style="float:left;" src="https://photorankr.com/',$sessionpic,'" height="30" width="30"  />
+                        <textarea id="commentBox',$id,'" style="resize:none;margin-left:5px;width:395px;height:20px;" placeholder="Leave feedback for ',$firstname,'&#8230;"></textarea>
+                        <div id="button_block',$id,'">
+                         <input type="submit" id="button',$id,'" class="btn btn-success" value=" Comment "/>
+                        </div>
+                        </form>
+                    </div>
+                    
+                    <!--AJAX COMMENTS-->
+                        <ol id="update',$id,'" class="timeline">
+                        </ol>
+                    
+                    <!--Previous Comments-->
+                    <div id="hiddenComments',$id,'" class="previousComments">
+                        <ul class="indPrevComment">';
 
-//FAVORITE VIEW
-elseif($view == 'fv') {
-if ($type == "fave") {     
+                             for($iii = 0; $iii < $numcomments; $iii++) {
+                                $prevcomment = mysql_result($grabcomments,$iii,'comment');
+                                $commentid = mysql_result($grabcomments,$iii,'id');
+                                $commenttime = mysql_result($grabcomments,$iii,'time');
+                                $commenttime = converttime($commenttime);
+                                $commenteremail = mysql_result($grabcomments,$iii,'commenter');
+                                $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
+                                $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
+                                $commenterid = mysql_result($commenterinfo,0,'user_id');
+                                $commenterpic = mysql_result($commenterinfo,0,'profilepic');            
+                                $commenterrep = number_format(mysql_result($commenterinfo,0,'reputation'),2);
+
+                                echo'<li style="overflow:hidden;"> 
+                                        <div style="width:35px;float:left;"><img src="https://photorankr.com/',$commenterpic,'" height="35" width="35" /></div>
+                                        <div style="width:420px;float:left;" id="commenterName" style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a>
+                                        <div style="float:right">',$commenttime,'</div>
+                                        <div id="commentText">
+                                            ',$prevcomment,'
+                                        </div>
+                                        </div>
+                                     
+                                     </li>';
+                        
+                            }
+                            
+                            echo'
+                        </ul>
+                    </div>
+         <!--End Content Box-->
+         </div>
+    </div>
+</div>';
+             
+    } //end type upload
+
+} //end view == 'up' 
+
+elseif($view == 'comments') {
+
+    if ($type == "comment") {
+    
+		$owner = $newsrow['owner'];
+		$ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
+		$ownerresult = mysql_query($ownersquery); 
+		$ownerrow = mysql_fetch_array($ownerresult);
+		$ownerfirst = $ownerrow['firstname'];
+		$ownerlast = $ownerrow['lastname'];
+		$ownerid = $ownerrow['user_id'];
+		$ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "</a>";
+		$ownerfull = ucwords($ownerfull);
+		$firstname = $newsrow['firstname'];
+		$commenteremail = $newsrow['emailaddress'];
+		$commentersquery = mysql_query("SELECT user_id,profilepic FROM userinfo WHERE emailaddress = '$commenteremail'");
+		$commenterpic = mysql_result($commentersquery,0,'profilepic');
+		$commenterid = mysql_result($commentersquery,0,'user_id');
+		$firstname = ucwords($firstname);
+		$lastname = $newsrow['lastname'];
+		$lastname = ucwords($lastname);
+		$image = $newsrow['source'];
+		$id = $newsrow['id'];
+		$getimageid = mysql_query("SELECT id FROM photos WHERE source = '$image'");
+		$oldimageid = mysql_result($getimageid,0,'id');
+	   
+		$imageinfo = mysql_query("SELECT * FROM photos WHERE (id = '$image' OR id = '$oldimageid')");
+		$views = mysql_result($imageinfo,0,'views');
+		$points = mysql_result($imageinfo,0,'points');
+		$about = mysql_result($imageinfo,0,'about');
+		$imageID = mysql_result($imageinfo,0,'id');
+		$source = mysql_result($imageinfo,0,'source');
+		$votes = mysql_result($imageinfo,0,'votes');
+		$rank = ($points / $votes);
+		$rank = number_format($rank,2);
+        
+        ?>
+        
+        <script type="text/javascript">
+        //Comment jQuery Script
+        $(function() {
+        $("#commentform<?php echo $id; ?>").submit(function() 
+        {
+        var firstname = '<?php echo $sessionfirst; ?>';
+        var lastname = '<?php echo $sessionlast; ?>';
+        var email = '<?php echo $email; ?>';
+        var userpic = '<?php echo $sessionpic; ?>';
+        var viewerid = '<?php echo $sessionid; ?>';
+        var imageid = '<? echo $imageID; ?>';
+        var comment = $("#commentBox<?php echo $id; ?>").val();
+        var dataString = 'firstname='+ firstname + '&lastname=' + lastname + '&email=' + email + '&comment=' + comment + '&userpic=' + userpic + '&viewerid=' + viewerid + '&imageid=' + imageid;
+        $("#flash").show();
+        $("#flash").fadeIn(400).html();
+        $.ajax({
+        type: "POST",
+        url: "newsfeedcomment.php",
+        data: dataString,
+        cache: false,
+        success: function(html){
+        $("ol#update<?php echo $id; ?>").append(html);
+        $("ol#update li:last").fadeIn("slow");
+        $("#flash").hide();
+        }
+        });
+        return false;
+        }); });
+ 
+        
+        //Display textarea
+        $(function() 
+        {
+        $("#comment<?php echo $id; ?>").click(function()
+        {
+        $("#commentBox<?php echo $id; ?>").animate({"height": "85px",}, "fast" );
+        $("#button_block<?php echo $id; ?>").slideDown("fast");
+        jQuery("#commentform<?php echo $id; ?>").toggle();
+        jQuery("#hiddenComments<?php echo $id; ?>").toggle();
+        return false;
+        });        
+        });
+        </script>
+        
+        <style type="text/css">
+            #hiddenComments<?php echo $id; ?> {
+                display:none;
+            }
+            #commentform<?php echo $id; ?> {
+            	display:none;
+                padding:20px 0;
+            }
+            #commentOption<?php echo $id; ?> {
+                font-size:13px;
+                padding-top:10px;
+                font-weight:700;
+                cursor:pointer;
+            }
+            #button_block<?php echo $id; ?> {
+                display:none;
+            }
+            #button<?php echo $id; ?> {
+                background-color:#33C33C;
+                color:#ffffff;
+                font-size:13px;
+                font-weight:bold;
+                padding:3px;
+                margin-left:40px;
+            }
+        </style>
+        
+        <?php
+        
+        //Get user's comment
+        $lastcommentquery = mysql_query("SELECT comment FROM comments WHERE id = '$idcomment' LIMIT 0,1");
+        $lastcomment = mysql_result($lastcommentquery,0,'comment');
+        
+         //All Previous Comments
+        $grabcomments = mysql_query("SELECT * FROM comments WHERE imageid = '$imageID' ORDER BY id DESC");
+        $numcomments = mysql_num_rows($grabcomments);
+		
+		$imagenew=str_replace("userphotos/","userphotos/medthumbs/", $source);
+		$fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname ."</a>";
+		list($width, $height) = getimagesize($image);
+		$imgratio = $height / $width;
+		$height = $imgratio * $maxwidth;
+		$phrase = $fullname . " commented on " . $ownerfull . "'s photo";
+		
+		list($width, $height) = getimagesize($source);
+		$width = ($width / 2.5);
+		$height = ($height / 2.5);
+        
+        echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$commenterpic,'" />
+                    <li id="comment',$id,'"><img src="graphics/comment_1.png"></li>
+                    <li><img src="graphics/heart.png"></li>
+                     <a href="fullsizemarket.php?imageID=',id,'"><li><img src="graphics/tag.png"></li></a>
+                </ul>
+            </div>
+                     
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName">',$fullname,' > ',$ownerfull,'</div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div class="commentPhoto">
+                         <a href="fullsize.php?imageid=',$imageID,'"><img style="max-height:500px;" src="https://photorankr.com/',$source,'" /></a>
+                    </div>
+                    <div class="commentBox">
+                        <blockquote>
+                            <p>',$lastcomment,'</p>
+                        </blockquote>
+                    </div>
+                    <!--Comment Box-->
+                    <div class="postCommentBox">
+                         <form action="#" id="commentform',$id,'" method="post" style="margin-top:5px;padding-bottom:5px;"> 
+                        <img style="float:left;" src="https://photorankr.com/',$sessionpic,'" height="30" width="30"  />
+                        <textarea id="commentBox',$id,'" style="resize:none;margin-left:5px;width:395px;height:20px;" placeholder="Leave feedback for ',$firstname,'&#8230;"></textarea>
+                        <div id="button_block',$id,'">
+                         <input type="submit" id="button',$id,'" class="btn btn-success" value=" Comment "/>
+                        </div>
+                        </form>
+                    </div>
+                    
+                    <!--AJAX COMMENTS-->
+                        <ol id="update',$id,'" class="timeline">
+                        </ol>
+                    
+                    <!--Previous Comments-->
+                    <div id="hiddenComments',$id,'" class="previousComments">
+                        <ul class="indPrevComment">';
+
+                             for($iii = 0; $iii < $numcomments; $iii++) {
+                                $prevcomment = mysql_result($grabcomments,$iii,'comment');
+                                $commentid = mysql_result($grabcomments,$iii,'id');
+                                $commenttime = mysql_result($grabcomments,$iii,'time');
+                                $commenttime = converttime($commenttime);
+                                $commenteremail = mysql_result($grabcomments,$iii,'commenter');
+                                $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
+                                $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
+                                $commenterid = mysql_result($commenterinfo,0,'user_id');
+                                $commenterpic = mysql_result($commenterinfo,0,'profilepic');            
+                                $commenterrep = number_format(mysql_result($commenterinfo,0,'reputation'),2);
+
+                                echo'<li style="overflow:hidden;"> 
+                                        <div style="width:35px;float:left;"><img src="https://photorankr.com/',$commenterpic,'" height="35" width="35" /></div>
+                                        <div style="width:420px;float:left;" id="commenterName" style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a>
+                                        <div style="float:right">',$commenttime,'</div>
+                                        <div id="commentText">
+                                            ',$prevcomment,'
+                                        </div>
+                                        </div>
+                                     
+                                     </li>';
+                        
+                            }
+                            
+                            echo'
+                        </ul>
+                    </div>
+                    
+                </div>
+         <!--End Content Box-->
+         </div>
+         
+         </div>';
+        
+    } //end type == 'comments'
+
+} //end view == 'comments'
+
+elseif($view == 'faves') {
+
+if ($type == "fave") {
     $owner = $newsrow['owner'];
     $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
     $ownerresult = mysql_query($ownersquery); 
@@ -1339,263 +2421,288 @@ if ($type == "fave") {
 	$imgratio = $height / $width;
 	$height = $imgratio * $maxwidth;
     $fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname . "</a>";
-    $phrase = $fullname . " favorited " . '"' . $caption . '"' . " by " . $ownerfull;
-    
+    if($type == "fave") {
+        $phrase = $fullname . " favorited " . 'a photo' . " by " . $ownerfull;
+    }
+    elseif($type == "discoverfave") {
+            $phrase = $fullname . " discovered " . 'a photo' . " by " . $ownerfull;
+    }
     $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
     $views = mysql_result($imageinfo,0,'views');
     $points = mysql_result($imageinfo,0,'points');
     $votes = mysql_result($imageinfo,0,'votes');
+    $faves = mysql_result($imageinfo,0,'faves');
+    $about = mysql_result($imageinfo,0,'about');
+    $camera = mysql_result($imageinfo,0,'camera');
+    $id = mysql_result($imageinfo,0,'id');
+    $lens = mysql_result($imageinfo,0,'lens');
+    $filter = mysql_result($imageinfo,0,'filter');
+    $aperture = mysql_result($imageinfo,0,'aperture');
+    $shutterspeed = mysql_result($imageinfo,0,'shutterspeed');
     $rank = ($points / $votes);
     $rank = number_format($rank,2);
+    $tag1 = mysql_result($imageinfo,0,'tag1');
+    $tag2 = mysql_result($imageinfo,0,'tag2');
+    $tag3 = mysql_result($imageinfo,0,'tag3');
+    $tag4 = mysql_result($imageinfo,0,'tag4');
     
-    //Faves List Modal
-    $favelistquery = mysql_query("SELECT firstname,lastname,user_id FROM userinfo WHERE faves LIKE '%$image%'");
-    $numfavesinlist = mysql_num_rows($favelistquery);
-    for($jjj=0; $jjj<$numfavesinlist; $jjj++) {
-    $fvname = mysql_result($favelistquery,$jjj,'firstname') . " " . mysql_result($favelistquery,$jjj,'lastname');
-    $fvid = mysql_result($favelistquery,$jjj,'user_id');
-    $fvname = '<a href="viewprofile.php?u='.$fvid.'"'.'>' . $fvname . '</a>';
-    if($jjj == 0) {
-    $fvlist = $fvlist . $fvname;
-    } 
-    elseif($jjj > 0) {
-    $fvlist = $fvlist . ", " .$fvname; }
-    }
-
     list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
+    $width = ($width / 3.2);
+    $height = ($height / 3.2);
     
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'&nbsp;|&nbsp;Favorited By: ',$fvlist,'</div>';
-    echo '</div>'; 
+    ?>
     
-      $fvlist = '';  
-	}
-} //end view == 'fv'  
-
-
-
-
-//FOLLOW VIEW    
-elseif($view == 'fw') {
-if ($type == "follow") {
-    $email4 = $newsrow['following'];
-    $newaccount = "SELECT * FROM userinfo WHERE emailaddress = '$email4'";
-    $accountresult = mysql_query($newaccount); 
-    $accountrow = mysql_fetch_array($accountresult);
-    $profilepic5 = $accountrow['profilepic'];
-    $ownerid = $accountrow['user_id'];
-    
-    $numownerphotosquery = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email4' ORDER by (points/votes) DESC");
-    $numownerphotos = mysql_num_rows($numownerphotosquery);
-    $flowimage1 = mysql_result($numownerphotosquery,0,'source');
-    $flowimage1=str_replace("userphotos/","userphotos/medthumbs/", $flowimage1);
-    $flowimage2 = mysql_result($numownerphotosquery,1,'source');
-    $flowimage2=str_replace("userphotos/","userphotos/medthumbs/", $flowimage2);
-    $flowimage3 = mysql_result($numownerphotosquery,2,'source');
-    $flowimage3=str_replace("userphotos/","userphotos/medthumbs/", $flowimage3);
-    
-    $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$email4%'";
-	$followersresult=mysql_query($followersquery);
-	$numberfollowers = mysql_num_rows($followersresult);
-    
-    for($iii = 0; $iii < $numownerphotos; $iii++) {
-		$points = mysql_result($numownerphotosquery, $iii, "points");
-        $votes = mysql_result($numownerphotosquery, $iii, "votes");
-        $totalfaves = mysql_result($numownerphotosquery, $iii, "faves");
-        $portfoliopoints+=$points;
-        $portfoliovotes+=$votes;
-        $portfoliofaves+=$totalfaves;
+    <script type="text/javascript">
+        
+        //Comment jQuery Script
+        $(function() {
+        $("#commentform<?php echo $id; ?>").submit(function() 
+        {
+        var firstname = '<?php echo $sessionfirst; ?>';
+        var lastname = '<?php echo $sessionlast; ?>';
+        var email = '<?php echo $email; ?>';
+        var userpic = '<?php echo $sessionpic; ?>';
+        var viewerid = '<?php echo $sessionid; ?>';
+        var imageid = '<? echo $id; ?>';
+        var comment = $("#commentBox<?php echo $id; ?>").val();
+        var dataString = 'firstname='+ firstname + '&lastname=' + lastname + '&email=' + email + '&comment=' + comment + '&userpic=' + userpic + '&viewerid=' + viewerid + '&imageid=' + imageid;
+        $("#flash").show();
+        $("#flash").fadeIn(400).html();
+        $.ajax({
+        type: "POST",
+        url: "newsfeedcomment.php",
+        data: dataString,
+        cache: false,
+        success: function(html){
+        $("ol#update<?php echo $id; ?>").append(html);
+        $("ol#update li:last").fadeIn("slow");
+        $("#flash").hide();
         }
+        });
+        return false;
+        }); });
+        
+        //Display textarea
+        $(function() 
+        {
+        $("#comment<?php echo $id; ?>").click(function()
+        {
+        $("#commentBox<?php echo $id; ?>").animate({"height": "85px",}, "fast" );
+        $("#button_block<?php echo $id; ?>").slideDown("fast");
+        jQuery("#commentform<?php echo $id; ?>").toggle();
+        jQuery("#hiddenComments<?php echo $id; ?>").toggle();
+        return false;
+        });        
+        });
+ 
+    jQuery(document).ready(function(){
+        jQuery("#showStats<?php echo $id; ?>").live("click", function(event) {        
+            jQuery(".hiddenStats<?php echo $id; ?>").toggle();
+        });
+    });
+    </script>
     
-    if ($portfoliovotes > 0) {
-    $portfolioranking=($portfoliopoints/$portfoliovotes);
-    $portfolioranking=number_format($portfolioranking, 2, '.', '');    
+     <style type="text/css">
+        .hiddenStats<?php echo $id; ?> {
+            display:none;
         }
+        .hiddenStats<?php echo $id; ?> ul {
+            padding:15px;
+            padding-top:60px;
+            font-size:13px;
+        }
+        .hiddenStats<?php echo $id; ?> li {
+            display:inline;
+            padding:4px;
+        }
+        #hiddenComments<?php echo $id; ?> {
+                display:none;
+        }
+        #commentform<?php echo $id; ?> {
+            display:none;
+            padding:20px 0;
+        }
+        #commentOption<?php echo $id; ?> {
+            font-size:13px;
+            padding-top:10px;
+            font-weight:700;
+            cursor:pointer;
+        }
+        #button_block<?php echo $id; ?> {
+            display:none;
+        }
+        #button<?php echo $id; ?> {
+            background-color:#33C33C;
+            color:#ffffff;
+            font-size:13px;
+            font-weight:bold;
+            padding:3px;
+            margin-left:40px;
+        }
+    </style>
     
-    else if ($portfoliovotes < 1) {
-    $portfolioranking="N/A";
-        }	
+    <?php
 
-    $ownerfirst = $accountrow['firstname'];
-    $commenteremail = $accountrow['emailaddress'];
-    $commenteremail = $newsrow['emailaddress'];
-    $commentersquery = mysql_query("SELECT user_id,profilepic FROM userinfo WHERE emailaddress = '$commenteremail'");
-    $commenterpic = mysql_result($commentersquery,0,'profilepic');
-    $commenterid = mysql_result($commentersquery,0,'user_id');
-    $ownerlast = $accountrow['lastname'];
-    $firstname = $newsrow['firstname'];
-    $firstname = ucwords($firstname);
-    $lastname = $newsrow['lastname'];
-    $lastname = ucwords($lastname);
-    $fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname. "</a>";
-    $owner = $newsrow['owner'];
-    $ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "'s</a>";
-    $owner = ucwords($ownerfull);
-    if($profilepic5 == "") {
-    $profilepic5 = "profilepics/default_profile.jpg";
-    }
-    $phrase = $fullname . ' is now following ' . $owner ." photography";
-    
-    list($width, $height) = getimagesize($profilepic5);
-    $width = ($width / 3.5);
-    $height = ($height / 3.5);
+    echo'<div class="grid_16 fPic" id="',$newsid,'">
+         <!--Profile Picture-->
+            <div class="newsBlock">
+                <ul>
+                    <li><img id="newsProfilePic" src="https://photorankr.com/',$commenterpic,'" />
+                    <li id="comment',$id,'"><img src="graphics/comment_1.png"></li>
+                    <li><img src="graphics/heart.png"></li>
+                     <a href="fullsizemarket.php?imageid=',$id,'"><li><img src="graphics/tag.png"></li></a>
+                </ul>
+            </div>
+         
+         <!--Content Box-->
+         <div class="newsContainer">
+            <div class="newsTriangle"></div>
+                <div class="newsItem">
+                    <!--Top Controls-->
+                    <div class="newsControls">
+                        <div class="newsName">',$phrase,'</div>
+                        <div class="newsTools">
+                            <span id="time">',$time,'</span>
+                        </div>
+                    </div>
+                    <!--Content-->
+                    <div class="newsContent">
+                        <a href="fullsize.php?imageid=',$id,'"><img style="min-width:480px;" src="https://photorankr.com/',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>
+                    </div>
+                    <!---Stats--->
+                    <div class="newsStats">
+                        <span style="font-size:18px;font-weight:500;">',$rank,'</span>
+                        <span style="font-size:18px;font-weight:300;">',$caption,'
+                        <div style="display:inline;width:240px;float:right;margin-right:50px;text-align:right;font-size:15px;">';
+                        if($tag1) {
+                            echo'#',$tag1,' ';
+                        }
+                        if($tag2) {
+                            echo'#',$tag2,' ';
+                        }
+                        if($tag3) {
+                            echo'#',$tag3,' ';
+                        }                    
+                        echo'
+                            <img id="showStats',$id,'" style="width:20px;margin-top:-3px;padding-left:8px;" src="graphics/stats 4.png" />
+                        </div>
+                    </div>
+                    
+                    <div class="hiddenStats',$id,'">
+                        <ul>
+                            <li><img src="graphics/view.png" width="15" /> Views: ',$views,'</li>';
+                        
+                        if($camera) {
+                            echo'<li><img src="graphics/camera.png" width="15" /> Camera: ',$camera,'</li>';
+                        }
+                        if($lens) {
+                            echo'<li><img src="graphics/lens.png" width="15" /> Lens: ',$lens,'</li>';
+                        }
+                        if($focallength) {
+                            echo'<li><img src="graphics/focal-length.png" width="15" /> Focal Length: ',$focallength,'</li>';
+                        }
+                        if($aperture) {
+                            echo'<li><img src="graphics/aperature.png" width="15" /> Aperture: ',$aperture,'</li>';
+                        }
+                        if($shutterspeed) {
+                            echo'<li><img src="graphics/shutter-speed.png" width="15" /> Shutter Speed: ',$shutterspeed,'</li>';
+                        }   
+                        echo'
+                        </ul>
+                    <!--About Photo-->';
+                    if($about) {
+                    echo'<div style="font-size:14px;font-weight:700;padding:10px 0 0 20px;">Behind the lens</div>
+                        <div class="newsAbout">
+                           ',$about,'
+                        </div>';
+                    }
+                    if($tag1 || $tag2 || $tag3 || $tag4) {
+                    echo'<div class="newsTagBox">
+                        <ul class="tags">';
+                            if($tag1) {
+                                echo'<li><a href="#">',$tag1,'</a></li>';
+                            }
+                            if($tag2) {
+                                echo'<li><a href="#">',$tag2,'</a></li>';
+                            }
+                            if($tag3) {
+                                echo'<li><a href="#">',$tag3,'</a></li>';
+                            }
+                            if($tag4) {
+                                echo'<li><a href="#">',$tag4,'</a></li>';
+                            }
+                            echo'
+                        </ul>
+                    </div>';
+                    }
+                    
+                    echo'
+                </div>
+                <!--Comment Box-->
+                    <div class="postCommentBox">
+                         <form action="#" id="commentform',$id,'" method="post" style="margin-top:5px;padding-bottom:5px;"> 
+                        <img style="float:left;" src="https://photorankr.com/',$sessionpic,'" height="30" width="30"  />
+                        <textarea id="commentBox',$id,'" style="resize:none;margin-left:5px;width:395px;height:20px;" placeholder="Leave feedback for ',$firstname,'&#8230;"></textarea>
+                        <div id="button_block',$id,'">
+                         <input type="submit" id="button',$id,'" class="btn btn-success" value=" Comment "/>
+                        </div>
+                        </form>
+                    </div>
+                    
+                    <!--AJAX COMMENTS-->
+                        <ol id="update',$id,'" class="timeline">
+                        </ol>
+                    
+                    <!--Previous Comments-->
+                    <div id="hiddenComments',$id,'" class="previousComments">
+                        <ul class="indPrevComment">';
 
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
-    <br /><a href="viewprofile.php?u=',$ownerid,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;" src="',$profilepic5,'" width="',$width,'px" height="',$height,'px" /></a>&nbsp;&nbsp;
-    <div class="phototitle" style="height:110px;width:320px;">';
-    
-    if($numownerphotos > 2) {
-    echo'
-    <img style="border:1px solid white;" src="',$flowimage1,'" height="108" width="102" />
-    <img style="border:1px solid white;" src="',$flowimage2,'" height="108" width="102" />
-    <img style="border:1px solid white;" src="',$flowimage3,'" height="108" width="102" />';
-    }
-    else {
-    echo'<div style="text-align:center;font-size:14px;margin-top:40px;">',$ownerfirst,' just joined!</div>';
-    }
-    
-    echo'
+                             for($iii = 0; $iii < $numcomments; $iii++) {
+                                $prevcomment = mysql_result($grabcomments,$iii,'comment');
+                                $commentid = mysql_result($grabcomments,$iii,'id');
+                                $commenttime = mysql_result($grabcomments,$iii,'time');
+                                $commenttime = converttime($commenttime);
+                                $commenteremail = mysql_result($grabcomments,$iii,'commenter');
+                                $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
+                                $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
+                                $commenterid = mysql_result($commenterinfo,0,'user_id');
+                                $commenterpic = mysql_result($commenterinfo,0,'profilepic');            
+                                $commenterrep = number_format(mysql_result($commenterinfo,0,'reputation'),2);
+
+                                echo'<li style="overflow:hidden;"> 
+                                        <div style="width:35px;float:left;"><img src="https://photorankr.com/',$commenterpic,'" height="35" width="35" /></div>
+                                        <div style="width:420px;float:left;" id="commenterName" style="float:left;"><a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a>
+                                        <div style="float:right">',$commenttime,'</div>
+                                        <div id="commentText">
+                                            ',$prevcomment,'
+                                        </div>
+                                        </div>
+                                     
+                                     </li>';
+                        
+                            }
+                            
+                            echo'
+                        </ul>
+                    </div>
+         <!--End Content Box-->
+         </div>
     </div>
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Photos: ',$numownerphotos,'&nbsp;|&nbsp;Portfolio Average: ',$portfolioranking,'&nbsp;|&nbsp;Followers: ',$numberfollowers,'</div>';
-
-    echo '</div>'; 
-
-    }
-} //end view == 'fw'    
-
-
-//COMMENTS VIEW
-elseif($view == 'cmt') {
-    if ($type == "comment") {     
-    $owner = $newsrow['owner'];
-    $ownersquery = "SELECT * FROM userinfo WHERE emailaddress = '$owner'";
-    $ownerresult = mysql_query($ownersquery); 
-    $ownerrow = mysql_fetch_array($ownerresult);
-    $ownerfirst = $ownerrow['firstname'];
-    $ownerlast = $ownerrow['lastname'];
-    $ownerid = $ownerrow['user_id'];
-    $ownerfull = "<a href='viewprofile.php?u=" . $ownerid . "'>" . $ownerfirst . " " . $ownerlast . "</a>";
-    $ownerfull = ucwords($ownerfull);
-    $firstname = $newsrow['firstname'];
-    $commenteremail = $newsrow['emailaddress'];
-    $commentersquery = mysql_query("SELECT user_id,profilepic FROM userinfo WHERE emailaddress = '$commenteremail'");
-    $commenterpic = mysql_result($commentersquery,0,'profilepic');
-    $commenterid = mysql_result($commentersquery,0,'user_id');
-    $firstname = ucwords($firstname);
-    $lastname = $newsrow['lastname'];
-    $lastname = ucwords($lastname);
-    $image = $newsrow['source'];
-   
-    $imageinfo = mysql_query("SELECT * FROM photos WHERE source = '$image'");
-    $views = mysql_result($imageinfo,0,'views');
-    $points = mysql_result($imageinfo,0,'points');
-    $votes = mysql_result($imageinfo,0,'votes');
-    $rank = ($points / $votes);
-    $rank = number_format($rank,2);
+</div>';
     
-    $imagenew=str_replace("userphotos/","userphotos/medthumbs/", $image);
-    $fullname = "<a href='viewprofile.php?u=" . $commenterid . "'>" . $firstname . " " . $lastname ."</a>";
-    list($width, $height) = getimagesize($image);
-	$imgratio = $height / $width;
-	$height = $imgratio * $maxwidth;
-    $phrase = $fullname . " commented on " . $ownerfull . "'s photo";
-    
-    list($width, $height) = getimagesize($image);
-    $width = ($width / 2.5);
-    $height = ($height / 2.5);
-    
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="',$commenterpic,'" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
-    <br /><a href="fullsize.php?image=',$image,'"><img class="phototitle" style="margin-left:85px;margin-bottom:15px;clear:both;" src="',$imagenew,'" width="',$width,'px" height="',$height,'px" /></a>';
-    
-    $txt=".txt";
-	$imagenew=str_replace("userphotos/","", $image);
-	$searchchars=array('.jpg','.png','.tiff','.JPG','.jpeg','.JPEG','.gif');
-	$imagenew=str_replace($searchchars,"", $imagenew);
-	$file = "comments/" . $imagenew . $txt; 
-	echo '<br /><br /><div style="margin-left: 85px;padding:15px;width:480px;clear:both;">
-    <div class="panel">';
-    @include("$file");
-    echo'
-    </div>
-    <p class="flip" style="font-size:15px;">View comment thread</p>';
-	if (@file_get_contents($file) == '') {
-		echo '<div style="text-align: center;">Be the first to leave a comment!<br /><br /></div>';
-	}
-	echo '</div>';
-    
-    echo'
-    <br />
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Rank: ',$rank,'</div>';
-    echo '</div>';    
-    }
-} //end view == 'cmt'    
-      
-} //end for loop
+    } //end type == 'favorite'
 
+} //end of view favorites
 
-//CAMPAIGN VIEW
-if($view == 'cmp') {
-$cmpquery = mysql_query("SELECT * FROM newsfeed WHERE type = 'campaign'ORDER BY id DESC");
-$numcamps = mysql_num_rows($cmpquery);
-for($i=0; $i < $numcamps; $i++) {
-$photoid = mysql_result($cmpquery,$i,'source');
-$caption = mysql_result($cmpquery,$i,'caption');
+} //end of main for loop
 
-    $quotequery = mysql_query("SELECT quote,views FROM campaigns WHERE id = '$photoid'");
-    $quote = mysql_result($quotequery,0,'quote');
-    $views = mysql_result($quotequery,0,'views');
-    $phrase = 'New Campaign: (Reward: $'. $quote .') "'. $caption . '"';
-    
-    $campphotosquery = mysql_query("SELECT source FROM campaignphotos WHERE campaign = '$photoid' ORDER by (points/votes) DESC");
-    $numcampphotos = mysql_num_rows($campphotosquery);
-    $flowimage1 = mysql_result($campphotosquery,0,'source');
-    $flowimage1=str_replace("userphotos/","campaign/userphotos/medthumbs/", $flowimage1);
-    $flowimage2 = mysql_result($campphotosquery,1,'source');
-    $flowimage2=str_replace("userphotos/","campaign/userphotos/medthumbs/", $flowimage2);
-    $flowimage3 = mysql_result($campphotosquery,2,'source');
-    $flowimage3=str_replace("userphotos/","campaign/userphotos/medthumbs/", $flowimage3);
-    
-    echo '<div class="grid_10 push_1 fPic" id="',$id,'" style="width:600px;border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;"> 
-    <img class="dropshadow" style="border: 1px solid white;margin-left:10px;margin-top:10px;" src="graphics/newsfeedcampaignicon.png" height="60" width="60" />&nbsp;&nbsp;<span style="font-size:15px;">',$phrase,'</span>
-    <br />
-    <div class="phototitle" style="margin-left:85px;height:150px;width:450px;"><a style="text-decoration:none;" href="campaignphotos.php?id=',$photoid,'">';
-    
-    if($numcampphotos > 2) {
-    echo'
-    <img style="border:1px solid white;" src="',$flowimage1,'" height="148" width="145" />
-    <img style="border:1px solid white;" src="',$flowimage2,'" height="148" width="145" />
-    <img style="border:1px solid white;" src="',$flowimage3,'" height="148" width="145" />';
-    }
-    else {
-    echo'<div style="text-align:center;font-size:14px;margin-top:40px;">Less than 3 entries to this campaign so far</div>';
-    }
-    
-    echo'
-    </a>
-    </div>
-    <div style="font-size:13px;margin-left:85px;margin-bottom:10px;clear:both;">Views: ',$views,'&nbsp;|&nbsp;Entries: ',$numcampphotos,'</div>';
-
-    echo '</div>'; 
-    
-	}
-} //end view == 'cmp'  
-
-?>
-
-</div>    
-
-<?php
-
+//AJAX HERE!
 echo'
-<div id="loadMoreNewsfeedNew" style="display: none; text-align: center; margin-top: 25px;">Loading...</div>';
+<div class="grid_6 push_4" style="padding-top:25px;padding-bottom:25px;">
+<div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;"><img style="width:50px;" src="LoadingGIF.gif" /></div>
+</div>';
 
-echo '<script>
+echo'<script>
 
 var last = 0;
 
@@ -1604,11 +2711,11 @@ var last = 0;
 			if(last != $(".fPic:last").attr("id")) {
 				$("div#loadMorePics").show();
 				$.ajax({
-					url: "loadMoreNewsfeedNew.php?view=',$view,'&lastPicture=" + $(".fPic:last").attr("id") + "&first=', $firstname, ' + &last=', $lastname, ' + &email=', $email, '",
+					url: "loadMoreNewsfeedNew.php?view=',$view,'&lastPicture=" + $(".fPic:last").attr("id") + "&email=',$email,'",
 					success: function(html) {
 						if(html) {
 							$("#thepics").append(html);
-							$("div#loadMoreNewsfeedNew").hide();
+							$("div#loadMorePics").hide();
 						}
 					}
 				});
@@ -1620,11 +2727,336 @@ var last = 0;
 
 echo'
 </div>
-</div>';    
+</div>';
 
 ?>
 
+<!-----------------------End Newsfeed----------------------->
 
+
+
+<!-----------------------Begin Middle Column---------------------->
+
+<div class="grid_6" style="position:relative;left:-15px;margin-top:55px;">
+
+<!-------------------Suggested Photographers----------------->
+    <?php
+        //select all of the people they are following
+	$followingquery = "SELECT following FROM userinfo WHERE emailaddress='$email' LIMIT 1";
+	$followingresult = mysql_query($followingquery);
+	$followinglistowner = mysql_result($followingresult, 0, "following");
+    
+	//select all the people they are following who aren't themselves
+	$str = mysql_real_escape_string("%'%',%'%',%'%',%'%'%',%'%'%");
+	$followingquery = "SELECT following FROM userinfo WHERE emailaddress IN($followinglistowner) AND emailaddress NOT IN('$email') AND following LIKE('" . $str . "') ORDER BY RAND() LIMIT 1";
+	$followingresult = mysql_query($followingquery) or die(mysql_error());
+	$followinglist = mysql_result($followingresult, 0, "following");
+	$followingnumber = mysql_num_rows($followingresult);
+	
+	//if they aren't yet following anyone, just get four random photographers
+	if($followingnumber == 0) {
+		$displayquery = "SELECT firstname, lastname, profilepic FROM userinfo ORDER BY RAND() LIMIT 4";
+		$displayresult = mysql_query($displayquery);
+	}
+	//else they are following people so go ahead with the original procedure
+	else {
+		$displayquery = "SELECT firstname, lastname, profilepic,user_id FROM userinfo WHERE emailaddress IN($followinglist) AND emailaddress NOT IN('$email', $followinglistowner, 'support@photorankr.com') ORDER BY RAND() LIMIT 4";		
+		$displayresult = mysql_query($displayquery) or die(mysql_error());
+        $numdisplayresult = mysql_num_rows($displayresult);
+	}
+	
+	//see if we have enough information to even display this 
+		//loop through the people, printing out their name and profile picture
+        //echo'<span style="font-size:16px;font-weight:100;padding:15px;">Photographers to Follow:</span>';
+        
+        echo'<div class="updateBoxBottom" style="width:275px;margin-top:20px;">
+             <header>Who to Follow</header>
+             </div>';
+        
+        echo'<ul class="followBoxes" style="margin-top:-35px;">';
+        
+		for($iii=0; $iii < 4; $iii++) {
+            $firstname = mysql_result($displayresult, $iii, "firstname");
+			$name = mysql_result($displayresult, $iii, "firstname") . " " . mysql_result($displayresult, $iii, "lastname");
+			$profilepic = mysql_result($displayresult, $iii, "profilepic");
+            $profileid = mysql_result($displayresult, $iii, "user_id");
+            
+            if($name == '' || $pofilepic == ''){
+            $somequery = mysql_query("SELECT firstname,lastname,profilepic,user_id,emailaddress FROM userinfo WHERE profilepic != 'profilepics/default_profile.jpg' && firstname != 'PhotoRankr' ORDER BY RAND()");
+            $firstname = mysql_result($somequery, $iii, "firstname");
+            $name = $firstname . " " . mysql_result($somequery, $iii, "lastname");
+			$profilepic = mysql_result($somequery, $iii, "profilepic");
+            $profileid = mysql_result($somequery, $iii, "user_id");
+            $profileemail = mysql_result($somequery, $iii, "emailaddress");
+             
+            $numownerphotosquery = mysql_query("SELECT source,id FROM photos WHERE emailaddress = '$profileemail' ORDER BY (points/votes) DESC");
+            $numownerphotos = mysql_num_rows($numownerphotosquery);
+            $photo1 = mysql_result($numownerphotosquery,0,'source');
+            $photo1 = str_replace('userphotos/','userphotos/medthumbs/',$photo1);
+            $photo1id = mysql_result($numownerphotosquery,0,'id');
+            $photo2 = mysql_result($numownerphotosquery,1,'source');
+            $photo2 = str_replace('userphotos/','userphotos/medthumbs/',$photo2);
+            $photo2id = mysql_result($numownerphotosquery,1,'id');
+            $photo3 = mysql_result($numownerphotosquery,2,'source');
+            $photo3 = str_replace('userphotos/','userphotos/medthumbs/',$photo3);
+            $photo3id = mysql_result($numownerphotosquery,2,'id');
+    
+            $followersquery="SELECT * FROM userinfo WHERE following LIKE '%$profileemail%'";
+            $followersresult=mysql_query($followersquery);
+            $numberfollowers = mysql_num_rows($followersresult);
+                
+            for($ii = 0; $ii < $numownerphotos; $ii++) {
+                $points = mysql_result($numownerphotosquery, $ii, "points");
+                $votes = mysql_result($numownerphotosquery, $ii, "votes");
+                $totalfaves = mysql_result($numownerphotosquery, $ii, "faves");
+                $portfoliopoints+=$points;
+                $portfoliovotes+=$votes;
+                $portfoliofaves+=$totalfaves;
+            }
+            if ($portfoliovotes > 0) {
+                $portfolioranking=($portfoliopoints/$portfoliovotes);
+                $portfolioranking=number_format($portfolioranking, 2, '.', '');    
+                }
+            else if ($portfoliovotes < 1) {
+                $portfolioranking="N/A";
+                }	
+                
+        } 
+        ?>
+        
+        <script type="text/javascript">
+        //Show Follower Images
+        jQuery(document).ready(function(){
+            jQuery("#showImages<?php echo $profileid; ?>").live("click", function(event) {        
+                jQuery("#hiddenImages<?php echo $profileid; ?>").toggle();
+            });
+        });
+        </script>
+        
+        <?php
+
+                    echo'<li>
+                            <img style="float:left;" src="https://photorankr.com/',$profilepic,'" />
+                            <div class="innerFollowBox">
+                                <div id="name" style="width:245px;">
+                                    <a style="color:#666;" href="viewprofile.php?u=',$profileid,'">
+                                    ',$name,' <br />
+                                    </a>
+                                    <span id="smaller">Followed by ',$numberfollowers,' photographers</span>
+                                </div>
+                                
+                                <!--Top Images from this Photographer---->';
+                                if($numownerphotos > 2) {
+                                echo'<div style="float:left;width:250px;font-size:13px;">
+                                        <div style="color:#3b5998;cursor:pointer;" id="showImages',$profileid,'">Top Images from ',$firstname,'</div>
+                                     </div>
+                                     </div>
+                                     <div id="hiddenImages',$profileid,'" class="hiddenFollowerImages">
+                                        <a href="fullsize.php?imageid=',$photo1id,'"><img src="https://photorankr.com/',$photo1,'" /></a>
+                                        <a href="fullsize.php?imageid=',$photo2id,'"><img src="https://photorankr.com/',$photo2,'" /></a>
+                                        <a href="fullsize.php?imageid=',$photo3id,'"><img src="https://photorankr.com/',$photo3,'" /></a>
+                                     </div>';
+                                }
+                             echo'
+                        </li>';
+		}
+        
+                
+        echo'</ul>';
+?>
+
+
+<!-------Search by Hashtags------>
+
+<div class="updateBoxBottom" style="width:245px;padding-bottom:0px;padding:15px;">
+    <form action="" method="get">
+        <input type="hidden" value="search" name="view" />
+        <input type="text" name="tag" id="newsSearchBox" placeholder="Search By Tags&hellip;" />
+    </form>
+</div>
+
+<ul class="followBoxes" style="margin-top:-30px;">
+<?php
+    $getTags = mysql_query("SELECT * FROM photos ORDER BY id DESC LIMIT 250");
+    $tagsArray = array();
+    for($iii=0; $iii<250; $iii++) {
+        $tag1 = mysql_result($getTags,$iii,'tag1');
+        $tag1 = strtolower($tag1);
+        $tagsArray[$tag1] += 1;
+        $tag2 = mysql_result($getTags,$iii,'tag2');
+        $tag3 = strtolower($tag2);
+        $tagsArray[$tag2] += 1;
+        $tag3 = mysql_result($getTags,$iii,'tag3');
+        $tag3 = strtolower($tag3);
+        $tagsArray[$tag3] += 1;
+        $tag4 = mysql_result($getTags,$iii,'tag4');
+        $tag4 = strtolower($tag4);
+        $tagsArray[$tag4] += 1;
+        $singlestylearray = mysql_result($getTags,$iii,'singlestyletags');
+            foreach ($singlestylearray as $value)
+            {
+                $value = trim(strtolower($value));
+                $tagsArray[$value] += 1;
+            }
+        $singlecategoryarray = mysql_result($getTags,$iii,'singlecategorytags');
+            foreach ($singlecategoryarray as $value)
+            {
+                $value = trim(strtolower($value));
+                $tagsArray[$value] += 1;
+            }
+        }
+        arsort($tagsArray);
+        foreach ($tagsArray as $key => $val) {
+            if($count == 0) {
+                $count += 1;
+                continue;
+            }
+            if($count > 4) {
+                break;
+            }
+            $key = strtolower($key);
+            $tagPhotos = mysql_query("SELECT source,id FROM photos WHERE concat(tag1,tag2,tag3,tag4,singlestyletags,singlecategorytags) LIKE '%$key%' ORDER BY views DESC LIMIT 4");
+            $image1 = mysql_result($tagPhotos,0,'source');
+            $image1 = str_replace('userphotos/','userphotos/medthumbs/',$image1);
+            $image1id = mysql_result($tagPhotos,0,'id');
+            $image2 = mysql_result($tagPhotos,1,'source');
+            $image2 = str_replace('userphotos/','userphotos/medthumbs/',$image2);
+            $image2id = mysql_result($tagPhotos,1,'id');
+            $image3 = mysql_result($tagPhotos,2,'source');
+            $image3 = str_replace('userphotos/','userphotos/medthumbs/',$image3);
+            $image3id = mysql_result($tagPhotos,2,'id');
+            $image4 = mysql_result($tagPhotos,3,'source');
+            $image4 = str_replace('userphotos/','userphotos/medthumbs/',$image4);
+            $image4id = mysql_result($tagPhotos,3,'id');
+        ?>
+        <script type="text/javascript">
+        //Show More Trending Images
+        jQuery(document).ready(function(){
+            jQuery("#showTrendingImages<?php echo $key; ?>").live("click", function(event) {        
+                jQuery("#hiddenTrendingImages<?php echo $key; ?>").toggle();
+            });
+        });
+        </script>
+        <?php
+             echo'<li>
+                    <a href="fullsize.php?imageid=',$image1id,'">
+                    <img style="float:left;" src="https://photorankr.com/',$image1,'" />
+                    </a>
+                        <div class="innerFollowBox">
+                            <div id="name" style="width:245px;">
+                                <a style="color:#666;" href="newsfeed.php?view=search&tag=',$key,'">
+                                    #',$key,' 
+                                </a>
+                                <br />
+                                <span id="smaller">',$val,' trending photographs</span>
+                            </div>
+                                
+                            <div style="float:left;width:250px;font-size:13px;">
+                                <div style="color:#3b5998;cursor:pointer;" id="showTrendingImages',$key,'">More trending images #',$key,'</div>
+                                </div>
+                            </div>
+                            <div id="hiddenTrendingImages',$key,'" class="hiddenFollowerImages">
+                                <a href="fullsize.php?imageid=',$image2id,'"><img src="https://photorankr.com/',$image2,'" /></a>
+                                <a href="fullsize.php?imageid=',$image3id,'"><img src="https://photorankr.com/',$image3,'" /></a>
+                               <a href="fullsize.php?imageid=',$image4id,'"><img src="https://photorankr.com/',$image4,'" /></a>
+                            </div>';
+                        echo'
+                    </li>';
+                        
+            $count += 1;
+        }
+
+?>
+</ul>
+
+
+</div>
+
+
+<!-----------------------End Middle Column---------------------->
+
+
+
+<!-----------------------Begin Far Right Column---------------------->
+
+<div class="grid_6" style="position:relative;margin-top:75px;left:45px;">
+
+    <!-----------------------Title------------------------------->
+    
+    <div class="newsUpdateBox">
+    
+    	<div class="updateBoxTop">
+    		<img src="https://photorankr.com/<?php echo $sessionpic; ?>" />
+    		<header><?php echo $sessionname; ?></header>
+    	</div>
+    	
+    	<div class="updateBoxMiddle">
+    		<ul>
+    			<li><?php echo $numphotos; ?><p>Photos</p></li>
+    			<li><?php echo $sesnumberfollowers; ?><p>Followers</p></li>
+    			<li style="border:none;"><?php echo $sesnumberfollowing; ?><p>Following</p></li>
+    		</ul>
+    	</div>
+    
+		<div class="updateBoxBottom">
+			<form action="#" id="statusForm">
+				<textarea id="status" style="resize:none;margin:10px;padding:4px;width:240px;height:22px;" placeholder="What's new with your photography?"></textarea>
+				 <div id="button_blockFeed">
+                 <input type="submit" id="statusButton" class="btn btn-success" value=" Post "/>
+             </div>
+        </form>
+        
+        </div>    
+    
+    </div>
+
+    <!--------------------Menu Options--------------------------->
+    
+   <div class="newsChoices">
+        <ul>
+            <a class="link" href="newsfeed.php"><li><img src="graphics/list 2.png" /> All News</li></a>
+            <a class="link" href="newsfeed.php?view=up"><li><img src="graphics/camera2.png" /> Uploads</li></a>
+            <a class="link" href="newsfeed.php?view=comments"><li><img src="graphics/comment_1.png" /> Comments</li></a>
+            <a class="link" href="newsfeed.php?view=faves"><li><img src="graphics/heart.png" /> Favorites</li></a>
+        
+        <?php
+        //Possible Groups To Show
+        $usergroupsquery = mysql_query("SELECT groups FROM userinfo WHERE user_id = $sessionid");
+        $usergroups = mysql_result($usergroupsquery,0,'groups');
+        $mygroups = explode(",",$usergroups);
+        $nummygroups = count($mygroups);
+        
+        if($nummygroups > 0) {
+            echo'<a class="link" href=#"><li style="font-weight:500;text-align:center;"> My Groups </li></a>';
+        }
+        
+        for($ii=0; $ii<$nummygroups - 1; $ii++) {
+            $groupinfo = mysql_query("SELECT * FROM groups WHERE id = $mygroups[$ii]");
+            $groupname = mysql_result($groupinfo,0,'name');
+            
+            echo'<a class="link" href="groups.php?id=',$mygroups[$ii],'"><li><img src="graphics/groups_b.png" />',$groupname,'</li></a>';
+        
+        }
+        ?>
+        
+        </ul>
+    </div>
+    
+    
+
+    
+    
+    <!-----SURVEY RIBBON-
+    
+		<div style="width:275px;background-color:#F30808;height:30px;margin-top:20px;text-align:center;font-weight:500;font-size:14px;-webkit-border-radius: 3px;overflow:hidden;-moz-border-radius: 3px;border-radius: 3px;">
+			<div style="color:#fff;margin-top:5px;"><a style="color:#fff;" href="http://www.surveymonkey.com/s/HLRF8VJ">We want your feedback</a></span>
+		</div>----->
+
+
+<!-----------------------End Far Right Column---------------------->
+
+
+<!-----------------------End of Container--------------------->
 </div>
 </body>
 </html>

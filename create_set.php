@@ -46,14 +46,14 @@ $match=strpos($search_string, $find);
 
 if($match > 0) 
     {
-            header("location:myprofile.php?view=upload&cs=n&ns=name");
+            header("location:profile.php?view=upload&cs=n&ns=name");
             exit();
     }
 
 //Make sure they filled out all required information
 if (($numbertags < 1) | !$title ) 
 		{
-         		header("location:myprofile.php?view=upload&cs=n&ns=failure");
+         		header("location:profile.php?view=upload&cs=n&ns=failure");
         		exit();
 		}		
 else {
@@ -72,7 +72,7 @@ $type = 'exhibit';
 $newsfeedquery = "INSERT INTO newsfeed (firstname, lastname, emailaddress, type, caption) VALUES ('$first','$last','$owner','$type','$title')";
 $newsfeedqueryrun = mysql_query($newsfeedquery);
 
-header("location: myprofile.php?view=upload&cs=n&ns=success");
+header("location: profile.php?view=upload&cs=n&ns=success");
 exit();
 
 }

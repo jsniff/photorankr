@@ -1,7 +1,7 @@
 <?php
 
 //connect to the database
-require "../db_connection.php";
+require "db_connection.php";
 require "functions.php";
 
 //start the session
@@ -97,13 +97,14 @@ $notsqueryrun = mysql_query($notsquery); }
   <meta name="Description" content="A gallery of the newest photography, photographers, and exhibits on PhotoRankr.">
      <meta name="viewport" content="width=1200" /> 
 
-	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
-	 <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
 	<link rel="stylesheet" type="text/css" href="css/reset.css"/> 
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
     
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" href="js/bootstrap.js"></script>   
     <script type="text/javascript" src="js/jquery.wookmark.js"></script>            
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
   
@@ -152,7 +153,6 @@ box-shadow: 1px 1px 5px #888;
 
 <!--GOOGLE ANALYTICS CODE-->
 <script type="text/javascript">
-
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-28031297-1']);
   _gaq.push(['_trackPageview']);
@@ -162,7 +162,6 @@ box-shadow: 1px 1px 5px #888;
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
-  
 </script>
 
 
@@ -408,7 +407,6 @@ if($view == '') {
 for($iii=1; $iii <= 16; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
     $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
-    $image = "../" . $image;
 	$id = mysql_result($result, $iii-1, "id");
     $caption = mysql_result($result, $iii-1, "caption");
      $caption = (strlen($caption) > 28) ? substr($caption,0,25). " &#8230;" : $caption;
@@ -487,8 +485,8 @@ echo'
 
 
 <!--AJAX CODE HERE-->
-   <div class="grid_6 push_9" style="padding-top:50px;">
-   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;"><img src="graphics/load.gif" /></div>
+   <div class="grid_6 push_13" style="padding-top:25px;padding-bottom:25px;">
+   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;"><img style="width:50px;" src="LoadingGIF.gif" /></div>
    </div>';
 
 
@@ -761,6 +759,12 @@ var last = 0;
             $('.dropdown-toggle').dropdown();  
         });  
     </script> 
+     <!--Mobile Redirect-->
+    <script type="text/javascript">
+        if (screen.width <= 600) {
+            window.location = "http://mobile.photorankr.com";
+        }
+    </script>
     
 </body>
 </html>

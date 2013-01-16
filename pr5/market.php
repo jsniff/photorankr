@@ -43,9 +43,85 @@ session_start();
     $freephotos = mysql_query("SELECT * FROM photos WHERE price = '.00' ORDER BY time DESC LIMIT 24");
     $greatdeals = mysql_query("SELECT * FROM photos WHERE faves > 3 and price < '10.00' ORDER BY time DESC LIMIT 24");
     $popularphotos = mysql_query("SELECT * FROM photos WHERE faves > 5 ORDER BY time DESC LIMIT 24");
-    $topranked = mysql_query("SELECT * FROM photos WHERE (points/votes) > 8.5 and votes > 5 and time > ($currenttime - 430000) ORDER BY time DESC LIMIT 24");
+    $topranked = mysql_query("SELECT * FROM photos WHERE (points/votes) > 8.5 and votes > 3 and time > ($currenttime - 430000) ORDER BY time DESC LIMIT 24");
     $numphotosquery = mysql_query("SELECT * FROM photos");
     $numphotos = number_format(mysql_num_rows($numphotosquery),2);
+    
+     //Search Queries
+    $license = mysql_real_escape_string(htmlentities($_GET['license']));
+    $category = mysql_real_escape_string(htmlentities($_GET['category']));
+    $maxprice = mysql_real_escape_string(htmlentities($_GET['maxPrice']));
+    $minprice = mysql_real_escape_string(htmlentities($_GET['minPrice']));
+    $minwidth = mysql_real_escape_string(htmlentities($_GET['minWidth']));
+    $maxwidth = mysql_real_escape_string(htmlentities($_GET['maxWidth']));
+    $minheight = mysql_real_escape_string(htmlentities($_GET['minHeight']));
+    $maxheight = mysql_real_escape_string(htmlentities($_GET['maxHeight']));
+    $minrep = mysql_real_escape_string(htmlentities($_GET['minRep']));
+    $maxrep = mysql_real_escape_string(htmlentities($_GET['maxRep']));
+    $quality = mysql_real_escape_string(htmlentities($_GET['quality']));
+    $minrank = mysql_real_escape_string(htmlentities($_GET['minRank']));
+    $maxrank = mysql_real_escape_string(htmlentities($_GET['maxRank']));
+
+
+// JOIN userinfo ON photos.emailaddress = userinfo.emailaddress
+if($searchword) {
+    $result = "SELECT * FROM photos WHERE concat(caption,location,tag1,tag2,tag3,tag4,singlecategorytags,singlestyletags) LIKE '%$searchword%'";
+    }
+        
+if($category) {
+    $result .= " AND singlecategorytags LIKE '%$category%'";
+}
+
+if($minrank) {
+    $result .= " AND (points/votes) > $minrank";
+}
+if($maxrank) {
+    $result .= " AND (points/votes) < $maxrank";
+}
+
+if($license) {
+    $result .= " AND license LIKE '%$license%'";
+}
+
+if($maxwidth) {
+    $result .= " AND width < $maxwidth";
+}
+
+if($minwidth) {
+    $result .= " AND width > $minwidth";
+}
+
+if($maxheight) {
+    $result .= " AND license < $height";
+}
+
+if($minheight) {
+    $result .= " AND license > $height";
+}
+
+if($quality) {
+    $result .= " AND quality LIKE '%$quality%'";
+}
+
+if($minprice) {
+    $result .= " AND price > $minprice";
+}
+
+if($maxprice) {
+    $result .= " AND price < $maxprice";
+}
+
+if($maxrep) {
+    $result .= " AND userinfo.reputation < $maxrep";
+}
+                
+// if($minrep) {
+    // $result .= " AND userinfo.reputation > $minrep";
+// }
+    
+    $result .= "ORDER BY views DESC";
+    $result = mysql_query($result);
+    $numsearchresults = mysql_num_rows($result);
   
 ?>
 
@@ -65,9 +141,10 @@ session_start();
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
 	<link rel="stylesheet" type="text/css" href="css/reset.css"/> 
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
     
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script type="text/javascript" src="js/jquery.wookmark.js"></script>            
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
 
@@ -85,6 +162,7 @@ session_start();
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+
 
 <!--Drop Down Containers-->
 
@@ -215,13 +293,27 @@ jQuery(document).ready(function(){
     <div class="grid_24 push_3" style="width:1120px;margin-top:20px;">
     
     <!-------------------------------MARKET SEARCH------------------------------------->
+    <script type="text/javascript">
+        function formSubmit() {
+            document.getElementById("frm1").submit();
+        }
+    </script>
+
     <div style="width:720px;overflow:hidden;margin-left:-28px;float:left;">
     
         <div class="marketSearch">
-            <form action="" method="get">
+            <form action="" method="get" id="frm1">
+                <input type="hidden" name="minwidth" value="<?php echo $minwidth; ?>" />
+                <input type="hidden" name="maxwidth" value="<?php echo $maxwidth; ?>" />
+                <input type="hidden" name="minheight" value="<?php echo $minheight; ?>" />               
+                <input type="hidden" name="minrep" value="<?php echo $minrep; ?>" />
+                <input type="hidden" name="maxrep" value="<?php echo $maxrep; ?>" />               
+                <input type="hidden" name="quality" value="<?php echo $quality; ?>" />
+                <input type="hidden" name="minrank" value="<?php echo $minrank; ?>" />
+                <input type="hidden" name="maxrank" value="<?php echo $maxrank; ?>" />
                 <input id="searchBar" type="text" name="term" placeholder="Search by keywords or tags&hellip;" />
                 <div id="gbqfbw">
-                    <button id="gbqfb" class="gbqfb" aria-label="PR Search">
+                    <button onClick="formSubmit()" id="gbqfb" class="gbqfb" aria-label="PR Search">
                         <span class="gbqfi">Search</span> 
                     </button>
                 </div>
@@ -316,41 +408,71 @@ jQuery(document).ready(function(){
         <div class="leftMarketDrop" id="searchToolsDiv">
             <form action="#" method="get">
             
+            <input type="hidden" name="term" value="<?php echo $searchword; ?>" />
+            <input type="hidden" name="category" value="<?php echo $category; ?>" />
+            <input type="hidden" name="license" value="<?php echo $license; ?>" />
+            <input type="hidden" name="minwidth" value="<?php echo $minwidth; ?>" />               
+            <input type="hidden" name="maxwidth" value="<?php echo $maxwidth; ?>" />
+            <input type="hidden" name="minheight" value="<?php echo $minheight; ?>" />
+            <input type="hidden" name="minrep" value="<?php echo $minrep; ?>" />
+            <input type="hidden" name="maxrep" value="<?php echo $maxrep; ?>" />               
+            <input type="hidden" name="quality" value="<?php echo $quality; ?>" />
+            <input type="hidden" name="minRank" value="<?php echo $minrank; ?>" />
+            <input type="hidden" name="maxrank" value="<?php echo $maxrank; ?>" />
+            
             <div class="leftIntDrop">
                 <header>Price</header>
                 <div>
-                    Min <input type="text" name="minPrice" />  Max <input type="text" name="maxPrice" />
+                    Min <input type="text" name="minPrice" value="<?php echo $minprice; ?>" />  Max <input type="text" name="maxPrice" value="<?php echo $maxprice; ?>" />
                 </div>
                 <header>Photo Rank</header>
                 <div>
-                    Min <input type="text" name="minRank" />  Max <input type="text" name="maxRank" />
+                    Min <input type="text" name="minRank" value="<?php echo $minrank; ?>" />  Max <input type="text" name="maxRank" value="<?php echo $maxrank; ?>" />
                 </div>
             </div>
             
             <div class="leftIntDrop">
                 <header>Width</header>
                 <div>
-                    Min <input type="text" name="minWidth" />  Max <input type="text" name="maxWidth" />
+                    Min <input type="text" name="minWidth" value="<?php echo $minwidth; ?>" />  Max <input type="text" name="maxWidth" value="<?php echo $maxwidth; ?>" />
                 </div>
                 <header>Height</header>
                 <div>
-                    Min <input type="text" name="minHeight" />  Max <input type="text" name="maxHeight" />
+                    Min <input type="text" name="minHeight" value="<?php echo $minheight; ?>" />  Max <input type="text" name="maxHeight" value="<?php echo $maxheight; ?>" />
                 </div>
             </div>
             
             <div class="leftIntDrop" style="border-right:none;">
                 <header>Photographer Rep</header>
                 <div>
-                    Min <input type="text" name="minRep" />  Max <input type="text" name="maxRep" />
+                    Min <input type="text" name="minRep" value="<?php echo $minrep; ?>" />  Max <input type="text" name="maxRep" value="<?php echo $maxrep; ?>" />
                 </div>
                 <header>Quality</header>
                 <div>
-                    <input style="width:15px;height:20px;" type="radio" name="quality" /> Regular <input style="width:15px;height:20px;" type="radio" name="quality" > Premium
+                <?php 
+                    if($quality == 'regular') {
+                        echo'
+                        <input style="width:15px;height:20px;" checked="checked" type="radio" name="quality" value="regular" /> Regular 
+                        <input style="width:15px;height:20px;" type="radio" value="premium" name="quality" > Premium';
+                    }
+                    elseif($quality == 'premium') {
+                        echo'
+                        <input style="width:15px;height:20px;" type="radio" name="quality" value="regular" /> Regular 
+                        <input style="width:15px;height:20px;" checked="checked" type="radio" value="premium" name="quality" > Premium';
+                    }
+                    else {
+                         echo'
+                        <input style="width:15px;height:20px;" type="radio" name="quality" value="regular" /> Regular 
+                        <input style="width:15px;height:20px;" type="radio" value="premium" name="quality" > Premium';
+                    }
+                ?>
                 </div>
+                
                     <input type="submit" style="float:right;padding:10px;" />            
             </div>
             
             </form>
+            
         </div>
         
     </div>
@@ -444,228 +566,265 @@ jQuery(document).ready(function(){
     <?php
 
     if(!$searchword && $cat == '') {
-        
-        //Popular Title
-        echo'<div class="grid_18 bigText" style="position:relative;top:20px;">Popular</div>';
-                
-        echo'<div class="grid_18" style="height:320px;overflow:hidden;margin-top:30px;margin-left:-35px;">';
+    ?>
+    
+        <!--Drop Down Containers-->
 
-        echo'<div style="width:1200px;">';
-            
-            $trendquery = mysql_query("SELECT * FROM photos WHERE time > ($currenttime - 286400) ORDER BY (points/votes) DESC LIMIT 0,14");
-            
-            for($iii=0;$iii<14;$iii++) {
-                $source = mysql_result($trendquery,$iii,'source');
-                $sourceThumb = str_replace("userphotos/","userphotos/medthumbs/", $source);
-                $source = "../" . $source;
-                list($width, $height) = getimagesize($source);
-                $imgratio = $height / $width;
-                $heightls = $height / 3.3;
-                $widthls = $width / 3.3;
-                
-                echo'<div style="float:left;height:160px;max-width:180px;padding-left:1px;padding-bottom:1px;overflow:hidden;">
-						<img style="height:160px;" src="https://photorankr.com/',$sourceThumb,'" width="',$widthls,'px" />
-                    </div>';
-            }
-            
-        echo'</div></div>';
-        
-        
-     echo'<!--Top Ranked Title-->
-        <div class="grid_18 bigText" style="position:relative;top:20px;">Top Ranked</div>';
-                        
-        echo'<div class="grid_18" style="height:320px;overflow:hidden;margin-top:30px;margin-left:-35px;">';
+<script type="text/javascript">
 
-        echo'<div style="width:1200px;">';
-            
-            $topquery = mysql_query("SELECT * FROM photos WHERE faves > 7 ORDER BY RAND() DESC LIMIT 0,14");
-            
-            for($iii=0;$iii<14;$iii++) {
-                $source = mysql_result($topquery,$iii,'source');
-                $sourceThumb = str_replace("userphotos/","userphotos/medthumbs/", $source);
-                $source = "../" . $source;
-                list($width, $height) = getimagesize($source);
-                $imgratio = $height / $width;
-                $heightls = $height / 3.3;
-                $widthls = $width / 3.3;
-                
-                echo'<div style="float:left;height:160px;max-width:180px;padding-left:1px;padding-bottom:1px;overflow:hidden;">
-						<img style="height:160px;" src="https://photorankr.com/',$sourceThumb,'" width="',$widthls,'px" />
-                    </div>';
-            }
-            
-        echo'</div></div>';
-        
-        
-    echo'<!--Favorites Title-->
-        <div class="grid_18 bigText" style="position:relative;top:20px;">Favorites</div>';
-                        
-        echo'<div class="grid_18" style="height:320px;overflow:hidden;margin-top:30px;margin-left:-35px;">';
+jQuery(document).ready(function(){
+    jQuery("#greatdeals").live("click", function(event) {        
+         jQuery("#greatdealscontainer").toggle();
+         jQuery("#freephotoscontainer").hide();
+         jQuery("#popularphotoscontainer").hide();
+         jQuery("#toprankedcontainer").hide();
+         jQuery("#arrow1").toggle();
+         jQuery("#arrow2").hide();
+         jQuery("#arrow3").hide();
+         jQuery("#arrow4").hide();
+    });
+    jQuery("#freephotos").live("click", function(event) {        
+         jQuery("#freephotoscontainer").toggle();
+         jQuery("#greatdealscontainer").hide();
+         jQuery("#popularphotoscontainer").hide();
+         jQuery("#toprankedcontainer").hide();
+         jQuery("#arrow2").toggle();
+         jQuery("#arrow1").hide();
+         jQuery("#arrow3").hide();
+         jQuery("#arrow4").hide();
+    });
+    jQuery("#popularphotos").live("click", function(event) {        
+         jQuery("#popularphotoscontainer").toggle();
+         jQuery("#freephotoscontainer").hide();
+         jQuery("#greatdealscontainer").hide();
+         jQuery("#toprankedcontainer").hide();
+         jQuery("#arrow3").toggle();
+         jQuery("#arrow1").hide();
+         jQuery("#arrow2").hide();
+         jQuery("#arrow4").hide();
+    });
+    jQuery("#topranked").live("click", function(event) {        
+         jQuery("#toprankedcontainer").toggle();
+         jQuery("#freephotoscontainer").hide();
+         jQuery("#popularphotoscontainer").hide();
+         jQuery("#greatdealscontainer").hide();
+         jQuery("#arrow4").toggle();
+         jQuery("#arrow1").hide();
+         jQuery("#arrow2").hide();
+         jQuery("#arrow3").hide();
+    });
+});
 
-        echo'<div style="width:1200px;">';
+</script>
+
+    <!--Clickable Featured Boxes-->
+        
+    <div class="grid_24" style="width:1120px;margin-top:20px;">
+    
+    <div style="margin-left:-30px;">
+    
+        <div id="greatdeals" class="featuredBox">
+            <div class="featuredTitle"><p>Great Deals</p></div>
             
-            $favequery = mysql_query("SELECT * FROM photos WHERE time > ($currenttime - 286400) ORDER BY faves DESC LIMIT 0,14");
+            <?php
+                for($iii = 0; $iii < 4; $iii++) {
+                    $coverphoto = mysql_result($greatdeals,$iii,'source');
+                    $coverphoto = str_replace('userphotos/','userphotos/thumbs/',$coverphoto);
+                    $photoinfo =  mysql_result($coverphotoquery,$iii,'about');
+                    $imageid = mysql_result($coverphotoquery,$iii,'id');
+
+                    echo'
+                        <img id="marketMural" src="https://photorankr.com/',$coverphoto,'" style="width:123px;height:120px;" />';
+        
+                }
+            ?>
             
-            for($iii=0;$iii<14;$iii++) {
-                $source = mysql_result($favequery,$iii,'source');
-                $sourceThumb = str_replace("userphotos/","userphotos/medthumbs/", $source);
-                $source = "../" . $source;
-                list($width, $height) = getimagesize($source);
-                $imgratio = $height / $width;
-                $heightls = $height / 3.3;
-                $widthls = $width / 3.3;
-                
-                echo'<div style="float:left;height:160px;max-width:180px;padding-left:1px;padding-bottom:1px;overflow:hidden;">
-						<img style="height:160px;" src="https://photorankr.com/',$sourceThumb,'" width="',$widthls,'px" />
-                    </div>';
-            }
+        </div>
+        
+        <div id="freephotos" class="featuredBox">
+            <div class="featuredTitle"><p>Free this Week</p></div>
             
-        echo'</div></div>';
+            <?php
+                for($iii = 0; $iii < 4; $iii++) {
+                    $coverphoto = mysql_result($freephotos,$iii,'source');
+                    $coverphoto = str_replace('userphotos/','userphotos/thumbs/',$coverphoto);
+                    $photoinfo =  mysql_result($coverphotoquery,$iii,'about');
+                    $imageid = mysql_result($coverphotoquery,$iii,'id');
+
+                    echo'
+                        <img id="marketMural" src="https://photorankr.com/',$coverphoto,'" style="width:123px;height:120px;" />';
+        
+                }
+            ?>
+            
+        </div>
+        
+        <div id="popularphotos" class="featuredBox">
+            <div class="featuredTitle"><p>Popular</p></div>
+            
+            <?php
+                for($iii = 0; $iii < 4; $iii++) {
+                    $coverphoto = mysql_result($popularphotos,$iii,'source');
+                    $coverphoto = str_replace('userphotos/','userphotos/thumbs/',$coverphoto);
+                    $photoinfo =  mysql_result($coverphotoquery,$iii,'about');
+                    $imageid = mysql_result($coverphotoquery,$iii,'id');
+
+                    echo'
+                        <img id="marketMural" src="https://photorankr.com/',$coverphoto,'" style="width:123px;height:120px;" />';
+        
+                }
+            ?>
+            
+        </div>
+        
+        <div id="topranked" class="featuredBox">
+            <div class="featuredTitle"><p>Top Ranked</p></div>
+            
+            <?php
+                for($iii = 0; $iii < 4; $iii++) {
+                    $coverphoto = mysql_result($topranked,$iii,'source');
+                    $coverphoto = str_replace('userphotos/','userphotos/thumbs/',$coverphoto);
+                    $photoinfo =  mysql_result($coverphotoquery,$iii,'about');
+                    $imageid = mysql_result($coverphotoquery,$iii,'id');
+
+                    echo'
+                        <img id="marketMural" src="https://photorankr.com/',$coverphoto,'" style="width:123px;height:120px;" />';
+        
+                }
+            ?>
+            
+        </div>
+        
+    </div> 
+    
+     <!--Featured Containers-->
+        
+        <div id="arrow1" style="margin-left:90px;" class="featuredArrowUp"></div>
+        <div id="greatdealscontainer" class="featuredContainer">
+        <div style="width:1080px;margin-left:80px;">
+        
+            <?php
+                for($iii = 0; $iii < 14; $iii++) {
+                    $coverphoto = mysql_result($greatdeals,$iii,'source');
+                    $coverphoto = str_replace('userphotos/','userphotos/thumbs/',$coverphoto);
+                    $photoinfo =  mysql_result($greatdeals,$iii,'about');
+                    $imageid = mysql_result($greatdeals,$iii,'id');
+                    $price = mysql_result($greatdeals,$iii,'price');
+                    $price = number_format($price,0);
+
+                    echo'
+                        <div style="float:left;">
+                            <a href="fullsizemarket.php?imageid=',$imageid,'">
+                            <img id="marketMural" src="https://photorankr.com/',$coverphoto,'" style="width:150px;height:150px;" />
+                            <div style="position:absolute;color:#fff;font-size:45px;font-weight:100;padding:10px;">$',$price,'</div>
+                            </a>
+                        </div>';
+        
+                }
+            ?>
+        </div>
+        </div>
+        
+        <div id="arrow2" style="margin-left:370px;" class="featuredArrowUp"></div>
+        <div id="freephotoscontainer" class="featuredContainer">
+        <div style="width:1080px;margin-left:80px;">
+        
+            <?php
+                for($iii = 0; $iii < 14; $iii++) {
+                    $coverphoto = mysql_result($freephotos,$iii,'source');
+                    $coverphoto = str_replace('userphotos/','userphotos/thumbs/',$coverphoto);
+                    $photoinfo =  mysql_result($freephotos,$iii,'about');
+                    $imageid = mysql_result($freephotos,$iii,'id');
+
+                    echo'
+                        <div style="float:left;">
+                            <a href="fullsizemarket.php?imageid=',$imageid,'">
+                            <img id="marketMural" src="https://photorankr.com/',$coverphoto,'" style="width:149px;height:150px;" />
+                            <div style="position:absolute;color:#fff;font-size:45px;font-weight:100;padding:10px;">Free</div>
+                            </a>
+                        </div>';
+        
+                }
+            ?>
+        </div>
+        </div>
+        
+        <div id="arrow3" style="margin-left:650px;" class="featuredArrowUp"></div>
+        <div id="popularphotoscontainer" class="featuredContainer">
+        <div style="width:1080px;margin-left:80px;">
+        
+           <?php
+                for($iii = 0; $iii < 14; $iii++) {
+                    $coverphoto = mysql_result($popularphotos,$iii,'source');
+                    $coverphoto = str_replace('userphotos/','userphotos/thumbs/',$coverphoto);
+                    $photoinfo =  mysql_result($popularphotos,$iii,'about');
+                    $imageid = mysql_result($popularphotos,$iii,'id');
+                    $price = mysql_result($popularphotos,$iii,'price');
+                    $price = number_format($price,0);
+
+                    echo'
+                        <div style="float:left;">
+                            <a href="fullsizemarket.php?imageid=',$imageid,'">
+                            <img id="marketMural" src="https://photorankr.com/',$coverphoto,'" style="width:149px;height:150px;" />
+                            <div style="position:absolute;color:#fff;font-size:45px;font-weight:100;padding:10px;">$',$price,'</div>
+                            </a>
+                        </div>';
+        
+                }
+            ?>
+        
+        </div>
+        </div>
+        
+        <div id="arrow4" style="margin-left:920px;" class="featuredArrowUp"></div>
+        <div id="toprankedcontainer" class="featuredContainer">
+        <div style="width:1080px;margin-left:80px;">
+        
+           <?php
+                for($iii = 0; $iii < 14; $iii++) {
+                    $coverphoto = mysql_result($topranked,$iii,'source');
+                    $coverphoto = str_replace('userphotos/','userphotos/thumbs/',$coverphoto);
+                    $photoinfo =  mysql_result($topranked,$iii,'about');
+                    $imageid = mysql_result($topranked,$iii,'id');
+                    $price = mysql_result($topranked,$iii,'price');
+                    $price = number_format($price,0);
+
+                    echo'
+                        <div style="float:left;">
+                            <a href="fullsizemarket.php?imageid=',$imageid,'">
+                            <img id="marketMural" src="https://photorankr.com/',$coverphoto,'" style="width:149px;height:150px;" />
+                            <div style="position:absolute;color:#fff;font-size:45px;font-weight:100;padding:10px;">$',$price,'</div>
+                            </a>
+                        </div>';
+        
+                }
+            ?>
+            
+      </div></div>
+      
+<?php
     
     } //end view == ''
     
    
    elseif($cat || $searchword) {
    
-    if($searchword) {
-$searchwordquery="INSERT INTO marketSearch (searchword, timestamp) VALUES ('$searchword', '$currenttime')";
-$searchquery= mysql_query($searchwordquery);
-        $numsearchquery = mysql_query("SELECT * FROM photos WHERE concat(caption,location,tag1,tag2,tag3,tag4,singlecategorytags,singlestyletags) LIKE '%$searchword%'");
-        $numsearchresults = mysql_num_rows($numsearchquery);
-        $result = mysql_query("SELECT * FROM photos WHERE concat(caption,location,tag1,tag2,tag3,tag4,singlecategorytags,singlestyletags) LIKE '%$searchword%' ORDER BY views DESC LIMIT 0,16");
-    }
-    
-    if($cat == 'aerial') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Aerial%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'animal') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Animal%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'architecture') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Architecture%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'astro') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Astro%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'automotive') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Automotive%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'bw') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%B&W%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'cityscape') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%cityscape%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-     elseif($cat == 'fashion') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Fashion%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'fineart') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Fine Art%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'fisheye') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Fisheye%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-     elseif($cat == 'food') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Food%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'HDR') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%HDR%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-     elseif($cat == 'historical') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Historical%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-     elseif($cat == 'industrial') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Industrial%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'landscape') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Landscape%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'longexposure') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Long Exposure%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'macro') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Macro%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'monochrome') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Monochrome%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-     elseif($cat == 'nature') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Nature%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'news') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%News%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'night') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Night%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'panorama') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlestyletags LIKE '%Panorama%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'people') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%People%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'scenic') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Scenic%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'sports') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Sports%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'stilllife') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Still Life%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'transportation') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%Transportation%' ORDER BY faves DESC LIMIT 0, 16");
-    }
-    
-    elseif($cat == 'war') {
-        $result = mysql_query("SELECT * FROM photos WHERE singlecategorytags LIKE '%War%' ORDER BY faves DESC LIMIT 0, 12");
-    }
-    
-        $numresults = mysql_num_rows($result);
-        
-        //Search Title
+    //Search Title
         if($cat) {
             echo'<div class="grid_18 bigText" style="position:relative;top:20px;"><a style="text-decoration:none;color:#333;" name="cat">',ucwords($cat),'</a></div>';
         }
         elseif($searchword) {
             echo'<div class="grid_18 bigText" style="position:relative;top:20px;"><a style="text-decoration:none;color:#333;" name="cat">',$numsearchresults,' results for ',$searchword,'</a></div>';
         }
-                        
+    
     echo'
-    <div id="thepics" style="position:relative;left:-90px;margin-top:85px;width:1210px;">
+    <div id="thepics" style="position:relative;left:-90px;top:85px;width:1210px;">
     <div id="main">
     <ul id="tiles">';
             
-    for($iii=1; $iii < 18; $iii++) {
+    for($iii=1; $iii < $numsearchresults && $iii < 16; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
     $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
-    $image = "../" . $image;
 	$id = mysql_result($result, $iii-1, "id");
     $caption = mysql_result($result, $iii-1, "caption");
     $caption = (strlen($caption) > 28) ? substr($caption,0,25). " &#8230;" : $caption;
@@ -757,18 +916,17 @@ $searchquery= mysql_query($searchwordquery);
     });
   </script>
 
+</div>
+</div>
 
 <?php
 
-echo'
-</div>
-</div>
-
-    <!--AJAX CODE HERE-->
-   <div class="grid_9 push_5" style="padding-top:50px;">
-   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:18px; font-weight:300;">Loading More Photos&hellip;</div>
+   //AJAX CODE HERE
+   echo'
+   <div class="grid_6 push_11" style="padding-top:25px;padding-bottom:25px;">
+   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;"><img style="width:50px;" src="graphics/LoadingGIF.gif" />
+   </div>
    </div>';
-
 
 echo'<script>
 
@@ -791,9 +949,7 @@ var last = 0;
 			}
 		}
 	});
-</script>
-
-    </div>';
+</script>';
     
    } 
 

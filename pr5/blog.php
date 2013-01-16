@@ -23,15 +23,32 @@ session_start();
 <head>
 	
     <meta charset="UTF-8">
-	<title> The official PhotoRankr blog. Read photography articles and browse through featured galleries of work.</title>
+	<title> PhotoRankr Blog </title>
     <meta name="Keywords" content="photorankr blog, photography blog, blog, photos, sharing photos, photo sharing, photography, stock photography, stock, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos, social stock, photo licensing, royalty free photos, crowdsource, crowdsourcing photos, crowdsourced photos">
     <meta name="Description" content="The official PhotoRankr blog. Read photography articles and browse through featured galleries of work.">
 
 	<link rel="stylesheet" type="text/css" href="css/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
-	<link rel="stylesheet" type="text/css" href="css/reset.css"/>            
+	<link rel="stylesheet" type="text/css" href="css/reset.css"/>           
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
+ 
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    
+    <!--GOOGLE ANALYTICS CODE-->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-28031297-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
 
 	<style type="text/css" >
 		.position 	
@@ -66,12 +83,12 @@ session_start();
         
 	</style>
 </head>
-<body id="body">
+<body style="background-image:url('graphics/paper.png');background-repeat:repeat;">
 	
    <?php navbar(); ?> 
     
  <div class="navbar-top">
-	<div class="navbar-inner-spec" style="margin-top:0px;">
+	<div class="navbar-inner-spec" style="margin-top:35px;">
 		<div class="container" style="width:1000px;">
 			<ul class="navbar" style="margin-left:38px;margin-top:25px;">
             

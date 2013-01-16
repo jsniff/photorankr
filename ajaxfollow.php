@@ -2,7 +2,7 @@
 
     //connect to the database
     require "db_connection.php";
-    require "functionsnav.php";
+    require "functions.php";
 
     $email = mysql_real_escape_string($_GET['follower']);
     $emailaddress = mysql_real_escape_string($_GET['followee']);
@@ -63,7 +63,7 @@
                 mail($to, $subject, $message, $headers);   
             }
             
-            echo "1";
+            echo'<i style="float:left;margin-top:0px;" class="icon-ok icon-white"></i> Following';
 		}
         
 

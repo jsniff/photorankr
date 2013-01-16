@@ -6,6 +6,7 @@ require "timefunction.php";
 require "functions.php";
 
 $commenttime = time();
+$commenttime = converttime($commenttime);
 
 if($_POST)
 {
@@ -22,6 +23,10 @@ $userpic = mysql_real_escape_string($_POST['userpic']);
 
 }
 
+//Group Information
+$groupinfo = mysql_query("SELECT * FROM groups WHERE id = '$groupid'");
+$groupname = mysql_result($groupinfo,0,'name');
+
 //POST OWNER INFORMATION
 $getowner = mysql_query("SELECT commenter FROM groupnews WHERE id = $postid");
 $emailaddress = mysql_result($getowner,0,'commenter');
@@ -29,36 +34,19 @@ $getowner = mysql_query("SELECT firstname,lastname FROM userinfo WHERE emailaddr
 $ownerfirst = mysql_result($getowner,0,'firstname');
 $ownerlast = mysql_result($getowner,0,'lastname');
 
-echo'
-
-        <li class="grid_16" style="float:left;width:580px;margin-top:20px;">
-            <a href="viewprofile.php?u=',$commenterid,'">
-            <div style="float:left;"><img class="roundedall" src="',$userpic,'" alt="',$name,'" height="40" width="35"/>
-            </a>
-        </div>
-        
-        <div style="float:left;padding-left:6px;width:510px;">
-            <div style="float:left;color:#3e608c;font-size:14px;font-family:helvetica;font-weight:500;border-bottom: 1px solid #ccc;width:510px;">
-            <div style="float:left;">
-            <a name="',$commentid,'" href="viewprofile.php?u=',$commenterid,'">',$name,'</a> &nbsp;<span style="font-size:16px;font-weight:100;color:black;margin-top:2">|</span>&nbsp;<span style="color:#333;font-size:12px;">Rep: ',$commenterrep,'</span>
+echo'<div class="previousComments" style="width:480px;margin-left:0px;padding:0px;"> 
+            <ul class="indPrevComment" style="padding:0px;">
+            <li style="overflow:hidden;padding-bottom:-10px;"> 
+            <div style="width:35px;float:left;"><img src="https://photorankr.com/',$userpic,'" height="35" width="35" /></div>
+                <div style="width:420px;float:left;" id="commenterName"><a href="viewprofile.php?u=',$commenterid,'">',$name,'</a>
+                <div style="float:right">',$commenttime,'</div>
+                <div id="commentText">
+                    ',$comment,'
                 </div>
-                &nbsp;&nbsp;&nbsp;
-                   
-                <div class="progress progress-success" style="float:left;width:110px;height:7px;opacity:.8;margin:7px;">
-                
-                <div class="bar" style="width:',$commenterrep,'%;">
             </div>
-            </div>
-        </div>
-                
-                <br />
-                
-                <div style="float:left;font-size:11px;color:#777;font-weight:400;padding:2px;">',converttime($commenttime),'</div>
-                
-                <div style="float:left;width:470px;padding:10px;font-size:13px;font-family:helvetica;font-weight:300;color:#555;">',$comment,'</div>
-                
-            </div>
-            </li>';
+        </li>
+        </ul>
+        </div>';
 
     //INSERT COMMENT INTO DATABASE
     $currenttime = time();
@@ -75,33 +63,36 @@ echo'
         
     $newsfeedcomment = mysql_query("INSERT INTO groupnews (group_id,firstname, lastname, commenter,comment,time,type) VALUES ('$groupid','$firstname', '$lastname', '$email','$comment','$currenttime','comment')") or die();
     
+    //grab query id
+$getid = mysql_query("SELECT id FROM groupnews where commenter = '$email' ORDER BY id DESC LIMIT 1");
+$postid = mysql_result($getid,0,'id');
+
+    //insert into other newsfeed
+    $addtoothernewsfeed = mysql_query("INSERT INTO newsfeed (firstname, lastname, emailaddress,type,source,owner,time,group_id) VALUES ('$firstname', '$lastname', '$email','groupcomment','$postid','$emailaddress','$currenttime','$groupid')") or die();
     
-    /*
     //notifications query     
     $notsquery = "UPDATE userinfo SET notifications = (notifications + 1) WHERE emailaddress = '$emailaddress'";
     $notsqueryrun = mysql_query($notsquery); 
 
- MAIL TO OWNER OF PHOTO
-    $settingquery = mysql_query("SELECT settings FROM userinfo WHERE emailaddress = '$emailaddress'");
+ //MAIL TO OWNER OF PHOTO
+    /*$settingquery = mysql_query("SELECT settings FROM userinfo WHERE emailaddress = '$emailaddress'");
     $settinglist = mysql_result($settingquery,0,"settings");
     $check = 'emailcomment';
-    $foundsetting = strpos($settinglist,$check);
+    $foundsetting = strpos($settinglist,$check);*/
     
     if($emailaddress != $email) {
     $to = '"' . $ownerfirst . ' ' . $ownerlast . '"' . '<'.$emailaddress.'>';
-    $subject = $name ." commented on your photo on PhotoRankr";
+    $subject = "[".$groupname."]". $name ." commented on your post";
     $message = $unformattedcomment . "
-To view the photo, click here: https://photorankr.com/fullsize.php?imageid=".$imageid;
-    $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
-    
-        if($foundsetting > 0) {
-            mail($to, $subject, $message, $headers);  
-        }
         
+To view the comment, click here: https://photorankr.com/groups.php?id=".$groupid."#".$postid;
+
+    $headers = 'From:PhotoRankr <photorankr@photorankr.com>';    
+    mail($to, $subject, $message, $headers);      
     }
 
     //MAIL TO PREVIOUS COMMENTERS ON PHOTO
-    $previouscommenters = mysql_query("SELECT commenter FROM comments WHERE imageid = '$imageid'");
+    $previouscommenters = mysql_query("SELECT commenter FROM groupcomments WHERE post_id = '$postid'");
     $numcommenters = mysql_num_rows($previouscommenters);
     $prevemails .= $email;
       
@@ -112,24 +103,25 @@ To view the photo, click here: https://photorankr.com/fullsize.php?imageid=".$im
         
         if($alreadysent < 1 && $prevemail != $emailaddress) {
         
-            $settingquery = mysql_query("SELECT firstname,lastname,emailaddress,settings FROM userinfo WHERE emailaddress = '$prevemail'");
+            /*$settingquery = mysql_query("SELECT firstname,lastname,emailaddress,settings FROM userinfo WHERE emailaddress = '$prevemail'");
             $settinglist = mysql_result($settingquery,0,"settings");
-            $foundsetting = strpos($settinglist,"emailreturncomment");
+            $foundsetting = strpos($settinglist,"emailreturncomment");*/
             $sendtofirst = mysql_result($settingquery,0,"firstname");
             $sendtolast = mysql_result($settingquery,0,"lastname");
             $sendtoemail = mysql_result($settingquery,0,"emailaddress");
             
             $to = '"' . $sendtofirst . ' ' . $sendtolast . '"' . '<'.$sendtoemail.'>';
-            $subject = $name . " also commented on " . $ownerfirst . " " . $ownerlast ."'s photo on PhotoRankr";
+            $subject = "[".$groupname."]". $name . " also commented on " . $ownerfirst . " " . $ownerlast ."'s post";
             $returnmessage = $unformattedcomment . "
         
-To view the photo, click here: https://photorankr.com/fullsize.php?imageid=".$imageid;
+To view the comment, click here: https://photorankr.com/groups.php?id=".$groupid."#".$postid;
             
             $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
-                        
-            if($foundsetting > 0 && ($sendtoemail != $email) && $email) {     
+            mail($to, $subject, $returnmessage, $headers);
+
+            /*if($foundsetting > 0 && ($sendtoemail != $email) && $email) {     
                 mail($to, $subject, $returnmessage, $headers);
-            } 
+            } */
     
         }
         
@@ -139,7 +131,7 @@ To view the photo, click here: https://photorankr.com/fullsize.php?imageid=".$im
         
         $prevemails .= " " . $prevemail;
     
-    } */
+    } 
 
 
 ?>

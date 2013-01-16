@@ -30,7 +30,8 @@ session_start();
 	<link rel="stylesheet" type="text/css" href="css/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
-	<link rel="stylesheet" type="text/css" href="css/reset.css"/>            
+	<link rel="stylesheet" type="text/css" href="css/reset.css"/>
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>            
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
     
 	<style type="text/css" >
@@ -71,7 +72,7 @@ session_start();
    <?php navbar(); ?> 
     
  <div class="navbar-top">
-	<div class="navbar-inner-spec" style="margin-top:0px;">
+	<div class="navbar-inner-spec" style="margin-top:35px;">
 		<div class="container" style="width:1000px;">
 			<ul class="navbar" style="margin-left:38px;margin-top:25px;">
             

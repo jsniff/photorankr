@@ -132,7 +132,6 @@ else {
     $currentimage = $image;
 	$image = mysql_result($currentresult, 0, "source");
     $imageid = mysql_result($currentresult, 0, "id");
-    $image = "https://photorankr.com/".$image;
     $nextimage = mysql_result($viewresult, 0, "id");
 }
   
@@ -235,6 +234,8 @@ else {
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
 	<link rel="stylesheet" type="text/css" href="css/reset.css"/>  
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
+
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script type="text/javascript" src="js/jquery.wookmark.js"></script>            
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
@@ -280,7 +281,6 @@ width: 240px;
 
 <!--GOOGLE ANALYTICS CODE-->
 <script type="text/javascript">
-
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-28031297-1']);
   _gaq.push(['_trackPageview']);
@@ -290,8 +290,8 @@ width: 240px;
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
-  
 </script>
+
 
 <style type="text/css">
 		.show
@@ -777,10 +777,9 @@ echo'
 for($iii=1; $iii <= 19; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
     $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
-    $image = "https://photorankr.com/" . $image;
-	$id = mysql_result($result, $iii-1, "id");
+    $id = mysql_result($result, $iii-1, "id");
     $caption = mysql_result($result, $iii-1, "caption");
-     $caption = (strlen($caption) > 28) ? substr($caption,0,25). " &#8230;" : $caption;
+    $caption = (strlen($caption) > 28) ? substr($caption,0,25). " &#8230;" : $caption;
     $points = mysql_result($result, $iii-1, "points");
     $price = mysql_result($result, $iii-1, "price");
     if($price != 'Not For Sale') {

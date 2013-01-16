@@ -1917,19 +1917,20 @@ if(!$licenses) {
         
             echo'<div id="container" class="grid_18" style="width:770px;margin-top:20px;padding-left:20px;">';
             
-            
+
             if(htmlentities($_GET['action']) == 'download') {
-               
+
                $images = $_POST['downloadedimages'];
                $imagesid = $_POST['imagesid'];
-
-
+               
                $numberimages = count($images);
     		
                 for($i=0; $i < $numberimages; $i++) {
 
                     $images[$i] = mysql_real_escape_string($images[$i]);
+                    echo $images[$i];
                     $imagesid[$i] = mysql_real_escape_string($imagesid[$i]);
+                    echo $imagesid[$i];
                     
                     $downloadcheck = mysql_query("SELECT * FROM userdownloads WHERE imageid = '$imagesid[$i]'");
                     $downloadcheckrows = mysql_num_rows($downloadcheck);
@@ -1990,6 +1991,8 @@ if(!$licenses) {
             $imagesource[$iii] = mysql_result($incart,$iii,'source');
             $imageprice[$iii] = mysql_result($incart,$iii,'price');
             $imagecartid = mysql_result($incart,$iii,'imageid');
+            $sourcelist[] .= $imagesource[$iii];
+            $idlist[] .= $imagecartid;
             $imagelicenses = mysql_result($incart,$iii,'license');
             $standard = strpos($imagelicenses,'Standard');
             if($standard === false) { 
@@ -2129,13 +2132,14 @@ if(!$licenses) {
          else {
          
          echo'
-            <form name="download_form" method="post" action="myprofile.php?view=store&option=cart&action=download">';
-          
+            <form name="download_form" method="post" action="myprofile.php?view=cart&action=download">';
+            
             foreach($sourcelist as $value) {
                 echo '<input type="hidden" name="downloadedimages[]" value="'. $value. '">';
             }
             
             foreach($idlist as $value) {
+                echo $value .'test';
                 echo '<input type="hidden" name="imagesid[]" value="'. $value. '">';
             }
             

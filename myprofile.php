@@ -2,8 +2,7 @@
 
 //connect to the database
 require "db_connection.php";
-require "functionsnav.php";
-require "timefunction.php";
+require "functions.php";
 
 //Login from front page
 if ($_GET['action'] == "log_in") { // if login form has been submitted
@@ -48,74 +47,6 @@ if ($_GET['action'] == "log_in") { // if login form has been submitted
 }
 
 
-
-if($_GET['action'] == "signup") { //if they tried to sign up from signin.php
-	$firstname = addslashes($_REQUEST['firstname']);
-    $firstname = trim($firstname);
-    $firstname = ucwords($firstname);
-	$lastname = addslashes($_REQUEST['lastname']);
-    $optin = addslashes($_REQUEST['optin']);
-    $lastname = trim($lastname);
-    $lastname = ucwords($lastname);
-	$newemail = mysql_real_escape_string($_REQUEST['emailaddress']);
-	$password = mysql_real_escape_string($_REQUEST['password']);
-	$confirmpassword = mysql_real_escape_string($_REQUEST['confirmpassword']);
-	$terms = mysql_real_escape_string($_REQUEST['terms']);
-	$mattfollow = "'support@photorankr.com'";
-	$originalfave = "'userphotos/paintedbuilding1.jpg'";
-	$originalfave = addslashes($originalfave);
-	$mattfollow = addslashes($mattfollow);
-	$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$newemail'");
-	$others = mysql_num_rows($check);
-    $currenttime = time();
-
-	//if they forgot to enter any information
-	if(!$_REQUEST['firstname'] or !$_REQUEST['lastname'] or !$_REQUEST['emailaddress'] or !$_REQUEST['password'] or !$_REQUEST['confirmpassword'] or !$_REQUEST['terms']) {
-		mysql_close();
-        echo '<META HTTP-EQUIV="Refresh" Content="0; URL=signup3.php?error=1">';
-        exit();
-	}
-	else if($password != $confirmpassword) { //if passwords dont match
-		mysql_close();
-        echo '<META HTTP-EQUIV="Refresh" Content="0; URL=signup3.php?error=2">';
-        exit();
-	}
-	//else if that email address is already in the database
-	else if($others != 0) {
-		header("Location: lostpassword.php");
-	}
-	else {
-		//put their info in database
-        $settinglist = " emailcomment emailreturncomment emailfave emailfollow ";
-		$newuserquery = "INSERT INTO userinfo (firstname, lastname, emailaddress, password, following, faves, settings, promos, time) VALUES ('$firstname', '$lastname', '$newemail', '$password', '$mattfollow', '$originalfave','$settinglist','$optin','$currenttime')";
-		mysql_query($newuserquery);
-        
-         //newsfeed query
-        $type = "signup";
-        $newsfeedsignupquery=mysql_query("INSERT INTO newsfeed (firstname, lastname, emailaddress,type) VALUES ('$firstname', '$lastname', '$newemail','$type')");
-        
-        //SEND REGISTRATION GREETING
-        
-        $to = $newemail;
-        $subject = 'Welcome to PhotoRankr!';
-        $message = 'Thank you for signing up with PhotoRankr! You can now upload your own photos and sell them at your own price, follow the best photographers, and become part of a growing community. If you have any questions about PhotoRankr or would like to suggest an improvement, you can email us at photorankr@photorankr.com. We greatly value your feedback and hope you will spread the word about PhotoRankr to your friends and family by referring them to the site with the link below:
-        
-		http://photorankr.com/referral.php        
-
-		Again, welcome to the site!
-
-		Sincerely,
-		PhotoRankr';
-        $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
-        mail($to, $subject, $message, $headers);  
-              
-		session_start();
-		$_SESSION['email'] = $newemail;
-		$_SESSION['loggedin'] = 1;
-            
-    }
-}
-
 //start the session
 session_start();
 
@@ -135,9 +66,10 @@ session_start();
     } 
 
 //QUERY FOR NOTIFICATIONS
-$currentnots = "SELECT * FROM userinfo WHERE emailaddress = '$email'";
+$currentnots = "SELECT notifications,reputation FROM userinfo WHERE emailaddress = '$email'";
 $currentnotsquery = mysql_query($currentnots);
 $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
+$sessionreputation = number_format(mysql_result($currentnotsquery, 0, "reputation"),2);
 
 //notifications query reset 
 if($currentnotsresult > 0) {
@@ -259,6 +191,7 @@ if(isset($_GET['view'])) {
   $camera = mysql_result($userquery,0,'camera');
   $about = mysql_result($userquery,0,'bio');
   $quote = mysql_result($userquery,0,'quote');
+  $welcome = mysql_result($userquery,0,'welcome');
   $fbook = mysql_result($userquery,0,'facebookpage');
   $twitter = mysql_result($userquery,0,'twitteraccount');
   $faves = mysql_result($userquery,0,'faves');
@@ -329,7 +262,7 @@ if(isset($_GET['view'])) {
 
 //Grab OWNERS reputation score
     
- $toprankedphotos2 = "SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY points DESC";
+    $toprankedphotos2 = "SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY points DESC";
     $toprankedphotosquery2 = mysql_query($toprankedphotos2);
     $numtoprankedphotos2 = mysql_num_rows($toprankedphotos2);
 
@@ -381,7 +314,7 @@ if(isset($_GET['view'])) {
     
 
     
-   if($ranking2 > 145) {
+   if($ranking2 > 140) {
         $rankingweighted2 = $rankingweight2;
     }
     
@@ -412,6 +345,7 @@ if(isset($_GET['view'])) {
     if($numphotos2 < 14) { 
     $rankingweighted2 = .1;
     }
+    
 
     $ultimatereputation = ($followerweighted2+$rankingweighted2+$totalpgviewsweighted2) * 100;
 
@@ -448,7 +382,9 @@ if(isset($_GET['view'])) {
   <link rel="stylesheet" href="text2.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="css/style.css" />
   <link rel="stylesheet" href="960_24.css" type="text/css" />
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript">
+    document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' type='text/javascript'>\<\/script>");
+  </script>  
     <script type="text/javascript" src="js/jquery.wookmark.js"></script>        
   <script src="bootstrap.js" type="text/javascript"></script>
   <script src="bootstrap-dropdown.js" type="text/javascript"></script>
@@ -588,7 +524,7 @@ xmlhttp.send();
 <body style="
 background-color:#fff;overflow-x:hidden;min-width:1220px;">
 
-<?php navbarnew(); ?>  
+<?php navbar(); ?>  
 
 <div class="container_24"><!--START CONTAINER-->
 
@@ -608,7 +544,7 @@ background-color:#fff;overflow-x:hidden;min-width:1220px;">
 </div>
 
 <?php
-    if($reputation > 60) {
+    if($sessionreputation > 60) {
         echo'<img style="margin-top:-45px;margin-left:100px;" src="graphics/toplens.png" height="80" />';
     }
 ?>
@@ -618,9 +554,9 @@ background-color:#fff;overflow-x:hidden;min-width:1220px;">
 </div>
 
 <div style="text-align:center;font-size:14px;font-weight:200;width:250px;height:190px;margin-top:15px;">
-<p>Reputation: <span style="font-size:20px;"><?php echo $reputation; ?>/</span><span style="font-size:15px;">100</span></p>
+<p>Reputation: <span style="font-size:20px;"><?php echo $sessionreputation; ?>/</span><span style="font-size:15px;">100</span></p>
 <div class="progress progress-success" style="margin-top:-15px;margin-left:28px;width:195px;height:15px;">
-   <div class="bar" style="width: <?php echo $reputation; ?>%;"></div>
+   <div class="bar" style="width: <?php echo $sessionreputation; ?>%;"></div>
    </div>
 
 <div style="margin-left:30px;text-align:center;">
@@ -743,7 +679,7 @@ background-color:#fff;overflow-x:hidden;min-width:1220px;">
             
             if($newwidth < 195) {
                 $newheight = $newheight * ($newheight/$newwidth);
-                $newwidth = 240;
+                $newwidth = 250;
             }
 
             $newsemail = mysql_result($activityquery,$iii,'emailaddress');
@@ -952,7 +888,7 @@ var last = 0;
     
         echo'<br /><br /><br /><br /><div style="width:760px;text-align:center;font-size:14px;font-weight:200;"><div style="margin-left:35px;"><a class="green" style="text-decoration:none;color:#333;" href="editphotos.php">Edit Portfolio</a> | <a class="green" style="text-decoration:none;'; if($option == '') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=portfolio">Newest</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'top') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=portfolio&option=top">Top Ranked</a> | <a class="green" style="text-decoration:none;color:#333;'; if($option == 'fave') {echo'color:#6aae45;';} else {echo'color:#333;';} echo'" href="myprofile.php?view=portfolio&option=fave">Most Favorited</a> | <a class="green" style="text-decoration:none;color:#333;" href="myprofile.php?view=exhibits">Exhibits</a></div></div>';
         
-        if($_GET['action'] == 'signup') {
+        /*if($welcome = 0) {
         echo'<div class="grid_18" style="width:770px;margin-top:-34px;margin-left:-10px;padding:35px;text-align:center;font-size:16px;font-family:helvetica;font-weight:200;">
         <br /><br />
         Welcome to your new PhotoRankr profile. Here are a couple pointers to get you started:
@@ -964,7 +900,10 @@ var last = 0;
         <a href="newsfeed.php">Click here</a> to view your photostream of your followers on PhotoRankr
         <br />.
         </div>'; 
-        }
+        
+        //Stop welcome message
+        $stopwelcome = mysql_query("UPDATE userinfo SET welcome = 1 WHERE emailaddress = '$email'");
+        }*/
         
         if($option == '') {        
         $query = mysql_query("SELECT * FROM photos WHERE emailaddress = '$email' ORDER BY id DESC LIMIT 0,21");
@@ -1017,9 +956,9 @@ var last = 0;
                 $heightls = $height / 3.2;
                 $widthls = $width / 3.2;
                 
-                if($widthls < 240) {
+                if($widthls < 195) {
                     $heightls = $heightls * ($heightls/$widthls);
-                    $widthls = 250;
+                    $widthls = 240;
                 }
 
                  echo'<a style="text-decoration:none;color:#000;" href="fullsizeme.php?imageid=',$id,'"><li class="fPic photobox" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
@@ -1647,9 +1586,8 @@ height="100px" width="100px" />
         			
                     $time = time();
                     $newfilename = $time . $newfilename;
-				$source = $_FILES['file']['tmp_name'];  
+                    $source = $_FILES['file']['tmp_name'];  
         			$profilepic = $path_to_profpic_directory . $newfilename; 
-				//$profilepic = $path_to_profpic_directory . $firstname . $lastname . $extension;
   
         			move_uploaded_file($source, $profilepic);  
                     chmod($profilepic, 0777);
@@ -1728,12 +1666,12 @@ echo'
 
         <tr>
         <td>Facebook Page:</td>
-        <td><a href="',$facebookpage,'"><input style="width:180px;height:20px;" type="text" name="facebookpage" value="',$fbook,'"/></a></td>
+        <td><input style="width:180px;height:20px;" type="text" name="facebookpage" value="',$fbook,'"/></td>
         </tr>
 
         <tr>
         <td>Twitter:</td>
-        <td><a href="',$twitteraccount,'"><input style="width:180px;height:20px;" type="text" name="twitteraccount" value="',$twitter,'"/></a></td>
+        <td><input style="width:180px;height:20px;" type="text" name="twitteraccount" value="',$twitter,'"/></td>
         </tr>
 
         <tr>
@@ -1978,19 +1916,20 @@ if(!$licenses) {
         
             echo'<div id="container" class="grid_18" style="width:770px;margin-top:20px;padding-left:20px;">';
             
-            
+
             if(htmlentities($_GET['action']) == 'download') {
-               
+
                $images = $_POST['downloadedimages'];
                $imagesid = $_POST['imagesid'];
-
-
+               
                $numberimages = count($images);
     		
                 for($i=0; $i < $numberimages; $i++) {
 
                     $images[$i] = mysql_real_escape_string($images[$i]);
+                    echo $images[$i];
                     $imagesid[$i] = mysql_real_escape_string($imagesid[$i]);
+                    echo $imagesid[$i];
                     
                     $downloadcheck = mysql_query("SELECT * FROM userdownloads WHERE imageid = '$imagesid[$i]'");
                     $downloadcheckrows = mysql_num_rows($downloadcheck);
@@ -2051,6 +1990,8 @@ if(!$licenses) {
             $imagesource[$iii] = mysql_result($incart,$iii,'source');
             $imageprice[$iii] = mysql_result($incart,$iii,'price');
             $imagecartid = mysql_result($incart,$iii,'imageid');
+            $sourcelist[] .= $imagesource[$iii];
+            $idlist[] .= $imagecartid;
             $imagelicenses = mysql_result($incart,$iii,'license');
             $standard = strpos($imagelicenses,'Standard');
             if($standard === false) { 
@@ -2190,13 +2131,14 @@ if(!$licenses) {
          else {
          
          echo'
-            <form name="download_form" method="post" action="myprofile.php?view=store&option=cart&action=download">';
-          
+            <form name="download_form" method="post" action="myprofile.php?view=cart&action=download">';
+            
             foreach($sourcelist as $value) {
                 echo '<input type="hidden" name="downloadedimages[]" value="'. $value. '">';
             }
             
             foreach($idlist as $value) {
+                echo $value .'test';
                 echo '<input type="hidden" name="imagesid[]" value="'. $value. '">';
             }
             

@@ -32,7 +32,7 @@ session_start();
     $wishprice = mysql_result($imageinfo,0,'price');
     $wishcaption = mysql_result($imageinfo,0,'caption'); 
     $wishsource = mysql_result($imageinfo,0,'source');
-    $wishsource = "https://photorankr.com/".$wishsource;
+    $wishsource = "http://photorankr.com/".$wishsource;
     
     //View
     $view = mysql_real_escape_string(htmlentities($_GET['view']));
@@ -65,6 +65,7 @@ session_start();
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
 	<link rel="stylesheet" type="text/css" href="css/reset.css"/> 
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
     
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -85,6 +86,7 @@ session_start();
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+
 
 </head>
 <body style="overflow-x:hidden; background-color:rgb(244, 244, 244);">
@@ -153,7 +155,8 @@ session_start();
           
                 for($iii=0; $iii<$numsavedinmarket; $iii++) {
                         $photo = mysql_result($marketquery, $iii, "source");
-                        $photo2 = str_replace("http://photorankr.com/userphotos/","../userphotos/medthumbs/", $photo);
+                        $photo = str_replace("http://photorankr.com/userphotos/","userphotos/", $photo);
+                        $photo2 = str_replace("userphotos/","userphotos/medthumbs/", $photo);
                         $photoid = mysql_result($marketquery, $iii, "id");
                         $imagecartid = mysql_result($marketquery, $iii, "imageid");
                         $caption = mysql_result($marketquery, $iii, "caption");
@@ -161,9 +164,9 @@ session_start();
                         $price = mysql_result($marketquery, $iii, "price");
                         $totalcharge += $price;
                         
-                        list($height,$width) = getimagesize($photo);
-                        $widthnew = $width / 4;
+                        list($width,$height) = getimagesize($photo);
                         $heightnew = $height / 4;
+                        $widthnew = $width / 4;
                 
                          echo'<div class="span9">
                         <a name="',$imagecartid,'" style="text-decoration:none;color:#333;" href="fullsizemarket.php?imageid=',$imagecartid,'">
@@ -178,7 +181,7 @@ session_start();
                         <tbody>
             
                         <tr>
-                        <td><div style="height:',$heightls,'px;width:',$width,'"><img style="height:',$heightnew,'px;width:',$widthnew,'" onmousedown="return false" oncontextmenu="return false;" alt="',$caption,'" src="',$photo2,'" /><br /><br />
+                        <td><div style="height:',$heightls,'px;width:',$width,'"><img style="height:',$heightnew,'px;width:',$widthnew,'px" onmousedown="return false" oncontextmenu="return false;" alt="',$caption,'" src="',$photo2,'" /><br /><br />
                         <div style="text-align:left;">
                             <i class="icon-remove"></i>
                             <a style="font-weight:500;font-size:14px;" href="cart.php?view=maybe&imageid=',$imagecartid,'&action=removed">Remove from wishlist</a>
@@ -364,15 +367,15 @@ if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING"
           
                 for($iii=0; $iii<$numpurchased; $iii++) {
                         $photo = mysql_result($downloadquery, $iii, "source");
+                        $photo = str_replace("http://photorankr.com/userphotos/","userphotos/", $photo);
                         $photo2 = str_replace("userphotos/","userphotos/medthumbs/", $photo);
-                        $photoid = mysql_result($downloadquery, $iii, "id");
                         $imagecartid = mysql_result($downloadquery, $iii, "imageid");
                         $caption = mysql_result($downloadquery, $iii, "caption");
                         $caption = strlen($caption) > 30 ? substr($caption,0,27). " &#8230;" : $caption;
                         $price = mysql_result($downloadquery, $iii, "price");
                         $totalcharge += $price;
                         
-                        list($height,$width) = getimagesize($photo);
+                        list($width,$height) = getimagesize($photo);
                         $widthnew = $width / 4;
                         $heightnew = $height / 4;
                 
@@ -397,7 +400,7 @@ if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING"
                         <?php
                         echo'
                         <tr>
-                        <td><div style="height:',$heightls,'px;width:',$width,'"><img style="height:',$heightnew,'px;width:',$widthnew,'" onmousedown="return false" oncontextmenu="return false;" alt="',$caption,'" src="',$photo2,'" /><br /><br />
+                        <td><div style="height:',$heightls,'px;width:',$width,'px"><img style="height:',$heightnew,'px;width:',$widthnew,'" onmousedown="return false" oncontextmenu="return false;" alt="',$caption,'" src="',$photo2,'" /><br /><br />
                         <div style="text-align:left;">
                              <form action="https://photorankr.com/downloadphoto.php" method="POST" id="download',$iii,'">
                             <input type="hidden" name="image" value="',$photo,'">
@@ -545,14 +548,15 @@ if(!$licenses) {
                     if($downloadcheckrows < 1) {
                         
                         //photo information
-                        $photoinfoquery = mysql_query("SELECT price,caption,width,height FROM photos WHERE id = '$imagesid[$i]'");
+                        $photoinfoquery = mysql_query("SELECT price,caption,width,height,emailaddress FROM photos WHERE id = '$imagesid[$i]'");
                         $width = mysql_result($photoinfoquery,0,'width');
                         $height = mysql_result($photoinfoquery,0,'height');
                         $price =mysql_result($photoinfoquery,0,'price');
                         $caption =  mysql_result($photoinfoquery,0,'caption');
+                        $photoowner =  mysql_result($photoinfoquery,0,'emailaddress');
                         $stickintouserdownloads = mysql_query("INSERT INTO userdownloads (emailaddress,imageid,source,width,height,time,caption,price) VALUES ('$email','$imagesid[$i]','$images[$i]','$width','$height','$currenttime','$caption','$price')");
                         $deletephotofromcart = mysql_query("DELETE FROM userscart WHERE emailaddress = '$email' AND imageid = '$imagesid[$i]'");
-                        $addsoldtonewsfeed = mysql_query("INSERT INTO newsfeed (firstname,lastname,emailaddress,type,source,time) VALUES ('$sessionfirst','$sessionlast,','$email','sold','$imagesid[$i]','$currenttime')");
+                        $addsoldtonewsfeed = mysql_query("INSERT INTO newsfeed (firstname,lastname,emailaddress,type,source,owner,time) VALUES ('$sessionfirst','$sessionlast','$email','sold','$imagesid[$i]','$photoowner','$currenttime')");
                     
                         //Tell them download was successful
                         echo'<div style="font-size:16px;font-weight:200;margin-top:20px;margin-left:35px;"><img src="',$images[$i],'" height="100" width="100" />&nbsp;&nbsp;&nbsp;Photo Saved in Purchases "',$caption,'"</div>';
@@ -615,6 +619,7 @@ if(!$licenses) {
         
         for($iii=0; $iii < $incartresults; $iii++) {
             $imagesource[$iii] = mysql_result($incart,$iii,'source');
+            $imagesource2 = str_replace("http://photorankr.com/userphotos/","userphotos/",$imagesource[$iii]);
             $imageprice[$iii] = mysql_result($incart,$iii,'price');
             $imagecartid = mysql_result($incart,$iii,'imageid');
             $sourcelist[] .= $imagesource[$iii];
@@ -629,7 +634,7 @@ if(!$licenses) {
             $photogemail = mysql_result($emailquery,0,'emailaddress');
             $totalcharge = $totalcharge + $imageprice[$iii];
             $cartidlist = $cartidlist.",".$imagecartid;
-            list($width, $height)=getimagesize($imagesource[$iii]);
+            list($width, $height)=getimagesize($imagesource2);
             $width = $width/4;
             $height = $height/4;
             
@@ -648,7 +653,7 @@ if(!$licenses) {
             <tbody>
             
             <tr>
-            <td><div style="min-width:400px;height:<?php echo $height; ?>px;width:<?php echo $width; ?>px;"><img onmousedown="return false" oncontextmenu="return false;" src="',$imagesource[$iii],'" height=',$height,' width=',$width,' /><br /><br />
+            <td><div style="min-width:400px;"><img onmousedown="return false" oncontextmenu="return false;" src="',$imagesource[$iii],'" height=',$height,' width=',$width,' /><br /><br />
             <div style="text-align:left;">
                 <i class="icon-remove"></i>
                 <a style="font-weight:500;font-size:14px;" href="cart.php?imageid=',$imagecartid,'&action=removed">Remove from cart</a>
@@ -1311,6 +1316,7 @@ $emailquery = mysql_query("SELECT emailaddress FROM photos WHERE id = '$imagecar
 $photogemail = mysql_result($emailquery,0,'emailaddress');
 $stickintouserdownloads = mysql_query("INSERT INTO userdownloads (emailaddress,imageid,source,width,height,time) VALUES ('$repemail','$imagecartid','$imagesource','$imagewidth','$imageheight','$currenttime,')");
  $deletephotofromcart = mysql_query("DELETE FROM userscart WHERE emailaddress = '$email' AND imageid = '$imagecartid'");
+ 
     }      
 
 

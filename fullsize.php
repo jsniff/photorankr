@@ -1,7 +1,7 @@
 <?php
 
 //connect to the database
-require "../db_connection.php";
+require "db_connection.php";
 require "functions.php";
 
 //start the session
@@ -16,6 +16,7 @@ session_start();
     }
 
     $email = $_SESSION['email'];
+    $currenttime = time();
     
     $findreputationme = mysql_query("SELECT user_id,reputation,profilepic,firstname,lastname,following FROM userinfo WHERE emailaddress = '$email'");
     $reputationme = mysql_result($findreputationme,0,'reputation');
@@ -32,23 +33,25 @@ session_start();
     $currentnotsquery = mysql_query($currentnots);
     $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
 
-    //notifications query reset 
-    if($currentnotsresult > 0) {
-    $notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email6'";
-    $notsqueryrun = mysql_query($notsquery); }
-    
-    //DE-HIGHLIGHT NOTIFICATIONS IF CLICKED ON
+//DE-HIGHLIGHT NOTIFICATIONS IF CLICKED ON
+if(isset($_GET['id'])){
+$id = htmlentities($_GET['id']);
+$idformatted = $id . " ";
+$unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$email'";
+$unhighlightqueryrun = mysql_query($unhighlightquery);
 
-    if(isset($_GET['id'])){
-        $id = htmlentities($_GET['id']);
-        $idformatted = $id . " ";
-        $unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$email'";
-        $unhighlightqueryrun = mysql_query($unhighlightquery);
-    }
+//notifications query reset 
+if($currentnotsresult > 0) {
+$notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email'";
+$notsqueryrun = mysql_query($notsquery); }
+}    
     
     //GET THE IMAGE
 $image = addslashes($_GET['image']);
 $view = htmlentities($_GET['v']);
+if($view == '') {
+    $view = 't';
+}
 
 if(!$image) {
 
@@ -71,6 +74,27 @@ if(!$image) {
 	exit();
 }
 
+if(htmlentities($_GET['view'] == "saveinfo")) {
+		$newcaption = mysql_real_escape_string($_POST['caption']);
+		$newlocation = mysql_real_escape_string($_POST['location']);
+		$newcamera = mysql_real_escape_string($_POST['camera']);
+        $newprice = mysql_real_escape_string($_POST['price']);
+        $newfocallength = mysql_real_escape_string($_POST['focallength']);
+        $newshutterspeed = $_POST['shutterspeed'];
+        $newaperture = mysql_real_escape_string($_POST['aperture']);
+        $newlens = mysql_real_escape_string($_POST['lens']);
+        $newfilter = mysql_real_escape_string($_POST['filter']);
+        $newcopyright = mysql_real_escape_string($_POST['copyright']);
+        $newabout = mysql_real_escape_string($_POST['about']);
+        $newtag1 = mysql_real_escape_string($_POST['tag1']);
+        $newtag2 = mysql_real_escape_string($_POST['tag2']);
+        $newtag3 = mysql_real_escape_string($_POST['tag3']);
+
+		//update the database with the new information
+		$updatequery = "UPDATE photos SET caption='$newcaption', location='$newlocation', price='$newprice', tag1 = '$newtag1', tag2 = '$newtag2', tag3 = '$newtag3', camera='$newcamera', focallength='$newfocallength', shutterspeed='$newshutterspeed', aperture='$newaperture', lens='$newlens', filter='$newfilter', about='$newabout', copyright='$newcopyright' WHERE source='$image'";
+		mysql_query($updatequery) or die(mysql_error());
+}
+
 //FIND THE PHOTO IN DATABASE
 $query="SELECT * FROM photos where source='$image'";
 $result=mysql_query($query);
@@ -84,6 +108,7 @@ $row=mysql_fetch_array($result);
 $emailaddress=$row['emailaddress'];
 $caption=$row['caption'];
 $location=$row['location'];
+$sold=$row['sold'];
 $country=$row['country'];
 $time=$row['time'];
 //$uploaded = converttime($time);
@@ -98,10 +123,6 @@ $price=mysql_result($result, 0, "price");
 $price=number_format($price,0);
 
 $camera = mysql_result($result,0,"camera");
-if($camera) {
-$camera = '<a style="color:black;" href="search.php?searchterm='.$camera.'">' . $camera . '</a>';
-}
-$faves= $row['faves'];
 $views = $row['views'];
 $exhibit = $row['set_id'];
 
@@ -193,7 +214,7 @@ $lastname=$row['lastname'];
 $reputation=number_format($row['reputation'],2);
 $promos = mysql_result($nameresult,0,'promos');
 $fullname = $firstname . " " . $lastname;
-$fullname = (strlen($fullname ) > 14) ? substr($fullname,0,12). " &#8230;" :$fullname;
+$fullname = (strlen($fullname ) > 17) ? substr($fullname,0,16). " &#8230;" :$fullname;
 
 $profilepic=$row['profilepic'];
 $profilescore=$row['totalscore'];
@@ -421,6 +442,37 @@ To view the collection, click here: https://photorankr.com/viewprofile.php?u=".$
             mail($to, $subject, $returnmessage, $headers);
         }
     }
+}
+
+//TRENDING PHOTOS FOR 
+$trendingfeedquery = "SELECT * FROM photos ORDER BY id DESC LIMIT 0,100";
+$trendingfeedresult = mysql_query($trendingfeedquery);
+
+for($i=1; $i<99; $i++) {
+$feedrow = mysql_fetch_array($trendingfeedresult);
+$score = $feedrow['votes'];
+$source = $feedrow['source'];
+$caption2 = $feedrow['caption'];
+$emailaddress3 = $feedrow['emailaddress'];
+
+//userinfo query
+$namequery2="SELECT * FROM userinfo WHERE
+emailaddress='$emailaddress3'";
+$nameresult2=mysql_query($namequery2);
+$row2=mysql_fetch_array($nameresult2);
+$firstname2=$row2['firstname'];
+$lastname2=$row2['lastname'];
+
+$feedtestquery = mysql_query("SELECT * FROM newsfeed WHERE source='$source' AND type='trending'") or die(mysql_error());
+$result = mysql_num_rows($feedtestquery);
+
+if ($score > 2 && $result < 1) {
+$type4 = "trending";
+$newsfeedtrending="INSERT INTO newsfeed (firstname,lastname,caption,owner,type,source,time) VALUES ('$firstname2','$lastname2','$caption2','$emailaddress3','$type4','$source','$currenttime')";
+$trendingnewsquery = mysql_query($newsfeedtrending); 
+  
+} 
+
 }
 
 //if they came from trending
@@ -677,32 +729,65 @@ else if($view == 'r') {
 	}
 }
 
+//Delete Photo Query
+if(htmlentities($_GET['action']) == "delete" && $emailaddress == $email) {
+        $imageid = htmlentities($_GET['imageid']);
+		mysql_query("DELETE FROM photos WHERE id = '$imageid'") or die(mysql_error());
+		$nextimagequery = mysql_query("SELECT id FROM photos WHERE emailaddress = '$email' AND id > $imageid ORDER BY id DESC LIMIT 1");
+        $nextimage = mysql_result($nextimagequery,0,'id');
+        $querystats = mysql_query("INSERT INTO Statistics (ViewTimeStamp, Source, Person, Type, Email) VALUES ('$currenttime', '$imageid','$email', 'photodelete', '$emailaddress')");
+        header('Location: fullsize.php?imageid='.$nextimage);
+}
+
+//PORTFOLIO RANKING
+$userphotos="SELECT * FROM photos WHERE emailaddress = '$emailaddress'";
+$userphotosquery=mysql_query($userphotos);
+$numphotos=mysql_num_rows($userphotosquery);
+    
+//Query Stats Table
+$timestampentertimeslicequery = mysql_query("INSERT INTO Statistics (ViewTimeStamp, Source, Person, Type, Email) VALUES ('$currenttime', '$imageid','$email', 'photoview', '$emailaddress')");
+
 ?>
 
 <!DOCTYPE HTML>
 <head>
 
 	<meta charset = "UTF-8">
-	<title> Sell, share and discover brilliant photography </title>
+	<title> "<?php echo $caption; ?>" | PhotoRankr </title>
     
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
 	<link rel="stylesheet" type="text/css" href="css/reset.css"/> 
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
+
     <link rel="stylesheet" media='screen and (max-width:640px)' href="css/640.css"/>
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
     
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="js/bootstrap.js" type="text/javascript"></script>
 	<script src="js/modernizer.js"></script>
+    
+    <!--GOOGLE ANALYTICS CODE-->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-28031297-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
 	
     <style type="text/css">
 		.show
 		{
 			display:block !important;
 		}
-		
+        .modal-backdrop {z-index:1001;}
 		#notify
 		{
 			width:40px;
@@ -776,6 +861,45 @@ else if($view == 'r') {
 	left:75px;
 }*/
 	</style>
+    
+    <script type="text/javascript">
+    //Display textarea
+    $(function() 
+    {
+        $("#photocomment").focus(function()
+        {
+        $(this).animate({"height": "85px",}, "fast" );
+        $("#button_block").slideDown("show");
+        return false;
+        });
+        
+        /* $("#photocomment").focusout(function()
+        {
+        $(this).animate({"height": "45px",}, "fast" );
+        $("#button_block").slideUp("fast");
+        return false;
+        });     */   
+    });
+    </script>
+        
+        <style type="text/css">
+            #photocomment {
+                -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #666;
+                -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #666;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #666;
+                outline:none;
+                border:none;
+                color:#333;
+                font-size:15px;
+                font-weight:300;
+                -webkit-border-top-left-radius: 2px;
+                -webkit-border-top-right-radius: 2px;
+                -moz-border-radius-topleft: 2px;
+                -moz-border-radius-topright: 2px;
+                border-top-left-radius: 2px;
+                border-top-right-radius: 2px;
+            }
+        </style>
     
     <script language="javascript" type="text/javascript">
 
@@ -854,7 +978,7 @@ function ajaxFollow(){
 	ajaxRequest.onreadystatechange = function(){
 		if(ajaxRequest.readyState == 4){
             var ajaxDisplay = document.getElementById('ajaxFollow');
-            
+            ajaxDisplay.innerHTML = ajaxRequest.responseText;
 		}
 	}
 	
@@ -871,7 +995,7 @@ function ajaxFollow(){
 <script type="text/javascript" >
 
 $(function() {
-$(".submit").click(function() 
+$("#postComment").click(function() 
 {
 var firstname = '<?php echo $sessionfirst; ?>';
 var lastname = '<?php echo $sessionlast; ?>';
@@ -981,22 +1105,166 @@ function ajaxPrevPics(){
 </script>
 </head>
 
-<!--Collection Modal-->
-<div class="modal hide fade" id="collectionmodal" style="overflow:hidden;border:5px solid rgba(102,102,102,.8);">
+<!--Favorite Modal-->
+<div class="modal hide fade" id="fvmodal" style="overflow:hidden;border:5px solid rgba(102,102,102,.8);z-index:100000;">
   
 <?php
  
 if($_SESSION['loggedin'] !== 1) {
 
 echo'
-<div class="modal-header" style="background-color:#111;color:#fff;">
+<div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
 <a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
-<img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Please login to add this photo to a collection</span>
+<img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Please login to favorite this photo</span>
   </div>
  
 <div id="modal-body" style="width:450px;height:145px;">
 
-<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(245,245,245);height:150px;">
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);height:150px;">
+		
+<img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
+height="100px" width="100px" />
+
+<div style="width:350px;margin-left:140px;margin-top:-75px;line-height:1.48;">              
+
+',$caption,'<br />
+
+By: 
+<a style="color:black;" href="viewprofile.php?u=',$user,'">',$firstname,' ',$lastname,'</a><br />   
+
+</div>
+</div>';
+    
+}
+
+if($_SESSION['loggedin'] == 1) {
+		$vieweremail = $_SESSION['email'];
+		//run a query to be used to check if the image is already there
+		$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress='$vieweremail'") or die(mysql_error());
+        $viewerfirst = mysql_result($check, 0, "firstname");
+        $viewerlast = mysql_result($check, 0, "lastname");
+        $imagelink2=str_replace(" ","", $image);
+	
+		//create the image variable to be used in the query, appropriately escaped
+		$queryimage = "'" . $image . "'";
+		$queryimage = ", " . $queryimage;
+		$queryimage = addslashes($queryimage);
+	
+		//search for the image in the database as a check for repeats
+		$mycheck = mysql_result($check, 0, "faves");
+		$search_string = $mycheck;
+		$regex=$image; 
+		$match=strpos($search_string, $regex);
+        
+        //if tries to favorite own photo
+        if($vieweremail == $emailaddress) {
+        echo'
+<div class="modal-header" style="background-color:#111;color:#333;">
+<a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Oops, you tried to favorite your own photo.</span>
+  </div>
+
+<div id="modal-body" style="width:450px;height:145px;">
+
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);height:150px;">
+		
+<img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
+height="100px" width="100px" />
+
+<div style="width:350px;margin-left:140px;margin-top:-75px;line-height:1.48;">              
+
+',$caption,'<br />
+
+By: 
+',$firstname,' ',$lastname,'</a>   
+
+</div>
+</div>';
+    
+    }
+        
+        else {
+        
+		//if the image has already been favorited
+		if($match) {
+			//tell them so
+			        echo'
+<div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
+<a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">This photo is already in your favorites.</span>
+  </div>
+
+<div id="modal-body" style="width:450px;height:145px;">
+
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);height:150px;">
+		
+<img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
+height="100px" width="100px" />
+
+<div style="width:350px;margin-left:140px;margin-top:-75px;line-height:1.48;">              
+
+',$caption,'<br />
+
+By: 
+<a style="color:black;" href="viewprofile.php?u=',$user,'">',$firstname,' ',$lastname,'</a><br />   
+
+</div>
+</div>';
+
+    }
+        
+		else {
+        
+        echo'
+<div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
+<a style="float:right" class="btn btn-success" onclick="ajaxFunction()" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">This photo has been added to your favorites.</span>
+  </div>
+
+<div id="modal-body" style="width:450px;height:145px;">
+
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);height:150px;">
+		
+<img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
+height="100px" width="100px" />
+
+<div style="width:350px;margin-left:140px;margin-top:-75px;line-height:1.48;">              
+
+',$caption,'<br />
+
+By: 
+<a style="color:black;" href="viewprofile.php?u=',$user,'">',$firstname,' ',$lastname,'</a><br />   
+
+</div>
+</div>';
+    
+    } 
+      }  
+	} 
+  
+?>
+
+</div>
+</div>
+
+
+
+<!--Collection Modal-->
+<div class="modal hide fade" id="collectionmodal" style="overflow:hidden;border:5px solid rgba(102,102,102,.8);z-index:100000;">
+  
+<?php
+ 
+if($_SESSION['loggedin'] !== 1) {
+
+echo'
+<div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
+<a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Please login to add this photo to a collection</span>
+  </div>
+ 
+<div id="modal-body" style="width:450px;height:145px;">
+
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);height:150px;">
 		
 <img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
 height="100px" width="100px" />
@@ -1016,14 +1284,14 @@ By:
     if($_SESSION['loggedin'] == 1) {
 		
         echo'
-        <div class="modal-header" style="background-color:#111;color:#fff;">
+        <div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
         <a style="float:right" class="btn btn-success" data-dismiss="modal"href="fullsize.php?image=', $image,'&v=',$view,'&f=1">Close</a>
-        <img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Choose a collection to add this photo to:</span>
+        <img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Choose a collection to add this photo to:</span>
         </div>
 
         <div id="modal-body" style="width:450px;">
 
-        <div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(245,245,245);max-height:25em;overflow-y:scroll;">
+        <div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);max-height:25em;overflow-y:scroll;">
 		
         <img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
 height="100px" width="100px" />
@@ -1088,8 +1356,7 @@ height="100px" width="100px" />
             
         }   
            
-        echo'</div><button class="btn btn-success" type="submit" value="Save">Add to collection(s)</button>
-        </form>';
+        echo'</div><button class="btn btn-success" type="submit" value="Save">Add to collection(s)</button>';
         
         }
         
@@ -1100,6 +1367,7 @@ height="100px" width="100px" />
         }
         
         echo'
+	</form>
         <br /><br />
         </div>
         </div>';
@@ -1112,11 +1380,104 @@ height="100px" width="100px" />
 </div>
 </div>
 
-<body id="body" >
+
+<!--Edit Photo Modal-->
+<div class="modal hide fade" id="editphoto" style="overflow:hidden;border:5px solid rgba(102,102,102,.8);z-index:100000;">
+<?php
+
+echo'
+<div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
+<a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Edit your photo\'s information below:</span>
+  </div>
+  <div modal-body" style="width:600px;">
+
+<div id="content" style="font-size:16px;font-weight:300;width:550px;height:450px;overflow-y:scroll;">
+		
+<img style="border: 1px solid black;margin-left:10px;margin-top:10px;" src="',$image,'" 
+height="100px" width="100px" />
+
+<div style="width:400px;padding-bottom:30px;margin-left:130px;margin-top:-100px;">
+
+<form action="fullsize.php?imageid=',$imageid,'&view=saveinfo" method="post">
+    Basic Information:
+    <br />
+    <br />
+    <span style="font-size:14px;">
+    Caption:&nbsp;&nbsp; <input id="modalinput" name="caption" value="',$caption,'">
+    <br /><br />
+    Camera:&nbsp;&nbsp;&nbsp;<input id="modalinput" name="camera" value="',$camera,'">
+    <br /><br />
+    Location:&nbsp;&nbsp;<input id="modalinput" type="location" name="location" value="',$location,'">
+    <br /><br />
+    Current Price:&nbsp;&nbsp;&nbsp;';
+    ?>
+            
+    <span style="font-size:16px;"><?php echo $price; ?></span>
+    
+    <?php
+    echo'
+    <br /><br />
+    Change Price:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select name="price" style="margin-top:5px;">
+    <option value="',$changeprice,'">Choose a Price:</option>
+    <option value=".00">Free</option>
+	<option value=".50">$.50</option>
+	<option value=".75">$.75</option>
+	<option value="1.00">$1.00</option>
+	<option value="2.00">$2.00</option>
+	<option value="5.00">$5.00</option>
+	<option value="10.00">$10.00</option>
+    <option value="15.00">$15.00</option>
+    <option value="25.00">$25.00</option>
+    <option value="50.00">$50.00</option>
+    <option value="100.00">$100.00</option>
+    <option value="200.00">$200.00</option>
+    <option value="Not For Sale">Not For Sale</option>
+	</select>
+    </span>
+    <br />
+    <br />
+    Advanced Information:
+    <br />
+    <br />
+    <span style="font-size:14px;">
+    Focal Length:&nbsp;&nbsp;&nbsp;<input id="modalinput" name="focallength" value="',$focallength,'">
+    <br /><br />
+    Shutter Speed:&nbsp;<input id="modalinput" name="shutterspeed" value="',$shutterspeed,'">
+    <br /><br />
+    Aperture:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="modalinput" name="aperture" value="',$aperture,'">
+    <br /><br />
+    Lens:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="modalinput" name="lens" value="',$lens,'">
+    <br /><br />
+    
+Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="modalinput" name="filter" value="',$filter,'">
+    <br /><br />
+    Keywords:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="modalinput" style="width:80px;" name="tag1" value="',$tagbox1,'">&nbsp;&nbsp;<input id="modalinput" style="width:80px;" name="tag2" value="',$tagbox2,'">&nbsp;&nbsp;<input id="modalinput" style="width:80px;" name="tag3" value="',$tagbox3,'">
+
+    <br /><br />
+    About this Photo:&nbsp;
+    <br /><br />
+    <textarea style="width:380px" rows="4" cols="60" name="about">',$about,'</textarea>
+    <br />
+    </span>
+    <button class="btn btn-success" type="submit">Save Info</button>
+    </form>
+     <a style="position: relative; top: -28px; left: 280px;" href="https://photorankr.com/fullsize.php?imageid=',$imageid,'&action=delete"><button class="btn btn-danger">Delete Photo</button></a>
+
+</div>
+</div>
+</div>';
+    
+?>
+
+</div>
+
+
+<body style="overflow-x:hidden; background-image:url('graphics/paper.png');">
 
 <?php navbar(); ?>
 
-<div class="container_custom" style="margin:50px 0 0 120px;width:1080px;">
+<div class="container_24" style="position:relative;left:35px;margin-top:50px;width:1100px;">
 	
 	<div class="bloc_4" style="float:right;width:24.07%;margin:45px 0 0 0;display:block;">
 
@@ -1124,7 +1485,11 @@ height="100px" width="100px" />
 		<div id="Tag">
 			<div id="topHalf">
 				<img src="../<?php echo $profilepic; ?>" />
-				<header style="min-width:100px;"> <?php echo $fullname; ?> </header>
+				<header style="min-width:100px;">
+                    <a href="viewprofile.php?u=<?php echo $user; ?>">
+                        <?php echo $fullname; ?>
+                    </a> 
+                </header>
                 
                  <?php
                     if($_SESSION['loggedin'] == 1) {
@@ -1138,10 +1503,10 @@ height="100px" width="100px" />
                         $match=preg_match($regex,$search_string);
 
                         if($match) {
-                            echo'<a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$imageid,'&v=',$view,'&uf=1"><button id="follow"> Following </button></a>';
+                            echo'<a class="follow" style="text-decoration:none;color:#fff;width:90px;" href="fullsize.php?imageid=',$imageid,'&v=',$view,'&uf=1"><i style="float:left;margin-top:0px;" class="icon-ok icon-white"></i> Following </a>';
                         }
                         elseif(!$match) {
-                            echo'<a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$imageid,'&v=',$view,'&fw=1"><button id="follow"> Follow </button></a>';
+                            echo'<a class="follow" style="text-decoration:none;color:#fff;width:90px;" onclick="ajaxFollow()" id="ajaxFollow"><i style="float:left;margin-top:0px;" class="icon-plus-sign icon-white"></i> Follow </a>';
                         }
                     }
                     else {
@@ -1151,8 +1516,8 @@ height="100px" width="100px" />
 
 			</div>
 			<div id="bottomHalf">  
-				<header> Photos: 345 </header>
-				<header> Rep: <?php echo $reputation; ?> </header>
+				<header><img src="graphics/camera2.png" style="width:15px;margin-top:-3px;padding-right:3px;" /> Photos &mdash; <?php echo $numphotos; ?> </header>
+				<header> Rep &mdash; <?php echo $reputation; ?> </header>
 			</div>	
 		</div>
         
@@ -1167,59 +1532,41 @@ height="100px" width="100px" />
 			<ul>
 				<li id="rankButton">  <img src="graphics/rank_b_c.png" /> Rank </li>
 				<a style="color:#333;text-decoration:none;" data-toggle="modal" data-backdrop="static" href="#collectionmodal">
-                <li><img src="graphics/collection_b_c.png"/>  Collect </li>
+                <li style="border-right:1px solid #c6c6c6;width:42px;"><img style="width:32px;height:35px;" src="graphics/collection_b_c.png" />  Collect </li>
                 </a>
                 
-                <?php
-                    if($_SESSION['loggedin'] == 1) {
-                        $vieweremail = $_SESSION['email'];
-                        //run a query to be used to check if the image is already there
-                        $check = mysql_query("SELECT * FROM userinfo WHERE emailaddress='$vieweremail'") or die(mysql_error());
-                        $viewerfirst = mysql_result($check, 0, "firstname");
-                        $viewerlast = mysql_result($check, 0, "lastname");
-                        $imagelink2=str_replace(" ","", $image);
-                        //create the image variable to be used in the query, appropriately escaped
-                        $queryimage = "'" . $image . "'";
-                        $queryimage = ", " . $queryimage;
-                        $queryimage = addslashes($queryimage);
-                        //search for the image in the database as a check for repeats
-                        $mycheck = mysql_result($check, 0, "faves");
-                        $search_string = $mycheck;
-                        $regex=$image;
-                        $match=strpos($search_string, $regex);
-
-                        if($match) {
-                            echo'<li> <img src="graphics/fave_b_c.png"/> Fave </li>';
-                        }
-                        elseif(!$match) {
-                            echo'<li onclick="ajaxFunction()"> <img src="graphics/fave_b_c.png"/> Fave </li>';
-                        }
-                    }
-                    else {
-                        echo'<li> <img src="graphics/fave_b_c.png"/> Fave </li>';
-                    }
-                ?>
+                <li><a style="color:#333;text-decoration:none;" data-toggle="modal" data-backdrop="static" href="#fvmodal"><img src="graphics/fave_b_c.png"/> Fave </a></li>
                 
                 <a style="color:#333;text-decoration:none;" href="fullsizemarket.php?imageid=<?php echo $imageid; ?>"><li> <img src="graphics/market_b_c.png"/> Purchase </li></a>
 			</ul>
 
 			<ul id="Rank">
-				<li onclick="Rank(1)"> 1 </li>
-				<li onclick="Rank(2)"> 2 </li>
-				<li onclick="Rank(3)"> 3 </li>
-				<li onclick="Rank(4)"> 4 </li>
-				<li onclick="Rank(5)"> 5 </li>
-				<li onclick="Rank(6)"> 6 </li>
-				<li onclick="Rank(7)"> 7 </li>
-				<li onclick="Rank(8)"> 8 </li>
-				<li onclick="Rank(9)"> 9 </li>
-				<li onclick="Rank(10)"> 10 </li>
+				<li onclick="Rank(1)"> <div style="margin-top:-5px;">1 - <span style="font-size:13px;font-weight:300;">Poorest Quality</span> </div> </li>
+				<li onclick="Rank(2)">  <div style="margin-top:-5px;">2</div> </li>
+				<li onclick="Rank(3)">  <div style="margin-top:-5px;">3 - <span style="font-size:13px;font-weight:300;">Numerous Execution Issues</span</div> </li>
+				<li onclick="Rank(4)">  <div style="margin-top:-5px;">4</div> </li>
+				<li onclick="Rank(5)">  <div style="margin-top:-5px;">5 - <span style="font-size:13px;font-weight:300;">Solid Composition, Minor Issues</span</div> </li>
+				<li onclick="Rank(6)">  <div style="margin-top:-5px;">6</div> </li>
+				<li onclick="Rank(7)">  <div style="margin-top:-5px;">7 - <span style="font-size:13px;font-weight:300;">Amazing Photograph, Few Issues</span</div> </li>
+				<li onclick="Rank(8)">  <div style="margin-top:-5px;">8</div> </li>
+				<li onclick="Rank(9)">  <div style="margin-top:-5px;">9 - <span style="font-size:13px;font-weight:300;">Premium Work, A True Masterpiece</span </div> </li>
+				<li onclick="Rank(10)">  <div style="margin-top:-5px;">10</div> </li>
 			</ul>
 
 		</div>
+        
+        <?php 
+        
+        if($email == $emailaddress) {
+        
+            echo'<div style="position:relative;top:10px;padding-bottom:10px;"><a class="btn btn-success" style="width:245px;padding:10px;font-size:16px;float:left;" data-toggle="modal" data-backdrop="static" href="#editphoto">Edit Photo</a><br /><br /></div>';
+        
+        }
+        
+        ?>
 
 		<!--PREVIEW BAR-->
-		<div id="nextPhotos" style="margin-top:10px;">
+		<div id="nextPhotos" style="position:relative;top:5px;">
 			<header> 
             <?php 
                     
@@ -1237,7 +1584,7 @@ height="100px" width="100px" />
             
             ?>
             </header>
-				<div id="nextPhotosInner">
+				<div id="nextPhotosInner" style="margin-top:-3px;">
                     
                     <a href="javascript:ajaxNextPics()">
                         <div id="arrowLeft"> 
@@ -1245,7 +1592,7 @@ height="100px" width="100px" />
                     </a>
                     
                     <a href="javascript:ajaxPrevPics()">
-                        <div id="arrowRight"> 
+                        <div id="arrowRight" style="margin-right:-2px;"> 
                         </div>	
                     </a>
                     
@@ -1259,12 +1606,23 @@ height="100px" width="100px" />
 		</div>
     
     <!--SHARE BAR-->
-		<div id="shareBar">
+		<div id="shareBar" style="position:relative;top:20px;">
 			<ul>
 				<li style="border-radius:5px 0 0 5px;width:47px;text-align:center;"> <img src="graphics/share_b.png" style="opacity:1;box-shadow: none;padding-bottom:2px;width:21px;height:19px;margin:0 0 0 12px;"/> Share  </li>
-				<li > <img src="graphics/twitter_s.png"/> </li>
-				<li > <img src="graphics/facebook_s.png"/> </li>
-				<li > <img src="graphics/pinterest_s.png"/> </li>
+				<li > 
+					<a href="https://twitter.com/share" data-text="Check out this photo!" data-via="PhotoRankr" data-size="large" data-count="none"><img src="graphics/twitter_s.png" style="width:44px;height:30px;"/></a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+                </li>
+				<li > 
+                    <a href="https://www.facebook.com/sharer.php?u=http%3A%2F%2Fphotorankr.com%2Ffullsize.php?imageid=<?php echo $imageid; ?>" type="button" share_url="photorankr.com/fullsize.php?imageid=<?php echo $imageid; ?>"><img src="graphics/facebook_s.png" style="width:44px;height:30px;" /></a>
+                    <script src="https://static.ak.fbcdn.net/connect.php/js/FB.Share" 
+                    type="text/javascript">
+                    </script>
+                </li>
+				<li >
+                    <a href="https://pinterest.com/pin/create/button/" class="pin-it-button" count-layout="none"><img src="graphics/pinterest_s.png" style="width:44px;height:30px;" /></a>
+<script type="text/javascript" src="https://assets.pinterest.com/js/pinit.js"></script>
+                </li>
 				<li> <img src="graphics/more_s.png"/> </li>
 			</ul>
 		</div>
@@ -1272,7 +1630,7 @@ height="100px" width="100px" />
     <!--PHOTO STORY-->
     <?php
         if($about) {
-		echo'<div id="photoStory">
+		echo'<div id="photoStory" style="position:relative;top:30px;">
 			<header> Behind the Lens </header>
 			<p>',$about,'</p>
 		</div>';
@@ -1280,12 +1638,28 @@ height="100px" width="100px" />
     ?>
     
     <!--ABOUT PHOTO-->
-		<div id="AboutPhoto">
+		<div id="AboutPhoto" style="position:relative;top:20px;">
 			<header> About </header>
 			<ul>
                 <?php 
+                 if($exhibit) {
+                        echo'
+						<li><img src="graphics/grid.png"/>  Exhibit: <a class="click" href="viewprofile.php?u=',$user,'&view=exhibits&set=',$exhibit,'"><u>',$exhibitname,'</u></a></li>'; 
+                    }
+                    
+                    if($exhibit && $expic1 && $expic2 && $expic3) {
+                        echo'
+						<li style="clear:both;margin-left:5px;overflow:hidden;margin-left:-10px;width:250px;">
+                        <a href="fullsize.php?image=',$expic1,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb1,'" height="80" width="78" /></a> 
+                        <a href="fullsize.php?image=',$expic2,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb2,'" height="80" width="78" /></a> 
+                        <a href="fullsize.php?image=',$expic3,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb3,'" height="80" width="78" /></a> 
+                        </li>';
+                    }
                 if($views) {
 				echo'<li><img src="graphics/views.png"/>  Views: <span style="margin-left:38px;">',$views,'</span></li>';
+                }
+                if($sold) {
+				echo'<li><img src="graphics/tag.png"/>  Sold: <span style="margin-left:38px;">',$sold,'</span></li>';
                 }
                 if($camera) {
 				echo'<li><img src="graphics/camera.png"/> Camera: <span style="margin-left:28px;">',$camera,'</span></li>';
@@ -1303,13 +1677,13 @@ height="100px" width="100px" />
 				echo'<li> <img src="graphics/shutterSpeed.png"/> Shutter: <span style="margin-left:30px;">',$shutterspeed,'</span> </li>';
                 }
                 if($date) {
-                    echo'<li> <img src="graphics/captureDate.png" style="width:16px;margin-left:-3px;"/> Capture Date <span> <?php echo $date; ?> </span></li>';
+                    echo'<li> <img src="graphics/captureDate.png" style="width:16px;margin-left:-3px;"/> Capture Date <span>',converttodate($date),'</span></li>';
                 }
                 if($fullname) {
-                    echo'<li> <img src="graphics/copyright.png" style="width:15px;margin-left:-2px;"/> Copyright <span> <?php echo $fullname; ?> </span></li>';
+                    echo'<li> <img src="graphics/copyright.png" style="width:15px;margin-left:-2px;"/> Copyright: <span style="margin-left:20px;">',$fullname,'</span></li>';
                 }
 				if($location) { 
-                    echo'<li> <img src="graphics/location.png" style="width:10px;margin: 0 8px 0 0;"/> Location: <span> <?php echo $location; ?> </span></li>';
+                    echo'<li> <img src="graphics/location.png" style="width:10px;margin: 0 8px 0 0;"/> Location: <span style="margin-left:20px;">',$location,'</span></li>';
                 }
 
                 ?>
@@ -1321,35 +1695,42 @@ height="100px" width="100px" />
 	
 	<!--TITLE-->
 	<div class="bloc_12" style="float:left;display:block;width:74.07%;" id="title">
-		<header> <?php echo $caption; ?> <img src="graphics/uploadDate.png"/>  <span> Uploaded <?php echo $time; ?> </span> </header>
+		<header> <?php echo $caption; ?> <span> <?php echo converttime($time); ?> </span> <img style="margin-right:4px;" src="graphics/arrow 4.png"/>  </header>
 	</div>
+
+<?php flush(); ?>
 
 	<!--IMAGE-->
 	<div class="bloc_12" style="float:left;display:block;width:74.07%;" id="imgDisplay">
-		<img src="../<?php echo $image; ?>" />
+		<img onmousedown="return false" oncontextmenu="return false;"  src="<?php echo $image; ?>" />
 	</div>
 
 	<!--COMMENTS-->
-	<div class="bloc_12" style="float:left;width:74.07%;">
+	<div class="bloc_12" style="float:left;width:820px;">
 
         <?php
         //AJAX COMMENT
         if($_SESSION['loggedin'] == 1) {
             echo'
-            <div style="width:790px;"> 
-            <form action="#" method="post" style="margin-top:5px;padding-bottom:5px;">        
-           
-            <div id="comment">
-                <div class="commentTag">
-				<img src="https://photorankr.com/',$sessionpic,'" height="55" width="50" />
-				<header> Rep: ',$reputationme,' </header>
-                </div>
-            <div>
+            <div style="width:820px;margin-top:30px;position:relative;left:0px;"> 
             
-                <textarea id="photocomment" style="margin-top:15px;width:675px;height:65px;" placeholder="Leave feedback for ',$firstname,'&#8230;"></textarea>
-                <input style="margin-right:45px;float:right;" type="submit" class="submit btn btn-success" value="Comment"/>
+            <div style="float:left;">
+                <img id="commentPhoto" src="https://photorankr.com/',$sessionpic,'" height="55" width="50" />
             </div>
+            
+            <div style="float:left;margin-left:14px;margin-top:5px;">
+                <div class="commentTriangle"></div>
+            <form action="#" method="post" id="postFeedback" style="margin-top:5px;padding-bottom:5px;">        
+                <textarea id="photocomment" style="margin-left:0px;margin-top:-10px;width:740px;height:45px;font-size:15px;padding:5px;resize:none;color:#333;" placeholder="Leave feedback for ',$firstname,' &#8230;"></textarea>
+                    <div id="button_block">
+                        <div class="postCommentBtn">
+                            <a href="#" style="color:#333;text-decoration:none;" id="postComment"><img style="float:left" src="graphics/comment_1.png" height="16" width="16" />&nbsp;&nbsp;
+                            Post Feedback</a>
+                            
+                        </div>
+                    </div>
             </form>
+        </div>
         
             <!--AJAX COMMENTS-->
             <div class="float:left;"> 
@@ -1367,6 +1748,7 @@ height="100px" width="100px" />
             $comment = mysql_result($grabcomments,$iii,'comment');
             $commentid = mysql_result($grabcomments,$iii,'id');
             $commenttime = mysql_result($grabcomments,$iii,'time');
+            $commenttime = converttime($commenttime);
             $commenteremail = mysql_result($grabcomments,$iii,'commenter');
             $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
             $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
@@ -1376,15 +1758,19 @@ height="100px" width="100px" />
         
         
         echo'
-            <div id="comment" style="width:760px;">
-                <div class="commentTag">
-				<img src="https://photorankr.com/',$commenterpic,'" height="55" width="50" />
-				<header> Rep: ',$commenterrep,' </header>
-			</div>
+            <div id="comment" style="width:820px;clear:both;margin-left:0px;">
+                <div id="commentProfPic">
+                    <img src="https://photorankr.com/',$commenterpic,'" height="55" width="50" />
+                </div>
+            
+        <div style="position:relative;left:15px;">
+        
+            <div class="commentTriangle" style="margin-top:-18px;"></div>
+
 			<div class="commentName">
-				<header> <a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> </header>
-				<img src="graphics/uploadDate.png"/>
-				<p> ',$commenttime,' </p>
+				<header><span style="font-size:14px;">',$commenterrep,'</span> <a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> </header>
+				<p> ',$commenttime,' </p>&nbsp;
+                <img style="width:12px;padding-right:3px;" src="graphics/clock.png"/>&nbsp;
 			</div>
 			<div class="commentBody"><p>',$comment,'</p>';
             
@@ -1412,6 +1798,7 @@ height="100px" width="100px" />
             
             echo'
             </div>
+          </div>
 		</div>';
             
         }
@@ -1429,21 +1816,15 @@ height="100px" width="100px" />
                 
     ?>
         
-    </div>	
-
-
-	</div>
-
-	
 </div>
 
-</body>
+</div>
+</div>
 
 <?php 
 //add to the views column
 $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image'") or die(mysql_error());
 ?>
-
 <script type="text/javascript">
 (function(){
 
@@ -1458,5 +1839,8 @@ $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image
 })();
 </script>
 
+<?php echo footer(); ?>
+
+</body>
 </html>
 			

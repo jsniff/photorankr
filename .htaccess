@@ -1,1 +1,21 @@
 ErrorDocument 404 /missingpage.php
+
+Options -MultiViews +FollowSymLinks
+RewriteEngine On
+RewriteBase /
+RewriteRule ^viewprofile/(A-Za-z0-9-]+)/([0-9]+)/?$ /viewprofile.php?u=$1 [L]
+RewriteRule ^fullsize/image/(A-Za-z0-9-]+)/([0-9]+)/?$ fullsize.php?imageid=$1 [L]
+
+#RewriteCond %{QUERY_STRING} ^u=([0-9]+)$ 
+#RewriteRule ^viewprofile.php$ ^viewprofile/users/ [L,R=301] 
+#RewriteRule ^viewprofile/(.*)/([0-9]+)$ ^viewprofile.php?u=$1 [L]
+
+RewriteRule newest newest.php [L]
+RewriteRule trending trending.php [L]
+RewriteRule topranked topranked.php [L]
+RewriteRule discover discover.php [L]
+#RewriteRule galleries galleries.php [L]
+
+
+
+

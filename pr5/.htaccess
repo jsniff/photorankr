@@ -1,0 +1,5 @@
+ErrorDocument 404 /missingpage.php
+
+Options +FollowSymLinks
+RewriteEngine On
+RewriteRule ^user/([a-zA-Z]+)/([0-9]+)/$ viewprofile.php?u=$1

@@ -1,7 +1,7 @@
 <?php
 
 //connect to the database
-require "../db_connection.php";
+require "db_connection.php";
 require "functions.php";
 
 //start the session
@@ -144,12 +144,13 @@ $notsqueryrun = mysql_query($notsquery); }
 
     <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
-	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
 	<link rel="stylesheet" type="text/css" href="css/reset.css"/> 
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script type="text/javascript" src="js/jquery.wookmark.js"></script>            
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.wookmark.js"></script>  
+    <script src="js/bootstrap.js"></script>
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
   
   <title>Trending Photography</title>
@@ -197,7 +198,6 @@ box-shadow: 1px 1px 5px #888;
 
 <!--GOOGLE ANALYTICS CODE-->
 <script type="text/javascript">
-
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-28031297-1']);
   _gaq.push(['_trackPageview']);
@@ -207,7 +207,6 @@ box-shadow: 1px 1px 5px #888;
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
-  
 </script>
 
 
@@ -250,7 +249,6 @@ if($view == '') {
 for($iii=1; $iii <= 16; $iii++) {
 	$image = mysql_result($result, $iii-1, "source");
     $imageThumb=str_replace("userphotos/","userphotos/medthumbs/", $image);
-    $image = "../" . $image;
 	$id = mysql_result($result, $iii-1, "id");
     $caption = mysql_result($result, $iii-1, "caption");
     $caption = (strlen($caption) > 23) ? substr($caption,0,20). " &#8230;" : $caption;
@@ -319,10 +317,9 @@ echo'
 
 
 <!--AJAX CODE HERE-->
-   <div class="grid_6 push_9" style="padding-top:50px;">
-   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;"><img src="graphics/load.gif" /></div>
+     <div class="grid_6 push_13" style="padding-top:25px;padding-bottom:25px;">
+   <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;"><img style="width:50px;" src="LoadingGIF.gif" /></div>
    </div>';
-
 
 echo '<script>
 
@@ -439,25 +436,25 @@ elseif($view == 'exts') {
                 
                 <div class="omega grid_6" style="width:210px;margin:0;margin-left:-2px;height:400px;overflow:hidden;padding-top:5px;-webkit-border-radius: 2px;-moz-border-radius: 2px;border-radius: 2px;" >	
                     <div class="pic_1" style="padding:3px;">
-                        <img src="../',$photo1,'" class="gallery_pic"/>
+                        <img src="',$photo1,'" class="gallery_pic"/>
                     </div>
                     <div class="pic_1" style="padding:3px;">
-                        <img src="../',$photo2,'" class="gallery_pic"/>
+                        <img src="',$photo2,'" class="gallery_pic"/>
                     </div>
                     <div class="pic_1" style="padding:3px;">
-                        <img src="../',$photo3,'" class="gallery_pic"/>
+                        <img src="',$photo3,'" class="gallery_pic"/>
                     </div>
                     </div>';
     
                 echo'<div class="omega grid_4" style="margin:0;height:400px;overflow:hidden;padding-top:5px;-webkit-border-radius: 2px;-moz-border-radius: 2px;border-radius: 2px;">
                      <div class="pic_2" style="padding:3px;">
-                        <img src="../',$photo4,'" class="gallery_pic"/>
+                        <img src="',$photo4,'" class="gallery_pic"/>
                     </div>
                     <div class="pic_2" style="padding:3px;">
-                        <img src="../',$photo5,'" class="gallery_pic"/>
+                        <img src="',$photo5,'" class="gallery_pic"/>
                     </div>
                     <div class="pic_2" style="padding:3px;">
-                        <img src="../',$photo6,'" class="gallery_pic"/>
+                        <img src="',$photo6,'" class="gallery_pic"/>
                     </div>
                     </div>';
             

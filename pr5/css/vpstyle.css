@@ -24,11 +24,16 @@ top:45px;
 #profilePicture {
 width:205px;
 height:185px;
+overflow:hidden;
 }
 #profilePicture img {
-width:205px;
-height:185px;
-margin-top:-190px;
+min-width:205px;
+min-height:205px;
+max-width:500px;
+max-height:500px;
+width:40%;
+height:40%;
+margin-top:0px;
 -webkit-border-top-left-radius: 3px;
 -webkit-border-top-right-radius: 3px;
 -moz-border-radius-topleft: 3px;
@@ -97,19 +102,31 @@ font-weight:300 !important;
 color:#333;
 }
 .portfolioDrop {
-width:100%;
+width:103%;
 height:50px;
+margin-left:-7px;
 background-color:#eee;
+-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #aaa;
+-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #aaa;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #aaa;
+-webkit-border-radius: 2px;
+-moz-border-radius: 2px;
+border-radius: 2px;
 }
 .portfolioDrop ul li {
 display:inline;
 position:relative;
 top:10px;
-padding:10px;
+padding:15px;
 font-size:13px;
+border-right:1px solid #aaa;
+}
+.portfolioDrop ul li:hover {
+background-color:rgb(230,230,230);
 }
 .portfolioDrop ul li a {
 color:#333;
+text-decoration:none;
 }
 .profileRightSide {
 width:880px;
@@ -117,7 +134,7 @@ float:left;
 height:270px;
 f}
 .profileBottomNav {
-width: 690px;
+width: 750px;
 height:50px;
 float:left;
 margin-left:110px;
@@ -215,8 +232,8 @@ color:#333;
 text-align:center;
 }
 #activityText {
-overflow:scroll;
-margin-top:50px;
+overflow-y:scroll;
+margin-top:40px;
 height:210px;
 -moz-user-select: none;
 }
@@ -317,6 +334,18 @@ background-size: 1em 1em;
 background-repeat: no-repeat;
 width:185px;
 }
+#searchProf {
+padding: 3px 6px 3px 5px;
+font-size:14px;
+line-height:18px;
+font-weight:300;
+background-image: url('../graphics/glass.png');
+background-position: 5px 150px;
+background-size: 1em 1em;
+background-repeat: no-repeat;
+width:185px;
+background-color:#fff;
+}
 #portfolioViews {
 display:none;
 margin-left:480px;
@@ -339,9 +368,9 @@ border-bottom:1px solid #c6c6c6;
 }
 
 .status {
-width:100%;
+width:294px;
 clear:both;
-font-size:12px;
+font-size:13px;
 font-weight:300;
 padding:5px;
 border-bottom:1px solid #c6c6c6;
@@ -457,23 +486,6 @@ margin-left:20px;
 width:580px;
 float:left;
 padding:20px;
-}
-
-#aboutList ul li {
-list-style-type:none;
-padding:10px;
-font-size:16px;
-line-height:22px;
-color:#444;
-}
-
-#aboutList ul li #header {
-font-size:18px;
-padding-right:10px;
-width:250px;
-color:#333;
-display:inline;
-overflow:hidden;
 }
 
 .graphBox {
@@ -596,19 +608,38 @@ line-height:20px;
 color:#555;
 }
 
-#button_block ul {
+#button_block2 ul {
 margin-top:-7px;
-border-bottom:1px solid #aaa;
+border:1px solid #aaa;
 overflow:hidden;
+margin-top:-2px;
+background-color:rgb(243,243,243);
+width:290px;
+margin-left:10px;
+-webkit-border-radius: 2px;
+-moz-border-radius: 2px;
+border-radius: 2px;
 }
 
-#button_block ul li {
+#button_block2 ul li {
 float:right;
 border-left:1px solid #aaa;
 padding:3px 5px 3px 5px;
 text-align:center;
 font-size:14px;
 font-weight:300;
+}
+
+#submitStatus {
+font-weight:500;
+cursor:pointer;
+}
+
+#submitStatus:hover {
+background-color:rgb(249,249,249);
+-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #666;
+-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #666;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 1px #666;
 }
 
 .cameraReel ul { 
@@ -618,4 +649,8 @@ width:500px;
 .cameraReel ul li {
 display:inline;
 padding:10px;
+}
+
+#hoverNet img:hover {
+opacity:.8;
 }

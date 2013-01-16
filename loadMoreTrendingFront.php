@@ -8,9 +8,16 @@ if($_GET['lastPicture']) {
 	$lastquery = "SELECT * FROM photos WHERE id=".$_GET['lastPicture']." LIMIT 1";
 	$lastresult = mysql_query($lastquery) or die(mysql_error());
 	$lastphotoscore = mysql_result($lastresult, 0, "score");
+	$searchword = htmlentities($_GET['searchterm']);
 
-	$query = "SELECT * FROM photos WHERE score<'".$lastphotoscore."' ORDER BY score DESC LIMIT 1,10";
+	if($searchword) {
+		$query = "SELECT * FROM photos WHERE concat(tag1,tag2,tag3,tag4,singlestyletags,singlecategorytags) LIKE '%$searchword%' AND views < ".$_GET['lastPicture']." ORDER BY views DESC LIMIT 1,10";
+	}
+	else {
+		$query = "SELECT * FROM photos WHERE score<'".$lastphotoscore."' ORDER BY score DESC LIMIT 1,10";
+	}
 	$mysqlquery = mysql_query($query) or die(mysql_error());
+
 
 	//DISPLAY 20 NEWEST OF ALL PHOTOS
  	echo'<div id="main" role="main">
@@ -19,19 +26,16 @@ if($_GET['lastPicture']) {
 		$image = mysql_result($mysqlquery, $iii-1, "source");
 		$imageThumb = str_replace("userphotos/","userphotos/medthumbs/", $image);
 		$id = mysql_result($mysqlquery, $iii-1, "id");
+        
+        if($id < 2000) {
+            break;
+        }
+        
 	    	$caption = mysql_result($mysqlquery, $iii-1, "caption");
-             $caption = (strlen($caption) > 18) ? substr($caption,0,16). " &#8230;" : $caption;
-            $price = mysql_result($mysqlquery, $iii-1, "price");
-            if($price != 'Not For Sale') {
-                        $price = '$' . $price;
-                    }
-                    elseif($price == 'Not For Sale') {
-                        $price = 'NFS';
-                    } 
-                    elseif($price == '.00') {
-                        $price = 'Free';
-                    }
-	    	$points = mysql_result($mysqlquery, $iii-1, "points");
+           	$caption = (strlen($caption) > 18) ? substr($caption,0,16). " &#8230;" : $caption;
+	        $views = mysql_result($imagesquery, $iii-1, "views");
+          	$price = mysql_result($mysqlquery, $iii-1, "price");
+           	$points = mysql_result($mysqlquery, $iii-1, "points");
     		$votes = mysql_result($mysqlquery, $iii-1, "votes");
     		$score = number_format(($points/$votes),2);
     		$owner = mysql_result($mysqlquery, $iii-1, "emailaddress");
@@ -50,13 +54,39 @@ if($_GET['lastPicture']) {
                 $widthls = 240;
             }
                         
-    		  echo '
-        <a style="text-decoration:none;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="padding:5px;margin-right:0px;margin-top:10px;list-style-type: none;
-"><img src="http://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" />
+    	if($searchterm) {
+	echo '
+        <a style="text-decoration:none;color:#333;" href="fullsizemarket.php?imageid=',$id,'&v=n"><li class="fPic" id="',$views,'" style="list-style-type: none;width:240px;"><img id="frontimg" style="min-width:240px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /></a>
+        
+            <div class="marketunderlay" style="float:right;position:relative;top:0px;width:240px;height:30px;">
+            <div style="line-spacing:1.48;padding:5px;color:#4A4A4A;">
+                <div style="float:left;">
+                    <span style="font-size:15px;font-weight:500;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:500;font-size:13px;">',$caption,'</span>
+                </div>
+                <div style="float:right;">
+                     <span style="font-weight:500;font-size:13px;"><img style="margin-top:-4px;padding:3px;width:12px;" src="graphics/tag.png" /> $',$price,'</span>
+                </div>
+            </div>
+        </div>
+        </li>';   
+	}
+	else {           
+         echo '
+        <a style="text-decoration:none;color:#333;" href="fullsizemarket.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="list-style-type: none;width:240px;"><img id="frontimg" style="min-width:240px;" src="https://photorankr.com/',$imageThumb,'" height="',$heightls,'px" width="',$widthls,'px" /></a>
+        
+            <div class="marketunderlay" style="float:right;position:relative;top:0px;width:240px;height:30px;">
+            <div style="line-spacing:1.48;padding:5px;color:#4A4A4A;">
+                <div style="float:left;">
+                    <span style="font-size:15px;font-weight:500;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:500;font-size:13px;">',$caption,'</span>
+                </div>
+                <div style="float:right;">
+                     <span style="font-weight:500;font-size:13px;"><img style="margin-top:-4px;padding:3px;width:12px;" src="graphics/tag.png" /> $',$price,'</span>
+                </div>
+            </div>
+        </div>
+        </li>';   
+	}    		
 
- <div class="statoverlay" style="z-index:1;background-color:black;position:relative;top:0px;width:240px;height:30px;"><div style="line-spacing:1.48;padding:5px;color:white;"><div style="float:left;"<span style="font-size:18px;font-weight:100;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:100;font-size:16px;">',$caption,'</span></div><div style="float:right;"><span style="font-size:13px;">',$price,'</span></div></div><br/></div>
-
-</li></a>';
 	    
       	}  //end for loop
       
@@ -72,7 +102,7 @@ if($_GET['lastPicture']) {
       var options = {
         autoResize: true, // This will auto-update the layout when the browser window is resized.
         container: $('#main'), // Optional, used for some extra CSS styling
-        offset: 5, // Optional, the distance between grid items
+        offset: 10, // Optional, the distance between grid items
         itemWidth: 245 // Optional, the width of a grid item
       };
       

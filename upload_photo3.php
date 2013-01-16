@@ -12,6 +12,9 @@ require 'functions.php';
 @session_start();
 $email = $_SESSION['email'];
 
+$sessionquery = mysql_query("SELECT firstname,lastname FROM userinfo WHERE emailaddress = '$email'");
+$sessionname = mysql_result($sessionquery,0,'firstname'). " ".mysql_result($sessionquery,0,'lastname');
+
 //if they have one of the required file types
 if ((($_FILES["file"]["type"] == "image/gif")
 || ($_FILES["file"]["type"] == "image/jpg")
@@ -28,25 +31,26 @@ if ((($_FILES["file"]["type"] == "image/gif")
   	else
     	{
         	//CHECK TO MAKE SURE INPUT IS ALL ENTERED
-            $name=mysql_real_escape_string($_POST['caption']);
+            	$name=mysql_real_escape_string($_POST['caption']);
         	$location=mysql_real_escape_string($_POST['location']);
         	$tag1=mysql_real_escape_string($_POST['tag1']);		
-            $tag2=mysql_real_escape_string($_POST['tag2']);		
-            $tag3=mysql_real_escape_string($_POST['tag3']);		
-            $tag4=mysql_real_escape_string($_POST['tag4']);	
-            $addtoset = mysql_real_escape_string($_POST['addtoset']);
+           	$tag2=mysql_real_escape_string($_POST['tag2']);		
+           	$tag3=mysql_real_escape_string($_POST['tag3']);		
+           	$tag4=mysql_real_escape_string($_POST['tag4']);	
+           	$addtoset = mysql_real_escape_string($_POST['addtoset']);
         	$singlestyletags = $_POST['singlestyletags'];	
         	$singlecategorytags = $_POST['singlecategorytags'];
-            $camera=mysql_real_escape_string($_POST['camera']);
+		$camera=mysql_real_escape_string($_POST['camera']);
         	$addtoset=mysql_real_escape_string($_POST['addtoset']);	
         	$focallength=mysql_real_escape_string($_POST['focallength']);
-            $shutterspeed=mysql_real_escape_string($_POST['shutterspeed']);
+           	$shutterspeed=mysql_real_escape_string($_POST['shutterspeed']);
         	$aperture=mysql_real_escape_string($_POST['aperture']);
         	$setcover = mysql_real_escape_string($_POST['setcover']);
         	$lens=mysql_real_escape_string($_POST['lens']);
         	$filter=mysql_real_escape_string($_POST['filter']);
         	$about=mysql_real_escape_string($_POST['about']);
-		    $price=mysql_real_escape_string($_POST['price']);
+		$classification=mysql_real_escape_string($_POST['classification']);
+		$price=mysql_real_escape_string($_POST['price']);
         	$voters = "'support@photorankr.com'";
         	$voters = addslashes($voters);
             
@@ -65,11 +69,11 @@ if ((($_FILES["file"]["type"] == "image/gif")
             }
             $extendedlicenses = substr($extendedlicenses, 0, -1);
             
-            if (!$name | !$camera) 
+            /*if (!$name | !$camera) 
 		{
-         		header("location:myprofile.php?view=upload&action=uploadfailure");
+         		header("location:profile.php?view=upload&action=uploadfailure");
         		exit();
-		}
+		}*/
             
             
     		$filename = $_FILES['file']['name'];  
@@ -113,7 +117,7 @@ if ((($_FILES["file"]["type"] == "image/gif")
             
     		if (file_exists("upload/" . $_FILES["file"]["name"]))
       		{
-         		header("location:myprofile.php?view=upload&action=uploadfailure");
+         		header("location:profile.php?view=upload&action=uploadfailure");
         		exit();
       		}
     		else
@@ -123,7 +127,8 @@ if ((($_FILES["file"]["type"] == "image/gif")
             
       			createThumbnail($newfilename); 
       			createMedThumbnail($newfilename); 
-      			watermarkpic($newfilename);  
+      			//watermarkpic($newfilename);  
+                watermark_text($newfilename,$sessionname); 
       		}
      $exif = exif_read_data($target, 0, true);
 //echo $exif===false ? "No header data found.<br />\n" : "Image contains headers<br />\n";
@@ -196,9 +201,11 @@ if($key.$name2==ISO.SpeedRatings) {
 
 		$target = $path_to_medimage_directory . $newfilename;
 		//insert the file information into the database
-		$insertquery="INSERT INTO photos (source, caption, emailaddress, tag, time, price, location, country, tag1, tag2, tag3, tag4, camera, focallength, shutterspeed, aperture, lens, filter, about, copyright, sets, maintags, settags, set_id, singlestyletags, singlecategorytags,width,height,license,extendedoptions,ccmods,cccom, iso)
-		VALUES ('$target', '$name', '$email', '$tag', '$currenttime', '$price', '$location', '$country', '$tag1', '$tag2', '$tag3', '$tag4', '$camera', '$focallength', '$shutterspeed', '$aperture', '$lens', '$filter', '$about', '$copyright', '$addtoset', '$maintags2','$settags2','$set_id','$singlestyletags2','$singlecategorytags2','$width','$height','$license','$extendedlicenses','$ccmods','$cccom', '$iso')";
+		$insertquery="INSERT INTO photos (source, caption, emailaddress, tag, time, price, location, country, tag1, tag2, tag3, tag4, camera, focallength, shutterspeed, aperture, lens, filter, about, copyright, sets, maintags, settags, set_id, singlestyletags, singlecategorytags,width,height,license,extendedoptions,ccmods,cccom, iso,classification)
+		VALUES ('$target', '$name', '$email', '$tag', '$currenttime', '$price', '$location', '$country', '$tag1', '$tag2', '$tag3', '$tag4', '$camera', '$focallength', '$shutterspeed', '$aperture', '$lens', '$filter', '$about', '$copyright', '$addtoset', '$maintags2','$settags2','$set_id','$singlestyletags2','$singlecategorytags2','$width','$height','$license','$extendedlicenses','$ccmods','$cccom', '$iso', '$classification')";
 		mysql_query($insertquery);
+//$timestampentertimeslicequery="INSERT INTO Statistics (Source) VALUES ('$target')";
+//$timestampquery= mysql_query($timestampentertimeslicequery);
 
         	//userinfo query
         	$namequery="SELECT * FROM userinfo WHERE emailaddress='$email'";
@@ -217,13 +224,13 @@ if($key.$name2==ISO.SpeedRatings) {
         	$type = "photo";
         	$newsfeedquery=mysql_query("INSERT INTO newsfeed (firstname, lastname,emailaddress,type,source,caption,time) VALUES ('$firstname','$lastname','$email','$type','$target','$name','$currenttime')");
 
-		echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=upload&action=uploadsuccess">';
+		echo '<META HTTP-EQUIV="Refresh" Content="0; URL=profile.php?view=upload&action=uploadsuccess">';
 		exit();
     	}
 }
 else
 {
-	echo '<META HTTP-EQUIV="Refresh" Content="0; URL=myprofile.php?view=upload&action=uploadfailure">';
+	echo '<META HTTP-EQUIV="Refresh" Content="0; URL=profile.php?view=upload&action=uploadfailure">';
 	exit();
 }
 

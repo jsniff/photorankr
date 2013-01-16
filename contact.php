@@ -1,10 +1,8 @@
-
-
 <?php
 
 //connect to the database
 require "db_connection.php";
-require "functionsnav.php";
+require "functions.php";
 
 //start the session
 session_start();
@@ -30,6 +28,8 @@ session_start();
 	<link href="css/bootstrapNew.css" rel="stylesheet" type="text/css"/>
 	<link href="css/new.css" rel="stylesheet" type="text/css"/>
 	<link href="css/reset.css" rel="stylesheet" type="text/css"/>
+    <link href="css/main3.css" rel="stylesheet" type="text/css"/>
+
 	<link href='http://fonts.googleapis.com/css?family=Codystar' rel='stylesheet' type='text/css'>
 	<style type="text/css">
 
@@ -37,10 +37,10 @@ session_start();
 	</style>
 </head>
 <body style="background:#f5f5f5;">
-	<?php navbarnew(); ?>
+	<?php navbar(); ?>
 <!--Container Begins here-->
 <div class="container_24" style="margin-top:60px;min-height:90%;">	
-	<div class="grid_24 pull_2">
+	<div class="grid_24 pull_1">
 	<div class="grid_24">
 		<div class="grid_10">
 		<div class="grid_12 pull_1" style="color:#000;border-left: 6px solid #6bab4c;border-bottom: 6px solid  #6bab4c;padding:0 2em 2em 2em;margin-top:1em;">

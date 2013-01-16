@@ -1,7 +1,7 @@
 <?php
 
 //connect to the database
-require "../db_connection.php";
+require "db_connection.php";
 require "functions.php";
 
 //start the session
@@ -78,6 +78,8 @@ session_start();
     <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
     <link rel="stylesheet" type="text/css" href="css/960grid.css"/>
     <link rel="stylesheet" type="text/css" href="css/reset.css"/> 
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
+
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
     <link rel="stylesheet" media='screen and (max-width:640px)' href="css/640.css"/>
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
@@ -89,7 +91,6 @@ session_start();
 
 <!--GOOGLE ANALYTICS CODE-->
 <script type="text/javascript">
-
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-28031297-1']);
   _gaq.push(['_trackPageview']);
@@ -99,8 +100,8 @@ session_start();
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
-  
 </script>
+
 
 
 </head>
@@ -190,7 +191,6 @@ session_start();
             
             for($iii=0; $iii<$numresults & $iii<15; $iii++) {
                 $image = mysql_result($query,$iii,'source');
-                $image = '../' . $image;
                 $imageid = mysql_result($query,$iii,'id');
                 $imagemed = str_replace('userphotos/','userphotos/medthumbs/',$image);
                 $caption = mysql_result($query,$iii,'caption');
@@ -211,7 +211,7 @@ session_start();
                 $width = $width/3;
                 $height = $height/3;
     
-                echo'<div class="searchItem">
+                echo'<div class="searchItem fPic" id="',$imageid,'">
                         <div style="float:left;width:400px;">
                             <img style="width:',$width,'px;height:',$height,';max-width:300px;max-height:500px;" src="https://photorankr.com/',$imagemed,'" />
                         </div>
@@ -235,7 +235,7 @@ session_start();
             echo'
         <!--AJAX CODE HERE-->
         <div class="grid_16" style="padding:20px;">
-            <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;"><img src="graphics/load.gif" /></div>
+            <div id="loadMorePics" style="display: none; text-align: center;font-family:arial,helvetica neue; font-size:15px;"><img style="width:50px;" src="graphics/LoadingGIF.gif" /></div>
             </div>';
 
    echo'<script>

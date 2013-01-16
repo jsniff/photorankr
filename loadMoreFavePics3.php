@@ -76,10 +76,11 @@ if($_GET['lastPicture']) {
                     $widthls = 250;
                 }
 
-                 echo'<a style="text-decoration:none;color:#000;" href="fullsize.php?imageid=',$id,'"><li class="fPic photobox" id="',$id,'" style="padding:5px;margin-right:10px;margin-top:10px;list-style-type: none;width:240px;
-"><img onmousedown="return false" oncontextmenu="return false;" src="http://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" /><div style="padding:3px;"><div style="float:left;">',$caption,'</div><div style=float:right;font-size:13px;font-weight:500;">',$price,'</div><br /><i class="icon-heart"></i>&nbsp;',$faves,' favorites</div></li></a>';
-	    
-                } //end for loop      
+                echo '
+        <a style="text-decoration:none;color:#333;" href="fullsize.php?imageid=',$id,'&v=n"><li class="fPic" id="',$id,'" style="list-style-type: none;width:280px;"><img style="min-width:280px;" onmousedown="return false" oncontextmenu="return false;"  src="https://photorankr.com/',$imageThumb[$iii],'" height="',$heightls,'px" width="',$widthls,'px" />
+        
+            <div class="statoverlay" style="z-index:1;background-color:rgba(0,0,0,.8);position:relative;top:0px;width:280px;height:30px;"><div style="line-spacing:1.48;padding:5px;color:white;"><div style="float:left;"<span style="font-size:18px;font-weight:100;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:100;font-size:16px;">',$caption,'</span></div><div style="float:right;"><span style="font-size:13px;">',$price,'</span></div></div><br/></div>';                
+            } //end for loop      
         
         echo'</ul>';
         
@@ -92,8 +93,8 @@ if($_GET['lastPicture']) {
       var options = {
         autoResize: true, // This will auto-update the layout when the browser window is resized.
         container: $('#main'), // Optional, used for some extra CSS styling
-        offset: 4, // Optional, the distance between grid items
-        itemWidth: 250 // Optional, the width of a grid item
+        offset: 10, // Optional, the distance between grid items
+        itemWidth: 280 // Optional, the width of a grid item
       };
       
       // Get a reference to your grid items.

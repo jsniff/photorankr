@@ -2,8 +2,7 @@
 
 //connect to the database
 require "db_connection.php";
-require "functionsnav.php";
-require "timefunction.php";
+require "functions.php";
 
 //start the session
 session_start();
@@ -63,16 +62,30 @@ session_start();
     <meta name="Keywords" content="<?php echo $title;?>,photorankr blog, photography blog, blog, photos, sharing photos, photo sharing, photography, stock photography, stock, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos, social stock, photo licensing, royalty free photos, crowdsource, crowdsourcing photos, crowdsourced photos">
     <meta name="Description" content="<?php echo $title ." by: ". $author; ?>">
 
-	<link rel="stylesheet" href="css/blog.css" type="text/css"/>
-    <link rel="stylesheet" href="css/style.css" type="text/css"/>
-	<link rel="stylesheet" href="css/960_24_col.css" type="text/css"/>
-	<link rel="stylesheet" href="css/bootstrapNew.css" type="text/css"/>
-	<link rel="stylesheet" href="css/reset.css" />
-    
+	<link rel="stylesheet" type="text/css" href="css/style.css"/>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
+	<link rel="stylesheet" type="text/css" href="css/reset.css"/>  
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>            
+    <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+        
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script type="text/javascript">var switchTo5x=true;</script>
     <script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
     <script type="text/javascript" src="http://s.sharethis.com/loader.js"></script>
+    
+    <!--GOOGLE ANALYTICS CODE-->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-28031297-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
 
 	<style type="text/css" >
         
@@ -141,10 +154,10 @@ $("#flash").hide();
 </head>
 <body id="body">
 	
-    <?php navbarnew(); ?> 
+    <?php navbar(); ?> 
     
  <div class="navbar-top">
-	<div class="navbar-inner-spec" style="margin-top:45px;">
+	<div class="navbar-inner-spec" style="margin-top:35px;">
 		<div class="container" style="width:1000px;">
 			<ul class="navbar" style="margin-left:38px;margin-top:25px;">
             
@@ -246,9 +259,9 @@ $("#flash").hide();
     <div style="width:600px;float:right;"> 
         <form action="#" method="post" style="margin-top:10px;padding-bottom:25px;">        
         <img style="margin-right:10px;padding:10px;" src="',$viewerpic,'" height="45" width="45" />
-        <textarea id="comment" style="width:470px;height:80px;position:relative;top:10px;" type="text" placeholder="Leave a comment&#8230;"></textarea>
+        <textarea id="comment" style="width:470px;height:80px;position:relative;left:55px;top:-55px;" type="text" placeholder="Leave a comment&#8230;"></textarea>
         <br /><br />
-        <input style="margin-top:11px;margin-left:80px;width:475px;padding:10px;font-size:16px;font-weight:200;font-family:\'helvetica neue\',helvetica,arial;" type="submit" class="submit btn btn-success" value="Post Comment"/>
+        <input style="margin-top:-91px;margin-left:80px;width:475px;padding:10px;font-size:16px;font-weight:200;font-family:\'helvetica neue\',helvetica,arial;" type="submit" class="submit btn btn-success" value="Post Comment"/>
         </form>
     </div>';
     
@@ -322,11 +335,19 @@ $("#flash").hide();
     
     <?php footer(); ?>
     
-    <script type="text/javascript">stLight.options({publisher: "2c31e7c5-bd4b-4757-8ea0-da2dc02c3404"});</script>
+    <!--<script type="text/javascript">stLight.options({publisher: "2c31e7c5-bd4b-4757-8ea0-da2dc02c3404"});</script>
 <script>
 var options={ "publisher": "2c31e7c5-bd4b-4757-8ea0-da2dc02c3404", "position": "left", "ad": { "visible": false, "openDelay": 5, "closeDelay": 0}, "chicklets": { "items": ["facebook", "twitter", "pinterest", "email", "sharethis"]}};
 var st_hover_widget = new sharethis.widgets.hoverbuttons(options);
-    </script>
+    </script>-->
+    
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="../js/bootstrap-dropdown.js"></script>
+    <script type="text/javascript">  
+        $(document).ready(function () {  
+            $('.dropdown-toggle').dropdown();  
+        });  
+</script>
 
 </body>
 </html>

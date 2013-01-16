@@ -1,9 +1,8 @@
 <?php
 
 //connect to the database
-require "../db_connection.php";
+require "db_connection.php";
 require "functions.php";
-//require "timefunction.php";
 
 //start the session
 session_start();
@@ -17,6 +16,7 @@ session_start();
     }
 
     $email = $_SESSION['email'];
+    $currenttime = time();
     
     $findreputationme = mysql_query("SELECT user_id,reputation,profilepic,firstname,lastname,following FROM userinfo WHERE emailaddress = '$email'");
     $reputationme = mysql_result($findreputationme,0,'reputation');
@@ -694,19 +694,34 @@ else if($view == 'r') {
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
 	<link rel="stylesheet" type="text/css" href="css/reset.css"/> 
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
+
     <link rel="stylesheet" media='screen and (max-width:640px)' href="css/640.css"/>
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
     
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="js/bootstrap.js" type="text/javascript"></script>
 	<script src="js/modernizer.js"></script>
+    
+    <!--GOOGLE ANALYTICS CODE-->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-28031297-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
 	
     <style type="text/css">
 		.show
 		{
 			display:block !important;
 		}
-		
+        .modal-backdrop {z-index:10001;}
 		#notify
 		{
 			width:40px;
@@ -792,12 +807,12 @@ else if($view == 'r') {
         return false;
         });
         
-        $("#photocomment").focusout(function()
+        /* $("#photocomment").focusout(function()
         {
         $(this).animate({"height": "45px",}, "fast" );
         $("#button_block").slideUp("fast");
         return false;
-        });        
+        });     */   
     });
     </script>
         
@@ -914,7 +929,7 @@ function ajaxFollow(){
 <script type="text/javascript" >
 
 $(function() {
-$(".submit").click(function() 
+$("#postComment").click(function() 
 {
 var firstname = '<?php echo $sessionfirst; ?>';
 var lastname = '<?php echo $sessionlast; ?>';
@@ -1024,22 +1039,166 @@ function ajaxPrevPics(){
 </script>
 </head>
 
-<!--Collection Modal-->
-<div class="modal hide fade" id="collectionmodal" style="overflow:hidden;border:5px solid rgba(102,102,102,.8);">
+<!--Favorite Modal-->
+<div class="modal hide fade" id="fvmodal" style="overflow:hidden;border:5px solid rgba(102,102,102,.8);z-index:100000;">
   
 <?php
  
 if($_SESSION['loggedin'] !== 1) {
 
 echo'
-<div class="modal-header" style="background-color:#111;color:#fff;">
+<div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
 <a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
-<img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Please login to add this photo to a collection</span>
+<img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Please login to favorite this photo</span>
   </div>
  
 <div id="modal-body" style="width:450px;height:145px;">
 
-<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(245,245,245);height:150px;">
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);height:150px;">
+		
+<img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
+height="100px" width="100px" />
+
+<div style="width:350px;margin-left:140px;margin-top:-75px;line-height:1.48;">              
+
+',$caption,'<br />
+
+By: 
+<a style="color:black;" href="viewprofile.php?u=',$user,'">',$firstname,' ',$lastname,'</a><br />   
+
+</div>
+</div>';
+    
+}
+
+if($_SESSION['loggedin'] == 1) {
+		$vieweremail = $_SESSION['email'];
+		//run a query to be used to check if the image is already there
+		$check = mysql_query("SELECT * FROM userinfo WHERE emailaddress='$vieweremail'") or die(mysql_error());
+        $viewerfirst = mysql_result($check, 0, "firstname");
+        $viewerlast = mysql_result($check, 0, "lastname");
+        $imagelink2=str_replace(" ","", $image);
+	
+		//create the image variable to be used in the query, appropriately escaped
+		$queryimage = "'" . $image . "'";
+		$queryimage = ", " . $queryimage;
+		$queryimage = addslashes($queryimage);
+	
+		//search for the image in the database as a check for repeats
+		$mycheck = mysql_result($check, 0, "faves");
+		$search_string = $mycheck;
+		$regex=$image; 
+		$match=strpos($search_string, $regex);
+        
+        //if tries to favorite own photo
+        if($vieweremail == $emailaddress) {
+        echo'
+<div class="modal-header" style="background-color:#111;color:#333;">
+<a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Oops, you tried to favorite your own photo.</span>
+  </div>
+
+<div id="modal-body" style="width:450px;height:145px;">
+
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);height:150px;">
+		
+<img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
+height="100px" width="100px" />
+
+<div style="width:350px;margin-left:140px;margin-top:-75px;line-height:1.48;">              
+
+',$caption,'<br />
+
+By: 
+',$firstname,' ',$lastname,'</a>   
+
+</div>
+</div>';
+    
+    }
+        
+        else {
+        
+		//if the image has already been favorited
+		if($match) {
+			//tell them so
+			        echo'
+<div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
+<a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">This photo is already in your favorites.</span>
+  </div>
+
+<div id="modal-body" style="width:450px;height:145px;">
+
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);height:150px;">
+		
+<img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
+height="100px" width="100px" />
+
+<div style="width:350px;margin-left:140px;margin-top:-75px;line-height:1.48;">              
+
+',$caption,'<br />
+
+By: 
+<a style="color:black;" href="viewprofile.php?u=',$user,'">',$firstname,' ',$lastname,'</a><br />   
+
+</div>
+</div>';
+
+    }
+        
+		else {
+        
+        echo'
+<div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
+<a style="float:right" class="btn btn-success" onclick="ajaxFunction()" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">This photo has been added to your favorites.</span>
+  </div>
+
+<div id="modal-body" style="width:450px;height:145px;">
+
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);height:150px;">
+		
+<img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
+height="100px" width="100px" />
+
+<div style="width:350px;margin-left:140px;margin-top:-75px;line-height:1.48;">              
+
+',$caption,'<br />
+
+By: 
+<a style="color:black;" href="viewprofile.php?u=',$user,'">',$firstname,' ',$lastname,'</a><br />   
+
+</div>
+</div>';
+    
+    } 
+      }  
+	} 
+  
+?>
+
+</div>
+</div>
+
+
+
+<!--Collection Modal-->
+<div class="modal hide fade" id="collectionmodal" style="overflow:hidden;border:5px solid rgba(102,102,102,.8);z-index:100000;">
+  
+<?php
+ 
+if($_SESSION['loggedin'] !== 1) {
+
+echo'
+<div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
+<a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
+<img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Please login to add this photo to a collection</span>
+  </div>
+ 
+<div id="modal-body" style="width:450px;height:145px;">
+
+<div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);height:150px;">
 		
 <img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
 height="100px" width="100px" />
@@ -1059,14 +1218,14 @@ By:
     if($_SESSION['loggedin'] == 1) {
 		
         echo'
-        <div class="modal-header" style="background-color:#111;color:#fff;">
+        <div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
         <a style="float:right" class="btn btn-success" data-dismiss="modal"href="fullsize.php?image=', $image,'&v=',$view,'&f=1">Close</a>
-        <img style="margin-top:-2px;" src="graphics/aperture_white.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Choose a collection to add this photo to:</span>
+        <img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Choose a collection to add this photo to:</span>
         </div>
 
         <div id="modal-body" style="width:450px;">
 
-        <div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(245,245,245);max-height:25em;overflow-y:scroll;">
+        <div id="content" style="font-size:16px;width:560px;font-family:helvetica,arial;font-weight:100;background-color:rgb(252,252,252);max-height:25em;overflow-y:scroll;">
 		
         <img class="roundedall" style="margin-left:20px;margin-top:20px;" src="',$image,'" 
 height="100px" width="100px" />
@@ -1155,7 +1314,7 @@ height="100px" width="100px" />
 </div>
 </div>
 
-<body style="overflow-x:hidden; background-image:url('graphics/linen.png');">
+<body style="overflow-x:hidden; background-image:url('graphics/paper.png');">
 
 <?php navbar(); ?>
 
@@ -1217,35 +1376,7 @@ height="100px" width="100px" />
                 <li style="border-right:1px solid #c6c6c6;width:42px;"><img style="width:32px;height:35px;" src="graphics/collection_b_c.png" />  Collect </li>
                 </a>
                 
-                <?php
-                    if($_SESSION['loggedin'] == 1) {
-                        $vieweremail = $_SESSION['email'];
-                        //run a query to be used to check if the image is already there
-                        $check = mysql_query("SELECT * FROM userinfo WHERE emailaddress='$vieweremail'") or die(mysql_error());
-                        $viewerfirst = mysql_result($check, 0, "firstname");
-                        $viewerlast = mysql_result($check, 0, "lastname");
-                        $imagelink2=str_replace(" ","", $image);
-                        //create the image variable to be used in the query, appropriately escaped
-                        $queryimage = "'" . $image . "'";
-                        $queryimage = ", " . $queryimage;
-                        $queryimage = addslashes($queryimage);
-                        //search for the image in the database as a check for repeats
-                        $mycheck = mysql_result($check, 0, "faves");
-                        $search_string = $mycheck;
-                        $regex=$image;
-                        $match=strpos($search_string, $regex);
-
-                        if($match) {
-                            echo'<li> <img src="graphics/fave_b_c.png"/> Fave </li>';
-                        }
-                        elseif(!$match) {
-                            echo'<li onclick="ajaxFunction()"> <img src="graphics/fave_b_c.png"/> Fave </li>';
-                        }
-                    }
-                    else {
-                        echo'<li> <img src="graphics/fave_b_c.png"/> Fave </li>';
-                    }
-                ?>
+                <li><a style="color:#333;text-decoration:none;" data-toggle="modal" data-backdrop="static" href="#fvmodal"><img src="graphics/fave_b_c.png"/> Fave </a></li>
                 
                 <a style="color:#333;text-decoration:none;" href="fullsizemarket.php?imageid=<?php echo $imageid; ?>"><li> <img src="graphics/market_b_c.png"/> Purchase </li></a>
 			</ul>
@@ -1381,7 +1512,7 @@ height="100px" width="100px" />
 	
 	<!--TITLE-->
 	<div class="bloc_12" style="float:left;display:block;width:74.07%;" id="title">
-		<header> <?php echo $caption; ?> <span> <?php echo $time; ?> </span> <img style="margin-right:4px;" src="graphics/arrow 4.png"/>  </header>
+		<header> <?php echo $caption; ?> <span> <?php echo converttime($time); ?> </span> <img style="margin-right:4px;" src="graphics/arrow 4.png"/>  </header>
 	</div>
 
 	<!--IMAGE-->
@@ -1404,12 +1535,12 @@ height="100px" width="100px" />
             
             <div style="float:left;margin-left:14px;margin-top:5px;">
                 <div class="commentTriangle"></div>
-            <form action="#" method="post" style="margin-top:5px;padding-bottom:5px;">        
+            <form action="#" method="post" id="postFeedback" style="margin-top:5px;padding-bottom:5px;">        
                 <textarea id="photocomment" style="margin-left:0px;margin-top:-10px;width:740px;height:45px;font-size:15px;padding:5px;resize:none;color:#333;" placeholder="Leave feedback for ',$firstname,' &#8230;"></textarea>
                     <div id="button_block">
                         <div class="postCommentBtn">
-                            <img style="float:left" src="graphics/comment_1.png" height="16" width="16" />&nbsp;&nbsp;
-                            <a href="#" style="color:#333;text-decoration:none;" id="postComment">Post Feedback</a>
+                            <a href="#" style="color:#333;text-decoration:none;" id="postComment"><img style="float:left" src="graphics/comment_1.png" height="16" width="16" />&nbsp;&nbsp;
+                            Post Feedback</a>
                             
                         </div>
                     </div>
@@ -1432,7 +1563,7 @@ height="100px" width="100px" />
             $comment = mysql_result($grabcomments,$iii,'comment');
             $commentid = mysql_result($grabcomments,$iii,'id');
             $commenttime = mysql_result($grabcomments,$iii,'time');
-            //$commenttime = converttime($commenttime);
+            $commenttime = converttime($commenttime);
             $commenteremail = mysql_result($grabcomments,$iii,'commenter');
             $commenterinfo = mysql_query("SELECT user_id,firstname,lastname,profilepic,reputation FROM userinfo WHERE emailaddress = '$commenteremail'");
             $commentername = mysql_result($commenterinfo,0,'firstname') ." ". mysql_result($commenterinfo,0,'lastname');
@@ -1454,7 +1585,7 @@ height="100px" width="100px" />
 			<div class="commentName">
 				<header><span style="font-size:14px;">',$commenterrep,'</span> <a href="viewprofile.php?u=',$commenterid,'">',$commentername,'</a> </header>
 				<p> ',$commenttime,' </p>&nbsp;
-                <img style="padding-right:3px;" src="graphics/clock.png"/>&nbsp;
+                <img style="width:12px;padding-right:3px;" src="graphics/clock.png"/>&nbsp;
 			</div>
 			<div class="commentBody"><p>',$comment,'</p>';
             
@@ -1505,8 +1636,6 @@ height="100px" width="100px" />
 </div>
 </div>
 
-<?php echo footer(); ?>
-
 <?php 
 //add to the views column
 $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image'") or die(mysql_error());
@@ -1524,6 +1653,8 @@ $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image
 
 })();
 </script>
+
+<?php echo footer(); ?>
 
 </body>
 </html>

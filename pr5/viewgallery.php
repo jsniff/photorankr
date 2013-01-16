@@ -46,7 +46,8 @@ session_start();
 	<link rel="stylesheet" type="text/css" href="css/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
-	<link rel="stylesheet" type="text/css" href="css/reset.css"/>            
+	<link rel="stylesheet" type="text/css" href="css/reset.css"/>     
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>            
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
     
      <script type="text/javascript">var switchTo5x=true;</script>
@@ -84,7 +85,7 @@ session_start();
     <?php navbar(); ?> 
     
  <div class="navbar-top">
-	<div class="navbar-inner-spec" style="margin-top:0px;">
+	<div class="navbar-inner-spec" style="margin-top:35px;">
 		<div class="container" style="width:1000px;">
 			<ul class="navbar" style="margin-left:38px;margin-top:25px;">
             
@@ -185,11 +186,6 @@ session_start();
     
 <?php footer(); ?>
 
-<script type="text/javascript">stLight.options({publisher: "2c31e7c5-bd4b-4757-8ea0-da2dc02c3404"});</script>
-<script>
-var options={ "publisher": "2c31e7c5-bd4b-4757-8ea0-da2dc02c3404", "position": "left", "ad": { "visible": false, "openDelay": 5, "closeDelay": 0}, "chicklets": { "items": ["facebook", "twitter", "pinterest", "email", "sharethis"]}};
-var st_hover_widget = new sharethis.widgets.hoverbuttons(options);
-</script>
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="../js/bootstrap-dropdown.js"></script>

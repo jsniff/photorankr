@@ -51,25 +51,21 @@ session_start();
     $numphotos = number_format(mysql_num_rows($numphotosquery),2);
     
     //Search Queries
-    $license = $_GET['license'];
-    $category = htmlentities($_GET['category']);
-    $maxprice = htmlentities($_GET['maxPrice']);
-  $minprice = htmlentities($_GET['minPrice']);
+    $license = mysql_real_escape_string(htmlentities($_GET['license']));
+    $category = mysql_real_escape_string(htmlentities($_GET['category']));
+    $maxprice = mysql_real_escape_string(htmlentities($_GET['maxPrice']));
+    $minprice = mysql_real_escape_string(htmlentities($_GET['minPrice']));
+    $minwidth = mysql_real_escape_string(htmlentities($_GET['minWidth']));
+    $maxwidth = mysql_real_escape_string(htmlentities($_GET['maxWidth']));
+    $minheight = mysql_real_escape_string(htmlentities($_GET['minHeight']));
+    $maxheight = mysql_real_escape_string(htmlentities($_GET['maxHeight']));
+    $minrep = mysql_real_escape_string(htmlentities($_GET['minRep']));
+    $maxrep = mysql_real_escape_string(htmlentities($_GET['maxRep']));
+    $quality = mysql_real_escape_string(htmlentities($_GET['quality']));
+    $minrank = mysql_real_escape_string(htmlentities($_GET['minRank']));
+    $maxrank = mysql_real_escape_string(htmlentities($_GET['maxRank']));
 
-    $minwidth = $_GET['minWidth'];
-    $maxwidth = $_GET['maxWidth'];
-    $minheight = $_GET['minHeight'];
-    $maxheight = $_GET['maxHeight'];
-    $minrep = $_GET['minRep'];
-    $maxrep = $_GET['maxRep'];
-    $quality = $_GET['quality'];
-    $minrank = $_GET['minRank'];
-    $maxrank = $_GET['maxRank'];
 
-    // if($minrank || $maxrank) {
-    //     $result .= " AND (points/votes) > $minrank";
-    //     $result .= " AND (points/votes) < $maxrank";
-    // }
 // JOIN userinfo ON photos.emailaddress = userinfo.emailaddress
 if($searchword) {
         //$numsearchquery = mysql_query("SELECT * FROM photos WHERE concat(caption,location,tag1,tag2,tag3,tag4,singlecategorytags,singlestyletags) LIKE '%$searchword%'");

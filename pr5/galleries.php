@@ -1,7 +1,7 @@
 <?php
 
 //connect to the database
-require "../db_connection.php";
+require "db_connection.php";
 require "functions.php";
 
 //start the session
@@ -32,9 +32,25 @@ session_start();
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
 	<link rel="stylesheet" type="text/css" href="css/reset.css"/>   
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
 	<link rel="stylesheet" media='screen and (max-width:640px)' href="css/640.css"/>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="js/bootstrap.js"></script>
 	<script src="js/modernizer.js"></script>
+    
+    <!--GOOGLE ANALYTICS CODE-->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-28031297-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
 	<style type="text/css">
 		.show
 		{
@@ -193,7 +209,7 @@ jQuery(document).ready(function(){
         <div class="galleryToolbar">
             <ul>
                 <li style="width:272px;background-color:rgba(0,0,0,.1);-webkit-border-radius: 4px;-moz-border-radius: 2px;border-radius: 2px;padding-left:8px;margin-left:0px;text-align:left;"><img style="float:left;width:20px;height:20px;" src="graphics/star.png" />&nbsp;&nbsp;Featured</li>
-                <li id="featuredPhotos" style="width:134px;cursor:none;"><img src="graphics/camera2.png" /> Photos</li>
+                <li id="featuredPhotos" style="width:134px;cursor:pointer;"><img src="graphics/camera2.png" /> Photos</li>
                 <li id="featuredMarketPhotos" style="width:134px;"><img src="graphics/tag.png" /> Marketplace</li>
                 <li id="featuredPhotogs" style="width:134px;"><img src="graphics/user.png" /> Photographers</li>
                 <li id="featuredExhibits" style="width:134px;"><img src="graphics/grid.png" /> Exhibits</li>
@@ -220,7 +236,7 @@ jQuery(document).ready(function(){
                 echo'<div class="galleryContainer">
                         <a style="text-decoration:none;" href="fullsize.php?imageid=',$imageid,'">
                         <div class="galleryContainerOverlay">
-                            <header>',$smallcaption,'<br /><br />',$smallranking,'</header>
+                            <header style="font-weight:300;font-size:13px;position:relative;top:20px;left:15px;width:100px;">',$smallcaption,'<br /><br />',$smallranking,'</header>
                         </div>
                             <img class="smallphoto" src="https://photorankr.com/',$smallphoto,'" />
                         </a>
@@ -395,7 +411,7 @@ jQuery(document).ready(function(){
                 echo'<div class="galleryContainer">
                         <a style="text-decoration:none;" href="fullsize.php?imageid=',$imageid,'">
                         <div class="galleryContainerOverlay">
-                            <header>',$smallcaption,'<br /><br />',$smallranking,'</header>
+                            <header style="font-weight:300;font-size:13px;position:relative;top:20px;left:15px;width:100px;">',$smallcaption,'<br /><br />',$smallranking,'</header>
                         </div>
                             <img class="smallphoto" src="https://photorankr.com/',$smallphoto,'" />
                         </a>
@@ -541,7 +557,7 @@ jQuery(document).ready(function(){
                 echo'<div class="galleryContainer">
                         <a style="text-decoration:none;" href="fullsize.php?imageid=',$imageid,'">
                         <div class="galleryContainerOverlay">
-                            <header>',$smallcaption,'<br /><br />',$smallranking,'</header>
+                            <header style="font-weight:300;font-size:13px;position:relative;top:20px;left:15px;width:100px;">',$smallcaption,'<br /><br />',$smallranking,'</header>
                         </div>
                             <img class="smallphoto" src="https://photorankr.com/',$smallphoto,'" />
                         </a>
@@ -681,7 +697,7 @@ jQuery(document).ready(function(){
                 echo'<div class="galleryContainer">
                         <a style="text-decoration:none;" href="fullsize.php?imageid=',$imageid,'">
                         <div class="galleryContainerOverlay">
-                            <header>',$smallcaption,'<br /><br />',$smallranking,'</header>
+                            <header style="font-weight:300;font-size:13px;position:relative;top:20px;left:15px;width:100px;">',$smallcaption,'<br /><br />',$smallranking,'</header>
                         </div>
                             <img class="smallphoto" src="https://photorankr.com/',$smallphoto,'" />
                         </a>
@@ -783,7 +799,19 @@ jQuery(document).ready(function(){
     </div>
 
 </div>
-    
+</div>
+<br /><br />
+<br /><br />
+
+<?php footer(); ?>
     
 </body>
+
+ <!--Mobile Redirect-->
+    <script type="text/javascript">
+        if (screen.width <= 600) {
+            window.location = "http://mobile.photorankr.com";
+        }
+    </script>
+
 </html> 
