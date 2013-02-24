@@ -32,44 +32,43 @@ session_start();
     $currentnots = "SELECT * FROM userinfo WHERE emailaddress = '$email'";
     $currentnotsquery = mysql_query($currentnots);
     $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
-
-//DE-HIGHLIGHT NOTIFICATIONS IF CLICKED ON
-if(isset($_GET['id'])){
-$id = htmlentities($_GET['id']);
-$idformatted = $id . " ";
-$unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$email'";
-$unhighlightqueryrun = mysql_query($unhighlightquery);
-
-//notifications query reset 
-if($currentnotsresult > 0) {
-$notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email'";
-$notsqueryrun = mysql_query($notsquery); }
-}    
     
-    //GET THE IMAGE
-$image = addslashes($_GET['image']);
+    //Members List For Ads
+    $membersquery = mysql_query("SELECT * FROM members");
+    $nummembers = mysql_num_rows($membersquery);
+    for($iii=0;$iii<$nummembers;$iii++) {
+        $memberslist .= mysql_result($membersquery,$iii,'emailaddress');
+    }
+
+    //notifications query reset 
+    if($currentnotsresult > 0) {
+    $notsquery = "UPDATE userinfo SET notifications = 0 WHERE emailaddress = '$email6'";
+    $notsqueryrun = mysql_query($notsquery); }
+    
+    //DE-HIGHLIGHT NOTIFICATIONS IF CLICKED ON
+
+    if(isset($_GET['id'])){
+        $id = htmlentities($_GET['id']);
+        $idformatted = $id . " ";
+        $unhighlightquery = "UPDATE userinfo SET unhighlight = CONCAT(unhighlight,'$idformatted') WHERE emailaddress = '$email'";
+        $unhighlightqueryrun = mysql_query($unhighlightquery);
+    }
+    
+//GET THE IMAGE
+$imageid = addslashes($_GET['imageid']);
 $view = htmlentities($_GET['v']);
 if($view == '') {
     $view = 't';
 }
 
-if(!$image) {
-
-    $imageid = addslashes($_GET['imageid']);
-    $imagequery = mysql_query("SELECT source FROM photos WHERE id = '$imageid'");
-    $image = mysql_result($imagequery,0,'source');
-    
-}
-
 if(!$imageid) {
-
+    $image = addslashes($_GET['image']);
     $imagequery = mysql_query("SELECT id FROM photos WHERE source = '$image'");
     $imageid = mysql_result($imagequery,0,'id');
-
 } 
 
 //if the url does not contain an image send them back to trending
-if(!$image) {
+if(!$imageid) {
 	header("Location: trending.php");
 	exit();
 }
@@ -78,7 +77,7 @@ if(htmlentities($_GET['view'] == "saveinfo")) {
 		$newcaption = mysql_real_escape_string($_POST['caption']);
 		$newlocation = mysql_real_escape_string($_POST['location']);
 		$newcamera = mysql_real_escape_string($_POST['camera']);
-        $newprice = mysql_real_escape_string($_POST['price']);
+        $newprice = mysql_real_escape_string($_POST['newprice']);
         $newfocallength = mysql_real_escape_string($_POST['focallength']);
         $newshutterspeed = $_POST['shutterspeed'];
         $newaperture = mysql_real_escape_string($_POST['aperture']);
@@ -91,12 +90,12 @@ if(htmlentities($_GET['view'] == "saveinfo")) {
         $newtag3 = mysql_real_escape_string($_POST['tag3']);
 
 		//update the database with the new information
-		$updatequery = "UPDATE photos SET caption='$newcaption', location='$newlocation', price='$newprice', tag1 = '$newtag1', tag2 = '$newtag2', tag3 = '$newtag3', camera='$newcamera', focallength='$newfocallength', shutterspeed='$newshutterspeed', aperture='$newaperture', lens='$newlens', filter='$newfilter', about='$newabout', copyright='$newcopyright' WHERE source='$image'";
+		$updatequery = "UPDATE photos SET caption='$newcaption', location='$newlocation', price='$newprice', tag1 = '$newtag1', tag2 = '$newtag2', tag3 = '$newtag3', camera='$newcamera', focallength='$newfocallength', shutterspeed='$newshutterspeed', aperture='$newaperture', lens='$newlens', filter='$newfilter', about='$newabout', copyright='$newcopyright' WHERE id='$imageid'";
 		mysql_query($updatequery) or die(mysql_error());
 }
 
 //FIND THE PHOTO IN DATABASE
-$query="SELECT * FROM photos where source='$image'";
+$query="SELECT * FROM photos WHERE id='$imageid'";
 $result=mysql_query($query);
 //if no images match what is in the url, then send them back to trending 
 if(mysql_num_rows($result) == 0) {
@@ -106,6 +105,7 @@ if(mysql_num_rows($result) == 0) {
 
 $row=mysql_fetch_array($result);
 $emailaddress=$row['emailaddress'];
+$image=$row['source'];
 $caption=$row['caption'];
 $location=$row['location'];
 $sold=$row['sold'];
@@ -120,7 +120,7 @@ $prevvotes=$row['votes'];
 $ranking=number_format(($prevpoints/$prevvotes),1);
 $imageID=$row['id'];
 $price=mysql_result($result, 0, "price");
-$price=number_format($price,0);
+$rawprice=mysql_result($result, 0, "price");
 
 $camera = mysql_result($result,0,"camera");
 $views = $row['views'];
@@ -145,61 +145,19 @@ $lens = $row['lens'];
 $filter = $row['filter'];
 $copyright = $row['copyright'];
 $about = $row['about'];
-
 $tag1 = $row['tag1'];
-
-if($tag1) {
-$tag1 = '<a style="color:black;" href="search.php?searchterm='.$tag1.'">'.$tag1.'</a>';
-$tag1 = $tag1 . ", ";
-}
-
 $tag2 = $row['tag2'];
-
-if($tag2) {
-$tag2 = '<a style="color:black;" href="search.php?searchterm='.$tag2.'">'.$tag2.'</a>';
-$tag2 = $tag2 . ", ";
-}
-
 $tag3 = $row['tag3'];
-
-if($tag3) {
-$tag3 = '<a style="color:black;" href="search.php?searchterm='.$tag3.'">'.$tag3.'</a>';
-$tag3 = $tag3 . ", ";
-}
-
 $tag4 = $row['tag4'];
-
-if($tag4) {
-$tag4 = '<a style="color:black;" href="search.php?searchterm='.$tag4.'">'.$tag4.'</a>';
-$tag4 = $tag4 . ", ";
-}
-
 $singlestyletags = $row['singlestyletags'];
 $singlecategorytags = $row['singlecategorytags'];
 $singlestyletagsarray = explode("  ", $singlestyletags);
 $singlecategorytagsarray   = explode("  ", $singlecategorytags);
-for($iii=0; $iii < count($singlestyletagsarray); $iii++) {
-if($singlestyletagsarray[$iii] != '') {
-    $singlestyletagsfinal .= '<a style="color:black;" href="search.php?searchterm='.$singlestyletagsarray[$iii].'">' . $singlestyletagsarray[$iii] . '</a>' . ", "; }
-    }
-    for($iii=0; $iii < count($singlecategorytagsarray); $iii++) {
-        if($singlecategorytagsarray[$iii] != '') {
-        $singlecategorytagsfinal .= '<a style="color:black;" href="search.php?searchterm='.$singlecategorytagsarray[$iii].'">' . $singlecategorytagsarray[$iii] . '</a>' . ", "; }
-    }
-    
-$keywords = $tag1 . $tag2 . $tag3 . $tag4 . $singlestyletagsfinal . $singlecategorytagsfinal;
-$keywords = substr_replace($keywords ," ",-2);
-    
-
-//find how many photos the photographer has
-$numberofpics = mysql_query("SELECT * FROM photos WHERE emailaddress='$emailaddress'");
-$numberofpics = mysql_num_rows($numberofpics);
 
 $locationandcountry = $location . $country;
 
 if ($price == "0.00") {$price='Free';}  
-elseif ($price == "Not For Sale") {$price='NFS';}
-elseif ($price == "$NFS") {$price='NFS';}
+elseif ($price < 0) {$price='NFS';}
 elseif ($price == "") {$price='';}   
 else {$price = '$' . $price; }  
 
@@ -424,6 +382,9 @@ if(htmlentities($_GET['action']) == 'savecol' && $_SESSION['loggedin'] == 1) {
             //insert each checked photo into corresponding set
             $checkedcol = mysql_query("UPDATE collections SET photos = CONCAT(photos,'$addphoto') WHERE id = '$checked'");
             
+            //insert into collections table now
+            $newcollquery =  mysql_query("INSERT INTO collectionphotos (owner,collection,imageid,time) VALUES ('$email','$checked','$imageid','$currenttime')");
+            
         }
         
          $incrementcount = mysql_query("UPDATE photos SET collected=collected+1 WHERE id=$imageid") or die(mysql_error());
@@ -444,7 +405,8 @@ To view the collection, click here: https://photorankr.com/viewprofile.php?u=".$
     }
 }
 
-//TRENDING PHOTOS FOR 
+
+/*TRENDING PHOTOS FOR 
 $trendingfeedquery = "SELECT * FROM photos ORDER BY id DESC LIMIT 0,100";
 $trendingfeedresult = mysql_query($trendingfeedquery);
 
@@ -473,14 +435,15 @@ $trendingnewsquery = mysql_query($newsfeedtrending);
   
 } 
 
-}
+} */
 
+//FIND THE NEXT FOUR PHOTOS TO BE DISPLAYED
 //if they came from trending
 if($view == 't') {
 	//find where this pic is in the order
 	$index = findPicTrend($image);
 	if($index == 0) {
-		$testquery = mysql_query("SELECT * FROM photos ORDER BY score ASC");
+		$testquery = mysql_query("SELECT source FROM photos ORDER BY score ASC LIMIT 0,1");
 		$imageBefore = mysql_result($testquery, 0, "source");
 		$index++;
 		$nextThreeQuery = "SELECT * FROM photos ORDER BY score DESC LIMIT $index, 6";
@@ -499,13 +462,13 @@ if($view == 't') {
 	}
 	else {
 		$index--;
-		$nextThreeQuery = "SELECT * FROM photos ORDER BY score DESC LIMIT $index, 7";
+		$nextThreeQuery = "SELECT source FROM photos ORDER BY score DESC LIMIT $index, 7";
 		$nextThreeResult = mysql_query($nextThreeQuery);
 		$numpics = mysql_num_rows($nextThreeResult);
 		$imageBefore = mysql_result($nextThreeResult, $x, "source");
         	
 		if(7-$numpics == 1) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY score DESC LIMIT 0, 1");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY score DESC LIMIT 0, 1");
 			$imageOne = mysql_result($nextThreeResult, 2, "source");
 			$imageTwo = mysql_result($nextThreeResult, 3, "source");
 			$imageThree = mysql_result($nextThreeResult, 4, "source");	
@@ -513,7 +476,7 @@ if($view == 't') {
 			$imageFive = mysql_result($resetquery, 0, "source");
 		}
 		else if(7-$numpics == 2) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY score DESC LIMIT 0, 2");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY score DESC LIMIT 0, 2");
 			$imageOne = mysql_result($nextThreeResult, 2, "source");
 			$imageTwo = mysql_result($nextThreeResult, 3, "source");
 			$imageThree = mysql_result($nextThreeResult, 4, "source");
@@ -521,7 +484,7 @@ if($view == 't') {
 			$imageFive = mysql_result($resetquery, 1, "source");
 		}
 		else if(7-$numpics == 3) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY score DESC LIMIT 0, 3");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY score DESC LIMIT 0, 3");
 			$imageOne = mysql_result($nextThreeResult, 2, "source");
 			$imageTwo = mysql_result($nextThreeResult, 3, "source");
 			$imageThree = mysql_result($resetquery, 0, "source");
@@ -529,7 +492,7 @@ if($view == 't') {
 			$imageFive = mysql_result($resetquery, 2, "source");
 		}
 		else if(7-$numpics == 4) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY score DESC LIMIT 0, 4");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY score DESC LIMIT 0, 4");
 			$imageOne = mysql_result($nextThreeResult, 2, "source");
 			$imageTwo = mysql_result($resetquery, 0, "source");
 			$imageThree = mysql_result($resetquery, 1, "source");
@@ -537,7 +500,7 @@ if($view == 't') {
 			$imageFive = mysql_result($resetquery, 3, "source");
 		}
 		else if(7-$numpics == 5) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY score DESC LIMIT 0, 5");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY score DESC LIMIT 0, 5");
 			$imageOne = mysql_result($resetquery, 0, "source");
 			$imageTwo = mysql_result($resetquery, 1, "source");
 			$imageThree = mysql_result($resetquery, 2, "source");
@@ -565,10 +528,10 @@ else if($view == 'n') {
 	//find where this pic is in the order
 	$index = findPicNew($image);
 	if($index == 0) {
-		$testquery = mysql_query("SELECT * FROM photos ORDER BY id ASC");
+		$testquery = mysql_query("SELECT source FROM photos ORDER BY id ASC LIMIT 0,1");
 		$imageBefore = mysql_result($testquery, 0, "source");
 		$index++;
-		$nextThreeQuery = "SELECT * FROM photos ORDER BY id DESC LIMIT $index, 5";
+		$nextThreeQuery = "SELECT source FROM photos ORDER BY id DESC LIMIT $index, 5";
 		$nextThreeResult = mysql_query($nextThreeQuery);
 		$imageOne = mysql_result($nextThreeResult, 0, "source");
 		$imageOneThumb = str_replace("userphotos/","userphotos/thumbs/", $imageOne);
@@ -583,13 +546,13 @@ else if($view == 'n') {
 	}
 	else {
 		$index--;
-		$nextThreeQuery = "SELECT * FROM photos ORDER BY id DESC LIMIT $index, 7";
+		$nextThreeQuery = "SELECT source FROM photos ORDER BY id DESC LIMIT $index, 7";
 		$nextThreeResult = mysql_query($nextThreeQuery);
 		$numpics = mysql_num_rows($nextThreeResult);
 		$imageBefore = mysql_result($nextThreeResult, $x, "source");
         	
 		if(7-$numpics == 1) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY id DESC LIMIT 0, 1");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY id DESC LIMIT 0, 1");
 			$imageOne = mysql_result($nextThreeResult, 2, "source");
 			$imageTwo = mysql_result($nextThreeResult, 3, "source");
 			$imageThree = mysql_result($nextThreeResult, 4, "source");	
@@ -597,7 +560,7 @@ else if($view == 'n') {
 			$imageFive = mysql_result($resetquery, 0, "source");
 		}
 		else if(7-$numpics == 2) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY id DESC LIMIT 0, 2");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY id DESC LIMIT 0, 2");
 			$imageOne = mysql_result($nextThreeResult, 2, "source");
 			$imageTwo = mysql_result($nextThreeResult, 3, "source");
 			$imageThree = mysql_result($nextThreeResult, 4, "source");
@@ -605,7 +568,7 @@ else if($view == 'n') {
 			$imageFive = mysql_result($resetquery, 1, "source");
 		}
 		else if(7-$numpics == 3) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY id DESC LIMIT 0, 3");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY id DESC LIMIT 0, 3");
 			$imageOne = mysql_result($nextThreeResult, 2, "source");
 			$imageTwo = mysql_result($nextThreeResult, 3, "source");
 			$imageThree = mysql_result($resetquery, 0, "source");
@@ -613,7 +576,7 @@ else if($view == 'n') {
 			$imageFive = mysql_result($resetquery, 2, "source");
 		}
 		else if(7-$numpics == 4) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY id DESC LIMIT 0, 4");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY id DESC LIMIT 0, 4");
 			$imageOne = mysql_result($nextThreeResult, 2, "source");
 			$imageTwo = mysql_result($resetquery, 0, "source");
 			$imageThree = mysql_result($resetquery, 1, "source");
@@ -621,7 +584,7 @@ else if($view == 'n') {
 			$imageFive = mysql_result($resetquery, 3, "source");
 		}
 		else if(7-$numpics == 5) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY id DESC LIMIT 0, 5");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY id DESC LIMIT 0, 5");
 			$imageOne = mysql_result($resetquery, 0, "source");
 			$imageTwo = mysql_result($resetquery, 1, "source");
 			$imageThree = mysql_result($resetquery, 2, "source");
@@ -650,7 +613,7 @@ else if($view == 'r') {
 	//find where this pic is in the order
 	$index = findPicTop($image);
 	if($index == 0) {
-		$testquery = mysql_query("SELECT * FROM photos ORDER BY points ASC");
+		$testquery = mysql_query("SELECT source FROM photos ORDER BY points ASC LIMIT 0,1");
 		$imageBefore = mysql_result($testquery, 0, "source");
 		$index++;
 		$nextThreeQuery = "SELECT * FROM photos ORDER BY points DESC LIMIT $index, 5";
@@ -668,13 +631,13 @@ else if($view == 'r') {
 	}
 	else {
 		$index--;
-		$nextThreeQuery = "SELECT * FROM photos ORDER BY points DESC LIMIT $index, 7";
+		$nextThreeQuery = "SELECT source FROM photos ORDER BY points DESC LIMIT $index, 7";
 		$nextThreeResult = mysql_query($nextThreeQuery);
 		$numpics = mysql_num_rows($nextThreeResult);
 		$imageBefore = mysql_result($nextThreeResult, $x, "source");
         	
 		if(7-$numpics == 1) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY points DESC LIMIT 0, 1");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY points DESC LIMIT 0, 1");
 			$imageOne = mysql_result($nextThreeResult, 2, "source");
 			$imageTwo = mysql_result($nextThreeResult, 3, "source");
 			$imageThree = mysql_result($nextThreeResult, 4, "source");	
@@ -682,7 +645,7 @@ else if($view == 'r') {
 			$imageFive = mysql_result($resetquery, 0, "source");
 		}
 		else if(7-$numpics == 2) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY points DESC LIMIT 0, 2");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY points DESC LIMIT 0, 2");
 			$imageOne = mysql_result($nextThreeResult, 2, "source");
 			$imageTwo = mysql_result($nextThreeResult, 3, "source");
 			$imageThree = mysql_result($nextThreeResult, 4, "source");
@@ -698,7 +661,7 @@ else if($view == 'r') {
 			$imageFive = mysql_result($resetquery, 2, "source");
 		}
 		else if(7-$numpics == 4) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY points DESC LIMIT 0, 4");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY points DESC LIMIT 0, 4");
 			$imageOne = mysql_result($nextThreeResult, 2, "source");
 			$imageTwo = mysql_result($resetquery, 0, "source");
 			$imageThree = mysql_result($resetquery, 1, "source");
@@ -706,7 +669,7 @@ else if($view == 'r') {
 			$imageFive = mysql_result($resetquery, 3, "source");
 		}
 		else if(7-$numpics == 5) {
-			$resetquery = mysql_query("SELECT * FROM photos ORDER BY points DESC LIMIT 0, 5");
+			$resetquery = mysql_query("SELECT source FROM photos ORDER BY points DESC LIMIT 0, 5");
 			$imageOne = mysql_result($resetquery, 0, "source");
 			$imageTwo = mysql_result($resetquery, 1, "source");
 			$imageThree = mysql_result($resetquery, 2, "source");
@@ -730,7 +693,7 @@ else if($view == 'r') {
 }
 
 //Delete Photo Query
-if(htmlentities($_GET['action']) == "delete" && $emailaddress == $email) {
+if(htmlentities($_GET['action']) == "delete" && ($emailaddress == $email)) {
         $imageid = htmlentities($_GET['imageid']);
 		mysql_query("DELETE FROM photos WHERE id = '$imageid'") or die(mysql_error());
 		$nextimagequery = mysql_query("SELECT id FROM photos WHERE emailaddress = '$email' AND id > $imageid ORDER BY id DESC LIMIT 1");
@@ -740,20 +703,29 @@ if(htmlentities($_GET['action']) == "delete" && $emailaddress == $email) {
 }
 
 //PORTFOLIO RANKING
-$userphotos="SELECT * FROM photos WHERE emailaddress = '$emailaddress'";
+$userphotos="SELECT id FROM photos WHERE emailaddress = '$emailaddress'";
 $userphotosquery=mysql_query($userphotos);
 $numphotos=mysql_num_rows($userphotosquery);
-    
-//Query Stats Table
-$timestampentertimeslicequery = mysql_query("INSERT INTO Statistics (ViewTimeStamp, Source, Person, Type, Email) VALUES ('$currenttime', '$imageid','$email', 'photoview', '$emailaddress')");
+
+//Query stats table
+$timestampentertimeslicequeryfave = "INSERT INTO Statistics (ViewTimeStamp, Source, Person, Type, Email) VALUES ('$currenttime', '$imageid','$email','photoview', '$emailaddress')";
+$timestampquery= mysql_query($timestampentertimeslicequeryfave);
 
 ?>
 
-<!DOCTYPE HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
 <head>
 
+	<meta name="Generator" content="EditPlus">
+    <meta property="og:image" content="https://photorankr.com/<?php echo $image; ?>">
+    <meta name="Author" content="PhotoRankr, PhotoRankr.com">
+    <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, stock photos, photography school, digital cameras, learn photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
+    <meta name="Description" content="<?php echo $caption; ?> by <?php echo $firstname ." ". $lastname; ?>">
+    <meta name="viewport" content="width=1200" />
 	<meta charset = "UTF-8">
-	<title> "<?php echo $caption; ?>" | PhotoRankr </title>
+    <meta itemprop="category" content="Arts & Entertainment > Hobbies & Creative Arts > Artwork > Photographs > Stock Photographs">
+
+	<title>PhotoRankr - "<?php echo $caption; ?>" by <?php echo $firstname; ?> <?php echo $lastname; ?></title>
     
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
@@ -764,25 +736,12 @@ $timestampentertimeslicequery = mysql_query("INSERT INTO Statistics (ViewTimeSta
 
     <link rel="stylesheet" media='screen and (max-width:640px)' href="css/640.css"/>
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
-    
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="js/bootstrap.js" type="text/javascript"></script>
 	<script src="js/modernizer.js"></script>
     
-    <!--GOOGLE ANALYTICS CODE-->
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-28031297-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-	
-    <style type="text/css">
+       <style type="text/css">
 		.show
 		{
 			display:block !important;
@@ -1159,7 +1118,7 @@ if($_SESSION['loggedin'] == 1) {
         //if tries to favorite own photo
         if($vieweremail == $emailaddress) {
         echo'
-<div class="modal-header" style="background-color:#111;color:#333;">
+<div class="modal-header" style="background-color:rgba(234,234,234,.9);color:#333;">
 <a style="float:right" class="btn btn-success" data-dismiss="modal">Close</a>
 <img style="margin-top:-2px;" src="graphics/aperture_dark.png" height="34" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:16px;font-family:helvetica,arial;font-weight:100;">Oops, you tried to favorite your own photo.</span>
   </div>
@@ -1362,7 +1321,7 @@ height="100px" width="100px" />
         
         else {
         
-        echo'<div style="padding-top:35px;">You have no collections. <a href="myprofile.php?view=collections&option=newcollection">Create one?</a><br /><br /></div>';
+        echo'<div style="padding-top:35px;">You have no collections. <a href="profile.php?view=collections&option=newcollection">Create one?</a><br /><br /></div>';
         
         }
         
@@ -1418,9 +1377,10 @@ height="100px" width="100px" />
     <?php
     echo'
     <br /><br />
-    Change Price:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select name="price" style="margin-top:5px;">
-    <option value="',$changeprice,'">Choose a Price:</option>
+    Change Price:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select name="newprice" style="margin-top:5px;">
+    <option value="',$rawprice,'">Choose a Price:</option>
     <option value=".00">Free</option>
+    <option value=".25">$.25</option>
 	<option value=".50">$.50</option>
 	<option value=".75">$.75</option>
 	<option value="1.00">$1.00</option>
@@ -1432,7 +1392,7 @@ height="100px" width="100px" />
     <option value="50.00">$50.00</option>
     <option value="100.00">$100.00</option>
     <option value="200.00">$200.00</option>
-    <option value="Not For Sale">Not For Sale</option>
+    <option value="-1">Not For Sale</option>
 	</select>
     </span>
     <br />
@@ -1474,6 +1434,7 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 
 
 <body style="overflow-x:hidden; background-image:url('graphics/paper.png');">
+<?php include_once("analyticstracking.php") ?>
 
 <?php navbar(); ?>
 
@@ -1527,21 +1488,21 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 				<li id="ajaxRank"><?php echo $ranking; ?><span>/10</span> </li>
 				<li> <?php echo $collected; ?> </li>
 				<li id="ajaxFave"> <?php echo $faves; ?> </li>
-				<li> <?php echo $price; ?></li>
+				<li><?php echo $price; ?></li>
 			</ul>
 			<ul>
-				<li id="rankButton">  <img src="graphics/rank_b_c.png" /> Rank </li>
+				<li id="rankButton">  <img style="margin-bottom:5px;"src="graphics/rank_b_c.png" /> Rank </li>
 				<a style="color:#333;text-decoration:none;" data-toggle="modal" data-backdrop="static" href="#collectionmodal">
-                <li style="border-right:1px solid #c6c6c6;width:42px;"><img style="width:32px;height:35px;" src="graphics/collection_b_c.png" />  Collect </li>
+                <li style="border-right:1px solid #c6c6c6;width:42px;"><img style="width:32px;height:35px;margin-bottom:8px;" src="graphics/collection_b_c.png" />  Collect </li>
                 </a>
                 
-                <li><a style="color:#333;text-decoration:none;" data-toggle="modal" data-backdrop="static" href="#fvmodal"><img src="graphics/fave_b_c.png"/> Fave </a></li>
+                <li><a style="color:#333;text-decoration:none;" data-toggle="modal" data-backdrop="static" href="#fvmodal"><img style="width:35px; !important;margin-bottom:8px;"src="graphics/fave_b_c.png"/> Fave </a></li>
                 
                 <a style="color:#333;text-decoration:none;" href="fullsizemarket.php?imageid=<?php echo $imageid; ?>"><li> <img src="graphics/market_b_c.png"/> Purchase </li></a>
 			</ul>
 
 			<ul id="Rank">
-				<li onclick="Rank(1)"> <div style="margin-top:-5px;">1 - <span style="font-size:13px;font-weight:300;">Poorest Quality</span> </div> </li>
+				<li onclick="Rank(1)">  <div style="margin-top:-5px;">1 - <span style="font-size:13px;font-weight:300;">Poorest Quality</span> </div> </li>
 				<li onclick="Rank(2)">  <div style="margin-top:-5px;">2</div> </li>
 				<li onclick="Rank(3)">  <div style="margin-top:-5px;">3 - <span style="font-size:13px;font-weight:300;">Numerous Execution Issues</span</div> </li>
 				<li onclick="Rank(4)">  <div style="margin-top:-5px;">4</div> </li>
@@ -1557,7 +1518,7 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
         
         <?php 
         
-        if($email == $emailaddress) {
+        if(($email == $emailaddress) && $_SESSION['loggedin'] == 1) {
         
             echo'<div style="position:relative;top:10px;padding-bottom:10px;"><a class="btn btn-success" style="width:245px;padding:10px;font-size:16px;float:left;" data-toggle="modal" data-backdrop="static" href="#editphoto">Edit Photo</a><br /><br /></div>';
         
@@ -1597,9 +1558,9 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
                     </a>
                     
 					<div id="nextPhotosContainer">	
-							<a id="nextimg1id" href="fullsize.php?image=<?php echo $imageOne; ?>&v=<?php echo $view; ?>"><img src="https://photorankr.com/<?php echo $imageOneThumb; ?>" id="nextimg1id" /></a>
-							<a id="nextimg2id" href="fullsize.php?image=<?php echo $imageTwo; ?>&v=<?php echo $view; ?>"><img src="https://photorankr.com/<?php echo $imageTwoThumb; ?>" id="nextimg2id" /></a>
-							<a id="nextimg3id" href="fullsize.php?image=<?php echo $imageThree; ?>&v=<?php echo $view; ?>"><img src="https://photorankr.com/<?php echo $imageThreeThumb; ?>" id="nextimg3id" /></a>
+							<a id="nextimg1id" href="fullsize.php?image=<?php echo $imageOne; ?>&v=<?php echo $view; ?>"><img src="https://photorankr.com/<?php echo $imageOneThumb; ?>" id="nextimg1" /></a>
+							<a id="nextimg2id" href="fullsize.php?image=<?php echo $imageTwo; ?>&v=<?php echo $view; ?>"><img src="https://photorankr.com/<?php echo $imageTwoThumb; ?>" id="nextimg2" /></a>
+							<a id="nextimg3id" href="fullsize.php?image=<?php echo $imageThree; ?>&v=<?php echo $view; ?>"><img src="https://photorankr.com/<?php echo $imageThreeThumb; ?>" id="nextimg3" /></a>
                             
 					</div>
 			</div>
@@ -1649,12 +1610,43 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
                     
                     if($exhibit && $expic1 && $expic2 && $expic3) {
                         echo'
-						<li style="clear:both;margin-left:5px;overflow:hidden;margin-left:-10px;width:250px;">
+						<li style="clear:both;margin-left:5px;overflow:hidden;margin-left:-10px;width:250px;word-wrap:break-word;">
                         <a href="fullsize.php?image=',$expic1,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb1,'" height="80" width="78" /></a> 
                         <a href="fullsize.php?image=',$expic2,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb2,'" height="80" width="78" /></a> 
                         <a href="fullsize.php?image=',$expic3,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb3,'" height="80" width="78" /></a> 
                         </li>';
                     }
+                if($tag1 || $tag2 || $tag3 || $tag4 || $singlestyletagsarray || $singlecategorytagsarray) {
+                echo'<li style="margin-left:5px;margin-left:-10px;width:245px;height:auto;"> Tags: ';
+                    if($tag1) {
+                        echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$tag1.'">',$tag1,'</a>';
+                    }
+                    if($tag2) {
+                        echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$tag2.'">',$tag2,'</a>';
+                    }
+                    if($tag3) {
+                        echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$tag3.'">',$tag3,'</a>';
+                    }
+                    if($tag4) {
+                        echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$tag4.'">',$tag4,'</a>';
+                    }
+                    if($singlestyletagsarray) {
+                        for($iii=0; $iii < count($singlestyletagsarray); $iii++) {
+                            if($singlestyletagsarray[$iii] != '') {
+                                echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$singlestyletagsarray[$iii].'">',$singlestyletagsarray[$iii],'</a>';
+                            }
+                        }
+                    }
+                    if($singlecategorytagsarray) {
+                        for($iii=0; $iii < count($singlecategorytagsarray); $iii++) {
+                            if($singlecategorytagsarray[$iii] != '') {
+                                echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$singlecategorytagsarray[$iii].'">',$singlecategorytagsarray[$iii],'</a>';
+                            }
+                        }
+                    }
+                    echo'
+                </li>';
+                }
                 if($views) {
 				echo'<li><img src="graphics/views.png"/>  Views: <span style="margin-left:38px;">',$views,'</span></li>';
                 }
@@ -1665,22 +1657,35 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 				echo'<li><img src="graphics/camera.png"/> Camera: <span style="margin-left:28px;">',$camera,'</span></li>';
                 }
                 if($aperture) {
-				echo'<li><img src="graphics/aperature.png"/> Aperture: <span style="margin-left:24px;">',$aperture,'</span></li>';
+                    $aperture = explode("/",$aperture);
+                    $top = $aperture[0];
+                    $bottom = $aperture[1];
+                    
+				echo'<li><img src="graphics/aperature.png"/> Aperture: <span style="margin-left:24px;">f/',number_format(($top/$bottom),1),'</span></li>';
                 }
                 if($focallength) {
-				echo'<li> <img src="graphics/focalLength.png"/> Focal Length:  <span style="margin-left:3px;">',$focallength,'</span> </li>';
+				echo'<li> <img src="graphics/focalLength.png"/> Focal Length:  <span style="margin-left:3px;">',$focallength,' mm</span> </li>';
+                }
+                if($iso) {
+				echo'<li> <img src="graphics/iso_i.png"/> ISO:  <span style="margin-left:47px;">',$iso,'</span> </li>';
                 }
                 if($lens) {
 				echo'<li> <img src="graphics/lens.png"/> Lens: <span style="margin-left:42px;">',$lens,'</span> </li>';
                 }
                 if($shutterspeed) {
-				echo'<li> <img src="graphics/shutterSpeed.png"/> Shutter: <span style="margin-left:30px;">',$shutterspeed,'</span> </li>';
+                    $shutterspeed = explode("/",$shutterspeed);
+                    $top = $shutterspeed[0];
+                    $bottom = $shutterspeed[1];
+				echo'<li> <img src="graphics/shutterSpeed.png"/> Shutter: <span style="margin-left:30px;">1/',number_format(($top/$bottom),1),' sec</span> </li>';
+                }
+                if($software) {
+				echo'<li> <img style="opacity:.9;" src="graphics/software_i.png"/> Software: <span style="margin-left:23px;">',$software,'</span> </li>';
                 }
                 if($date) {
                     echo'<li> <img src="graphics/captureDate.png" style="width:16px;margin-left:-3px;"/> Capture Date <span>',converttodate($date),'</span></li>';
                 }
                 if($fullname) {
-                    echo'<li> <img src="graphics/copyright.png" style="width:15px;margin-left:-2px;"/> Copyright: <span style="margin-left:20px;">',$fullname,'</span></li>';
+                    echo'<li> <img src="graphics/copyright.png" style="width:15px;margin-left:-4px;"/> Copyright: <span style="margin-left:20px;">',$fullname,'</span></li>';
                 }
 				if($location) { 
                     echo'<li> <img src="graphics/location.png" style="width:10px;margin: 0 8px 0 0;"/> Location: <span style="margin-left:20px;">',$location,'</span></li>';
@@ -1690,6 +1695,49 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 			</ul>
 		</div>
         
+        <!--- Ad Space if more than 6 comments ---->
+
+        <?php
+        $commentquery = mysql_query("SELECT id FROM comments WHERE imageid = '$imageID' ORDER BY id DESC");
+        $numcomments = mysql_num_rows($commentquery);
+        
+        if(strpos($list,$email) === false && $numcomments >= 7) { ?>  
+              
+        <div style="padding:25px;position:relative;top:20px;margin-left:30px;">
+        <script type="text/javascript"><!--
+            google_ad_client = "ca-pub-2927580055218994";
+            /* Fullsize Skyscraper */
+            google_ad_slot = "4463468215";
+            google_ad_width = 160;
+            google_ad_height = 600;
+            //-->
+        </script>
+        <script type="text/javascript"
+            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+        </div>
+        
+    <?php } ?>
+    
+        <!--- Ad Space if more than 1 comment, less than 7 comments ---->
+    
+        <?php if(strpos($memberslist,$email) === false && ($numcomments >= 2 && $numcomments <= 6)) { ?>
+        
+        <div style="padding-top:25px;padding-left:7px;position:relative;top:20px;">
+        <script type="text/javascript"><!--
+            google_ad_client = "ca-pub-2927580055218994";
+            /* Fullsize Square */
+            google_ad_slot = "5940201418";
+            google_ad_width = 250;
+            google_ad_height = 250;
+            //-->
+        </script>
+        <script type="text/javascript"
+            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+        </div>
+        
+    <?php } ?>
 
 	</div>
 	
@@ -1698,11 +1746,10 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 		<header> <?php echo $caption; ?> <span> <?php echo converttime($time); ?> </span> <img style="margin-right:4px;" src="graphics/arrow 4.png"/>  </header>
 	</div>
 
-<?php flush(); ?>
 
 	<!--IMAGE-->
 	<div class="bloc_12" style="float:left;display:block;width:74.07%;" id="imgDisplay">
-		<img onmousedown="return false" oncontextmenu="return false;"  src="<?php echo $image; ?>" />
+		<img itemprop="image" onmousedown="return false" oncontextmenu="return false;"  src="<?php echo $image; ?>" />
 	</div>
 
 	<!--COMMENTS-->
@@ -1776,12 +1823,12 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
             
                 if($commenterid == $sessionid) {
                     echo'
-                        <div id="edit"><a href="fullsize.php?image=',$image,'&action=editcomment&cid=',$commentid,'#',$commentid,'"> Edit Comment</a></div>';
+                        <div id="edit"><a href="fullsize.php?imageid=',$imageid,'&action=editcomment&cid=',$commentid,'#',$commentid,'"> Edit Comment</a></div>';
                 }
                 
                  if(($email == $emailaddress) || ($commenteremail == $email)) {
                     echo'
-                        <div id="edit"><a href="fullsize.php?image=',$image,'&action=deletecomment&cid=',$commentid,'">Delete Comment</a></div>';
+                        <div id="edit"><a href="fullsize.php?imageid=',$imageid,'&action=deletecomment&cid=',$commentid,'">Delete Comment</a></div>';
                 }
                 
                 if($_GET['action'] == 'editcomment' && $commentid == $_GET['cid']) {
@@ -1803,7 +1850,7 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
             
         }
         
-        $imagenew=str_replace("userphotos/","", $image);
+        /* $imagenew=str_replace("userphotos/","", $image);
         $imagelink=str_replace(" ","", $image);
         $searchchars=array('.jpg','.png','.tiff','.JPG','.jpeg','.JPEG','.gif');
         $imagenew=str_replace($searchchars,"", $imagenew);
@@ -1812,16 +1859,39 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
         echo'
         <div style="float:left;width:520px;padding:10px;font-size:13px;font-family:helvetica;font-weight:300;color:#555;">';
         @include("$file"); 
-        echo'</div>';
+        echo'</div>'; */
                 
     ?>
+    
+<?php if(strpos($memberslist,$email) === false) { ?>    
+    <!--- Ad Space #1 ---->
+    <br /><br /><br /><br /><br /><br />
+    <div style="padding:25px;margin-top:20px;margin-left:20px;">
+    <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-2927580055218994";
+        /* Fullsize #1 */
+        google_ad_slot = "9327646617";
+        google_ad_width = 728;
+        google_ad_height = 90;
+        //-->
+    </script>
+    <script type="text/javascript" 
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+    </div>
+        
+<?php } ?>
         
 </div>
 
 </div>
-</div>
+
 
 <?php 
+if($email) {
+    echo'</div>';
+}
+
 //add to the views column
 $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image'") or die(mysql_error());
 ?>

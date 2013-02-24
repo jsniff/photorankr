@@ -37,6 +37,8 @@ session_start();
 	</style>
 </head>
 <body style="background:#f5f5f5;">
+<?php include_once("analyticstracking.php") ?>
+
 	<?php navbar(); ?>
 <!--Container Begins here-->
 <div class="container_24" style="margin-top:60px;min-height:90%;">	

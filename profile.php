@@ -381,12 +381,14 @@ $monththree = $viewsweeknine + $viewsweekten + $viewsweekeleven + $viewsweektwel
 
 <head>
 
- <meta name="Generator" content="EditPlus">
-  <meta name="Author" content="PhotoRankr, PhotoRankr.com">
-  <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
-  <meta name="Description" content="<?php echo $fullname; ?>'s photography page on PhotoRankr">
-     <meta name="viewport" content="width=1200" /> 
-
+    <meta name="Generator" content="EditPlus">
+    <meta property="og:image" content="http://photorankr.com/<?php echo $sessionpic; ?>">
+    <meta name="Author" content="PhotoRankr, PhotoRankr.com">
+    <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
+    <meta name="Description" content="<?php echo $fullname; ?> Photography">
+    <meta name="viewport" content="width=1200" /> 
+     
+    <title><?php echo $fullname; ?> Photography</title>
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
     <link rel="stylesheet" type="text/css" href="css/vpstyle.css"/>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
@@ -426,21 +428,9 @@ border-bottom-left-radius: 3px;
         .modal-backdrop {z-index:10001;}
 
     </style>
-  
-  <title><?php echo $fullname; ?></title>
-  
- <!--GOOGLE ANALYTICS CODE-->
+    
 <script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-28031297-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-  
 //Drop down for portfolio pages
 jQuery(document).ready(function(){
     jQuery("#showViews").live("click", function(event) {        
@@ -679,6 +669,7 @@ height="100px" width="100px" />
 ?>
 
 <body style="overflow-x:hidden; background-image:url('graphics/paper.png');">
+<?php include_once("analyticstracking.php") ?>
 
 <?php navbar(); ?>
     
@@ -782,7 +773,7 @@ height="100px" width="100px" />
                         if($type == "comment") {
                            echo'<a style="text-decoration:none;" href="fullsize.php?imageid=',$source,'">
                                 <div style="padding:3px;clear:both;overflow:hidden;border-bottom:1px solid #aaa;color:#aaa;padding-left:0px;">
-                                 <img style="padding-left:2px;float:left;width:80px;height:80px;" src="http://www.photorankr.com/',$commentphotosource,'" />
+                                 <img style="padding-left:2px;float:left;width:80px;height:80px;" src="https://www.photorankr.com/',$commentphotosource,'" />
                                     <div class="commentTriangle" style="margin-top:-20px;"></div>
                                     <div style="width:200px;float:left;padding-left:10px;height:55px;margin-top:10px;text-align:left;font-size:13px;font-weight:300;color:#333;">
                                         <span style="width:15px;"><img src="graphics/comment_1.png" height="15" />&nbsp;&nbsp;&nbsp;<b>',$fullname,'</b> commented on ',$ownerfull,'\'s photo<br /><span style="font-size:12px;color:#666;font-weight:700;">',$time,'</span></span>
@@ -794,7 +785,7 @@ height="100px" width="100px" />
                         elseif($type == "fave") {
                             echo'<a style="text-decoration:none;" href="fullsize.php?imageid=',$faveid,'">
                                 <div style="padding:3px;clear:both;overflow:hidden;border-bottom:1px solid #aaa;color:#aaa;padding-left:0px;">
-                                 <img style="padding-left:2px;float:left;width:80px;height:80px;" src="http://www.photorankr.com/',$newsource,'" />
+                                 <img style="padding-left:2px;float:left;width:80px;height:80px;" src="https://www.photorankr.com/',$newsource,'" />
                                     <div class="commentTriangle" style="margin-top:-20px;"></div>
                                     <div style="width:200px;float:left;padding-left:10px;height:55px;margin-top:10px;text-align:left;font-size:13px;font-weight:300;color:#333;">
                                         <span style="width:15px;"><img src="graphics/heart.png" height="15" />&nbsp;&nbsp;&nbsp;<b>',$fullname,'</b> favorited ',$ownerfull,'\'s photo<br /><span style="font-size:12px;color:#666;font-weight:700;">',$time,'</span></span>
@@ -807,7 +798,7 @@ height="100px" width="100px" />
                          elseif($type == "exhibitfave") {
                             echo'<a style="text-decoration:none;" href="profile.php?view=exhibits&set=',$source,'&id=',$id,'">
                                 <div style="padding:3px;clear:both;overflow:hidden;border-bottom:1px solid #aaa;color:#aaa;padding-left:0px;">
-                                 <img style="padding-left:2px;float:left;width:80px;height:80px;" src="http://www.photorankr.com/',$setcover,'" />
+                                 <img style="padding-left:2px;float:left;width:80px;height:80px;" src="https://www.photorankr.com/',$setcover,'" />
                                     <div class="commentTriangle" style="margin-top:-20px;"></div>
                                     <div style="width:200px;float:left;padding-left:10px;height:55px;margin-top:10px;text-align:left;font-size:13px;font-weight:300;color:#333;">
                                         <span style="width:15px;"><img src="graphics/grid.png" height="15" />&nbsp;&nbsp;&nbsp;<b>',$fullname,'</b> favorited your exhibit<br /><span style="font-size:12px;color:#666;font-weight:700;">',$time,'</span></span>
@@ -820,7 +811,7 @@ height="100px" width="100px" />
                         elseif($type == "trending") {
                             echo'<a style="text-decoration:none;" href="fullsize.php?image=',$source,'&id=',$id,'">
                                 <div style="padding:3px;clear:both;overflow:hidden;border-bottom:1px solid #aaa;color:#aaa;padding-left:0px;">
-                                 <img style="padding-left:2px;float:left;width:80px;height:80px;" src="http://www.photorankr.com/',$newsource,'" />
+                                 <img style="padding-left:2px;float:left;width:80px;height:80px;" src="https://www.photorankr.com/',$newsource,'" />
                                     <div class="commentTriangle" style="margin-top:-20px;"></div>
                                     <div style="width:200px;float:left;padding-left:10px;height:55px;margin-top:10px;text-align:left;font-size:13px;font-weight:300;color:#333;">
                                         <span style="width:15px;"><img src="graphics/graph.png" height="15" />&nbsp;&nbsp;&nbsp;Your photo is now trending<br /><span style="font-size:12px;color:#666;font-weight:700;">',$time,'</span></span>
@@ -840,7 +831,7 @@ height="100px" width="100px" />
                             
                             echo'<a style="text-decoration:none;color:#333;" href="viewprofile.php?u=',$ownerid,'&id=',$id,'">
                                 <div style="padding:3px;clear:both;overflow:hidden;border-bottom:1px solid #aaa;color:#aaa;padding-left:0px;">
-                                 <img style="padding-left:2px;float:left;width:80px;height:80px;" src="http://www.photorankr.com/',$profilepic,'" />
+                                 <img style="padding-left:2px;float:left;width:80px;height:80px;" src="https://www.photorankr.com/',$profilepic,'" />
                                     <div class="commentTriangle" style="margin-top:-20px;"></div>
                                     <div style="width:200px;float:left;padding-left:10px;height:55px;margin-top:10px;text-align:left;font-size:13px;font-weight:300;color:#333;">
                                         <span style="width:15px;"><img src="graphics/user.png" height="15" />&nbsp;&nbsp;&nbsp;<b>',$fullname,'</b> is now following ',$fullname,'\'s photography<br /><span style="font-size:12px;color:#666;font-weight:700;">',$time,'</span></span>
@@ -1144,7 +1135,7 @@ $message = "Hi! You've been invited by $sendname to join PhotoRankr, a site for 
 
 To accept your invitation and begin following photography today, just click the link below:
 
-http://photorankr.com/signin.php
+https://photorankr.com/signin.php
 
 We hope you'll enjoy PhotoRankr as much as we have building it,
 
@@ -1195,13 +1186,13 @@ echo '<span style="position:relative;top:0px;font-family:lucida grande, georgia,
 
 <!--TWITTER-->
 <div style="float:left;padding:25px;">
-    <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://photorankr.com/viewprofile.php?u=',$userid,'" data-text="Visit my photography site on PhotoRankr!" data-via="PhotoRankr" data-related="PhotoRankr"><img src="graphics/twitter.png" style="width:50px;"/></a>
+    <a href="https://twitter.com/share" class="twitter-share-button" data-url="https://photorankr.com/viewprofile.php?u=',$userid,'" data-text="Visit my photography site on PhotoRankr!" data-via="PhotoRankr" data-related="PhotoRankr"><img src="graphics/twitter.png" style="width:50px;"/></a>
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 </div>
 
 <!--GOOGLE PLUS-->
 <div style="float:left;padding:25px;">
-<div data-action="share" data-href="http://photorankr.com/viewprofile.php?u=',$userid,'"><img src="graphics/g+.png" style="width:50px;margin:0px 9px 0px 8px;"/></div>';
+<div data-action="share" data-href="https://photorankr.com/viewprofile.php?u=',$userid,'"><img src="graphics/g+.png" style="width:50px;margin:0px 9px 0px 8px;"/></div>';
 ?>
 </div>
 
@@ -1235,13 +1226,13 @@ echo'
 
 <!--TWITTER-->
 <div style="float:left;padding:25px;">
-    <a href="https://twitter.com/share" data-url="http://photorankr.com/viewprofile.php?u=',$user,'" data-text="Visit my photography site on PhotoRankr!" data-via="PhotoRankr" data-related="PhotoRankr" data-size="large" data-count="none"><img src="graphics/twitter.png" style="width:50px;"/></a>
+    <a href="https://twitter.com/share" data-url="https://photorankr.com/viewprofile.php?u=',$user,'" data-text="Visit my photography site on PhotoRankr!" data-via="PhotoRankr" data-related="PhotoRankr" data-size="large" data-count="none"><img src="graphics/twitter.png" style="width:50px;"/></a>
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 </div>
 
 <!--GOOGLE PLUS-->
 <div style="float:left;padding:25px;">
-<div data-action="share" data-href="http://photorankr.com/viewprofile.php?u=',$user,'"><img src="graphics/g+.png" style="width:50px;margin:0px 9px 0px 8px;"/></div>';
+<div data-action="share" data-href="https://photorankr.com/viewprofile.php?u=',$user,'"><img src="graphics/g+.png" style="width:50px;margin:0px 9px 0px 8px;"/></div>';
 ?>
 </div>
 
@@ -1469,7 +1460,7 @@ echo'
     
                 echo'
                     <div>
-                        <img style="float:left;padding:2px;" src="http://www.photorankr.com/',$newsource,'" width="136" height="136" />
+                        <img style="float:left;padding:2px;" src="https://www.photorankr.com/',$newsource,'" width="136" height="136" />
                     </div>';
             }
                 
@@ -2234,9 +2225,9 @@ border-radius: 4px;">';
                 
                 echo '   
 
-                <div style="width:215px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="http://photorankr.com/viewprofile.php?u=',$followingid,'">
+                <div style="width:215px;height:245px;overflow:hidden;float:left;margin-left:10px;margin-top:30px;"><a style="text-decoration:none;" href="https://photorankr.com/viewprofile.php?u=',$followingid,'">
 
-                <img id="roundCorners" onmousedown="return false" oncontextmenu="return false;" style="   min-height:215px;min-width:215px;" src="http://www.photorankr.com/',$followingpic,'" height="215" width="215" /></a>
+                <img id="roundCorners" onmousedown="return false" oncontextmenu="return false;" style="   min-height:215px;min-width:215px;" src="https://www.photorankr.com/',$followingpic,'" height="215" width="215" /></a>
                 
                  <div class="statoverlay"><div style="line-spacing:1.48;padding:5px;color:#4A4A4A;"><div style="float:left;"<span style="font-size:16px;font-weight:bold;">',$score,'</span>&nbsp;&nbsp;<span style="font-weight:bold;font-size:12px;">',$fullname,'</span></div></div><br/></div>       	
 
@@ -2578,7 +2569,7 @@ border-radius: 4px;">';
         </tr>
         
         <tr>
-        <td colspan="2"><br /><b>Photo Classification:</b></td>
+        <td colspan="2"><br /><b>Photo Classification: <span style="font-size:13px;font-weight:300;">(required)</span></b></td>
         </tr>
         
         <tr>

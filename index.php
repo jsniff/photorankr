@@ -59,19 +59,7 @@ $notsqueryrun = mysql_query($notsquery); }
 	<link rel="stylesheet" media='screen and (max-width:640px)' href="css/640.css"/>
 	<link href = "css/bootstrap1.css" rel="stylesheet" type="text/css"/>
 	<script src="js/modernizer.js"></script>
-    
-    <!--GOOGLE ANALYTICS CODE-->
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-28031297-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
 
 	<style type="text/css">
 
@@ -173,6 +161,8 @@ box-shadow: 1px 1px 5px #888;
 
 </head>
 <body style="background-image:url('graphics/paper.png');background-repeat:repeat;">
+<?php include_once("analyticstracking.php") ?>
+
 <!-- Left Nav -->
 
 <!--Main Content-->

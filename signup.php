@@ -33,7 +33,7 @@ session_start();
 		<link rel="stylesheet" href="text2.css" type="text/css" />
         <link rel="stylesheet" type="text/css" href="css/main3.css" />
 
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
   <script src="bootstrap.js" type="text/javascript"></script>
   <script src="bootstrap-dropdown.js" type="text/javascript"></script>
   <script src="bootstrap-collapse.js" type="text/javascript"></script>
@@ -51,25 +51,10 @@ session_start();
 });
      </script>
 
-
-<!--GOOGLE ANALYTICS CODE-->
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-28031297-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-
-
 </head>
 <body style="background-image:url('img/longview.jpg');background-size: 100%;
 background-repeat:no-repeat;overflow-x:hidden;">
+<?php include_once("analyticstracking.php") ?>
 
 <?php navbar(); ?>
 

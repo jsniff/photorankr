@@ -140,6 +140,7 @@ $currentnotsresult = mysql_result($currentnotsquery, 0, "notifications");
 
 </head>
 <body style="overflow-x:hidden; background-color:rgb(238,239,243);min-width:1220px;">
+<?php include_once("analyticstracking.php") ?>
 
 <?php navbar(); ?>
   

@@ -2,7 +2,7 @@
 
 //connect to the database
 require "db_connection.php";
-require "functionsnav.php";
+require "functions.php";
 
 //start the session
 session_start();
@@ -22,16 +22,22 @@ session_start();
 <!DOCTYPE HTML>
 <head>
 	
-    <meta charset="UTF-8">
-	<title> The official PhotoRankr blog. Read photography articles and browse through featured galleries of work.</title>
+    <meta name="Generator" content="EditPlus">
+    <meta name="Author" content="PhotoRankr, PhotoRankr.com">
     <meta name="Keywords" content="photorankr blog, photography blog, blog, photos, sharing photos, photo sharing, photography, stock photography, stock, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos, social stock, photo licensing, royalty free photos, crowdsource, crowdsourcing photos, crowdsourced photos">
     <meta name="Description" content="The official PhotoRankr blog. Read photography articles and browse through featured galleries of work.">
+    <meta name="viewport" content="width=1200" /> 
+    
+    <title>The PhotoRankr Blog</title>
 
-	<link rel="stylesheet" href="css/blog.css" type="text/css"/>
-    <link rel="stylesheet" href="css/style.css" type="text/css"/>
-	<link rel="stylesheet" href="css/960_24_col.css" type="text/css"/>
-	<link rel="stylesheet" href="css/bootstrapNew.css" type="text/css"/>
-	<link rel="stylesheet" href="css/reset.css" />
+	<link rel="stylesheet" type="text/css" href="css/style.css"/>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
+	<link rel="stylesheet" type="text/css" href="css/reset.css"/>           
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>
+ 
+    <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 
 	<style type="text/css" >
 		.position 	
@@ -66,12 +72,13 @@ session_start();
         
 	</style>
 </head>
-<body id="body">
-	
-   <?php navbarnew(); ?> 
+<body style="background-image:url('graphics/paper.png');background-repeat:repeat;">
+<?php include_once("analyticstracking.php") ?>
+
+   <?php navbar(); ?> 
     
  <div class="navbar-top">
-	<div class="navbar-inner-spec" style="margin-top:45px;">
+	<div class="navbar-inner-spec" style="margin-top:35px;">
 		<div class="container" style="width:1000px;">
 			<ul class="navbar" style="margin-left:38px;margin-top:25px;">
             
@@ -243,6 +250,14 @@ session_start();
 	</div>
     
     <?php footer(); ?>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="../js/bootstrap-dropdown.js"></script>
+    <script type="text/javascript">  
+        $(document).ready(function () {  
+            $('.dropdown-toggle').dropdown();  
+        });  
+</script> 
 
 </body>
 </html>

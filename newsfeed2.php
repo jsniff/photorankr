@@ -39,6 +39,13 @@ session_start();
         header("Location: galleries.php");
         exit();
     } 
+    
+    //Members List For Ads
+    $membersquery = mysql_query("SELECT * FROM members");
+    $nummembers = mysql_num_rows($membersquery);
+    for($iii=0;$iii<$nummembers;$iii++) {
+        $memberslist .= mysql_result($membersquery,$iii,'emailaddress');
+    }
 
 $query="SELECT * FROM photos ORDER BY id DESC LIMIT 0, 16";
 $result=mysql_query($query);
@@ -68,7 +75,7 @@ $view=htmlentities($_GET['view']);
 <head>
 
   <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
-  <meta name="Description" content="A gallery of the newest photography, photographers, and exhibits on PhotoRankr.">
+  <meta name="Description" content="Your personal newsfeed of the latest photography news around PhotoRankr. ">
      <meta name="viewport" content="width=1200" /> 
 
 	 <link rel="stylesheet" type="text/css" href="css/style.css"/>
@@ -83,20 +90,10 @@ $view=htmlentities($_GET['view']);
     <script src="js/bootstrap.js"></script>          
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
 
-    <title>PhotoRankr - Your Personal News Feed</title>
+    <title>PhotoRankr</title>
 
-<!--GOOGLE ANALYTICS CODE-->
 <script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-28031297-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-  
     //Fix Sidebar Left
     $(window).scroll(function(){
     if  ($(window).scrollTop() >= 229){
@@ -167,19 +164,152 @@ $view=htmlentities($_GET['view']);
                 float:right;
                 margin-right:15px;
             }
+                
+            .fixedTop1 {
+                position:fixed !important;
+                top:60px !important;
+            }
+             .fixedTop {
+                position:fixed !important;
+                top:60px !important;
+                margin-left:80px;
+            }
+            
         </style> 
-</head>
-<body style="overflow-x:hidden;background-image:url('graphics/linen.png')">
+        
+  
 
+</head>
+<body>
+<div id="Main" style="overflow-x:hidden;background-image:url('graphics/paper.png');background-color:rgb(235,235,235);position:absolute;top:0px;">
+
+<?php include_once("analyticstracking.php") ?>
 <?php navbar(); ?>
 
 <!-----------------------Begin Container---------------------->
 <div id="newsbg" class="container_24" style="width:1050px;position:relative;left:35px;">
 
+<!-----------------------Begin Far Right Column---------------------->
+
+<div class="grid_6" style="position:relative;margin-top:73px;left:-55px;">
+
+    <!-----------------------Title------------------------------->
+    
+    <div class="newsUpdateBox">
+    
+    	<div class="updateBoxTop">
+    		<img src="https://photorankr.com/<?php echo $sessionpic; ?>" />
+    		<header><?php echo $sessionname; ?></header>
+    	</div>
+    	
+    	<div class="updateBoxMiddle">
+    		<ul>
+    			<li><?php echo $numphotos; ?><p>Photos</p></li>
+    			<li><?php echo $sesnumberfollowers; ?><p>Followers</p></li>
+    			<li style="border:none;"><?php echo $sesnumberfollowing; ?><p>Following</p></li>
+    		</ul>
+    	</div>
+    
+		<div class="updateBoxBottom">
+			<form action="#" id="statusForm">
+				<textarea id="status" style="resize:none;margin:10px;padding:4px;width:240px;height:22px;" placeholder="What's new with your photography?"></textarea>
+				 <div id="button_blockFeed">
+                 <input type="submit" id="statusButton" class="btn btn-success" value=" Post "/>
+             </div>
+        </form>
+        
+        </div>    
+    
+    </div>
+
+    <!--------------------Menu Options--------------------------->
+    
+   <div class="newsChoices">
+        <ul>
+            <a class="link" href="newsfeed.php"><li><img src="graphics/list 2.png" /> All News</li></a>
+            <a class="link" href="newsfeed.php?view=up"><li><img src="graphics/camera2.png" /> Uploads</li></a>
+            <a class="link" href="newsfeed.php?view=comments"><li><img src="graphics/comment_1.png" /> Comments</li></a>
+            <a class="link" href="newsfeed.php?view=faves"><li><img src="graphics/heart.png" /> Favorites</li></a>
+        
+        <?php
+        //Possible Groups To Show
+        $usergroupsquery = mysql_query("SELECT groups FROM userinfo WHERE user_id = $sessionid");
+        $usergroups = mysql_result($usergroupsquery,0,'groups');
+        $mygroups = explode(",",$usergroups);
+        $nummygroups = count($mygroups);
+        
+        if($nummygroups > 0) {
+            echo'<a class="link" href=#"><li style="font-weight:500;text-align:center;"> My Groups </li></a>';
+        }
+        
+        for($ii=0; $ii<$nummygroups - 1; $ii++) {
+            $groupinfo = mysql_query("SELECT * FROM groups WHERE id = $mygroups[$ii]");
+            $groupname = mysql_result($groupinfo,0,'name');
+            
+            if(!$groupname) {
+                continue;
+            }
+            echo'<a class="link" href="groups.php?id=',$mygroups[$ii],'"><li><img src="graphics/groups_b.png" />',$groupname,'</li></a>';
+        
+        }
+        ?>
+        
+        </ul>
+    </div>
+    
+<br /><br /><br />
+
+<!---------------GOOGLE AD SPACE------------->
+<?php if(strpos($memberslist,$email) === false) { ?>
+
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-2927580055218994";
+/* Newsfeed #1 */
+google_ad_slot = "5830953419";
+google_ad_width = 200;
+google_ad_height = 200;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<br /><br /><br />
+
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-2927580055218994";
+/* Newsfeed #2 */
+google_ad_slot = "8784419813";
+google_ad_width = 200;
+google_ad_height = 200;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<br /><br /><br />
+
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-2927580055218994";
+/* Newsfeed #3 */
+google_ad_slot = "1261153011";
+google_ad_width = 200;
+google_ad_height = 200;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<?php } ?>
+
+</div>
+
 <!-----------------------Begin Newsfeed----------------------->
 
   <!--NEWSFEED-->
-    <div class="grid_14" id="thepics" style="width:530px;margin-top:70px;position:relative;margin-bottom:-30px;left:-60px;">
+    <div class="grid_14" id="thepics" style="width:530px;margin-top:70px;position:relative;margin-bottom:-30px;left:0px;">
     <div id="container">
     
 <?php
@@ -2020,6 +2150,7 @@ if($view == '') {
             padding:3px;
             margin-left:40px;
         }
+      
     </style>
     
     <?php
@@ -2737,7 +2868,7 @@ echo'
 
 <!-----------------------Begin Middle Column---------------------->
 
-<div class="grid_6" style="position:relative;left:-15px;margin-top:55px;">
+<div class="grid_6" style="position:relative;left:45px;margin-top:55px;">
 
 <!-------------------Suggested Photographers----------------->
     <?php
@@ -2769,7 +2900,9 @@ echo'
 		//loop through the people, printing out their name and profile picture
         //echo'<span style="font-size:16px;font-weight:100;padding:15px;">Photographers to Follow:</span>';
         
-        echo'<div class="updateBoxBottom" style="width:275px;margin-top:20px;">
+        echo'<div class="updateBoxBottom" style="width:275px;margin-top:20px;-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 0px 1px #666;
+-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 0px 1px #666;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 0px 1px #aaa;">
              <header>Who to Follow</header>
              </div>';
         
@@ -2867,8 +3000,12 @@ echo'
 
 
 <!-------Search by Hashtags------>
+<div id="headerContainer">
+<div id="hashtagboxes">
 
-<div class="updateBoxBottom" style="width:245px;padding-bottom:0px;padding:15px;">
+<div class="updateBoxBottom" style="width:245px;padding-bottom:0px;padding:15px;-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 0px 1px #666;
+-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 0px 1px #666;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 0px 1px #aaa;">
     <form action="" method="get">
         <input type="hidden" value="search" name="view" />
         <input type="text" name="tag" id="newsSearchBox" placeholder="Search By Tags&hellip;" />
@@ -2929,6 +3066,7 @@ echo'
             $image4 = str_replace('userphotos/','userphotos/medthumbs/',$image4);
             $image4id = mysql_result($tagPhotos,3,'id');
         ?>
+         
         <script type="text/javascript">
         //Show More Trending Images
         jQuery(document).ready(function(){
@@ -2968,95 +3106,46 @@ echo'
 
 ?>
 </ul>
-
-
 </div>
 
+</div>
+</div>
 
 <!-----------------------End Middle Column---------------------->
-
-
-
-<!-----------------------Begin Far Right Column---------------------->
-
-<div class="grid_6" style="position:relative;margin-top:75px;left:45px;">
-
-    <!-----------------------Title------------------------------->
-    
-    <div class="newsUpdateBox">
-    
-    	<div class="updateBoxTop">
-    		<img src="https://photorankr.com/<?php echo $sessionpic; ?>" />
-    		<header><?php echo $sessionname; ?></header>
-    	</div>
-    	
-    	<div class="updateBoxMiddle">
-    		<ul>
-    			<li><?php echo $numphotos; ?><p>Photos</p></li>
-    			<li><?php echo $sesnumberfollowers; ?><p>Followers</p></li>
-    			<li style="border:none;"><?php echo $sesnumberfollowing; ?><p>Following</p></li>
-    		</ul>
-    	</div>
-    
-		<div class="updateBoxBottom">
-			<form action="#" id="statusForm">
-				<textarea id="status" style="resize:none;margin:10px;padding:4px;width:240px;height:22px;" placeholder="What's new with your photography?"></textarea>
-				 <div id="button_blockFeed">
-                 <input type="submit" id="statusButton" class="btn btn-success" value=" Post "/>
-             </div>
-        </form>
-        
-        </div>    
-    
-    </div>
-
-    <!--------------------Menu Options--------------------------->
-    
-   <div class="newsChoices">
-        <ul>
-            <a class="link" href="newsfeed.php"><li><img src="graphics/list 2.png" /> All News</li></a>
-            <a class="link" href="newsfeed.php?view=up"><li><img src="graphics/camera2.png" /> Uploads</li></a>
-            <a class="link" href="newsfeed.php?view=comments"><li><img src="graphics/comment_1.png" /> Comments</li></a>
-            <a class="link" href="newsfeed.php?view=faves"><li><img src="graphics/heart.png" /> Favorites</li></a>
-        
-        <?php
-        //Possible Groups To Show
-        $usergroupsquery = mysql_query("SELECT groups FROM userinfo WHERE user_id = $sessionid");
-        $usergroups = mysql_result($usergroupsquery,0,'groups');
-        $mygroups = explode(",",$usergroups);
-        $nummygroups = count($mygroups);
-        
-        if($nummygroups > 0) {
-            echo'<a class="link" href=#"><li style="font-weight:500;text-align:center;"> My Groups </li></a>';
-        }
-        
-        for($ii=0; $ii<$nummygroups - 1; $ii++) {
-            $groupinfo = mysql_query("SELECT * FROM groups WHERE id = $mygroups[$ii]");
-            $groupname = mysql_result($groupinfo,0,'name');
-            
-            echo'<a class="link" href="groups.php?id=',$mygroups[$ii],'"><li><img src="graphics/groups_b.png" />',$groupname,'</li></a>';
-        
-        }
-        ?>
-        
-        </ul>
-    </div>
-    
-    
-
     
     
     <!-----SURVEY RIBBON-
     
 		<div style="width:275px;background-color:#F30808;height:30px;margin-top:20px;text-align:center;font-weight:500;font-size:14px;-webkit-border-radius: 3px;overflow:hidden;-moz-border-radius: 3px;border-radius: 3px;">
-			<div style="color:#fff;margin-top:5px;"><a style="color:#fff;" href="http://www.surveymonkey.com/s/HLRF8VJ">We want your feedback</a></span>
+			<div style="color:#fff;margin-top:5px;"><a style="color:#fff;" href="https://www.surveymonkey.com/s/HLRF8VJ">We want your feedback</a></span>
 		</div>----->
 
 
 <!-----------------------End Far Right Column---------------------->
 
 
-<!-----------------------End of Container--------------------->
+<!-----------------------End of Container-->
 </div>
 </body>
+ <script type="text/javascript">
+    //Fix part of newsfeed
+    (function(){
+
+    var $header = $("#hashtagboxes");
+    var HeaderOffset = $header.position().top;
+    var FIREFOX = /Firefox/i.test(navigator.userAgent);
+    $("#headerContainer").css({ height: $header.height() });
+
+$("#Main").scroll(function() {
+    if($(this).scrollTop() > HeaderOffset) {
+        if (FIREFOX) { $header.addClass("fixedTop1"); } else{ 
+        $header.addClass("fixedTop");}
+    } else {
+        $header.removeClass("fixedTop");
+        $header.removeClass("fixedTop1");
+    }
+});
+    
+})();
+</script>
 </html>

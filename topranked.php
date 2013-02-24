@@ -95,11 +95,14 @@ $notsqueryrun = mysql_query($notsquery); }
 
 <head>
 
- <meta name="Generator" content="EditPlus">
-  <meta name="Author" content="PhotoRankr, PhotoRankr.com">
-  <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
-  <meta name="Description" content="A gallery of the newest photography, photographers, and exhibits on PhotoRankr.">
+    <meta name="Generator" content="EditPlus">
+    <meta name="Author" content="PhotoRankr, PhotoRankr.com">
+    <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
+    <meta name="Description" content="The top ranked photography on PhotoRankr.">
     <meta name="viewport" content="width=1200" /> 
+    
+    <title>PhotoRankr - Top Ranked Photography</title>
+
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
@@ -111,8 +114,6 @@ $notsqueryrun = mysql_query($notsquery); }
     <script src="js/bootstrap.js"></script>
     <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
   
-  <title>PhotoRankr - Top Ranked Photography</title>
-
 <style type="text/css">
 
 
@@ -153,17 +154,7 @@ box-shadow: 1px 1px 5px #888;
 
 </style>
 
-<!--GOOGLE ANALYTICS CODE-->
 <script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-28031297-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
   
   //Create Request Object
 function createRequestObject() {
@@ -213,6 +204,7 @@ function ajaxFunction(image){
 
 </head>
 <body style="overflow-x:hidden; background-image:url('graphics/paper.png');">
+<?php include_once("analyticstracking.php") ?>
 
 <?php navbar(); ?>
 

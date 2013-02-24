@@ -2,7 +2,7 @@
 
 //connect to the database
 require "db_connection.php";
-require "functionsnav.php";
+require "functions.php";
 
 //start the session
 session_start();
@@ -43,11 +43,12 @@ session_start();
     <meta name="Keywords" content="<?php echo $name; ?>,photorankr blog, photography blog, blog, photos, sharing photos, photo sharing, photography, stock photography, stock, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos, social stock, photo licensing, royalty free photos, crowdsource, crowdsourcing photos, crowdsourced photos">
     <meta name="Description" content="Featured Gallery | <?php echo $name; ?>">
 
-	<link rel="stylesheet" href="css/blog.css" type="text/css"/>
-    <link rel="stylesheet" href="css/style.css" type="text/css"/>
-	<link rel="stylesheet" href="css/960_24_col.css" type="text/css"/>
-	<link rel="stylesheet" href="css/bootstrapNew.css" type="text/css"/>
-	<link rel="stylesheet" href="css/reset.css" />
+	<link rel="stylesheet" type="text/css" href="css/style.css"/>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+	<link rel="stylesheet" type="text/css" href="css/960grid.css"/>
+	<link rel="stylesheet" type="text/css" href="css/reset.css"/>     
+    <link rel="stylesheet" type="text/css" href="css/main3.css"/>            
+    <link rel="shortcut icon" type="image/x-png" href="graphics/favicon.png"/>
     
      <script type="text/javascript">var switchTo5x=true;</script>
     <script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
@@ -80,11 +81,12 @@ session_start();
 	</style>
 </head>
 <body id="body">
-	
-    <?php navbarnew(); ?> 
+<?php include_once("analyticstracking.php") ?>
+
+    <?php navbar(); ?> 
     
  <div class="navbar-top">
-	<div class="navbar-inner-spec" style="margin-top:45px;">
+	<div class="navbar-inner-spec" style="margin-top:35px;">
 		<div class="container" style="width:1000px;">
 			<ul class="navbar" style="margin-left:38px;margin-top:25px;">
             
@@ -185,12 +187,14 @@ session_start();
     
 <?php footer(); ?>
 
-    <script type="text/javascript">stLight.options({publisher: "2c31e7c5-bd4b-4757-8ea0-da2dc02c3404"});</script>
-<script>
-var options={ "publisher": "2c31e7c5-bd4b-4757-8ea0-da2dc02c3404", "position": "left", "ad": { "visible": false, "openDelay": 5, "closeDelay": 0}, "chicklets": { "items": ["facebook", "twitter", "pinterest", "email", "sharethis"]}};
-var st_hover_widget = new sharethis.widgets.hoverbuttons(options);
-    </script>
 
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="../js/bootstrap-dropdown.js"></script>
+    <script type="text/javascript">  
+        $(document).ready(function () {  
+            $('.dropdown-toggle').dropdown();  
+        });  
+</script>
 
 </body>
 </html>

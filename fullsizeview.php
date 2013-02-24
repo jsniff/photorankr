@@ -47,11 +47,38 @@ session_start();
         $unhighlightqueryrun = mysql_query($unhighlightquery);
     }
     
-    //GET THE IMAGE
+//GET THE IMAGE
 $image = addslashes($_GET['image']);
+$imageid = addslashes($_GET['imageid']);
 $view = htmlentities($_GET['v']);
 if($view == '') {
     $view = 't';
+}
+
+//MemCache Object
+$memcache = new Memcache;
+$memcache->connect('localhost', 11211) or die ("Could not connect");
+
+//set the key then check the cache
+$key = md5("SELECT source FROM photos WHERE id = '$imageid'");
+$get_result = $memcache->get($key);
+
+//result is in memcache server
+if ($get_result) {
+$image = $get_result['source'];
+//echo "Data Pulled From Cache";
+}
+
+//result is not in memcache server
+else {
+ // Run the query and get the data from the database then cache it
+ $query="SELECT source FROM photos WHERE id = '$imageid'";
+ $result = mysql_query($query);
+ $row = mysql_fetch_array($result);
+ $memcache->set($key, $row, TRUE, 86400); // Store the result of the query for 1 day
+ $image = $row['source'];
+//echo "Data Pulled from the Database";
+
 }
 
 if(!$image) {
@@ -62,12 +89,6 @@ if(!$image) {
     
 }
 
-if(!$imageid) {
-
-    $imagequery = mysql_query("SELECT id FROM photos WHERE source = '$image'");
-    $imageid = mysql_result($imagequery,0,'id');
-
-} 
 
 //if the url does not contain an image send them back to trending
 if(!$image) {
@@ -125,52 +146,15 @@ $lens = $row['lens'];
 $filter = $row['filter'];
 $copyright = $row['copyright'];
 $about = $row['about'];
-
 $tag1 = $row['tag1'];
-
-if($tag1) {
-$tag1 = '<a style="color:black;" href="search.php?searchterm='.$tag1.'">'.$tag1.'</a>';
-$tag1 = $tag1 . ", ";
-}
-
 $tag2 = $row['tag2'];
-
-if($tag2) {
-$tag2 = '<a style="color:black;" href="search.php?searchterm='.$tag2.'">'.$tag2.'</a>';
-$tag2 = $tag2 . ", ";
-}
-
 $tag3 = $row['tag3'];
-
-if($tag3) {
-$tag3 = '<a style="color:black;" href="search.php?searchterm='.$tag3.'">'.$tag3.'</a>';
-$tag3 = $tag3 . ", ";
-}
-
 $tag4 = $row['tag4'];
-
-if($tag4) {
-$tag4 = '<a style="color:black;" href="search.php?searchterm='.$tag4.'">'.$tag4.'</a>';
-$tag4 = $tag4 . ", ";
-}
-
 $singlestyletags = $row['singlestyletags'];
 $singlecategorytags = $row['singlecategorytags'];
 $singlestyletagsarray = explode("  ", $singlestyletags);
 $singlecategorytagsarray   = explode("  ", $singlecategorytags);
-for($iii=0; $iii < count($singlestyletagsarray); $iii++) {
-if($singlestyletagsarray[$iii] != '') {
-    $singlestyletagsfinal .= '<a style="color:black;" href="search.php?searchterm='.$singlestyletagsarray[$iii].'">' . $singlestyletagsarray[$iii] . '</a>' . ", "; }
-    }
-    for($iii=0; $iii < count($singlecategorytagsarray); $iii++) {
-        if($singlecategorytagsarray[$iii] != '') {
-        $singlecategorytagsfinal .= '<a style="color:black;" href="search.php?searchterm='.$singlecategorytagsarray[$iii].'">' . $singlecategorytagsarray[$iii] . '</a>' . ", "; }
-    }
     
-$keywords = $tag1 . $tag2 . $tag3 . $tag4 . $singlestyletagsfinal . $singlecategorytagsfinal;
-$keywords = substr_replace($keywords ," ",-2);
-    
-
 //find how many photos the photographer has
 $numberofpics = mysql_query("SELECT * FROM photos WHERE emailaddress='$emailaddress'");
 $numberofpics = mysql_num_rows($numberofpics);
@@ -505,8 +489,15 @@ $timestampquery= mysql_query($timestampentertimeslicequeryfave);
 <!DOCTYPE HTML>
 <head>
 
+	<meta name="Generator" content="EditPlus">
+    <meta property="og:image" content="https://photorankr.com/<?php echo $image; ?>">
+    <meta name="Author" content="PhotoRankr, PhotoRankr.com">
+    <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
+    <meta name="Description" content="<?php echo $caption; ?> by <?php echo $firstname ." ". $lastname; ?>">
+    <meta name="viewport" content="width=1200" />
 	<meta charset = "UTF-8">
-	<title> Sell, share and discover brilliant photography </title>
+
+	<title> "<?php echo $caption; ?>" | PhotoRankr </title>
     
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
@@ -521,19 +512,6 @@ $timestampquery= mysql_query($timestampentertimeslicequeryfave);
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="js/bootstrap.js" type="text/javascript"></script>
 	<script src="js/modernizer.js"></script>
-    
-    <!--GOOGLE ANALYTICS CODE-->
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-28031297-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
 	
     <style type="text/css">
 		.show
@@ -1225,6 +1203,7 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 </div>
 
 <body style="overflow-x:hidden; background-image:url('graphics/paper.png');">
+<?php include_once("analyticstracking.php") ?>
 
 <?php navbar(); ?>
 
@@ -1379,12 +1358,43 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
                     
                     if($exhibit && $expic1 && $expic2 && $expic3) {
                         echo'
-						<li style="clear:both;margin-left:5px;overflow:hidden;margin-left:-10px;width:250px;">
+						<li style="clear:both;margin-left:5px;overflow:hidden;margin-left:-10px;width:250px;word-wrap:break-word;">
                         <a href="fullsize.php?image=',$expic1,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb1,'" height="80" width="78" /></a> 
                         <a href="fullsize.php?image=',$expic2,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb2,'" height="80" width="78" /></a> 
                         <a href="fullsize.php?image=',$expic3,'&view=',$view,'"><img style="float:left;padding:2px;" src="https://photorankr.com/',$exthumb3,'" height="80" width="78" /></a> 
                         </li>';
                     }
+                if($tag1 || $tag2 || $tag3 || $tag4 || $singlestyletagsarray || $singlecategorytagsarray) {
+                echo'<li style="margin-left:5px;margin-left:-10px;width:245px;height:auto;"> Tags: ';
+                    if($tag1) {
+                        echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$tag1.'">',$tag1,'</a>';
+                    }
+                    if($tag2) {
+                        echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$tag2.'">',$tag2,'</a>';
+                    }
+                    if($tag3) {
+                        echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$tag3.'">',$tag3,'</a>';
+                    }
+                    if($tag4) {
+                        echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$tag4.'">',$tag4,'</a>';
+                    }
+                    if($singlestyletagsarray) {
+                        for($iii=0; $iii < count($singlestyletagsarray); $iii++) {
+                            if($singlestyletagsarray[$iii] != '') {
+                                echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$singlestyletagsarray[$iii].'">',$singlestyletagsarray[$iii],'</a>';
+                            }
+                        }
+                    }
+                    if($singlecategorytagsarray) {
+                        for($iii=0; $iii < count($singlecategorytagsarray); $iii++) {
+                            if($singlecategorytagsarray[$iii] != '') {
+                                echo' <img style="width:10px;margin-left:5px;margin-top:-3px;margin-right:0px;" src="graphics/tag.png" /> <a style="color:black;" href="search.php?searchterm='.$singlecategorytagsarray[$iii].'">',$singlecategorytagsarray[$iii],'</a>';
+                            }
+                        }
+                    }
+                    echo'
+                </li>';
+                }
                 if($views) {
 				echo'<li><img src="graphics/views.png"/>  Views: <span style="margin-left:38px;">',$views,'</span></li>';
                 }
@@ -1395,25 +1405,38 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 				echo'<li><img src="graphics/camera.png"/> Camera: <span style="margin-left:28px;">',$camera,'</span></li>';
                 }
                 if($aperture) {
-				echo'<li><img src="graphics/aperature.png"/> Aperture: <span style="margin-left:24px;">',$aperture,'</span></li>';
+                    $aperture = explode("/",$aperture);
+                    $top = $aperture[0];
+                    $bottom = $aperture[1];
+                    
+				echo'<li><img src="graphics/aperature.png"/> Aperture: <span style="margin-left:24px;">f/',number_format(($top/$bottom),1),'</span></li>';
                 }
                 if($focallength) {
-				echo'<li> <img src="graphics/focalLength.png"/> Focal Length:  <span style="margin-left:3px;">',$focallength,'</span> </li>';
+				echo'<li> <img src="graphics/focalLength.png"/> Focal Length:  <span style="margin-left:3px;">',$focallength,' mm</span> </li>';
+                }
+                if($iso) {
+				echo'<li> <img src="graphics/iso_i.png"/> ISO:  <span style="margin-left:47px;">',$iso,'</span> </li>';
                 }
                 if($lens) {
 				echo'<li> <img src="graphics/lens.png"/> Lens: <span style="margin-left:42px;">',$lens,'</span> </li>';
                 }
                 if($shutterspeed) {
-				echo'<li> <img src="graphics/shutterSpeed.png"/> Shutter: <span style="margin-left:30px;">',$shutterspeed,'</span> </li>';
+                    $shutterspeed = explode("/",$shutterspeed);
+                    $top = $shutterspeed[0];
+                    $bottom = $shutterspeed[1];
+				echo'<li> <img src="graphics/shutterSpeed.png"/> Shutter: <span style="margin-left:30px;">1/',number_format(($top/$bottom),1),' sec</span> </li>';
+                }
+                if($software) {
+				echo'<li> <img style="opacity:.9;" src="graphics/software_i.png"/> Software: <span style="margin-left:23px;">',$software,'</span> </li>';
                 }
                 if($date) {
-                    echo'<li> <img src="graphics/captureDate.png" style="width:16px;margin-left:-3px;"/> Capture Date <span> <?php echo $date; ?> </span></li>';
+                    echo'<li> <img src="graphics/captureDate.png" style="width:16px;margin-left:-3px;"/> Capture Date <span>',converttodate($date),'</span></li>';
                 }
                 if($fullname) {
-                    echo'<li> <img src="graphics/copyright.png" style="width:15px;margin-left:-2px;"/> Copyright <span> <?php echo $fullname; ?> </span></li>';
+                    echo'<li> <img src="graphics/copyright.png" style="width:15px;margin-left:-2px;"/> Copyright: <span style="margin-left:20px;">',$fullname,'</span></li>';
                 }
 				if($location) { 
-                    echo'<li> <img src="graphics/location.png" style="width:10px;margin: 0 8px 0 0;"/> Location: <span> <?php echo $location; ?> </span></li>';
+                    echo'<li> <img src="graphics/location.png" style="width:10px;margin: 0 8px 0 0;"/> Location: <span style="margin-left:20px;">',$location,'</span></li>';
                 }
 
                 ?>
@@ -1422,7 +1445,7 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
         
 
 	</div>
-	
+
 	<!--TITLE-->
 	<div class="bloc_12" style="float:left;display:block;width:74.07%;" id="title">
 		<header><strong>(<?php echo $firstname; ?>'s Portfolio) </strong><?php echo $caption; ?> <span> <?php echo converttime($time); ?> </span> <img style="margin-right:4px;" src="graphics/arrow 4.png"/>  </header>
@@ -1547,9 +1570,11 @@ Filter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 </div>
 
 </div>
-</div>
 
 <?php 
+if($email) {
+    echo'</div>';
+}
 //add to the views column
 $updatequery = mysql_query("UPDATE photos SET views=views+1 WHERE source='$image'") or die(mysql_error());
 ?>

@@ -334,9 +334,16 @@ jQuery(document).ready(function(){
                             <input type="password" style="width:155px!important;height:22px!important;font-size:15px!important;margin-top:3px;margin-left:15px;float:left;background-color:#fff;color:#333;padding-right:0px;" name="password" />
                             <div style="float:left;text-align:center;padding-botom:5px;"><input type="submit" class="btn btn-success" value="Log In" style="font-size:18px!important;width:160px!important;margin-top:10px;margin-left:15px;padding-left:35px!important;background-image:none;" id="loginButton" /></div>
                         </form>
-                        </div>
                     </ul>
-                </li>';
+                </li>
+                
+                <!--Search-->
+                <li style="width:120px;margin-top:2px;height:19px;color:#333;float:left;margin-left:-10px;">
+            <form action="search.php" method="get">
+                <input type="text" style="color:#fff;font-size:16px;font-weight:300;width:210px!important;" onkeyup="showResult(this.value)" name="searchterm" placeholder="Search&hellip;" />
+                <div id="livesearch"></div>
+            </form>	
+            </li>';
         }
 
         
@@ -621,7 +628,7 @@ jQuery(document).ready(function(){
         
         }
         
-        if(!strpos($uri,'signup.php') && !strpos($uri,'register.php') && !strpos($uri,'reg_success.php')) {
+        if(!strpos($uri,'signup.php') && !strpos($uri,'register.php') && !strpos($uri,'reg_success.php') && $_SESSION['loggedin'] == 1) {
             echo'
             <li style="width:120px;margin-top:2px;height:19px;color:#333;float:right;margin-right:155px;">
             <form action="search.php" method="get">

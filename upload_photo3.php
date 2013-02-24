@@ -201,8 +201,8 @@ if($key.$name2==ISO.SpeedRatings) {
 
 		$target = $path_to_medimage_directory . $newfilename;
 		//insert the file information into the database
-		$insertquery="INSERT INTO photos (source, caption, emailaddress, tag, time, price, location, country, tag1, tag2, tag3, tag4, camera, focallength, shutterspeed, aperture, lens, filter, about, copyright, sets, maintags, settags, set_id, singlestyletags, singlecategorytags,width,height,license,extendedoptions,ccmods,cccom, iso,classification)
-		VALUES ('$target', '$name', '$email', '$tag', '$currenttime', '$price', '$location', '$country', '$tag1', '$tag2', '$tag3', '$tag4', '$camera', '$focallength', '$shutterspeed', '$aperture', '$lens', '$filter', '$about', '$copyright', '$addtoset', '$maintags2','$settags2','$set_id','$singlestyletags2','$singlecategorytags2','$width','$height','$license','$extendedlicenses','$ccmods','$cccom', '$iso', '$classification')";
+		$insertquery="INSERT INTO photos (source, caption, emailaddress, tag, time, price, location, country, tag1, tag2, tag3, tag4, camera, focallength, shutterspeed, aperture, lens, filter, software, about, copyright, sets, maintags, settags, set_id, singlestyletags, singlecategorytags,width,height,license,extendedoptions,ccmods,cccom, iso,classification)
+		VALUES ('$target', '$name', '$email', '$tag', '$currenttime', '$price', '$location', '$country', '$tag1', '$tag2', '$tag3', '$tag4', '$camera', '$focallength', '$shutterspeed', '$aperture', '$lens', '$filter', '$software', '$about', '$copyright', '$addtoset', '$maintags2','$settags2','$set_id','$singlestyletags2','$singlecategorytags2','$width','$height','$license','$extendedlicenses','$ccmods','$cccom', '$iso', '$classification')";
 		mysql_query($insertquery);
 //$timestampentertimeslicequery="INSERT INTO Statistics (Source) VALUES ('$target')";
 //$timestampquery= mysql_query($timestampentertimeslicequery);

@@ -217,8 +217,9 @@ width: 270px;
 -moz-box-shadow: 1px 1px 5px #888;
 -webkit-box-shadow: 1px 1px 5px #888;
 box-shadow: 1px 1px 5px #888;
-}		</style>    <!--GOOGLE ANALYTICS CODE--><script type="text/javascript">  var _gaq = _gaq || [];  _gaq.push(['_setAccount', 'UA-28031297-1']);  _gaq.push(['_trackPageview']);  (function() {    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);  })();
+}		</style>
 
+<script type="text/javascript">
 //Create Request Object
 function createRequestObject() {
     var ajaxRequest;  //ajax variable
@@ -278,7 +279,8 @@ function ajaxFollow(emailaddress){
 	ajaxRequest.open("GET", "ajaxFollowTutorial.php" + queryString, true);
 	ajaxRequest.send(null); 
 
-}</script>	</head>  <body style="background-image:url('graphics/paper.png');"><!--Navbar-->
+}</script>	</head>  <body style="background-image:url('graphics/paper.png');"><?php include_once("analyticstracking.php") ?>
+<!--Navbar-->
 <div class="CNav" style="position:fixed;top:0;left:0;z-index:10000;">
 <div class="homeNav" style="width:100%;z-index:10000;">
 	<ul>

@@ -12,10 +12,13 @@ require "functions.php";
         logout();
     }
 
-//start the session
-session_start();
+    //start the session
+    session_start();
 
-$email = $_SESSION['email'];
+    $email = $_SESSION['email'];
+
+    //IP Address
+    $ip = $_SERVER['REMOTE_ADDR'];  
     
      //GET INFO FROM CURRENT PHOTO ID
     $imageid = htmlentities($_GET['imageid']);
@@ -48,6 +51,7 @@ $email = $_SESSION['email'];
     $tag2 = mysql_result($imagequeryrun,0,'tag2');
     $tag3 = mysql_result($imagequeryrun,0,'tag3');
     $tag4 = mysql_result($imagequeryrun,0,'tag4');
+    $classification = mysql_result($imagequeryrun,0,'classification');
     
     $ownerquery = mysql_query("SELECT * FROM userinfo WHERE emailaddress = '$owner'");
     $profilepic = mysql_result($ownerquery,0,'profilepic');
@@ -90,7 +94,7 @@ else {
     //SAVE PHOTO QUERY
     if($_GET['ml'] == "saved") {
             
-            $maybecheckquery=mysql_query("SELECT * FROM usersmaybe WHERE emailaddress = '$email'");
+            $maybecheckquery=mysql_query("SELECT * FROM usersmaybe WHERE (emailaddress = '$email' AND emailaddress != '') OR ip_address = '$ip'");
             $nummaybesaved = mysql_num_rows($maybecheckquery);
 
             for($iii=0; $iii < $nummaybesaved; $iii++) {
@@ -111,10 +115,11 @@ else {
     
     //REMOVE PHOTO QUERY
     if(htmlentities($_GET['action']) == "removed") { 
-        $querycheck = mysql_query("SELECT emailaddress FROM userscart WHERE imageid = '$imageid'");
+        $querycheck = mysql_query("SELECT emailaddress,ip_address FROM userscart WHERE imageid = '$imageid'");
         $emailcheck = mysql_result($querycheck,0,'emailaddress');
-        if($email == $emailcheck) {
-            $removequery = mysql_query("DELETE FROM userscart WHERE imageid = '$imageid' AND emailaddress = '$email'");
+        $cartip = mysql_result($querycheck,0,'ip_address');
+        if(($email == $emailcheck) || ($ip == $cartip)) {
+            $removequery = mysql_query("DELETE FROM userscart WHERE imageid = '$imageid' AND (emailaddress = '$email' AND emailaddress != '') OR ip_address = '$cartip'");
         }
     }
 
@@ -130,13 +135,15 @@ $timestampquery= mysql_query($timestampentertimeslicequery);
 "http://w3.org/TR/html4/strict.dtd">
 <html>
   <head>     
-	<title>Fullsize Photo - "<?php echo $title; ?>"</title>
-    
+	<meta name="Generator" content="EditPlus">
     <meta property="og:image" content="http://photorankr.com/<?php echo $image; ?>">
-   <meta name="Generator" content="EditPlus">
-  <meta name="Author" content="PhotoRankr, PhotoRankr.com">
-  <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
-  <meta name="Description" content="Purchase this photo from PhotoRankr.">
+    <meta name="Author" content="PhotoRankr, PhotoRankr.com">
+    <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
+    <meta name="Description" content="<?php echo $caption; ?> by <?php echo $firstname ." ". $lastname; ?>">
+    <meta name="viewport" content="width=1200" />
+	<meta charset = "UTF-8">
+
+	<title> "<?php echo $caption; ?>" | PhotoRankr </title>
     
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
@@ -182,19 +189,6 @@ $timestampquery= mysql_query($timestampentertimeslicequery);
             .rollover {border:1px solid transparent;}
             .rollover:hover {border:1px solid black;}
         </style>
-
-<!--GOOGLE ANALYTICS CODE-->
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-28031297-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
 
 
 </head>
@@ -298,6 +292,7 @@ height="100px" width="100px" />
 
 
 <body id="body" >
+<?php include_once("analyticstracking.php") ?>
 
 <?php navbar(); ?>
 
@@ -614,143 +609,30 @@ echo'Free';
 </tr>
 
 <tr>
-<td style="color:black;font-weight:700;">License</td>
-<td colspan="2" style="color:black;"><input style="margin-left:130px;"  type="radio" name="license" value="standard"  onclick="showSelectHide();" /><a style="color:black;text-decoration:none;" href="#"  rel="popover" data-content="
 
-<span style='font-size:13px;'>A perpetual, non-exclusive, non-transferable, worldwide license to use the Content for the following permitted uses:
-</br><ul>
-<li>Advertising and promotional projects (printed materials, commercials, etc.)</li>
-<li>Entertainment applications (books, editorials, broadcast presentations, etc.)</li>
-<li>Online or electronic publications (includes use on web pages up to 1200 x 800 pixels)</li>
-<li>Prints, posters, and reproductions for personal or promotional purposes up to 500,000 times</li>
+<?php
 
-</ul></br>
-This license does not allow you to:
-</br><ul>
-<li>Use the Content in products for resale, license, or other distribution unless original is fundamentally modified</li>
-<li>Use the Content in more than one location at a time</li>
-<li>Incorporate the Content in any product that results in a re-distribution or re-use of the Content</li>
-<li>Use the Content in a format that enables it to be downloaded in any peer-to-peer file sharing arrangement</li>
-<li>Use 'Editorial Use Only' for any commercial use</li>
-<li>Reproduce the Content in excess of 500,000 times</li>
-</ul>
-</br>
-The Standard Content License Agreement governs this option.
-</br></br>
-</span>
+if($classification) {
+    echo'
+    <td style="color:black;font-weight:700;">License</td>
+    <td colspan="2" style="color:black;">';
 
-" data-original-title="What is the Standard License?">&nbsp;&nbsp;&nbsp;Editorial</a>
+    //If editorial license
+    if(strpos($classification,'editorial') !== false) {
+        echo'<div style="float:right;padding:5px;"><input style="margin-left:130px;"  type="radio" name="license" value="editorial" />&nbsp;&nbsp;Editorial</a></div>';
+    }
 
-<script>  
-    $(function ()  
-    { $("#licensepopover").popover();  
-    });  
-</script>
+    //If commercial license
+    if(strpos($classification,'commercial') !== false) {
+        echo'<div style="float:right;padding:5px;"><input style="margin-left:15px;" type="radio" name="license" value="commerical" />&nbsp;&nbsp;Commercial</div>';
+    }
+}
 
-<input style="margin-left:15px;" type="radio" name="license" value="extended"  onclick="showSelect();"/>&nbsp;&nbsp;&nbsp;Commercial</td>
-
-</tr>
-</tbody>
-</table>
-
-        <script type="text/javascript">
-            function showSelect() {
-                var select = document.getElementById('table');
-                select.className = 'show';
-            }
-            function showSelectHide() {
-                var select = document.getElementById('table');
-                select.className = 'hide';
-            }
-        </script>
-
-
-
-<div id="table" class="hide">
-<table class="table">
-<tbody>
-<tr id="row4" onclick="showClicked4();" style="color:black;">
-<td><a style="color:black;text-decoration:none;" href="#" id="multiseat" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to extend usage of the Content to more than one person within your organization, provided that all users are either employees or agree to be bound by the Extended Content License Provisions.
-</br></br></span>
-
-" data-original-title="Multi-Seat - Unlimited">Multi-Seat - Unlimited</a>
-
-<script>  
-    $(function ()  
-    { $("#multiseat").popover();  
-});
-</script>
+?>
 
 </td>
-<td colspan="2">+ $20</td>
+
 </tr>
-<tr id="row5" onclick="showClicked5();" style="color:black;">
-<td><a style="color:black;text-decoration:none;" href="#" rel="popover" data-content="<span style='font-size:13px;'>This Extended License Provision removes the 500,000 limit on reproductions and allows for unlimited reproductions.</br></br>The Extended Content License Provisions govern this option.</br></br></span>
-
-" data-original-title="Unlimited Reproduction / Print Runs">Unlimited Reproduction / Print Runs</a>
-
-<script>  
-    $(function ()  
-    { $("#unlimitprintpopover").popover();  
-    });  
-</script>
-
-</td>
-<td colspan="2">+ $35</td>
-</tr>
-<tr id="row6" onclick="showClicked6();" style="color:black;">
-<td><a style="color:black;text-decoration:none;" href="#" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to produce the following items for resale, license, or other distribution:</br>
-<ul>
-<li>Up to 100,000 cards, stationery items, stickers, or paper products</li>
-<li>Up to 10,000 posters, calendars, mugs, or mousepads</li>
-<li>Up to 2,000 t-shirts, apparel items, games, toys, entertainment goods, or framed artwork</li>
-</br>
-The Extended Content License Provisions govern this option.
-</br></br>
-</span>
-
-" data-original-title="Items for Resale - Limited Run">Items for Resale - Limited Run</a>
-
-<script>  
-    $(function ()  
-    { $("#resalepopover").popover();  
-    });  
-</script>
-
-</td>
-<td colspan="2">+ $35</td>
-</tr>
-<tr id="row7" onclick="showClicked7();" style="color:black;">
-<td><a style="color:black;text-decoration:none;" href="#" rel="popover" data-content="<span style='font-size:13px;'>This option allows you to produce the following items for resale, license, or other distribution:</br>
-<ul>
-<li>Electronic templates for e-greeting or similar cards</li>
-<li>Electronic templates for web or applications development</li>
-<li>PowerPoint or Keynote templates</li>
-<li>Screensavers and e-mail or brochures templates</li>
-</ul>
-<br>
-Under this option:
-<ul>
-<li>The right to produce the E-Resale Merchandise does not grant any intellectual property or other rights to the Content</li>
-<li>You agree to indemnify PhotoRankr from any expense incurred in connection with any E-Resale Merchandise</li>
-</ul>
-</br>
-The Extended Content License Provisions govern this option.
-</br></br>
-</span>
-
-" data-original-title="Electronic Items for Resale or Other Distribution - Unlimited Run">Electronic Items for Resale or Other Distribution - Unlimited Run</a>
-
-<script>  
-    $(function ()  
-    { $("#electronicresalepopover").popover();  
-    });  
-</script>
-
-</td>
-<td colspan="2">+ $35</td>
-</tr>
-<tr>
 </tbody>
 </table>
 
@@ -769,21 +651,17 @@ The Extended Content License Provisions govern this option.
 <input type="hidden" id="originalheight" name="originalheight" value="<?php echo $originalheight; ?>" />
 
 
-<input type="hidden" id="multiseat" name="multiseat" value="" />
-<input type="hidden" id="unlimited" name="unlimited" value="" />
-<input type="hidden" id="resale" name="resale" value="" />
-<input type="hidden" id="electronic" name="electronic" value="" />
-
-
 <?php
 
-        $removequery=mysql_query("SELECT * FROM usersmaybe WHERE emailaddress = '$email'");
+        $removequery=mysql_query("SELECT * FROM usersmaybe WHERE emailaddress = '$email' AND emailaddress != ''");
         $numsavedremove = mysql_num_rows($removequery);
 
         for($iii=0; $iii < $numsavedremove; $iii++) {
             $removeimageid = mysql_result($removequery,$iii,'imageid');
             $removelist = $removelist." ".$removeimageid;
         }
+
+echo'<div style="width:440px;height:40px;clear:both;overflow:hidden;font-weight:500;">';
 
 		//MAKE SURE CORRECT BUTTON SHOWS
 		$search_string4=$removelist;
@@ -797,7 +675,7 @@ The Extended Content License Provisions govern this option.
         echo'<a class="btn btn-success buyButton" style="margin-left:200px;width:90px;float:left;" data-toggle="modal" data-backdrop="static" href="#maybemodal">Maybe Later</a>';
         }
 
-		$cartquery=mysql_query("SELECT * FROM userscart WHERE emailaddress = '$email'");
+		$cartquery=mysql_query("SELECT * FROM userscart WHERE (emailaddress = '$email' AND emailaddress != '') OR ip_address = '$ip'");
         $numsaved = mysql_num_rows($cartquery);
 
         for($iii=0; $iii < $numsaved; $iii++) {
@@ -809,17 +687,16 @@ The Extended Content License Provisions govern this option.
 		$search_string2=$prevsavedcartlist;
 		$regex2="/$imageid/";
 		$cartmatch=preg_match($regex2,$search_string2);
-        
-     
-        
 
         if($cartmatch > 0) {
-        echo'<a class="btn btn-danger" style="margin-left:10px;width:120px;float:left;" href="fullsizemarket.php?imageid=',$imageid,'&action=removed">Remove from Cart</a>';
+        echo'<a class="btn btn-danger" style="margin-left:10px;width:100px;float:left;" href="fullsizemarket.php?imageid=',$imageid,'&action=removed">Remove Photo</a>';
         }
         else {
             echo'<button type="submit" class="btn btn-success buyButton" style="margin-left:10px;width:100px;float:left;" href="download2.php?imageid=',$imageid,'&action=added">Add to Cart</button>
             </form>';		
 }
+
+echo'</div>';
 
 ?>
 

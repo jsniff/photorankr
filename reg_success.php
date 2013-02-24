@@ -166,7 +166,8 @@ width: 270px;
 -moz-box-shadow: 1px 1px 5px #888;
 -webkit-box-shadow: 1px 1px 5px #888;
 box-shadow: 1px 1px 5px #888;
-}		</style>    <!--GOOGLE ANALYTICS CODE--><script type="text/javascript">  var _gaq = _gaq || [];  _gaq.push(['_setAccount', 'UA-28031297-1']);  _gaq.push(['_trackPageview']);  (function() {    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);  })();  </script>	</head>  <body style="background-image:url('https://photorankr.com/userphotos/13572631675524abouttotakeoff.jpg');background-size: 100%;background-repeat:no-repeat;overflow-x:hidden;"><!--Navbar-->
+}		</style>	</head>  <body style="background-image:url('https://photorankr.com/userphotos/13572631675524abouttotakeoff.jpg');background-size: 100%;background-repeat:no-repeat;overflow-x:hidden;"><?php include_once("analyticstracking.php") ?>
+<!--Navbar-->
 <div class="CNav" style="position:fixed;top:0;left:0;z-index:10000;">
 <div class="homeNav" style="width:100%;z-index:10000;">
 	<ul>

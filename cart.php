@@ -41,13 +41,19 @@ session_start();
     $view = mysql_real_escape_string(htmlentities($_GET['view']));
     
     //Cart Statistics
-    $incart = mysql_query("SELECT * FROM userscart WHERE (emailaddress = '$email' OR ip_address = '$ip') ORDER BY id ASC");
+    $incart = mysql_query("SELECT * FROM userscart WHERE (emailaddress = '$email' AND emailaddress != '') OR ip_address = '$ip' ORDER BY id ASC");
     $incartresults = mysql_num_rows($incart);
+    //Total Charge
+    $totalcharge = 0;
+    for($ii=0; $ii<$incartresults; $ii++) {
+        $photoprice = mysql_result($incart,$ii,'price');
+        $totalcharge += $photoprice;
+    }
     
-    $marketquery = mysql_query("SELECT * FROM usersmaybe WHERE (emailaddress = '$email' OR ip_address = '$ip')");
+    $marketquery = mysql_query("SELECT * FROM usersmaybe WHERE (emailaddress = '$email' AND emailaddress != '') OR ip_address = '$ip'");
     $numsavedinmarket = mysql_num_rows($marketquery);
     
-    $downloadquery = mysql_query("SELECT * FROM userdownloads WHERE (emailaddress = '$email' OR ip_address = '$ip')");
+    $downloadquery = mysql_query("SELECT * FROM userdownloads WHERE (emailaddress = '$email' AND emailaddress != '') OR ip_address = '$ip'");
     $numpurchased = mysql_num_rows($downloadquery);
     
 ?>
@@ -77,22 +83,9 @@ session_start();
 
     <title>The PhotoRankr Market</title>
 
-<!--GOOGLE ANALYTICS CODE-->
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-28031297-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-
-
 </head>
 <body style="overflow-x:hidden; background-color:rgb(244, 244, 244);">
+<?php include_once("analyticstracking.php") ?>
 
 <?php navbar(); ?>
 
@@ -352,7 +345,7 @@ if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING"
             });
         </script>';
                 
-            $downloadquery = mysql_query("SELECT * FROM userdownloads WHERE emailaddress = '$email' OR ip_address = '$ip'");
+            $downloadquery = mysql_query("SELECT * FROM userdownloads WHERE (emailaddress = '$email' AND emailaddress != '') OR ip_address = '$ip'");
             $numpurchased = mysql_num_rows($downloadquery);
           
             if($numpurchased < 1) {
@@ -511,28 +504,6 @@ if(!$price) {
 
 $imageid = mysql_real_escape_string($_POST['imageid']);
 
-$multiseat = mysql_real_escape_string($_POST['multiseat']);
-$unlimited = mysql_real_escape_string($_POST['unlimited']);
-$resale = mysql_real_escape_string($_POST['resale']);
-$electronic = mysql_real_escape_string($_POST['electronic']);
-
-if($multiseat == 'checked') {
-    $licenses = ' Multi-Seat,';
-    $price += 20;
-}
-if($unlimited == 'checked') {
-    $licenses = $licenses . ' Unlimited Reproduction / Print Runs,';
-    $price += 35;
-}
-if($resale  == 'checked') {
-    $licenses = $licenses . ' Items for Resale,';
-    $price += 35;
-}
-if($electronic == 'checked') {
-    $licenses = $licenses . ' Electronic Use,';
-    $price += 35;
-}
-
 if(!$licenses) {
     $licenses = 'Standard Use';
 }
@@ -561,27 +532,29 @@ if(!$licenses) {
                         $photoinfoquery = mysql_query("SELECT price,caption,width,height,emailaddress FROM photos WHERE id = '$imagesid[$i]'");
                         $width = mysql_result($photoinfoquery,0,'width');
                         $height = mysql_result($photoinfoquery,0,'height');
-                        $price =mysql_result($photoinfoquery,0,'price');
+                        $price = mysql_result($photoinfoquery,0,'price');
                         $caption =  mysql_result($photoinfoquery,0,'caption');
+                        $caption = addslashes($caption);
+                        $license =  mysql_result($photoinfoquery,0,'classification');
                         $photoowner =  mysql_result($photoinfoquery,0,'emailaddress');
                         
                         //photo owner information
-                        $photoownerinfo = mysql_query("SELECT firstname,lastname,user_id FROM userinfo WHERE emailaddress = '$photoowner'");
+                        $photoownerinfo = mysql_query("SELECT firstname,lastname,user_id,balance FROM userinfo WHERE emailaddress = '$photoowner'");
                         $ownerfirst = mysql_result($photoownerinfo,0,'firstname');
                         $ownerlast = mysql_result($photoownerinfo,0,'lastname');
                         $ownerid = mysql_result($photoownerinfo,0,'user_id');
                         $prevbalance = mysql_result($photoownerinfo,0,'balance');
                         $newbalance = $prevbalance + $price;
-                        
+
                         //Insert photo into user downloads
-                        $stickintouserdownloads = mysql_query("INSERT INTO userdownloads (emailaddress,imageid,source,width,height,time,caption,price) VALUES ('$email','$imagesid[$i]','$images[$i]','$width','$height','$currenttime','$caption','$price')");
-                        $deletephotofromcart = mysql_query("DELETE FROM userscart WHERE (emailaddress = '$email' OR ip_address = '$ip') AND imageid = '$imagesid[$i]'");
+                        $stickintouserdownloads = mysql_query("INSERT INTO userdownloads (emailaddress,firstname,lastname,imageid,source,width,height,time,caption,price,ip_address,license) VALUES ('$email','$sessionfirst','$sessionlast','$imagesid[$i]','$images[$i]','$width','$height','$currenttime','$caption','$price','$ip','$license')");
+                        $deletephotofromcart = mysql_query("DELETE FROM userscart WHERE (emailaddress = '$email' AND emailaddress != '') OR ip_address = '$ip' AND imageid = '$imagesid[$i]'");
                         
                         //Insert into news
                         $addsoldtonewsfeed = mysql_query("INSERT INTO newsfeed (firstname,lastname,emailaddress,type,source,owner,time) VALUES ('$sessionfirst','$sessionlast','$email','sold','$imagesid[$i]','$photoowner','$currenttime')");
                         
                         //Mark photo as sold
-                        $marksold = mysql_query("UPDATE photos SET sold = 1 WHERE id = $imagesid[$i] AND emailaddress = '$photoowner'");
+                        $marksold = mysql_query("UPDATE photos SET sold = (sold + 1) WHERE id = $imagesid[$i] AND emailaddress = '$photoowner'");
                         
                         //Update photographers balance in their account
                         $updatebalance = mysql_query("UPDATE userinfo SET balance = $newbalance WHERE emailaddress = '$photoowner'");
@@ -601,7 +574,7 @@ To view their profile, login and click here: https://photorankr.com/viewprofile.
                         $to = '"' . $ownerfirst . ' ' . $ownerlast . '"' . '<'.$photoowner.'>';
                         if($sessionfirst) {
                             $subject =  $sessionfirst . ' ' . $sessionlast . " purchased one of your photos from PhotoRankr";
-                            $returnmessage = $sessionfirst . ' ' . $sesionlast . " purchased your photo, '" . $caption . "' from PhotoRankr
+                            $returnmessage = $sessionfirst . ' ' . $sessionlast . " purchased your photo, '" . $caption . "' from PhotoRankr
                             
 To view the photo, click here: https://photorankr.com/fullsize.php?imageid=".$imagesid[$i]. "
 
@@ -627,6 +600,15 @@ To download the photo at any time, login and click here: https://photorankr.com/
                         $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
                         mail($to, $subject, $returnmessage, $headers);                            
                     
+                        //Mail purchase receipt to PhotoRankr
+                        $to = 'PhotoRankr <photorankr@gmail.com>';
+                        $subject = $sessionfirst . " " . $sessionlast . " purchased " .$ownerfirst . " " . $ownerlast . "'s photo from PhotoRankr";
+                        $returnmessage = $sessionfirst . " " . $sessionlast . " purchased " .$ownerfirst . " " . $ownerlast . "'s photo from PhotoRankr
+                        
+To visit the photo, click here: https://photorankr.com/fullsizemarket.php?imageid=".$imagesid[$i];
+                        $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
+                        mail($to, $subject, $returnmessage, $headers);  
+                        
                         //Tell them download was successful
                         echo'<div style="font-size:16px;font-weight:200;margin-top:20px;margin-left:35px;"><img src="',$images[$i],'" height="100" width="100" />&nbsp;&nbsp;&nbsp;Photo Saved in Purchases "',$caption,'"</div>';
                     
@@ -635,7 +617,206 @@ To download the photo at any time, login and click here: https://photorankr.com/
                 }
                  
             }
-         
+            
+    
+    if($_GET['charge'] == 1){
+
+$environment = 'live';  // or 'beta-sandbox' or 'live'
+ 
+function PPHttpPost($methodName_, $nvpStr_) {
+        global $environment;
+ 
+    // Set up your API credentials, PayPal end point, and API version.
+ $API_UserName = urlencode('photorankr_api2.photorankr.com');
+    $API_Password = urlencode('GDXGAJQZK7DFFRFY');
+    $API_Signature = urlencode('AIloodktrq1eS0t7zyszxtmBoLm6Ah08o2sBNi3Yd6Fc8C1lQYOTKa1y');
+    $API_Endpoint = "https://api-3t.paypal.com/nvp";
+    if("sandbox" === $environment || "beta-sandbox" === $environment) {
+        $API_Endpoint = "https://api-3t.$environment.paypal.com/nvp";
+    }
+    $version = urlencode('51.0');
+ 
+    // Set the curl parameters.
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $API_Endpoint);
+    curl_setopt($ch, CURLOPT_VERBOSE, 1);
+ 
+    // Turn off the server and peer verification (TrustManager Concept).
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+ 
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_POST, 1);
+ 
+    // Set the API operation, version, and API signature in the request.
+    $nvpreq = "METHOD=$methodName_&VERSION=$version&PWD=$API_Password&USER=$API_UserName&SIGNATURE=$API_Signature$nvpStr_";
+ 
+    // Set the request as a POST FIELD for curl.
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
+ 
+    // Get response from the server.
+    $httpResponse = curl_exec($ch);
+ 
+    if(!$httpResponse) {
+        exit("$methodName_ failed: ".curl_error($ch).'('.curl_errno($ch).')');
+    }
+ 
+    // Extract the response details.
+    $httpResponseAr = explode("&", $httpResponse);
+ 
+    $httpParsedResponseAr = array();
+    foreach ($httpResponseAr as $i => $value) {
+        $tmpAr = explode("=", $value);
+        if(sizeof($tmpAr) > 1) {
+            $httpParsedResponseAr[$tmpAr[0]] = $tmpAr[1];
+        }
+    }
+ 
+    if((0 == sizeof($httpParsedResponseAr)) || !array_key_exists('ACK', $httpParsedResponseAr)) {
+        exit("Invalid HTTP Response for POST request($nvpreq) to $API_Endpoint.");
+    }
+ 
+    return $httpParsedResponseAr;
+}
+
+     $paymentType = urlencode('Authorization');             // or 'Sale'
+
+$firstName = urlencode($_POST["firstname"]);
+$lastName = urlencode($_POST["lastname"]);
+$creditCardType = urlencode($_POST["cardtype"]);
+$creditCardNumber = urlencode($_POST["cardnumber"]);
+$expDateMonth = $_POST["month"];
+//Month must be padded with leading zero
+$padDateMonth = urlencode(str_pad($expDateMonth, 2, '0', STR_PAD_LEFT));
+ 
+$expDateYear = urlencode($_POST["year"]);
+$cvv2Number = urlencode($_POST["cv2number"]);
+$address1 = urlencode($_POST["address"]);
+$city = urlencode($_POST["city"]);
+$state = urlencode($_POST["state"]);
+$zip = urlencode($_POST["zipcode"]);
+$country = urlencode($_POST["country"]);               // US or other valid country code
+if(!$email) {
+    $buyeremailaddress = urlencode($_POST["emailaddress"]);
+}
+else {
+   $buyeremailaddress = $email;
+}
+$amount = $totalcharge;
+$currencyID = urlencode('USD'); 
+
+// Add request-specific fields to the request string.
+$nvpStr =   "&PAYMENTACTION=$paymentType&AMT=$amount&CREDITCARDTYPE=$creditCardType&ACCT=$creditCardNumber".
+            "&EXPDATE=$padDateMonth$expDateYear&CVV2=$cvv2Number&FIRSTNAME=$firstName&LASTNAME=$lastName".
+            "&STREET=$address1&CITY=$city&STATE=$state&ZIP=$zip&COUNTRYCODE=$country&CURRENCYCODE=$currencyID";
+ 
+// Execute the API operation; see the PPHttpPost function above.
+$httpParsedResponseAr = PPHttpPost('DoDirectPayment', $nvpStr);
+
+if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"])) {
+for($iii=0; $iii < $incartresults; $iii++) {
+$imagesource = mysql_result($incart,$iii,'source');
+$imageprice = mysql_result($incart,$iii,'price');
+$imagecaption = mysql_result($incart,$iii,'caption');
+$imagecartid = mysql_result($incart,$iii,'imageid');
+$imagelicense = mysql_result($incart,$iii,'license');
+$imagewidth = mysql_result($incart,$iii,'width');
+$imageheight = mysql_result($incart,$iii,'height');
+$photoinfoquery = mysql_query("SELECT price,caption,width,height,emailaddress FROM photos WHERE id = '$imagecartid'");
+$photogemail =  mysql_result($photoinfoquery,0,'emailaddress');
+                
+//grab info about the photo owner
+$photoownerinfo = mysql_query("SELECT emailaddress,firstname,lastname,user_id,balance FROM userinfo WHERE emailaddress = '$photogemail'");
+$ownerfirst = mysql_result($photoownerinfo,0,'firstname');
+$ownerlast = mysql_result($photoownerinfo,0,'lastname');
+$ownerid = mysql_result($photoownerinfo,0,'user_id');
+$prevbalance = mysql_result($photoownerinfo,0,'balance');
+$newbalance = $prevbalance + $price;
+                        
+//Put into user downloads and then remove from cart
+$stickintouserdownloads = mysql_query("INSERT INTO userdownloads (emailaddress,firstname,lastname,imageid,source,width,height,time,caption,price,ip_address,license) VALUES ('$buyeremailaddress','$firstName','$lastName','$imagecartid','$imagesource','$imagewidth','$imageheight','$currenttime','$imagecaption','$imageprice','$ip','$imagelicense')"); 
+$deletephotofromcart = mysql_query("DELETE FROM userscart WHERE (emailaddress = '$email' OR ip_address = '$ip') AND imageid = '$imagecartid'");
+                         
+//Insert into news
+$addsoldtonewsfeed = mysql_query("INSERT INTO newsfeed (firstname,lastname,emailaddress,type,source,owner,time) VALUES ('$firstName','$lastName','$email','sold','$imagecartid','$photogemail','$currenttime')");
+                        
+//Mark photo as sold
+$marksold = mysql_query("UPDATE photos SET sold = (sold + 1) WHERE id = $imagecartid AND emailaddress = '$photogemail'");
+                        
+//Update photographers balance in their account
+$updatebalance = mysql_query("UPDATE userinfo SET balance = $newbalance WHERE emailaddress = '$photoowner'");
+                        
+                        //Mail photorankr if photographer has outstanding balance > $25
+                        if($newbalance >= 25) {
+                            $to = 'PhotoRankr' . '<photorankr@photorankr.com>';
+                            $subject = $ownerfirst . ' ' . $ownerlast . " has an oustanding balance greater than $25";
+                            $returnmessage = $ownerfirst . ' ' . $ownerlast . " has an oustanding balance greater than $25
+                        
+To view their profile, login and click here: https://photorankr.com/viewprofile.php?u='.$ownerid.'&view=store";
+                            $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
+                            mail($to, $subject, $returnmessage, $headers);  
+                        }
+                        
+                        //Mail photo sold receipt to photographer owner 
+                        $to = '"' . $ownerfirst . ' ' . $ownerlast . '"' . '<'.$photoowner.'>';
+                        if($sessionfirst) {
+                            $subject =  $sessionfirst . ' ' . $sessionlast . " purchased one of your photos from PhotoRankr";
+                            $returnmessage = $sessionfirst . ' ' . $sessionlast . " purchased your photo, '" . $caption . "' from PhotoRankr
+                            
+To view the photo, click here: https://photorankr.com/fullsize.php?imageid=".$imagesid[$i]. "
+
+You current account balance is $" . $newbalance .". When your account balance is greater than $25, your sales will be deposited in your paypal account within 2 business days.";
+                        }
+                        else {
+                            $subject =  "A buyer has purchased one of your photos from PhotoRankr";
+                            $returnmessage = "A buyer has purchased your photo, '" . $caption . "' from PhotoRankr
+                            
+To view the photo, click here: https://photorankr.com/fullsize.php?imageid=".$imagesid[$i]. "
+
+You current account balance is $" . $newbalance .". When your account balance is greater than $25, your sales will be deposited in your paypal account within 2 business days.";
+                        }
+                        $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
+                        mail($to, $subject, $returnmessage, $headers);
+                        
+                        //Mail purchase receipt to buyer
+                        $to = '"' . $sessionfirst . ' ' . $sessionlast . '"' . '<'.$email.'>';
+                        $subject = "You purchased " .$ownerfirst . ' ' . $ownerlast . "'s photo from PhotoRankr";
+                        $returnmessage = "You purchased " .$ownerfirst . ' ' . $ownerlast . "'s photo from PhotoRankr
+                        
+To download the photo at any time, login and click here: https://photorankr.com/cart.php?view=purchases";
+                        $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
+                        mail($to, $subject, $returnmessage, $headers);                            
+                    
+                        //Mail purchase receipt to PhotoRankr
+                        $to = 'PhotoRankr <photorankr@gmail.com>';
+                        $subject = $sessionfirst . " " . $sessionlast . " purchased " .$ownerfirst . " " . $ownerlast . "'s photo from PhotoRankr";
+                        $returnmessage = $sessionfirst . " " . $sessionlast . " purchased " .$ownerfirst . " " . $ownerlast . "'s photo from PhotoRankr
+                        
+To visit the photo, click here: https://photorankr.com/fullsizemarket.php?imageid=".$imagecartid;
+                        $headers = 'From:PhotoRankr <photorankr@photorankr.com>';
+                        mail($to, $subject, $returnmessage, $headers);  
+                        
+                        //Tell them download was successful
+                        echo'<div style="font-size:16px;font-weight:200;margin-top:20px;margin-left:35px;"><img src="',$imagesource,'" height="100" width="100" />&nbsp;&nbsp;&nbsp;Photo Saved in Purchases "',$imagecaption,'"</div>';
+    
+    } //end of mailing scripts
+
+}
+
+
+else  {
+    if(strpos($httpParsedResponseAr,"error")) {
+        header('Location: https://photorankr.com/cart.php?charge=error');
+    }
+    //exit('DoDirectPayment failed: ' . print_r($httpParsedResponseAr, true));
+
+}
+
+//<meta http-equiv="refresh" content="0;url=http://photorankr.com/account.php?view=download">    
+}           
+
+} //end charge = 1
+        
          
     //PHOTO CART INFORMATION
     $imagequery = mysql_query("SELECT source,price,caption FROM photos WHERE id = '$imageid'");
@@ -644,59 +825,54 @@ To download the photo at any time, login and click here: https://photorankr.com/
     $imagenewsource3 = str_replace("$_SERVER[DOCUMENT_ROOT]/userphotos/", "http://photorankr.com/userphotos/",$imagenewsource2); 
     $imagenewprice = mysql_result($imagequery,0,'price'); 
     $caption = mysql_result($imagequery,0,'caption');
+    $caption = addslashes($caption);
     
     //ADD TO CART IN DB
-    
-       /* if($_SESSION['loggedin'] != 1) {
-        echo'
-        <div style="margin-top:70px;margin-left:260px;padding-bottom:150px;">
-        <div style="text-align:center;font-size:18px;">Login Below or <a href="signup3.php">Register to Buy:</a></div><br />
-        <form name="login_form" method="post" action="fullsizemarket.php?imageid=',$imageid,'&action=login">
-        <div class="well" style="width:380px;padding-top:50px;padding-bottom:50px;padding-left:40px;">
-        <span style="font-size:18px;font-family:helvetica, arial;margin-left:0px;">Email: </span><input type="text" style="width:200px;margin-left:40px;" name="emailaddress" /><br />
-        <span style="font-size:18px;font-family:helvetica, arial;">Password: </span>&nbsp<input type="password" style="width:200px;" name="password"/><br >
-        <input type="submit" class="btn btn-success" style="margin-left:250px;" value="sign in" id="loginButton"/>
-        </div>
-        </form>
-        </div>';
-        
-        } */
     
         if($_SESSION['loggedin'] == 1 || $ip) {
        
         if($imageid && $email) {
         $cartcheck = mysql_query("SELECT * FROM userscart WHERE imageid = '$imageid' && emailaddress = '$email'");
         $numincart = mysql_num_rows($cartcheck);
-        if($numincart < 1) {
-            $stickincart = mysql_query("INSERT INTO userscart (source,size,width,height,license,price,emailaddress,imageid,caption) VALUES ('$imagenewsource3','$size','$width','$height','$licenses','$price','$email','$imageid','$caption')");
+        $prevboughtquery = mysql_query("SELECT * FROM userdownloads WHERE imageid = '$imageid' && emailaddress = '$email'");
+        $prevboughtcheck = mysql_num_rows($prevboughtquery);
+        if($numincart < 1 && $prevboughtcheck < 1) {
+            $stickincart = mysql_query("INSERT INTO userscart (source,size,width,height,license,price,emailaddress,imageid,caption,ip_address) VALUES ('$imagenewsource3','$size','$width','$height','$licenses','$price','$email','$imageid','$caption','$ip')");
             }
         }
         elseif($imageid && !$email) {
         $cartcheck = mysql_query("SELECT * FROM userscart WHERE imageid = '$imageid' && ip_address = '$ip'");
         $numincart = mysql_num_rows($cartcheck);
-        if($numincart < 1) {
+        $prevboughtquery = mysql_query("SELECT * FROM userdownloads WHERE imageid = '$imageid' && ip_address = '$ip'");
+        $prevboughtcheck = mysql_num_rows($prevboughtquery);
+        if($numincart < 1 && $prevboughtcheck < 1) {
             $stickincart = mysql_query("INSERT INTO userscart (source,size,width,height,license,price,imageid,caption,ip_address) VALUES ('$imagenewsource3','$size','$width','$height','$licenses','$price','$imageid','$caption','$ip')");
             }
         }
         
-        $incart = mysql_query("SELECT * FROM userscart WHERE (emailaddress = '$email' OR ip_address = '$ip') ORDER BY id ASC");
+        $incart = mysql_query("SELECT * FROM userscart WHERE (emailaddress = '$email' AND emailaddress != '') OR ip_address = '$ip' ORDER BY id ASC");
         $incartresults = mysql_num_rows($incart);
         
-        if($incartresults < 1  && htmlentities($_GET['action']) != 'download') {
-            echo'<div style="margin-left:435px;width:300px;height:300px;margin-top:120px;">
+        //If you already purchased this photo
+        if($prevboughtcheck > 0) {
+             echo'<div style="margin-left:435px;width:300px;height:300px;margin-top:120px;">        
+                    <div style="float:center;text-align:center;font-size:18px;font-weight:300;line-height:24px;">You have already purchased this photo</div>
+                  </div>';
+        }
+        
+        //If your cart is empty
+        if($incartresults < 1  && (htmlentities($_GET['action']) != 'download') && (htmlentities($_GET['charge']) != 1)) {
+            echo'<div style="margin-left:435px;width:300px;height:300px;margin-top:120px;">';
+                    if($prevboughtcheck < 1) {
+                        echo'
                     <div style="float:center;text-align:center;"><img style="width:60px;" src="graphics/bag.png" /></div>
-                    <br />';
-                    if($email != '') {
-                        echo'<div style="float:center;text-align:center;font-size:18px;font-weight:300;line-height:24px;">
-                    You have no photos in your cart. <br />';
-                    }
-                    elseif($email == '') {
-                         echo'<div style="float:center;text-align:center;font-size:18px;font-weight:300;line-height:24px;">
-                    Please login above to view your cart. <br />';
+                    <br />
+                    <div style="float:center;text-align:center;font-size:18px;font-weight:300;line-height:24px;">
+                    You have no photos in your cart. <br />
+                    <a href="market.php">Visit the Market</a>
+                    </div>';
                     }
                     echo'
-                    <a href="market.php">Visit the Market</a>
-                    </div>
                 </div>';
         }
         
@@ -762,7 +938,7 @@ To download the photo at any time, login and click here: https://photorankr.com/
         /* check if image already in db
         $found = strpos($cartidlist, $imageid);
         
-        if($imageid && $found === false) {
+        if($imageid && $found === false && (htmlentities($_GET['charge']) != 1)) {
         //New image displayed
         echo'
          <div class="span12">
@@ -842,8 +1018,14 @@ echo'
     <span class="payment-errors" style="font-weight:bold;font-size:15px;"></span>
 
     <form action="',htmlentities($_SERVER['PHP_SELF']),'?charge=1" method="POST" id="payment-form">
-    <div class="form-row" style="margin-left:25px;">
-            
+    <div class="form-row" style="margin-left:25px;">';
+    
+    //If error processing payment
+    if(htmlentities($_GET['charge'] == 'error')) {
+            echo'<div style="width:350px;padding:12px 20px;margin-bottom:20px;clear:both;line-height:22px;font-weight:300;font-size:16px;color:#fff;background-color:red;text-align:center;-webkit-border-radius: 3px;-moz-border-radius: 3px;border-radius: 3px;">There was an error processing your payment. Please fill in all fields.</div>';
+    }
+     
+    echo'
     <div class="grid_9"><a name="added" style="color:black;text-decoration:none;"><div style="padding:15px;padding-right:200px;background-color:#ddd;width:180px;"><span style="font-size:20px;font-weight:300;">Billing Details</span></div>
     <br /><br /> 
     
@@ -1240,8 +1422,16 @@ echo'
                 </select>
                 </div>
             
-            <div style="float:left;font-size:13px;font-weight:200;clear:both;">Country&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;State</div>
-                            
+            <div style="float:left;font-size:13px;font-weight:200;clear:both;">Country&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;State</div>';
+            
+            //Force them to put in emailaddress if they're not logged in 
+            if(!$email) {
+                echo'
+                <input style="clear:both;float:left;font-size:15px;padding:5px;position:relative;width:260px;margin-top:5px;" type="text" name="emailaddress" size="20" autocomplete="off" class="card-number" style;"/>
+                <div style="clear:both;float:left;font-size:13px;font-weight:200;">Email Address <span style="font-size:12px;">(required for receipt)</span> </div>';
+            }
+            
+            echo'                
             </td>
             </tr>
             
@@ -1293,133 +1483,6 @@ elseif($totalcharge == 0 && $incartresults > 0) {
 
  } //end if logged in
 
-
-if($_GET['charge'] == 1){
-
-$environment = 'live';  // or 'beta-sandbox' or 'live'
- 
-function PPHttpPost($methodName_, $nvpStr_) {
-        global $environment;
- 
-    // Set up your API credentials, PayPal end point, and API version.
- $API_UserName = urlencode('photorankr_api2.photorankr.com');
-    $API_Password = urlencode('GDXGAJQZK7DFFRFY');
-    $API_Signature = urlencode('AIloodktrq1eS0t7zyszxtmBoLm6Ah08o2sBNi3Yd6Fc8C1lQYOTKa1y');
-    $API_Endpoint = "https://api-3t.paypal.com/nvp";
-    if("sandbox" === $environment || "beta-sandbox" === $environment) {
-        $API_Endpoint = "https://api-3t.$environment.paypal.com/nvp";
-    }
-    $version = urlencode('51.0');
- 
-    // Set the curl parameters.
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $API_Endpoint);
-    curl_setopt($ch, CURLOPT_VERBOSE, 1);
- 
-    // Turn off the server and peer verification (TrustManager Concept).
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
- 
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_POST, 1);
- 
-    // Set the API operation, version, and API signature in the request.
-    $nvpreq = "METHOD=$methodName_&VERSION=$version&PWD=$API_Password&USER=$API_UserName&SIGNATURE=$API_Signature$nvpStr_";
- 
-    // Set the request as a POST FIELD for curl.
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
- 
-    // Get response from the server.
-    $httpResponse = curl_exec($ch);
- 
-    if(!$httpResponse) {
-        exit("$methodName_ failed: ".curl_error($ch).'('.curl_errno($ch).')');
-    }
- 
-    // Extract the response details.
-    $httpResponseAr = explode("&", $httpResponse);
- 
-    $httpParsedResponseAr = array();
-    foreach ($httpResponseAr as $i => $value) {
-        $tmpAr = explode("=", $value);
-        if(sizeof($tmpAr) > 1) {
-            $httpParsedResponseAr[$tmpAr[0]] = $tmpAr[1];
-        }
-    }
- 
-    if((0 == sizeof($httpParsedResponseAr)) || !array_key_exists('ACK', $httpParsedResponseAr)) {
-        exit("Invalid HTTP Response for POST request($nvpreq) to $API_Endpoint.");
-    }
- 
-    return $httpParsedResponseAr;
-}
-
-     $paymentType = urlencode('Authorization');             // or 'Sale'
-
- $firstName = urlencode($_POST["firstname"]);
- $lastName = urlencode($_POST["lastname"]);
- $creditCardType = urlencode($_POST["cardtype"]);
-$creditCardNumber = urlencode($_POST["cardnumber"]);
- $expDateMonth = $_POST["month"];
-// // Month must be padded with leading zero
- $padDateMonth = urlencode(str_pad($expDateMonth, 2, '0', STR_PAD_LEFT));
- 
- $expDateYear = urlencode($_POST["year"]);
-$cvv2Number = urlencode($_POST["cv2number"]);
- $address1 = urlencode($_POST["address"]);
-//$address2 = urlencode('Princeton University');
-$city = urlencode($_POST["city"]);
- $state = urlencode($_POST["state"]);
- $zip = urlencode($_POST["zipcode"]);
- $country = urlencode($_POST["country"]);                // US or other valid country code
-$amount = $totalcharge;
-$currencyID = urlencode('USD'); 
-
-
-
-// Add request-specific fields to the request string.
-$nvpStr =   "&PAYMENTACTION=$paymentType&AMT=$amount&CREDITCARDTYPE=$creditCardType&ACCT=$creditCardNumber".
-            "&EXPDATE=$padDateMonth$expDateYear&CVV2=$cvv2Number&FIRSTNAME=$firstName&LASTNAME=$lastName".
-            "&STREET=$address1&CITY=$city&STATE=$state&ZIP=$zip&COUNTRYCODE=$country&CURRENCYCODE=$currencyID";
- 
-// Execute the API operation; see the PPHttpPost function above.
-$httpParsedResponseAr = PPHttpPost('DoDirectPayment', $nvpStr);
- 
-
-
-if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"])) {
-for($iii=0; $iii < $incartresults; $iii++) {
-$imagesource = mysql_result($incart,$iii,'source');
-$imageprice = mysql_result($incart,$iii,'price');
-$imagecartid = mysql_result($incart,$iii,'imageid');
-$imagewidth = mysql_result($incart,$iii,'width');
-$imageheight = mysql_result($incart,$iii,'height');
-$emailquery = mysql_query("SELECT emailaddress FROM photos WHERE id = '$imagecartid'");
-
-$photogemail = mysql_result($emailquery,0,'emailaddress');
-$stickintouserdownloads = mysql_query("INSERT INTO userdownloads (emailaddress,imageid,source,width,height,time) VALUES ('$repemail','$imagecartid','$imagesource','$imagewidth','$imageheight','$currenttime,')");
- $deletephotofromcart = mysql_query("DELETE FROM userscart WHERE (emailaddress = '$email' OR ip_address = '$ip') AND imageid = '$imagecartid'");
- 
-    }      
-
-
-header("Location: cart.php?view=paymentsuccess");
-
-}
-
-
-else  {
-    exit('DoDirectPayment failed: ' . print_r($httpParsedResponseAr, true));
-
-}
-
-
-//         var form$ = $("#payment-form");
-
-//<meta http-equiv="refresh" content="0;url=http://photorankr.com/account.php?view=download">    
-}           
-
-}
 
 //PayPal Return Payment Check
 if($view == 'confirmpp') {

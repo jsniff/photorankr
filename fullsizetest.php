@@ -772,8 +772,14 @@ $timestampentertimeslicequery = mysql_query("INSERT INTO Statistics (ViewTimeSta
 
 <!DOCTYPE HTML>
 <head>
-
+    
+    <meta name="Generator" content="EditPlus">
+    <meta name="Author" content="PhotoRankr, PhotoRankr.com">
+    <meta name="Keywords" content="photos, sharing photos, photo sharing, photography, photography club, sell photos, sell photography, where to sell my photography, good sites for selling photography, making money from photography, making money off photography, social networking, social network, social networks, where to sell my photos, good sites for selling photos, good site to sell photos, making money from photos">
+    <meta name="Description" content="<?php echo $caption; ?> by <?php echo $firstname ." ". $lastname; ?>">
+    <meta name="viewport" content="width=1200" />
 	<meta charset = "UTF-8">
+    
 	<title> "<?php echo $caption; ?>" | PhotoRankr </title>
     
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
