@@ -8,8 +8,6 @@ $wsdl='http://webservices.amazon.com/AWSECommerceService/2009-10-01/US/AWSEComme
 
 // Your authentication tokens
 //$ACCESS_KEY_ID = "<Access Key Removed>";
-$ACCESS_KEY_ID = "AKIAJA3M2M25RR4CDTFQ";
-$SECRET_ACCESS_KEY = "D0R7+XQ1XxSSiZivDMHPMoejxMjr463VfH/H15iA";
 
 // The method we are using
 $method='ItemSearch';
